@@ -2,4 +2,4 @@ The site code.
 
 Launch your own with uwsgi:
 
-uwsgi_python --http :900x app.py
+uwsgi_python --http :900x -w app:application
