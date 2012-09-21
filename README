@@ -1,0 +1,5 @@
+The site code.
+
+Launch your own with uwsgi:
+
+uwsgi_python --http :900x app.py
