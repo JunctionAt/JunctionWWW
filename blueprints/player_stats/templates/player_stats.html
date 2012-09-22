@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>{{ player }}</title>
-    <link rel="stylesheet" href="{{ stylesheet_url }}"/>
+    <link rel="stylesheet" href="{{ url_for(name+'.static', filename='style.css') }}"/>
   </head>
   <body>
     {% for category in categories %}

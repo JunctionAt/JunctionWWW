@@ -12,7 +12,7 @@
         position: absolute;
         height: 100%;
         width: 100%;
-        background: #353535 url(/static/index.png) 50% 50% no-repeat;
+        background: #353535 url({{ url_for('static_pages.static', filename='index.png') }}) 50% 50% no-repeat;
       }
       #text {
         position: absolute;

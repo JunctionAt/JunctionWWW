@@ -4,11 +4,12 @@ import types
 import re
 from datetime import datetime
 
-def create_blueprint(name, engine, table=None, session=None, show=[], hide=[], transforms=[], weights=[]):
+def create_blueprint(name, engine, tablename='stats', table=None, session=None, show=[], hide=[], transforms=[], weights=[]):
     """Factory to create a flask blueprint that is an endpoint to a BeardStat db
 
     name -- required name of the new flask blueprint.
     engine -- required sqlalchemy engine to query.
+    tablename -- name of table in engine to autoload from.
     table -- table class from sqlalchemy. One is created if None.
     session -- sqlalchemy query session loaded off this table. One is created if None.
 
@@ -16,8 +17,8 @@ def create_blueprint(name, engine, table=None, session=None, show=[], hide=[], t
 
     # Load the beardstat table if not provided one
     if not table:
-        import beardstat
-        table = beardstat.load(engine)
+        from blueprints import beardstat
+        table = beardstat.load(engine, tablename=tablename)
 
     # Create query session if not provided one
     if not session:
@@ -39,7 +40,7 @@ def create_blueprint(name, engine, table=None, session=None, show=[], hide=[], t
             return jsonify({ 'categories': stats })
         elif ext == 'html':
             return render_template('player_stats.html',
-                                   stylesheet_url=url_for(name+'.static', filename='style.css'),
+                                   name=name,
                                    categories=stats,
                                    player=player)
         abort(404)

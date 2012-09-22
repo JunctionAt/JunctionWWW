@@ -2,11 +2,11 @@ import unittest
 
 from sqlalchemy.ext.declarative import declarative_base
 
-def load(engine, table='stats'):
+def load(engine, tablename='stats'):
 
   Base = declarative_base()
   return type('Stats', ( Base, ), {
-          '__tablename__': table,
+          '__tablename__': tablename,
           '__table_args__': ({
               'autoload': True,
               'autoload_with': engine
