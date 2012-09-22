@@ -7,19 +7,20 @@ BLUEPRINTS = [
     {
         'blueprint': static_pages.static_pages
         },
-
-    # PVE Player stats
+    
+    # Player stats
     {
-        'blueprint': player_stats.create_blueprint('pve_player_stats', tablename='pve_stats', hide=[
-                'comp.pk', 'kills.player', 'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
+        'blueprint': player_stats.player_stats([
+                {
+                    'name': 'pve', 'tablename': 'pve_stats', 'hide': [
+                        'comp.pk', 'kills.player', 'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
+                        ]},
+                {
+                    'name': 'event', 'tablename': 'event_stats', 'hide': [
+                        'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
+                        ]},
                 ]),
-        'url_prefix': '/player_stats/pve'
-        },
-
-    # Event Player stats
-    {
-        'blueprint': player_stats.create_blueprint('event_player_stats', tablename='event_stats'),
-        'url_prefix': '/player_stats/event'
+        'url_prefix': '/player_stats'
         },
     ]
 

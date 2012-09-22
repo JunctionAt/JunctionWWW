@@ -4,59 +4,61 @@ import types
 import re
 from datetime import datetime
 
-def create_blueprint(name, engine=None, tablename='stats', table=None, session=None, show=[], hide=[], transforms=[], weights=[]):
-    """Factory to create a flask blueprint that is an endpoint to a BeardStat db
+def player_stats(servers):
+    """Generates a flask blueprint containing routes to all stat endpoints defined in servers"""
 
-    name -- required name of the new flask blueprint.
-    engine -- sqlalchemy engine to query or current_app.config['ENGINE'].
-    tablename -- name of table in engine to autoload from.
-    table -- table class from sqlalchemy. One is created if None.
-    session -- sqlalchemy query session loaded off this table. One is created if None.
+    blueprint = Blueprint('player_stats', __name__, template_folder='templates', static_folder='static')
 
-    """
+    def create_route(name, engine=None, tablename='stats', table=None, session=None, show=[], hide=[], transforms=[], weights=[]):
+        """Create a flask route that is an endpoint to a BeardStat db
+
+        name -- required name of the new flask blueprint.
+        engine -- sqlalchemy engine to query or current_app.config['ENGINE'].
+        tablename -- name of table in engine to autoload from.
+        table -- table class from sqlalchemy. One is created if None.
+        session -- sqlalchemy query session loaded off this table. One is created if None.
+
+        """
     
-    _engine = engine
-    _table = table
-    _session = session
-    
-    # Create the new blueprint
-    blueprint = Blueprint(name, __name__, template_folder='templates', static_folder='static')
+        # Define the route to get stats
+        @blueprint.route('/%s/<player>.<ext>'%name)
+        def stats(player, ext):
 
-    # Define the route to get stats
-    @blueprint.route('/<player>.<ext>')
-    def stats(player, ext):
+            # Lazy load the table structure
+            _engine = engine
+            if not _engine:
+                from flask import current_app
+                _engine = current_app.config['ENGINE']
+                
+            # Load the beardstat table if not provided one
+            _table = table
+            if not _table:
+                from blueprints import beardstat
+                _table = beardstat.load(_engine, tablename=tablename)
 
-        # Lazy load the table structure
-        engine = _engine
-        if not engine:
-            from flask import current_app
-            engine = current_app.config['ENGINE']
+            # Create query session if not provided one
+            _session = session
+            if not session:
+                from sqlalchemy.orm import create_session
+                _session = create_session(_engine)
 
-        # Load the beardstat table if not provided one
-        table = _table
-        if not table:
-            from blueprints import beardstat
-            table = beardstat.load(engine, tablename=tablename)
+            stats = fetch_stats(_table, _session, player, show, hide, transforms, weights)
+            if ext == 'json':
+                return jsonify({ 'categories': stats })
+            elif ext == 'html':
+                return render_template('player_stats.html',
+                                       name=name,
+                                       categories=stats,
+                                       player=player)
 
-        # Create query session if not provided one
-        session = _session
-        if not session:
-            from sqlalchemy.orm import create_session
-            session = create_session(engine)
+            # unsupported format requested
+            abort(404)
 
-        stats = player_stats(table, session, player, show, hide, transforms, weights)
-        if ext == 'json':
-            return jsonify({ 'categories': stats })
-        elif ext == 'html':
-            return render_template('player_stats.html',
-                                   name=name,
-                                   categories=stats,
-                                   player=player)
-
-        # unsupported format requested
-        abort(404)
+    for server in servers:
+        create_route(**server)
 
     return blueprint
+
 
 """Transform array (in order of precedence) for stat names and values
 
@@ -107,7 +109,7 @@ __weights__ = [
     ('stats.totalblockdestroy', 5),
     ]
 
-def player_stats(table, session, player, show=[], hide=[], transforms=[], weights=[]):
+def fetch_stats(table, session, player, show=[], hide=[], transforms=[], weights=[]):
     """Returns the proper stats for a given player name in table
 
     table -- table class from sqlalchemy.
