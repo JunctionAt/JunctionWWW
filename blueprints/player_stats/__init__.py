@@ -1,40 +1,49 @@
-from flask import Blueprint, render_template, jsonify, url_for, abort, current_app
+from flask import Blueprint, render_template, jsonify, abort
 import sqlalchemy
 import types
 import re
 from datetime import datetime
 
-def create_blueprint(name, engine, tablename='stats', table=None, session=None, show=[], hide=[], transforms=[], weights=[]):
+def create_blueprint(name, engine=None, tablename='stats', table=None, session=None, show=[], hide=[], transforms=[], weights=[]):
     """Factory to create a flask blueprint that is an endpoint to a BeardStat db
 
     name -- required name of the new flask blueprint.
-    engine -- required sqlalchemy engine to query.
+    engine -- sqlalchemy engine to query or current_app.config['ENGINE'].
     tablename -- name of table in engine to autoload from.
     table -- table class from sqlalchemy. One is created if None.
     session -- sqlalchemy query session loaded off this table. One is created if None.
 
     """
-
-    # Load the beardstat table if not provided one
-    if not table:
-        from blueprints import beardstat
-        table = beardstat.load(engine, tablename=tablename)
-
-    # Create query session if not provided one
-    if not session:
-        from sqlalchemy.orm import create_session
-        session = create_session(engine)
-
+    
+    _engine = engine
+    _table = table
+    _session = session
+    
     # Create the new blueprint
-    blueprint = Blueprint(
-        name,
-        __name__,
-        template_folder='templates',
-        static_folder='static')
+    blueprint = Blueprint(name, __name__, template_folder='templates', static_folder='static')
 
     # Define the route to get stats
     @blueprint.route('/<player>.<ext>')
     def stats(player, ext):
+
+        # Lazy load the table structure
+        engine = _engine
+        if not engine:
+            from flask import current_app
+            engine = current_app.config['ENGINE']
+
+        # Load the beardstat table if not provided one
+        table = _table
+        if not table:
+            from blueprints import beardstat
+            table = beardstat.load(engine, tablename=tablename)
+
+        # Create query session if not provided one
+        session = _session
+        if not session:
+            from sqlalchemy.orm import create_session
+            session = create_session(engine)
+
         stats = player_stats(table, session, player, show, hide, transforms, weights)
         if ext == 'json':
             return jsonify({ 'categories': stats })
@@ -43,6 +52,7 @@ def create_blueprint(name, engine, tablename='stats', table=None, session=None, 
                                    name=name,
                                    categories=stats,
                                    player=player)
+
         # unsupported format requested
         abort(404)
 

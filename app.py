@@ -1,9 +1,11 @@
-from flask import Flask, render_template
-from werkzeug.utils import import_string
+from flask import Flask
 
-application = Flask(__name__, template_folder="templates")
+application = Flask(__name__)
 application.config.from_object("local_config")
 application.config.from_object("config")
 
 for blueprint in application.config["BLUEPRINTS"]:
     application.register_blueprint(**blueprint)
+
+if __name__ == "__main__":
+    application.run(port=application.config['PORT'])
