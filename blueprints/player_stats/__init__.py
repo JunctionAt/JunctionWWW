@@ -43,6 +43,7 @@ def create_blueprint(name, engine, tablename='stats', table=None, session=None, 
                                    name=name,
                                    categories=stats,
                                    player=player)
+        # unsupported format requested
         abort(404)
 
     return blueprint
@@ -115,18 +116,41 @@ def player_stats(table, session, player, show=[], hide=[], transforms=[], weight
     # Add catch all to weights to sort by name
     weights = weights + __weights__ + [('*.*', lambda stat: '%s.%s'%(stat.category,stat.stat))]
     
+    # Get the stats we want to show people
+    visible = stat_visible(stat_rows(session, table, player), show, hide)
+
+    return category_sorted(stat_sorted(stat_categorized(visible), weights, transforms), weights, transforms)
+
+def category_sorted(categories, weights, transforms):
+    """Return readable stat categories in a sorted list"""
     return map(lambda category: (lambda label: { 'name': label, 'stats': category['stats'] })
                (stat_transform(category_to_stat(category), transforms)),
-               sorted([dict([('name', category),
-                             ('stats', map(lambda stat: { 'name': stat[0][0], 'value': stat[0][1] },
-                                           sorted([(stat_transform(stat, transforms),stat) for stat in stats],
-                                                  key=stat_weight_key(weights, transform=lambda stat: stat[1]))))])
-                       for category, stats in reduce(
-                        lambda categories, stat:
-                            dict(categories.items() + [(stat.category, categories.get(stat.category, []) + [stat])]),
-                        filter(lambda stat: (not len(show) or stat_match(stat, show)) and (not stat_match(stat, hide)),
-                               session.query(table).filter(table.player==player).all()), {}).iteritems()],
-                      key=stat_weight_key(weights, transform=category_to_stat)))
+               sorted(categories, key=stat_weight_key(weights, transform=category_to_stat)))
+
+def stat_sorted(categories, weights, transforms):
+    """Return a list of categories with sorted stats and readable names"""
+    return [dict([('name', category), ('stats', map(
+                        lambda stat: { 'name': stat[0][0], 'value': stat[0][1] },
+                        sorted([(stat_transform(stat, transforms),stat) for stat in stats],
+                               key=stat_weight_key(weights, transform=lambda stat: stat[1]))))])
+            for category, stats in categories.iteritems()]
+
+def stat_categorized(visible):
+    """Return stats categorized in a dictionary"""
+    return reduce(
+        lambda categories, stat:
+            dict(categories.items() + [(stat.category, categories.get(stat.category, []) + [stat])]),
+        visible, {})
+
+def stat_visible(rows, show, hide):
+    """Filter stats by whitelist and blacklist rules"""
+    return filter(
+        lambda stat: (not len(show) or stat_match(stat, show)) and (not stat_match(stat, hide)),
+        rows)
+
+def stat_rows(session, table, player):
+    """Return the raw stat rows from the db"""
+    return session.query(table).filter(table.player==player).all()
 
 def stat_transform(stat, transforms):
     """Transform a stat object into a readable tuple in form of (label, value)"""

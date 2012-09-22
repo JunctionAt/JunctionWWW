@@ -1,8 +1,8 @@
-import sqlalchemy
+from app import application
 from blueprints import static_pages, player_stats
 
-# Create the DB connection
-ENGINE = sqlalchemy.create_engine('mysql://junction:junction@localhost/junction')
+# Get this from the local config
+ENGINE = application.config['ENGINE']
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
@@ -14,11 +14,7 @@ BLUEPRINTS = [
 
     # PVE Player stats
     {
-        'blueprint': player_stats.create_blueprint(
-            'pve_player_stats',
-            ENGINE,
-            tablename='pve_stats',
-            hide=[
+        'blueprint': player_stats.create_blueprint('pve_player_stats', ENGINE, tablename='pve_stats', hide=[
                 'comp.pk', 'kills.player', 'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
                 ]),
         'url_prefix': '/player_stats/pve'
@@ -26,10 +22,7 @@ BLUEPRINTS = [
 
     # Event Player stats
     {
-        'blueprint': player_stats.create_blueprint(
-            'event_player_stats',
-            ENGINE,
-            tablename='event_stats'),
+        'blueprint': player_stats.create_blueprint('event_player_stats', ENGINE, tablename='event_stats'),
         'url_prefix': '/player_stats/event'
         },
     ]
