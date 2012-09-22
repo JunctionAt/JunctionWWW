@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Junction.at Auth</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+  <link href="{{ url_for('auth.static', filename='login.css') }}" media="screen" rel="stylesheet" type="text/css" />
+  <script src="{{ url_for('auth.static', filename='jquery-1.8.1.js') }}" type="text/javascript"></script>
+  {% block head %}
+  
+  {% endblock %}
+</head>
+<body class="box">
+	<div id="container" style="max-width: 480px">
+		<span id="_top"></span>
+		<div id="header" class="group"> 
+			<h2 id="logo">
+				{% block topleft %}
+		
+				{% endblock %}
+			</h2>  
+			<div id="account-nav"> 
+				{% block accountnav %}
+		
+				{% endblock %}
+			</div> 
+		</div> <!-- /header -->
+<!--[if IE]>
+<div id="old-browser">
+	LaterThis has not been optimized for Internet Explorer. You might want to consider upgrading to <b><a href="http://www.google.com/chrome">Google Chrome</a></b> or <b><a href="http://www.mozilla.org/en-US/firefox/new/">Firefox</a></b>.
+</div>
+<![endif]-->
+		
+<div id="content">
+	{% for message in get_flashed_messages() %}
+		<div class=flash>{{ message }}</div>
+		<br/>
+	{% endfor %}
+	{% block content %}
+	
+	{% endblock %}
+</div>
+
+<!--<div class="addon-content"><span class="agree-to-policies">Your Junction password does not need to be the same as your Minecraft password.</span>
+</div>-->
+
+<div id="footer-container">
+	<div id="footer" class="group">
+		{% block footer %}
+	
+		{% endblock %}
+	</div>
+</div>
+	</div>
+</body>
+</html>
