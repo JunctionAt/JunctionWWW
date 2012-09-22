@@ -1,5 +1,10 @@
 The site code.
 
-Launch your own with uwsgi:
+Launch your own with uwsgi_python:
 
 uwsgi_python --http :900x -w app:application
+
+
+If you want to add local config, add it to local_config.py:
+
+echo "DEBUG = True" > local_config.py

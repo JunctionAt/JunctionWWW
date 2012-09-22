@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ player }}</title>
+    <link rel="stylesheet" href="{{ stylesheet_url }}"/>
+  </head>
+  <body>
+    {% for category in categories %}
+    <table>
+      <caption>{{ category.name }}</caption>
+      {% for stat in category.stats %}
+      <tr>
+        <td>{{ stat.name }}</td>
+        <td>{{ stat.value }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endfor %}
+  </body>
+</html>
