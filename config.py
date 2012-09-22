@@ -1,5 +1,5 @@
 import sqlalchemy
-from blueprints import static_pages, beardstat, player_stats
+from blueprints import static_pages, player_stats
 
 # Create the DB connection
 ENGINE = sqlalchemy.create_engine('mysql://junction:junction@localhost/junction')
