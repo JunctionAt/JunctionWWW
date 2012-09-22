@@ -1,4 +1,5 @@
-from blueprints import static_pages, auth, player_stats
+from blueprints import static_pages, auth, player_stats, player_profiles
+from blueprints import static_pages, player_stats
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
@@ -11,6 +12,10 @@ BLUEPRINTS = [
     # Authentication
     {
         'blueprint': auth.blueprint,
+        },
+    # Player profiles
+    {
+        'blueprint': player_profiles.player_profiles
         },
     
     # Player stats
@@ -25,7 +30,7 @@ BLUEPRINTS = [
                         'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
                         ]},
                 ]),
-        'url_prefix': '/player_stats'
+        'url_prefix': '/stats'
         },
     ]
 
