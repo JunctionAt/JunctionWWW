@@ -1,30 +1,21 @@
-import unittest
+from sqlalchemy import Column
+from sqlalchemy.orm import relation, backref
+from sqlalchemy.schema import ForeignKey
+from sqlalchemy.types import *
+from blueprints.base import Base
 
-from sqlalchemy.ext.declarative import declarative_base
+def beardstat(tablename='stats'):
+    
+    from blueprints.player_profiles import Profile
+    stat = type(tablename, (Base,), {
 
-def load(engine, tablename='stats'):
+        '__tablename__': tablename,
+        'player': Column(String(32), ForeignKey(Profile.name), primary_key=True),
+        'category': Column(String(32), primary_key=True),
+        'stat': Column(String(32), primary_key=True),
+        'value': Column(Integer()),
+        'profile': relation(Profile)
 
-  Base = declarative_base()
-  return type('Stats', ( Base, ), {
-          '__tablename__': tablename,
-          '__table_args__': ({
-              'autoload': True,
-              'autoload_with': engine
-              })
-          })
-
-class Test(unittest.TestCase):
-
-  def setUp(self):
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import create_session
-    engine = create_engine('sqlite:////mc/pve/plugins/BeardStat/stats.db', echo=True)
-    self.BeardStat = load(engine)
-    self.session = create_session(engine)
-
-  def tearDown(self):
-    self.session.close()
-
-  def test_player(self):
-    q = self.session.query(self.BeardStat.Stats)
-    self.assertTrue(q.count() >= 0)
+        })
+    
+    return stat

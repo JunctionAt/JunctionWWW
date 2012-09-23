@@ -1,5 +1,5 @@
-from flask import Flask, Blueprint, request, render_template, redirect, url_for, flash
-from blueprints.flask_login import (LoginManager, current_user, login_required,
+from flask import Flask, Blueprint, request, render_template, redirect, url_for, flash, current_app
+from flask_login import (LoginManager, current_user, login_required,
                             login_user, logout_user, UserMixin, AnonymousUser,
                             confirm_login, fresh_login_required)
 import MySQLdb
@@ -8,8 +8,8 @@ import bcrypt
 import re
 
 class User(UserMixin):
-    def __init__(self, id, name, hash, mail, registered, verified):
-        self.id = id
+    def __init__(self, name, hash, mail, registered, verified):
+        self.id = name
         self.name = name
         self.hash = hash
         self.mail = mail
@@ -38,7 +38,7 @@ login_manager.refresh_view = "reauth"
 
 @login_manager.user_loader
 def load_user(id):
-    return load_user_id(id)
+    return load_user_name(id)
 
 login_manager.setup_app(blueprint)
 
@@ -46,20 +46,17 @@ def redirectd(path):
     return redirect(subpath+path)
 
 def open_db():
-    return MySQLdb.connect(host='localhost', user='loginweb', db='auth')
+    #return MySQLdb.connect(host='localhost', user='loginweb', db='auth')
+    return current_app.config['ENGINE'].connect()
 
 def load_user_field(field, value):
     db = open_db()
-    cursor = db.cursor()
-    cursor.execute("SELECT id, name, hash, mail, registered, verified FROM users WHERE "+field+"=%s;", (value))
-    result = cursor.fetchone()
-    db.close()
-    if result is None:
-        return None
-    return User(result[0], result[1], result[2], result[3], result[4], result[5])
-
-def load_user_id(id):
-    return load_user_field("id", id)
+    with db.begin() as cursor:
+        result = db.execute("SELECT name, hash, mail, registered, verified FROM users WHERE "+field+"=%s;", (value)).fetchone()
+        #db.close()
+        if result is None:
+            return None
+        return User(result[0], result[1], result[2], result[3], result[4])
 
 def load_user_name(name):
     return load_user_field("name", name)
@@ -78,23 +75,22 @@ def login():
 	username = request.form["username"]
 	password = request.form["password"]
         db = open_db()
-	cursor = db.cursor()
-	cursor.execute("SELECT name, hash, verified FROM users WHERE name=%s;", (username))
-	result = cursor.fetchone()
-	if result != None:
-	    hashed = bcrypt.hashpw(password, result[1])
-	    if hashed == result[1]:
-	        if result[2] == False:
-		    flash(u"Please check your mail.")
-		    return redirect("/login")
-		remember = request.form.get("remember", "no") == "yes"
-		if login_user(load_user_name(username), remember=remember):
-		    flash("Logged in!")
-		    return redirect("/control")
-		else:
-		    return wpass()
-            else:
-		return wpass()
+	with db.begin() as cursor:
+            result = db.execute("SELECT name, hash, verified FROM users WHERE name=%s;", (username)).fetchone()
+            if result != None:
+                hashed = bcrypt.hashpw(password, result[1])
+                if hashed == result[1]:
+                    if result[2] == False:
+                        flash(u"Please check your mail.")
+                        return redirect("/login")
+                    remember = request.form.get("remember", "no") == "yes"
+                    if login_user(load_user_name(username), remember=remember):
+                        flash("Logged in!")
+                        return redirect("/control")
+                    else:
+                        return wpass()
+                else:
+                    return wpass()
     return render_template("login.html")
 
 @blueprint.route("/reauth", methods=["GET", "POST"])
@@ -127,10 +123,9 @@ def register():
 		playertoken = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(6))
 		hashed = bcrypt.hashpw(request.form['password1'], bcrypt.gensalt())
 		db = open_db()
-		cursor = db.cursor()
-		cursor.execute("INSERT INTO tokens (token, name, hash, mail, ip, expires) VALUES (%s, %s, %s, %s, %s, now()+INTERVAL 10 MINUTE);", (playertoken, request.form['username'], hashed, request.form['mail'], request.remote_addr))
-		db.commit()
-		db.close()
+		with db.begin() as cursor:
+                    db.execute("INSERT INTO tokens (token, name, hash, mail, ip, expires) VALUES (%s, %s, %s, %s, %s, now()+INTERVAL 10 MINUTE);", (playertoken, request.form['username'], hashed, request.form['mail'], request.remote_addr))
+                db.close()
 		return redirect("/activate")
     else:
         return render_template("register.html")
@@ -139,20 +134,18 @@ def register():
 def activatetoken():
     if request.method == "POST":
 	db = open_db()
-	cursor = db.cursor()
-	cursor.execute("SELECT name, hash, mail FROM tokens WHERE token=%s AND expires>NOW();", (str(request.form['token'])))
-	result = cursor.fetchone()
-	if result is None:
-	    flash(u"Validation token invalid. Make sure you entered the right one, and that you didn't use more then 10 minutes since the registration.")
-	    return render_template("register_2.html")
-	    cursor.execute("DELETE FROM tokens WHERE token=%s;", (request.form['token']))
-	    db.commit()
-	    if not cursor.execute("INSERT INTO users (name, hash, mail, registered, verified) VALUES (%s, %s, %s, NOW(), TRUE);", (result[0], result[1], result[2])):
-		flash(u"An internal error occured. If this continues happening, please contact staff at contact@junction.at")
-		return redirect("/login")
-	    db.commit()
-	    flash(u"Registration sucessful! You can now log in with your account.")
-	    return redirect("/login")
+	with db.begin() as cursor:
+            db.execute("SELECT name, hash, mail FROM tokens WHERE token=%s AND expires>NOW();", (str(request.form['token'])))
+            result = db.fetchone()
+            if result is None:
+                flash(u"Validation token invalid. Make sure you entered the right one, and that you didn't use more then 10 minutes since the registration.")
+                return render_template("register_2.html")
+                db.execute("DELETE FROM tokens WHERE token=%s;", (request.form['token']))
+                if not db.execute("INSERT INTO users (name, hash, mail, registered, verified) VALUES (%s, %s, %s, NOW(), TRUE);", (result[0], result[1], result[2])):
+                    flash(u"An internal error occured. If this continues happening, please contact staff at contact@junction.at")
+                    return redirect("/login")
+                flash(u"Registration sucessful! You can now log in with your account.")
+                return redirect("/login")
     else:
 	return render_template("verify.html")
 

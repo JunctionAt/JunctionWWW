@@ -4,8 +4,9 @@ from sqlalchemy.orm import create_session
 import types
 import re
 from datetime import datetime
+from blueprints.beardstat import beardstat
 
-def player_stats(servers):
+def player_stats(servers=[]):
     """Create routes for all stat endpoints defined in servers
 
     Use player_stats.endpoints['server_name'] to get the autoloaded table (e.table)
@@ -14,44 +15,43 @@ def player_stats(servers):
     Returns the blueprint for easy setup.
     
     """
-
-    for server in servers:
-        endpoints[server['name']] = Endpoint(**server)
-
-    return blueprint
     
+    for server in servers:
+        player_stats.endpoints[server['name']] = Endpoint(**server)
+
+    return player_stats.blueprint
+
 
 # Endpoints
 endpoints = dict()
+player_stats.endpoints = endpoints
 
-# The Flask blueprint
+# Blueprint
 blueprint = Blueprint('player_stats', __name__,
                       template_folder='templates',
                       static_folder='static')
+player_stats.blueprint = blueprint
 
 class Endpoint(object):
     """Wrapper for calls to PlayerStats that contain db or table specifics"""
 
-    def __init__(self, name, engine=None, tablename='stats', table=None,
+    def __init__(self, name, engine=None, tablename='stats',
                  show=[], hide=[], transforms=[], weights=[]):
-
         """Create a BeardStat endpoint
 
         name -- required name of the new flask blueprint.
         engine -- sqlalchemy engine to query or current_app.config['ENGINE'].
         tablename -- name of table in engine to autoload from.
-        table -- table class from sqlalchemy. One is created if None.
+        model -- model class from sqlalchemy. One is created if None.
         session -- sqlalchemy query session loaded off this table. One is created if None.
 
         """
 
-        self._engine = None
-        self._table = None
+        self.model = beardstat(tablename)
+        self._engine = engine
         self._session = None
         self.name = name
-        self.engine = engine
         self.tablename = tablename
-        self.table = table
         self.show = show
         self.hide = hide
         self.transforms = transforms
@@ -59,9 +59,8 @@ class Endpoint(object):
         self.session = None
         
         # Define a route to get stats
-        @blueprint.route('/%s/<player>.<ext>'%name)
-        def stats(player, ext):
-            stats = self.player_stats(player)
+        def player_stats(player, ext):
+            stats = self.get_by_name(player)
             if ext == 'json':
                 return jsonify({ 'categories': stats })
             elif ext == 'html':
@@ -72,39 +71,35 @@ class Endpoint(object):
 
             # unsupported format requested
             abort(404)
+        
+        blueprint.add_url_rule('/%s/<player>.<ext>'%name, name, player_stats)
     
-    def player_stats(self, player):
-        return PlayerStats.player_stats(self.table, self.session, player,
+    def get_by_name(self, player):
+        return PlayerStats.player_stats(self.model, self.session, player,
                                         self.show, self.hide, self.transforms, self.weights)
+    
+    def format(self, rows):
+        return PlayerStats.stat_format(rows, self.show, self.hide, self.transforms, self.weights)
 
-    def get_engine(self):
+    @property
+    def engine(self):
         if not self._engine:
             self._engine = current_app.config['ENGINE']
         return self._engine
-        
-    def set_engine(self, engine):
+
+    @engine.setter
+    def engine(self, engine):
         self._engine = engine
 
-    def get_table(self):
-        if not self._table:
-            from blueprints import beardstat
-            self._table = beardstat.load(self.engine, self.tablename)
-        return self._table
-        
-    def set_table(self, table):
-        self._table = table
-
-    def get_session(self):
+    @property
+    def session(self):
         if not self._session:
             self._session = create_session(self.engine)
         return self._session
-        
-    def set_session(self, session):
-        self._session = session
 
-    engine = property(fget=get_engine, fset=set_engine)
-    table = property(fget=get_table, fset=set_table)
-    session = property(fget=get_session, fset=set_session)
+    @session.setter
+    def session(self, session):
+        self._session = session
 
 
 """Transform array (in order of precedence) for stat names and values
@@ -168,10 +163,10 @@ class PlayerStats:
     """Container for the data crunching methods"""
 
     @staticmethod
-    def player_stats(table, session, player, show=[], hide=[], transforms=[], weights=[]):
+    def player_stats(model, session, player, show=[], hide=[], transforms=[], weights=[]):
         """Returns the proper stats for a given player name in table
 
-        table -- table class from sqlalchemy.
+        model -- model class from sqlalchemy.
         session -- sqlalchemy query session loaded off this table.
         hide -- list of stat names or lambdas to whitelist.
         show --  list of stat name or lambdas to blacklist.
@@ -179,6 +174,12 @@ class PlayerStats:
         weights -- list of tuples used to custom sort stat lists.
         
         """
+        
+        return PlayerStats.stat_format(session.query(model).filter(model.player==player).all(),
+                                       show, hide, transforms, weights)
+
+    @staticmethod
+    def stat_format(rows, show=[], hide=[], transforms=[], weights=[]):
         
         # Add suggested transforms and enforce a catch all
         transforms = transforms + __transforms__ + [('*.*', lambda stat: '%s.%s'%(stat.category,stat.stat))]
@@ -188,16 +189,14 @@ class PlayerStats:
         weights = weights + __weights__ + [('*.*', lambda stat: '%s.%s'%(stat.category,stat.stat))]
         
         # Get the stats we want to show people
-        filtered = PlayerStats.stat_filter(
-            PlayerStats.stat_rows(session, table, player),
-            show, hide)
+        filtered = PlayerStats.stat_filter(rows, show, hide)
 
         return \
             PlayerStats.category_sorted(
             PlayerStats.stat_sorted(
                     PlayerStats.stat_categorized(filtered),
                     weights, transforms),
-            weights, transforms)
+            weights, transforms)        
 
     @staticmethod
     def category_sorted(categories, weights, transforms):
@@ -231,11 +230,6 @@ class PlayerStats:
                 (not len(show) or PlayerStats.stat_match(stat, show)) and \
                 (not PlayerStats.stat_match(stat, hide)),
             rows)
-
-    @staticmethod
-    def stat_rows(session, table, player):
-        """Return the raw stat rows from the db"""
-        return session.query(table).filter(table.player==player).all()
 
     @staticmethod
     def stat_transform(stat, transforms):
