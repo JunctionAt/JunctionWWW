@@ -33,20 +33,16 @@ player_stats.blueprint = blueprint
 class Endpoint(object):
     """Wrapper for calls to PlayerStats that contain db or table specifics"""
 
-    def __init__(self, name, engine=None, tablename='stats',
-                 show=[], hide=[], transforms=[], weights=[]):
+    def __init__(self, name, tablename='stats', show=[], hide=[], transforms=[], weights=[]):
         """Create a BeardStat endpoint
 
         name -- required name of the new flask blueprint.
-        engine -- sqlalchemy engine to query or current_app.config['ENGINE'].
         tablename -- name of table in engine to autoload from.
-        model -- model class from sqlalchemy. One is created if None.
         session -- sqlalchemy query session loaded off this table. One is created if None.
 
         """
 
         self.model = beardstat(tablename)
-        self._engine = engine
         self._session = None
         self.name = name
         self.tablename = tablename
@@ -77,19 +73,9 @@ class Endpoint(object):
         return PlayerStats.stat_format(rows, self.show, self.hide, self.transforms, self.weights)
 
     @property
-    def engine(self):
-        if not self._engine:
-            self._engine = current_app.config['ENGINE']
-        return self._engine
-
-    @engine.setter
-    def engine(self, engine):
-        self._engine = engine
-
-    @property
     def session(self):
         if not self._session:
-            self._session = sqlalchemy.orm.sessionmaker(self.engine)()
+            self._session = sqlalchemy.orm.sessionmaker(current_app.config['ENGINE'])()
         return self._session
 
     @session.setter
