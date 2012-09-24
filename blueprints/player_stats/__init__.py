@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, jsonify, abort, current_app
 import sqlalchemy
-from sqlalchemy.orm import create_session
+import sqlalchemy.orm
 import types
 import re
 from datetime import datetime
@@ -94,7 +94,7 @@ class Endpoint(object):
     @property
     def session(self):
         if not self._session:
-            self._session = create_session(self.engine)
+            self._session = sqlalchemy.orm.sessionmaker(self.engine)()
         return self._session
 
     @session.setter

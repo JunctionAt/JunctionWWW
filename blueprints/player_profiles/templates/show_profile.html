@@ -1,6 +1,6 @@
 <h1 class="prof_name">
-  {% if profile.avatar: %}
-  <img src="{{ profile.avatar }}">
+  {% if profile.user.avatar: %}
+  <img src="{{ profile.user.avatar.large }}">
   {% endif %}
   {{ profile.name }}
 </h1>
@@ -10,17 +10,17 @@
 {% if profile.realname or profile.location or profile.link: %}
 <p class="prof_info">
 {% if profile.realname: %}
-<span class="prof_realname">{{ profile.realname }}</span>
+<span class="prof_realname">{{ profile.realname }}</span><br>
 {% endif %}
 {% if profile.location: %}
-<span class="prof_location">{{ profile.location }}</span>
+<span class="prof_location">{{ profile.location }}</span><br>
 {% endif %}
 {% if profile.link %}
-<span class="prof_link">{{ profile.link }}</span>
+<span class="prof_link">{{ profile.link }}</span><br>
 {% endif %}
 </p>
 {% endif %}
-{% if profile.profile_stats %}
+{% if profile.profile_stats: %}
 {% from 'player_stats.html' import stats_table %}
 <ul class="stats">
   {% for name, stats in profile.profile_stats.iteritems(): %}
