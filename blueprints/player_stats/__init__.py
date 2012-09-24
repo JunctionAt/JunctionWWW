@@ -8,10 +8,10 @@ from blueprints.beardstat import beardstat
 
 def player_stats(servers=[]):
     """Create routes for all stat endpoints defined in servers
-
-    Use player_stats.endpoints['server_name'] to get the autoloaded table (e.table)
+    
+    Use player_stats.endpoints['server_name'] to get the autoloaded model (endpoints['pve_stats'].model)
     or call player_stats from these endpoints.
-
+    
     Returns the blueprint for easy setup.
     
     """
@@ -62,10 +62,7 @@ class Endpoint(object):
             if ext == 'json':
                 return jsonify({ 'categories': stats })
             elif ext == 'html':
-                return render_template('player_stats.html',
-                                       name=name,
-                                       categories=stats,
-                                       player=player)
+                return render_template('player_stats.html', categories=stats)
 
             # unsupported format requested
             abort(404)
