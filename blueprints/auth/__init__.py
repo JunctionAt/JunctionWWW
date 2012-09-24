@@ -110,19 +110,22 @@ def logout():
 def register():
     if request.method == "POST":
 	if "username" in request.form and "password1" in request.form and "mail" in request.form:
+            if len(request.form.get('username', '')) <2:
+                flash(u"The Minecraft username was too short.")
+                return redirect("/register")
             if len(request.form['username']) > 16:
 		flash(u"The Minecraft username was too long.")
 		return redirect("/register")
-	        if not mailregex.match(request.form['mail']):
-		    flash(u"Please enter a valid email adress.")
-		    return redirect("/register")
-		playertoken = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(6))
-		hashed = bcrypt.hashpw(request.form['password1'], bcrypt.gensalt())
-		db = open_db()
-		with db.begin() as cursor:
-                    db.execute("INSERT INTO tokens (token, name, hash, mail, ip, expires) VALUES (%s, %s, %s, %s, %s, now()+INTERVAL 10 MINUTE);", (playertoken, request.form['username'], hashed, request.form['mail'], request.remote_addr))
-                db.close()
-		return redirect("/activate")
+            if not mailregex.match(request.form['mail']):
+                flash(u"Please enter a valid email adress.")
+                return redirect("/register")
+            playertoken = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(6))
+            hashed = bcrypt.hashpw(request.form['password1'], bcrypt.gensalt())
+            db = open_db()
+            with db.begin() as cursor:
+                db.execute("INSERT INTO tokens (token, name, hash, mail, ip, expires) VALUES (%s, %s, %s, %s, %s, now()+INTERVAL 10 MINUTE);", playertoken, request.form['username'], hashed, request.form['mail'], request.remote_addr)
+            db.close()
+            return redirect("/activate")
     else:
         return render_template("register.html")
 
@@ -131,17 +134,16 @@ def activatetoken():
     if request.method == "POST":
 	db = open_db()
 	with db.begin() as cursor:
-            db.execute("SELECT name, hash, mail FROM tokens WHERE token=%s AND expires>NOW();", (str(request.form['token'])))
-            result = db.fetchone()
+            result = db.execute("SELECT name, hash, mail FROM tokens WHERE token=%s AND expires>NOW();", str(request.form['token'])).fetchone()
             if result is None:
                 flash(u"Validation token invalid. Make sure you entered the right one, and that you didn't use more then 10 minutes since the registration.")
-                return render_template("register_2.html")
-                db.execute("DELETE FROM tokens WHERE token=%s;", (request.form['token']))
-                if not db.execute("INSERT INTO users (name, hash, mail, registered, verified) VALUES (%s, %s, %s, NOW(), TRUE);", (result[0], result[1], result[2])):
-                    flash(u"An internal error occured. If this continues happening, please contact staff at contact@junction.at")
-                    return redirect("/login")
-                flash(u"Registration sucessful! You can now log in with your account.")
+                return render_template("register.html")
+            db.execute("DELETE FROM tokens WHERE token=%s;", (request.form['token']))
+            if not db.execute("INSERT INTO users (name, hash, mail, registered, verified) VALUES (%s, %s, %s, NOW(), TRUE);", result[0], result[1], result[2]):
+                flash(u"An internal error occured. If this continues happening, please contact staff at contact@junction.at")
                 return redirect("/login")
+            flash(u"Registration sucessful! You can now log in with your account.")
+            return redirect("/login")
     else:
 	return render_template("verify.html")
 

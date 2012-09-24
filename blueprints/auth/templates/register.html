@@ -25,7 +25,7 @@
 {% endblock %}
 
 {% block content %}
-<form accept-charset="UTF-8" action="" method="post" name="registerform" >
+<form accept-charset="UTF-8" action="{{ url_for('auth.register') }}" method="post" name="registerform" >
 	  <input type="hidden" name="regstage" value="1">
 	  <div class="field text-field">
 	    <label for="user_session_login">Minecraft Username</label><br />
