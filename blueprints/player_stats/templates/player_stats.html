@@ -1,23 +1,30 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>{{ player }}</title>
-  </head>
-  <body>
-    <h1>{{ player }}</h2>
-    {% macro stats_table(categories) %}
-    {% for category in categories %}
-    <table>
-      <caption>{{ category.name }}</caption>
-      {% for stat in category.stats %}
-      <tr>
-        <td>{{ stat.name }}</td>
-        <td>{{ stat.value }}</td>
-      </tr>
-      {% endfor %}
-    </table>
-    {% endfor %}
-    {% endmacro %}
-    {{ stats_table(categories) }}
+{% extends 'base.html' %}
+
+{% macro render_stats(categories) -%}
+
+<table class="stats-category-container">
+
+{% for category in categories -%}
+
+  <tr class="stats-category-name">
+    <td colspan="2">
+      <h6>{{ category.name }}</h6>
+    </td>
+  </tr>
+
+  {% for stat in category.stats -%}
+  <tr>
+    <td class="stats-stat">{{ stat.name }}</td>
+    <td class="stats-value">{{ stat.value }}</td>
+  </tr>
+  {%- endfor %}
+
+{%- endfor %}
+</table>
+
+{%- endmacro %}
+
+{{ render_stats(categories) }}
+
   </body>
 </html>

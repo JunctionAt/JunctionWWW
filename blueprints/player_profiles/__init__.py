@@ -8,8 +8,7 @@ from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import *
 from sqlalchemy import Column
 from sqlalchemy.orm.exc import NoResultFound
-from wtforms import Form, TextField, ValidationError
-from wtforms.validators import Optional, Length
+from flask.ext.wtf import Form, TextField, ValidationError, Optional, Length
 import re
 
 from blueprints.base import Base
@@ -28,20 +27,35 @@ class Profile(Base, object):
     link = Column(String(256))
     show_stats = Column(String(64))
     default = False
-    _user = relation(User, backref='profile', lazy=False)
+    _user = relation(User, backref='profile',
+                     # Limit the relationship to verified users only
+                     primaryjoin='User.name==Profile.name and User.verified==1',
+                     # Eager load
+                     lazy=False)
     _stats = None
 
     @property
     def user(self):
+        """Return the user associated with this profile.
+        
+        This property will first see if the user was autoloaded, which will occur if there
+        was a profile in the db.  If there wasn't a profile, if will get the user from db
+        based off self.name.  If there was no registered user in the db, then, provide a
+        user object with default attributes.
+
+        """
         if not self._user:
             try:
-                self._user = player_profiles.session.query(User).filter(User.name==self.name).one()
+                self._user = player_profiles.session.query(User) \
+                    .filter(User.name==self.name) \
+                    .filter(User.verified==1).one()
             except NoResultFound:
                 self._user = Profile.default_user(self.name)
         return self._user
 
     @property
     def stats(self):
+        """Return the all the player's stats."""
         if not self._stats:
             self._stats = dict([
                     (name, endpoint.get_by_name(self.name))
@@ -51,6 +65,7 @@ class Profile(Base, object):
 
     @property
     def profile_stats(self):
+        """Return the stats specified in the player's show_stats field"""
         stats = filter(lambda (name, stats):
                            len(stats) and (not self.show_stats or name in self.show_stats),
                        self.stats.iteritems())
@@ -99,8 +114,10 @@ class Blueprint(flask.Blueprint, object):
         except NoResultFound:
             return Profile.default_profile(name)
 
+
 """Singleton blueprint object"""
 player_profiles = Blueprint('player_profiles', __name__, template_folder='templates')
+
 
 
 # Blueprint routes
@@ -127,6 +144,7 @@ def show_profile(player):
         abort(404)
     return render_template('show_profile.html', profile=profile)
 
+
 # Forms
 
 class ProfileForm(Form):
@@ -135,7 +153,10 @@ class ProfileForm(Form):
     realname = TextField('Real name', [Optional(),Length(max=64)])
     location = TextField('Location', [Optional(),Length(max=64)])
     link = TextField('Link', [Optional(),Length(max=256)])
-    show_stats = TextField('Displayed stats', [Optional(),Length(max=64)])
+    show_stats = TextField('Displayed stats',
+                           description=\
+                               "You can remove any or all servers from this list to hide them on your profile.",
+                           validators=[Optional(),Length(max=64)])
 
     def validate_show_stats(self, field):
         invalid = list()

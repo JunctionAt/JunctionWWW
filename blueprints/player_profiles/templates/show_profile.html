@@ -2,42 +2,53 @@
 
 {% block content %}
 
-<h1 class="prof_name">
-  {% if profile.user.avatar.link: %}<a href="{{ profile.user.avatar.link }}">{% endif %}
-    <img src="{{ profile.user.avatar.large }}" height="128" width="128">
-  {% if profile.user.avatar.link: %}</a>{% endif %}
-  {{ profile.name }}
-</h1>
+{% macro render_profile(profile) -%}
 
-{% if profile.tagline: %}
-<p class="prof_tagline"><quote>{{ profile.tagline }}</quote></p>
-{% endif %}
+<div class="profile">
 
-{% if profile.realname or profile.location or profile.link: %}
-<p class="prof_info">
+{% if profile.user.avatar.link: %}<a href="{{ profile.user.avatar.link }}" class="profile-avatar-link">{% endif %}<img class="profile-avatar" src="{{ profile.user.avatar.portrait }}">{% if profile.user.avatar.link: %}</a>{% endif %}
 
-  {% if profile.realname: %}
-  <span class="prof_realname">{{ profile.realname }}</span><br>
-  {% endif %}
+<h1 class="profile-name">{{ profile.name }}</h1>
 
-  {% if profile.location: %}
-  <span class="prof_location">{{ profile.location }}</span><br>
-  {% endif %}
+{% if profile.tagline: -%}
+<p class="profile-tagline"><quote>{{ profile.tagline }}</quote></p>
+{%- endif %}
 
-  {% if profile.link %}
-  <span class="prof_link"><a href="{{ profile.link }}">{{ profile.link }}</a></span><br>
-  {% endif %}
+{% if profile.realname or profile.location or profile.link: -%}
+<p class="profile-info">
+
+  {% if profile.realname: -%}
+  <span class="profile-realname">{{ profile.realname }}</span><br>
+  {%- endif %}
+
+  {% if profile.location: -%}
+  <span class="profile-location">{{ profile.location }}</span><br>
+  {%- endif %}
+
+  {% if profile.link: -%}
+  <span class="profile-link"><a href="{{ profile.link }}">{{ profile.link }}</a></span><br>
+  {%- endif %}
 
 </p>
-{% endif %}
+{%- endif %}
 
-{% if profile.profile_stats: %}
-{% from 'player_stats.html' import stats_table %}
-<ul class="stats">
-  {% for name, stats in profile.profile_stats.iteritems(): %}
-  <li>{{ stats_table(stats) }}</li>
-  {% endfor %}
-</ul>
-{% endif %}
+{% if profile.profile_stats: -%}
 
-{% endblock %}
+<h2>Player stats</h2>
+
+{% from 'player_stats.html' import render_stats %}
+
+  {% for name, stats in profile.profile_stats.iteritems(): -%}
+  <h3>{{ name }}</h3>
+  {{ render_stats(stats) }}
+  {%- endfor %}
+
+{%- endif %}
+
+</div>
+
+{%- endmacro %}
+
+{{ render_profile(profile) }}
+
+{%- endblock %}
