@@ -100,10 +100,7 @@ class Blueprint(flask.Blueprint, object):
             return Profile.default_profile(name)
 
 """Singleton blueprint object"""
-player_profiles = Blueprint('player_profiles', __name__,
-                            template_folder='templates',
-                            static_folder='static',
-                            static_url_path='/player_profiles/static')
+player_profiles = Blueprint('player_profiles', __name__, template_folder='templates')
 
 
 # Blueprint routes

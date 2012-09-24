@@ -27,9 +27,7 @@ endpoints = dict()
 player_stats.endpoints = endpoints
 
 # Blueprint
-blueprint = Blueprint('player_stats', __name__,
-                      template_folder='templates',
-                      static_folder='static')
+blueprint = Blueprint('player_stats', __name__, template_folder='templates')
 player_stats.blueprint = blueprint
 
 class Endpoint(object):

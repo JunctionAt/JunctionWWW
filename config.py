@@ -5,16 +5,16 @@ PREFERRED_URL_SCHEME = 'https'
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
 
-    # Static pages
-    {
-        'blueprint': static_pages.static_pages
-        },
-
     # Authentication
     {
         'blueprint': auth.blueprint,
         },
     
+    # Static pages
+    {
+        'blueprint': static_pages.static_pages
+        },
+
     # Player stats
     {
         'blueprint': player_stats.player_stats([

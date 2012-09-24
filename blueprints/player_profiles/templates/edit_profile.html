@@ -1,3 +1,5 @@
+{% extends "base.html" %}
+
 {% macro render_field(field) %}
   <dt>{{ field.label }}
   <dd>{{ field(**kwargs)|safe }}
@@ -10,7 +12,10 @@
   {% endif %}
   </dd>
 {% endmacro %}
-<form method=post action="/profile">
+
+{% block content %}
+
+<form action="{{ url_for('player_profiles.edit_profile') }}">
   {{ form.csrf_token }}
   <dl>
     {{ render_field(form.tagline) }}
@@ -21,3 +26,5 @@
   </dl>
   <p><input type=submit value=Save>
 </form>
+
+{% endblock %}

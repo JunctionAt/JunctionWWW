@@ -2,9 +2,9 @@
 <html>
   <head>
     <title>{{ player }}</title>
-    <link rel="stylesheet" href="{{ url_for('player_stats.static', filename='style.css') }}"/>
   </head>
   <body>
+    <h1>{{ player }}</h2>
     {% macro stats_table(categories) %}
     {% for category in categories %}
     <table>
