@@ -1,6 +1,7 @@
 from flask import Flask
 
 application = Flask(__name__)
+
 application.config.from_object("local_config")
 application.config.from_object("config")
 

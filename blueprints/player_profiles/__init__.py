@@ -33,7 +33,10 @@ class Profile(Base, object):
     @property
     def user(self):
         if not self._user:
-            self._user = player_profiles.session.query(User).filter(User.name==self.name).one()
+            try:
+                self._user = player_profiles.session.query(User).filter(User.name==self.name).one()
+            except NoResultFound:
+                self._user = Profile.default_user(self.name)
         return self._user
 
     @property
@@ -50,6 +53,20 @@ class Profile(Base, object):
         return dict(filter(lambda (name, stats):
                                len(stats) and (not self.show_stats or name in self.show_stats),
                            self.stats.iteritems()))
+
+    @staticmethod
+    def default_profile(name):
+        """Return a default profile for unregistered users"""
+        return Profile(
+            name=name,
+            show_stats=' '.join(player_stats.endpoints.keys()),
+        )
+    
+    @staticmethod
+    def default_user(name):
+        """Return a default user"""
+        return User(name=name)
+
 
 
 class Blueprint(flask.Blueprint, object):
@@ -76,15 +93,7 @@ class Blueprint(flask.Blueprint, object):
         try:
             return self.session.query(Profile).filter(Profile.name==name).one()
         except NoResultFound:
-            return self.default_profile(name)
-
-    def default_profile(self, name):
-        """Return a the default profile for unregistered users"""
-        return Profile(
-            name=name,
-            show_stats=' '.join(player_stats.endpoints.keys()),
-        )
-
+            return Profile.default_profile(name)
 
 """Singleton blueprint object"""
 player_profiles = Blueprint('player_profiles', __name__,

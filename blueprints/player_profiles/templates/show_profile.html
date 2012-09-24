@@ -1,7 +1,7 @@
 <h1 class="prof_name">
-  {% if profile.user.avatar: %}
-  <img src="{{ profile.user.avatar.large }}">
-  {% endif %}
+  {% if profile.user.avatar.link: %}<a href="{{ profile.user.avatar.link }}">{% endif %}
+    <img src="{{ profile.user.avatar.large }}" height="128" width="128">
+  {% if profile.user.avatar.link: %}</a>{% endif %}
   {{ profile.name }}
 </h1>
 {% if profile.tagline: %}
@@ -16,7 +16,7 @@
 <span class="prof_location">{{ profile.location }}</span><br>
 {% endif %}
 {% if profile.link %}
-<span class="prof_link">{{ profile.link }}</span><br>
+<span class="prof_link"><a href="{{ profile.link }}">{{ profile.link }}</a></span><br>
 {% endif %}
 </p>
 {% endif %}
