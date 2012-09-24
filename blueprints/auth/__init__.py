@@ -146,7 +146,15 @@ def activatetoken():
 	return render_template("verify.html")
 
 @blueprint.route("/control", methods=["GET", "POST"])
-@login_required
+@fresh_login_required
 def controlpanel():
+    if request.method == "POST":
+        db = open_db()
+        with db.begin() as cursor:
+            if request.form['newpassword']:
+                hashed = bcrypt.hashpw(request.form['newpassword'], bcrypt.gensalt())
+                db.execute('UPDATE users SET hash=%s WHERE name=%s;', (hashed, current_user.name))
+                flash('Updated password')
+                return render_template("controlpanel.html")
     return render_template("controlpanel.html")
 	
