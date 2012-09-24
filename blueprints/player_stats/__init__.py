@@ -10,7 +10,7 @@ def player_stats(servers=[]):
     """Create routes for all stat endpoints defined in servers
 
     Use player_stats.endpoints['server_name'] to get the autoloaded table (e.table)
-    or call player_stats form these endpoints.
+    or call player_stats from these endpoints.
 
     Returns the blueprint for easy setup.
     
