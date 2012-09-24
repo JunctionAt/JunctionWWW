@@ -65,10 +65,6 @@ def wpass():
     flash(u"The username or password was incorrect.")
     return redirectd("/login")
 	
-@blueprint.route("/")
-def index():
-    return redirectd("/login")
-
 @blueprint.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST" and "username" in request.form and "password" in request.form:
