@@ -6,6 +6,7 @@ import md5
 import urllib
 
 class User(Base, object):
+
     __tablename__ = 'users'
     name = Column(String(16), primary_key=True)
     hash = Column(String(100))

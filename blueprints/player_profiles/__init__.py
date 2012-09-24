@@ -27,6 +27,7 @@ class Profile(Base, object):
     tagline = Column(String(256))
     link = Column(String(256))
     show_stats = Column(String(64))
+    default = False
     _user = relation(User, backref='profile', lazy=False)
     _stats = None
 
@@ -50,9 +51,11 @@ class Profile(Base, object):
 
     @property
     def profile_stats(self):
-        return dict(filter(lambda (name, stats):
-                               len(stats) and (not self.show_stats or name in self.show_stats),
-                           self.stats.iteritems()))
+        stats = filter(lambda (name, stats):
+                           len(stats) and (not self.show_stats or name in self.show_stats),
+                       self.stats.iteritems())
+        if not len(stats): return None
+        return dict(stats)
 
     @staticmethod
     def default_profile(name):
@@ -60,6 +63,7 @@ class Profile(Base, object):
         return Profile(
             name=name,
             show_stats=' '.join(player_stats.endpoints.keys()),
+            default=True
         )
     
     @staticmethod
@@ -83,12 +87,12 @@ class Blueprint(flask.Blueprint, object):
     @session.setter
     def session(self, session):
         return self._session
-
+    
     def get_by_name(self, name):
         """Load a player profile for name, or the default profile.
-
+        
         This is shorthand for (user.profile or player_profiles.default_profile())
-
+        
         """
         try:
             return self.session.query(Profile).filter(Profile.name==name).one()
@@ -121,6 +125,9 @@ def edit_profile():
 @player_profiles.route('/profile/<player>')
 def show_profile(player):
     profile = player_profiles.get_by_name(player)
+    # Error out if this the default profile is loaded and there are no stats
+    if profile.default and not sum(map(lambda (_, stats): len(stats), profile.stats.items())):
+        abort(404)
     return render_template('show_profile.html', profile=profile)
 
 # Forms
