@@ -1,10 +1,13 @@
 from flask import Blueprint, render_template, jsonify, abort, current_app
 import sqlalchemy
-import sqlalchemy.orm
+from sqlalchemy import Column
+from sqlalchemy.types import String, Integer
+from datetime import datetime
 import types
 import re
-from datetime import datetime
-from blueprints.player_stats.beardstat import beardstat
+
+from blueprints.base import Base
+
 
 def player_stats(servers=[]):
     """Create routes for all stat endpoints defined in servers
@@ -42,7 +45,14 @@ class Endpoint(object):
 
         """
 
-        self.model = beardstat(tablename)
+        self.model = type(tablename, (Base,), {
+                '__tablename__': tablename,
+                'player': Column(String(32), primary_key=True),
+                'category': Column(String(32), primary_key=True),
+                'stat': Column(String(32), primary_key=True),
+                'value': Column(Integer()),
+                })    
+
         self._session = None
         self.name = name
         self.tablename = tablename
