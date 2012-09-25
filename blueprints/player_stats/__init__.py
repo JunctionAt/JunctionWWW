@@ -4,7 +4,7 @@ import sqlalchemy.orm
 import types
 import re
 from datetime import datetime
-from blueprints.beardstat import beardstat
+from blueprints.player_stats.beardstat import beardstat
 
 def player_stats(servers=[]):
     """Create routes for all stat endpoints defined in servers

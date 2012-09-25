@@ -12,7 +12,7 @@ from flask.ext.wtf import Form, TextField, ValidationError, Optional, Length
 import re
 
 from blueprints.base import Base
-from blueprints.user_model import User
+from blueprints.auth.user_model import User
 from blueprints.player_stats import player_stats
 
 
@@ -27,11 +27,7 @@ class Profile(Base, object):
     link = Column(String(256))
     show_stats = Column(String(64))
     default = False
-    _user = relation(User, backref='profile',
-                     # Limit the relationship to verified users only
-                     primaryjoin='User.name==Profile.name and User.verified==1',
-                     # Eager load
-                     lazy=False)
+    _user = relation(User, backref='profile', lazy=False)
     _stats = None
 
     @property
@@ -55,7 +51,7 @@ class Profile(Base, object):
 
     @property
     def stats(self):
-        """Return the all the player's stats."""
+        """Return all the player's stats."""
         if not self._stats:
             self._stats = dict([
                     (name, endpoint.get_by_name(self.name))
@@ -65,7 +61,7 @@ class Profile(Base, object):
 
     @property
     def profile_stats(self):
-        """Return the stats specified in the player's show_stats field"""
+        """Return the stats specified in the player's show_stats field and with empty servers removed"""
         stats = filter(lambda (name, stats):
                            len(stats) and (not self.show_stats or name in self.show_stats),
                        self.stats.iteritems())
@@ -106,7 +102,7 @@ class Blueprint(flask.Blueprint, object):
     def get_by_name(self, name):
         """Load a player profile for name, or the default profile.
         
-        This is shorthand for (user.profile or player_profiles.default_profile())
+        This is shorthand for profile = (user.profile or player_profiles.default_profile())
         
         """
         try:
@@ -139,8 +135,9 @@ def edit_profile():
 @player_profiles.route('/profile/<player>')
 def show_profile(player):
     profile = player_profiles.get_by_name(player)
-    # Error out if this the default profile is loaded and there are no stats
     if profile.default and not sum(map(lambda (_, stats): len(stats), profile.stats.items())):
+        # Error out if the default profile is loaded and there are no stats.
+        # This should be the case if the player has never logged onto any of the servers.
         abort(404)
     return render_template('show_profile.html', profile=profile)
 

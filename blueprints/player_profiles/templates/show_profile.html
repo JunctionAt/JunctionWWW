@@ -4,29 +4,29 @@
 
 {% macro render_profile(profile) -%}
 
-<div class="profile">
+<div class=profile>
 
-{% if profile.user.avatar.link: %}<a href="{{ profile.user.avatar.link }}" class="profile-avatar-link">{% endif %}<img class="profile-avatar" src="{{ profile.user.avatar.portrait }}">{% if profile.user.avatar.link: %}</a>{% endif %}
+{% if profile.user.avatar.link: %}<a href={{ profile.user.avatar.link }} class=profile-avatar-link>{% endif %}<img class=profile-avatar src={{ profile.user.avatar.portrait }}>{% if profile.user.avatar.link: %}</a>{% endif %}
 
-<h1 class="profile-name">{{ profile.name }}</h1>
+<h1 class=profile-name>{{ profile.name }}</h1>
 
 {% if profile.tagline: -%}
-<p class="profile-tagline"><quote>{{ profile.tagline }}</quote></p>
+<p class=profile-tagline><quote>{{ profile.tagline }}</quote></p>
 {%- endif %}
 
 {% if profile.realname or profile.location or profile.link: -%}
-<p class="profile-info">
+<p class=profile-info>
 
   {% if profile.realname: -%}
-  <span class="profile-realname">{{ profile.realname }}</span><br>
+  <span class=profile-realname>{{ profile.realname }}</span><br>
   {%- endif %}
 
   {% if profile.location: -%}
-  <span class="profile-location">{{ profile.location }}</span><br>
+  <span class=profile-location>{{ profile.location }}</span><br>
   {%- endif %}
 
   {% if profile.link: -%}
-  <span class="profile-link"><a href="{{ profile.link }}">{{ profile.link }}</a></span><br>
+  <span class=profile-link><a href={{ profile.link }}>{{ profile.link }}</a></span><br>
   {%- endif %}
 
 </p>

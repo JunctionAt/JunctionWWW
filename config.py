@@ -1,10 +1,15 @@
-from blueprints import static_pages, auth, player_stats, player_profiles
+from blueprints import base, auth, static_pages, player_stats, player_profiles
 
 PREFERRED_URL_SCHEME = 'https'
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
 
+    # Comman declarative base and DB metadata binding
+    {
+        'blueprint': base.base,
+        },
+    
     # Authentication
     {
         'blueprint': auth.blueprint,

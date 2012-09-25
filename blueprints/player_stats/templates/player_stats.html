@@ -2,20 +2,20 @@
 
 {% macro render_stats(categories) -%}
 
-<table class="stats-category-container">
+<table class=stats-category-container>
 
 {% for category in categories -%}
 
-  <tr class="stats-category-name">
-    <td colspan="2">
+  <tr class=stats-category-name>
+    <td colspan=2>
       <h6>{{ category.name }}</h6>
     </td>
   </tr>
 
   {% for stat in category.stats -%}
   <tr>
-    <td class="stats-stat">{{ stat.name }}</td>
-    <td class="stats-value">{{ stat.value }}</td>
+    <td class=stats-stat>{{ stat.name }}</td>
+    <td class=stats-value>{{ stat.value }}</td>
   </tr>
   {%- endfor %}
 

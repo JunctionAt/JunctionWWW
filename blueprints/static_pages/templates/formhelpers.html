@@ -6,7 +6,7 @@
     <br><small>{{ field.description }}</small>
     {% endif %}
   </dt>
-  <dd>{{ field(**kwargs)|safe }}</dd>
+  <dd>{{ field(**kwargs)|safe }}
   {% if field.errors %}
     <ul class=errors>
     {% for error in field.errors %}
