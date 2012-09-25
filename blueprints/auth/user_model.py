@@ -19,10 +19,7 @@ class User(Base, object):
         mail = self.mail or ""
         hash = md5.new(mail).hexdigest().lower()
         link = "http://www.gravatar.com/%s"%hash if self.mail else None
-        img = "http://www.gravatar.com/avatar/%s.png?r=pg&d=%s"% \
-            (hash, urllib.quote(url_for('static_pages.static',
-                                        filename='default_avatar.png',
-                                        _external=True)))
+        img = "http://www.gravatar.com/avatar/%s.png?r=pg&d=retro"%hash
         return type('Avatar', (object, ), {
                 "link": link,
                 "small": "%s&s=32"%img,
