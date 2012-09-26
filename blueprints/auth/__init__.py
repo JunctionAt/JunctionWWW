@@ -39,7 +39,7 @@ login_manager.refresh_view = "reauth"
 def load_user(id):
     return load_user_name(id)
 
-login_manager.setup_app(blueprint)
+login_manager.setup_app(current_app)
 
 def redirectd(path):
     return redirect(subpath+path)

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Edit {{ group }}</h1>
+
+{% from 'formhelpers.html' import render_field %}
+<form id=profile-form method=post action={{ url_for('player_groups.edit_group) }}>
+  {{ form.csrf_token }}
+  <dl>
+    {{ form.name }}
+
+  </dl>
+  <p><input type=submit value=Save></p>
+</form>
+
+{% endblock %}

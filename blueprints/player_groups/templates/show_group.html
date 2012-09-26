@@ -2,7 +2,7 @@
 
 <div class=profile>
 
-{% if profile.avatar.link: %}<a href={{ profile.avatar.link }} class=profile-avatar-link>{% endif %}<img class=profile-avatar src={{ profile.avatar.portrait }}>{% if profile.avatar.link: %}</a>{% endif %}
+{% if profile.user.avatar.link: %}<a href={{ profile.user.avatar.link }} class=profile-avatar-link>{% endif %}<img class=profile-avatar src={{ profile.user.avatar.portrait }}>{% if profile.user.avatar.link: %}</a>{% endif %}
 
 <h1 class=profile-name>{{ profile.name }}</h1>
 

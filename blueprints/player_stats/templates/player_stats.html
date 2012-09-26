@@ -1,10 +1,8 @@
-{% extends 'base.html' %}
-
-{% macro render_stats(categories) -%}
+{% macro render_stats(categories): -%}
 
 <table class=stats-category-container>
 
-{% for category in categories -%}
+{% for category in categories: -%}
 
   <tr class=stats-category-name>
     <td colspan=2>
@@ -12,7 +10,7 @@
     </td>
   </tr>
 
-  {% for stat in category.stats -%}
+  {% for stat in category.stats: -%}
   <tr>
     <td class=stats-stat>{{ stat.name }}</td>
     <td class=stats-value>{{ stat.value }}</td>
@@ -20,11 +18,12 @@
   {%- endfor %}
 
 {%- endfor %}
+
 </table>
 
 {%- endmacro %}
 
+{% extends 'base.html' %}
+{% block content %}
 {{ render_stats(categories) }}
-
-  </body>
-</html>
+{% endblock %}

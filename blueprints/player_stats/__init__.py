@@ -26,12 +26,12 @@ def player_stats(servers=[]):
 
 
 # Endpoints
-endpoints = dict()
-player_stats.endpoints = endpoints
+player_stats.endpoints = dict()
 
 # Blueprint
-blueprint = Blueprint('player_stats', __name__, template_folder='templates')
-player_stats.blueprint = blueprint
+player_stats.blueprint = Blueprint('player_stats', __name__, template_folder='templates')
+
+player_stats.session = sqlalchemy.orm.sessionmaker(current_app.config['ENGINE'])()
 
 class Endpoint(object):
     """Wrapper for calls to PlayerStats that contain db or table specifics"""
@@ -41,7 +41,6 @@ class Endpoint(object):
 
         name -- required name of the new flask blueprint.
         tablename -- name of table in engine to autoload from.
-        session -- sqlalchemy query session loaded off this table. One is created if None.
 
         """
 
@@ -50,47 +49,35 @@ class Endpoint(object):
                 'player': Column(String(32), primary_key=True),
                 'category': Column(String(32), primary_key=True),
                 'stat': Column(String(32), primary_key=True),
-                'value': Column(Integer()),
+                'value': Column(Integer),
                 })    
-
-        self._session = None
+        
         self.name = name
         self.tablename = tablename
         self.show = show
         self.hide = hide
         self.transforms = transforms
         self.weights = weights
-        self.session = None
         
-        # Define a route to get stats
-        def player_stats(player, ext):
-            stats = self.get_by_name(player)
-            if ext == 'json':
-                return jsonify({ 'categories': stats })
-            elif ext == 'html':
-                return render_template('player_stats.html', categories=stats)
-
-            # unsupported format requested
-            abort(404)
-        
-        blueprint.add_url_rule('/%s/<player>.<ext>'%name, name, player_stats)
-    
     def get_by_name(self, player):
-        return PlayerStats.player_stats(self.model, self.session, player,
+        return PlayerStats.player_stats(self.model, player_stats.session, player,
                                         self.show, self.hide, self.transforms, self.weights)
     
     def format(self, rows):
         return PlayerStats.stat_format(rows, self.show, self.hide, self.transforms, self.weights)
 
-    @property
-    def session(self):
-        if not self._session:
-            self._session = sqlalchemy.orm.sessionmaker(current_app.config['ENGINE'])()
-        return self._session
 
-    @session.setter
-    def session(self, session):
-        self._session = session
+# Define a route to get stats
+@player_stats.blueprint.route('/<server>/stats/<player>.<ext>')
+def show_stats(server, player, ext):
+    endpoint = player_stats.endpoints.get(server)
+    if endpoint:
+        stats = endpoint.get_by_name(player)
+        if ext == 'json':
+            return jsonify({ 'categories': stats })
+        elif ext == 'html':
+            return render_template('player_stats.html', categories=stats)
+    abort(404)
 
 
 """Transform array (in order of precedence) for stat names and values

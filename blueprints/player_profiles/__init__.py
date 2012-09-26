@@ -8,12 +8,14 @@ from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import *
 from sqlalchemy import Column
 from sqlalchemy.orm.exc import NoResultFound
-from flask.ext.wtf import Form, TextField, ValidationError, Optional, Length
+from wtalchemy.orm import model_form
+from wtforms.validators import Optional, Length, ValidationError
 import re
 
 from blueprints.base import Base
 from blueprints.auth.user_model import User
 from blueprints.player_stats import player_stats
+from blueprints.avatar import avatar
 
 
 class Profile(Base, object):
@@ -43,8 +45,7 @@ class Profile(Base, object):
         if not self._user:
             try:
                 self._user = player_profiles.session.query(User) \
-                    .filter(User.name==self.name) \
-                    .filter(User.verified==1).one()
+                    .filter(User.name==self.name).one()
             except NoResultFound:
                 self._user = Profile.default_user(self.name)
         return self._user
@@ -58,7 +59,7 @@ class Profile(Base, object):
                     for name, endpoint in player_stats.endpoints.iteritems()
                     ])
         return self._stats
-
+    
     @property
     def profile_stats(self):
         """Return the stats specified in the player's show_stats field and with empty servers removed"""
@@ -68,6 +69,10 @@ class Profile(Base, object):
         if not len(stats): return None
         return dict(stats)
 
+    @property
+    def avatar(self):
+        return avatar(self.user.mail)
+    
     @staticmethod
     def default_profile(name):
         """Return a default profile for unregistered users"""
@@ -87,18 +92,6 @@ class Profile(Base, object):
 class Blueprint(flask.Blueprint, object):
     """Our blueprint that will lazy load it's session when in a flask context"""
 
-    _session = None
-    
-    @property
-    def session(self):
-        if not self._session:
-            self._session = sqlalchemy.orm.sessionmaker(current_app.config['ENGINE'])()
-        return self._session
-
-    @session.setter
-    def session(self, session):
-        return self._session
-    
     def get_by_name(self, name):
         """Load a player profile for name, or the default profile.
         
@@ -106,7 +99,7 @@ class Blueprint(flask.Blueprint, object):
         
         """
         try:
-            return self.session.query(Profile).filter(Profile.name==name).one()
+            return player_profiles.session.query(Profile).filter(Profile.name==name).one()
         except NoResultFound:
             return Profile.default_profile(name)
 
@@ -114,23 +107,32 @@ class Blueprint(flask.Blueprint, object):
 """Singleton blueprint object"""
 player_profiles = Blueprint('player_profiles', __name__, template_folder='templates')
 
+player_profiles.session = sqlalchemy.orm.sessionmaker(current_app.config['ENGINE'])()
+    
+
+# Forms :)
+
+def validate_show_stats(form, field):
+    invalid = list()
+    parts = re.compile('[,\s]+').split(field.data.lower())
+    servers = player_stats.endpoints.keys()
+    for server in parts:
+        if not server in servers:
+            invalid.append(server)
+    if len(invalid):
+        raise ValidationError('Invalid servers: %s'%', '.join(invalid))
+
+ProfileForm = model_form(
+    Profile, player_profiles.session, exclude_pk=True, exclude_fk=True,
+    field_args={ 'show_stats': {
+            'label': 'Displayed stats',
+            'description': "You can remove any or all servers from this list to hide them on your profile.",
+            'validators': [ Optional(), validate_show_stats ]
+            }
+        })
 
 
 # Blueprint routes
-
-@player_profiles.route('/profile', methods=('GET', 'POST'))
-@flask_login.login_required
-def edit_profile():
-    profile = player_profiles.get_by_name(flask_login.current_user.name)
-    form = ProfileForm(request.form, profile)
-    if request.method == 'POST' and form.validate():
-        form.populate_obj(profile)
-        profile.show_stats = ' '.join(re.compile('[,\s]+').split(profile.show_stats.lower()))
-        player_profiles.session.add(profile)
-        player_profiles.session.commit()
-        flash('Profile saved')
-        return redirect(url_for('player_profiles.edit_profile'))
-    return render_template('edit_profile.html', form=form)
 
 @player_profiles.route('/profile/<player>')
 def show_profile(player):
@@ -141,27 +143,17 @@ def show_profile(player):
         abort(404)
     return render_template('show_profile.html', profile=profile)
 
-
-# Forms
-
-class ProfileForm(Form):
-
-    tagline = TextField('Tagline', [Optional(), Length(max=256)])
-    realname = TextField('Real name', [Optional(),Length(max=64)])
-    location = TextField('Location', [Optional(),Length(max=64)])
-    link = TextField('Link', [Optional(),Length(max=256)])
-    show_stats = TextField('Displayed stats',
-                           description=\
-                               "You can remove any or all servers from this list to hide them on your profile.",
-                           validators=[Optional(),Length(max=64)])
-
-    def validate_show_stats(self, field):
-        invalid = list()
-        parts = re.compile('[,\s]+').split(field.data.lower())
-        servers = player_stats.endpoints.keys()
-        for server in parts:
-            if not server in servers:
-                invalid.append(server)
-        if len(invalid):
-            raise ValidationError('Invalid servers: %s'%', '.join(invalid))
+@player_profiles.route('/profile', methods=('GET', 'POST'))
+@flask_login.login_required
+def edit_profile():
+    profile = player_profiles.session.query(Profile).filter(Profile.name==flask_login.current_user.name).one()
+    form = ProfileForm(request.form, profile)
+    if request.method == 'POST' and form.validate():
+        form.populate_obj(profile)
+        profile.show_stats = ' '.join(re.compile('[,\s]+').split(profile.show_stats.lower()))
+        player_profiles.session.add(profile)
+        player_profiles.session.commit()
+        flash('Profile saved')
+        return redirect(url_for('player_profiles.edit_profile'))
+    return render_template('edit_profile.html', form=form)
 
