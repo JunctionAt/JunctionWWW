@@ -127,7 +127,7 @@ class Endpoint(object):
         player_groups.blueprint.add_url_rule('/%s/%s/register'%(self.server, self.groups), '%s_register_group'%self.server, register_group)
 
 
-@player_groups.blueprint.route('/groups/<server>/<group>', methods=('GET', 'POST'))
+@player_groups.blueprint.route('/groups/<server>/show/<group>', methods=('GET', 'POST'))
 def show_group(server, group):
     """Redirects to preferred url of server"""
     endpoint = player_groups.endpoints.get(server)
@@ -135,7 +135,7 @@ def show_group(server, group):
         return redirect(url_for('player_groups.%s_show_group'%endpoint.server, group=group))
     abort(404)
 
-@player_groups.blueprint.route('/groups/<server>/<group>/edit', methods=('GET', 'POST'))
+@player_groups.blueprint.route('/groups/<server>/edit/<group>', methods=('GET', 'POST'))
 def edit_group(server, group):
     """Redirects to preferred url of server"""
     endpoint = player_groups.endpoints.get(server)
