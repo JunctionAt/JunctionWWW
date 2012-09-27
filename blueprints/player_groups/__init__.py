@@ -252,7 +252,7 @@ class Endpoint(object):
             user = player_groups.session.query(User).filter(User.name==flask_login.current_user.name).one()
             if not user in group.members and not user in group.owners:
                 if request.method == 'POST':
-                    if request.form['join']:
+                    if request.form['action'] == 'accept':
                         # Join action
                         if not group.public and user in group.invited_owners:
                             group.owners.append(user)

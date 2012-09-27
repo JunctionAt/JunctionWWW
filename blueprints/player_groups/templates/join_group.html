@@ -9,8 +9,10 @@
 <form id=group-join-form method=post action={{ url_for('player_groups.%s_join_group'%endpoint.server, name=group.name) }}>
   
   <p class=group-submit>
-    <button class=group-join name=join type=submit value=join>Join {{ group.display_name }}</button>
-    <button class=group-reject name=reject type=submit value=reject>No, thanks</button>
+    <button class=group-join name=action type=submit value=accept>Join {{ group.display_name }}</button>
+    {% if not group.publc: -%}
+    <button class=group-decline name=action type=submit value=decline>No, thanks</button>
+    {%- endif %}
   </p>
 
   {{ render_group(group) }}
