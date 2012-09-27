@@ -1,4 +1,4 @@
-from blueprints import auth, static_pages, player_stats, player_profiles, player_groups
+from blueprints import auth, static_pages, avatar, player_stats, player_profiles, player_groups
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
@@ -13,6 +13,11 @@ BLUEPRINTS = [
         'blueprint': static_pages.static_pages
         },
 
+    # Avatars
+    {
+        'blueprint': avatar.avatar
+        },
+    
     # Player stats
     {
         'blueprint': player_stats.player_stats([

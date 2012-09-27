@@ -1,0 +1,3 @@
+{% macro render_avatar(obj) -%}
+{% if obj.avatar.link: %}<a href="{{ obj.avatar.link }}" class=avatar-link>{% endif %}<img class=avatar src="{{ obj.avatar.portrait }}">{% if obj.avatar.link: %}</a>{% endif %}
+{%- endmacro %}

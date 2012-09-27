@@ -1,10 +1,11 @@
 {% from 'statshelpers.html' import render_stats %}
+{% from 'avatarhelpers.html' import render_avatar %}
 
 {% macro render_profile(profile) -%}
 
 <div class=profile>
 
-{% if profile.avatar.link: %}<a href={{ profile.avatar.link }} class=profile-avatar-link>{% endif %}<img class=profile-avatar src={{ profile.avatar.portrait }}>{% if profile.avatar.link: %}</a>{% endif %}
+{{ render_avatar(profile) }}
 
 <h1 class=profile-name>{{ profile.name }}</h1>
 

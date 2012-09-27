@@ -71,7 +71,7 @@ class Profile(Base, object):
 
     @property
     def avatar(self):
-        return avatar(self.user.mail)
+        return avatar.avatar(self.user.mail)
     
     @staticmethod
     def default_profile(name, user=None):
@@ -138,10 +138,10 @@ ProfileForm = model_form(
 
 # Blueprint routes
 
-@player_profiles.route('/profile/<player>')
+@player_profiles.route('/profile/<name>')
 def show_profile(name):
     profile = player_profiles.get_by_name(name)
-    if not profile.user.default and not profile.user.name == name:
+    if not profile.user.__dict__.get('default') and not profile.user.name == name:
         # Redirect to preferred spelling url
         return redircet(url_for("player_profiles.show-profile", name=profile.user.name))
     if profile.default and not sum(map(lambda (_, stats): len(stats), profile.stats.items())):

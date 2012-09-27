@@ -1,10 +1,11 @@
 {% from 'profilehelpers.html' import render_profile %}
+{% from 'avatarhelpers.html' import render_avatar %}
 
 {% macro render_group(group, endpoint) -%}
 
 <div class=group>
 
-{% if group.avatar.link: %}<a href={{ group.avatar.link }} class=group-avatar-link>{% endif %}<img class=group-avatar src={{ group.avatar.portrait }}>{% if group.avatar.link: %}</a>{% endif %}
+{{ render_avatar(group) }}
 
 <h1 class=group-name>{{ group.display_name }}</h1>
 

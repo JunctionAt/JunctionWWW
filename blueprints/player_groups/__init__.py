@@ -53,7 +53,7 @@ class Group(Base):
     
     @property
     def avatar(self):
-        return avatar(self.mail)
+        return avatar.avatar(self.mail)
 
     @staticmethod
     def confirm(pending):
