@@ -252,22 +252,36 @@ class Endpoint(object):
             user = player_groups.session.query(User).filter(User.name==flask_login.current_user.name).one()
             if not user in group.members and not user in group.owners:
                 if request.method == 'POST':
-                    if not group.public and user in group.invited_owners:
-                        group.owners.append(user)
-                    elif group.public or user in group.invited_members:
-                        group.members.append(user)
-                        # Maintain invited status for members of public groups
-                        group.invited_members = list(set(group.invited_members + [ user ]))
+                    if request.form['join']:
+                        # Join action
+                        if not group.public and user in group.invited_owners:
+                            group.owners.append(user)
+                        elif group.public or user in group.invited_members:
+                            group.members.append(user)
+                            # Maintain invited status for members of public groups
+                            group.invited_members = list(set(group.invited_members + [ user ]))
+                        else:
+                            abort(403)
+                        # Check for confirmation of group registration
+                        if group.id == "%s.pending.%s"%(self.server,group.name):
+                            player_groups.session.delete(group)
+                            group = Group.confirm(group)
+                        player_groups.session.add(group)
+                        player_groups.session.commit()
+                        flash("You have joined %s."%group.display_name)
+                        return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
                     else:
-                        abort(403)
-                    # Check for confirmation of group registration
-                    if group.id == "%s.pending.%s"%(self.server,group.name):
-                        player_groups.session.delete(group)
-                        group = Group.confirm(group)
-                    player_groups.session.add(group)
-                    player_groups.session.commit()
-                    flash("You have joined %s"%group.display_name)
-                    return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
+                        # Pass action
+                        if user in group.invited_owners:
+                            group.invited_owners.remove(user)
+                        elif user in group.invited_members:
+                            group.invited_members.remove(user)
+                        else:
+                            abort(403)
+                        player_groups.session.add(group)
+                        player_groups.session.commit()
+                        flash("Invitation to %s rejected."%group.display_name)
+                        return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
                 if not group.name == name:
                     # Redirect to preferred caps
                     return redirect(url_for('player_groups.%s_join_group'%self.server, name=group.name))
