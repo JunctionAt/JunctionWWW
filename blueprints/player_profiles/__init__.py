@@ -3,7 +3,7 @@ import flask_login
 from flask import render_template, request, current_app, abort, flash, redirect, url_for
 import sqlalchemy
 import sqlalchemy.orm
-from sqlalchemy.orm import relation
+from sqlalchemy.orm import relation, backref
 from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import *
 from sqlalchemy import Column
@@ -29,7 +29,7 @@ class Profile(Base, object):
     link = Column(String(256))
     show_stats = Column(String(64))
     default = False
-    _user = relation(User, backref='profile', lazy=False)
+    _user = relation(User, backref=backref('_profile', uselist=False), lazy=False)
     _stats = None
 
     @property
@@ -74,11 +74,12 @@ class Profile(Base, object):
         return avatar(self.user.mail)
     
     @staticmethod
-    def default_profile(name):
+    def default_profile(name, user=None):
         """Return a default profile for unregistered users"""
         return Profile(
             name=name,
             show_stats=' '.join(player_stats.endpoints.keys()),
+            _user=user,
             default=True
         )
     
@@ -89,6 +90,7 @@ class Profile(Base, object):
         user.default = True
         return user
 
+setattr(User, 'profile', property(lambda self: self._profile or Profile.default_profile(self.name, user=self)))
 
 
 class Blueprint(flask.Blueprint, object):

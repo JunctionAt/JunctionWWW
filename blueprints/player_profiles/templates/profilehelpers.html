@@ -1,3 +1,5 @@
+{% from 'statshelpers.html' import render_stats %}
+
 {% macro render_profile(profile) -%}
 
 <div class=profile>
@@ -31,8 +33,6 @@
 {% if profile.profile_stats: -%}
 
 <h2>Player stats</h2>
-
-{% from 'player_stats.html' import render_stats %}
 
   {% for name, stats in profile.profile_stats.iteritems(): -%}
   <h3>{{ name }}</h3>

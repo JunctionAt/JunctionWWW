@@ -9,7 +9,7 @@ from sqlalchemy.types import *
 from sqlalchemy.sql.expression import and_
 from sqlalchemy import Column
 from sqlalchemy.orm.exc import NoResultFound
-from wtforms.validators import Optional, Email, ValidationError
+from wtforms.validators import Required, Optional, Email, ValidationError
 from wtalchemy.orm import model_form
 from flaskext.markdown import Markdown
 import re
@@ -135,6 +135,14 @@ class Endpoint(object):
                 return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
             return render_template('show_group.html', endpoint=self, group=group)
 
+        def validate_display_name(form, field):
+            display_name = re.sub(r'\s+', ' ', field.data.display_name.strip())
+            name = re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', display_name))
+            id = "%s.%s"%(self.server, name)
+            if player_groups.session.query(Group).filter(Group.id==id).count() > 0:
+                raise ValidationError("%s name not available."%self.group.capitalize())
+            
+        self.validate_display_name = validate_display_name
         
         def group_form(register=False):
             exclude = [ 'server', 'name', 'owners', 'members' ]
@@ -142,8 +150,12 @@ class Endpoint(object):
             return model_form(
                 Group, player_groups.session, exclude=exclude,
                 field_args={
+                    'display_name': {
+                        'label': '%s name'%self.group,
+                        'validators': [ Required(), self.validate_display_name ]
+                        },
                     'public': {
-                        'label': 'Public registration',
+                        'label': 'Open registration',
                         'description': 'Check this to allow anyone to join your %s without prior invitation.'%self.group
                         },
                     'mail': {
@@ -216,7 +228,9 @@ class Endpoint(object):
                 group.invited_members = list(set(group.invited_members) - set(group.invited_owners))
                 # Registree is a confirmed owner
                 group.owners = [ user ]
-                # commit
+                # Delete any pending group registrations of the same id
+                player_groups.session.query(Group).filter(Group.id==id).delete()
+                # Commit
                 player_groups.session.add(group)
                 player_groups.session.commit()
                 # Done
