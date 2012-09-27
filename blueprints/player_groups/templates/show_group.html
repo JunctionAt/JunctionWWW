@@ -1,26 +1,4 @@
-{% macro render_group(group) -%}
-
-<div class=group>
-
-{% if group.avatar.link: %}<a href={{ group.avatar.link }} class=group-avatar-link>{% endif %}<img class=group-avatar src={{ group.avatar.portrait }}>{% if group.avatar.link: %}</a>{% endif %}
-
-<h1 class=group-name>{{ group.display_name }}</h1>
-
-{% if group.tagline: -%}
-<blockquote class=group-shortinfo>{{ group.tagline }}</blockquote>
-{%- endif %}
-
-{% if group.link: -%}
-<p class=group-link><a href={{ group.link }}>{{ group.link }}</a></p>
-{%- endif %}
-
-{% if group.info: -%}
-<p class=group-longinfo>{{ group.info|markdown }}</p>
-{%- endif %}
-
-</div>
-
-{%- endmacro %}
+{% from 'grouphelpers.html' import render_group %}
 
 {% extends "base.html" %}
 {% block content %}

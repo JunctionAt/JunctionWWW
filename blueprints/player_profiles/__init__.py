@@ -137,11 +137,11 @@ ProfileForm = model_form(
 # Blueprint routes
 
 @player_profiles.route('/profile/<player>')
-def show_profile(player):
-    profile = player_profiles.get_by_name(player)
-    if not profile.user.default and not profile.user.name == player:
+def show_profile(name):
+    profile = player_profiles.get_by_name(name)
+    if not profile.user.default and not profile.user.name == name:
         # Redirect to preferred spelling url
-        return redircet(url_for("player_profiles.show-profile", player=profile.user.name))
+        return redircet(url_for("player_profiles.show-profile", name=profile.user.name))
     if profile.default and not sum(map(lambda (_, stats): len(stats), profile.stats.items())):
         # Error out if the default profile is loaded and there are no stats.
         # This should be the case if the player has never logged onto any of the servers.

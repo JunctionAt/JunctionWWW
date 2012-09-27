@@ -1,0 +1,46 @@
+{% macro render_profile(profile) -%}
+
+<div class=profile>
+
+{% if profile.avatar.link: %}<a href={{ profile.avatar.link }} class=profile-avatar-link>{% endif %}<img class=profile-avatar src={{ profile.avatar.portrait }}>{% if profile.avatar.link: %}</a>{% endif %}
+
+<h1 class=profile-name>{{ profile.name }}</h1>
+
+{% if profile.tagline: -%}
+<p class=profile-tagline><quote>{{ profile.tagline }}</quote></p>
+{%- endif %}
+
+{% if profile.realname or profile.location or profile.link: -%}
+<p class=profile-info>
+
+  {% if profile.realname: -%}
+  <span class=profile-realname>{{ profile.realname }}</span><br>
+  {%- endif %}
+
+  {% if profile.location: -%}
+  <span class=profile-location>{{ profile.location }}</span><br>
+  {%- endif %}
+
+  {% if profile.link: -%}
+  <span class=profile-link><a href={{ profile.link }}>{{ profile.link }}</a></span><br>
+  {%- endif %}
+
+</p>
+{%- endif %}
+
+{% if profile.profile_stats: -%}
+
+<h2>Player stats</h2>
+
+{% from 'player_stats.html' import render_stats %}
+
+  {% for name, stats in profile.profile_stats.iteritems(): -%}
+  <h3>{{ name }}</h3>
+  {{ render_stats(stats) }}
+  {%- endfor %}
+
+{%- endif %}
+
+</div>
+
+{%- endmacro %}

@@ -214,7 +214,7 @@ class PlayerStats:
         """Transform a stat object into a readable tuple in form of (label, value)"""
         pattern = PlayerStats.stat_match(stat, map(lambda transform: transform[0], transforms))
         transform = PlayerStats.pair(pattern, transforms)[1]
-        if isinstance(transform, types.FunctionType): transform = transform(stat)
+        if callable(transform): transform = transform(stat)
         if stat.stat != 'category' and not isinstance(transform, types.TupleType):
             return (transform, stat.value)
         return transform
@@ -227,7 +227,7 @@ class PlayerStats:
                 stat = transform(stat)
             pattern = PlayerStats.stat_match(stat, map(lambda weight: weight[0], weights))
             weight = PlayerStats.pair(pattern, weights)[1]
-            if isinstance(weight, types.FunctionType):
+            if callable(weight):
                 return weight(stat)
             return weight
         return key
@@ -237,7 +237,7 @@ class PlayerStats:
         """Returns the string pattern or lambda from patterns that matches stat"""
         return reduce(
             lambda match, p:
-                match or (p if (isinstance(p, types.FunctionType) and p(stat)) or
+                match or (p if (callable(p) and p(stat)) or
                           isinstance(p, types.StringType) and
                           (p[:p.index('.')] in [ '*', stat.category ] and
                            p[p.index('.')+1:] in [ '*', stat.stat ])

@@ -11,12 +11,14 @@ from sqlalchemy import Column
 from sqlalchemy.orm.exc import NoResultFound
 from wtforms.validators import Optional, Email, ValidationError
 from wtalchemy.orm import model_form
+from flaskext.markdown import Markdown
 import re
 
 from blueprints.base import Base
 from blueprints.auth.user_model import User
 from blueprints.avatar import avatar
 
+Markdown(current_app)
 
 def player_groups(servers=[]):
     """Create routes for all group endpoints defined in servers
@@ -52,6 +54,27 @@ class Group(Base):
     @property
     def avatar(self):
         return avatar(self.mail)
+
+    @staticmethod
+    def confirm(pending):
+        """Returns a copy of pending with a confirmed id"""
+        group = Group(**reduce(
+                lambda kwargs, prop: dict(kwargs.items() + [(prop, getattr(pending, prop))]),
+                [ 'server',
+                  'name',
+                  'display_name',
+                  'mail',
+                  'tagline',
+                  'link',
+                  'info',
+                  'public',
+                  'owners',
+                  'members',
+                  'invited_owners',
+                  'invited_members',
+                  ], {}))
+        group.id = "%s.%s"%(group.server,group.name)
+        return group
 
 
 def GroupUserRelation(tablename):
@@ -98,74 +121,94 @@ class Endpoint(object):
         self.owner = owner
         self.owners = owners
 
-        def show_group(group):
+        @player_groups.blueprint.route('/%s/%s/<name>'%(self.server, self.group),
+                                       endpoint='%s_show_group'%self.server)
+        def show_group(name):
             """Show group page, endpoint specific """
             try: group = player_groups.session.query(Group).filter(Group.id.in_([
-                        "%s.%s"%(self.server,group),
-                        "%s.pending.%s"%(self.server,group)
+                        "%s.%s"%(self.server,name),
+                        "%s.pending.%s"%(self.server,name)
                         ])).first()
             except NoResultFound: abort(404)
-            if not group.name == group:
-                # Redirect to preferred spelling
-                return redirect(url_for('player_groups.%s_show_group'%self.server, group=group.name))
+            if not group.name == name:
+                # Redirect to preferred caps
+                return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
             return render_template('show_group.html', endpoint=self, group=group)
-        player_groups.blueprint.add_url_rule('/%s/%s/<group>'%(self.server, self.group), '%s_show_group'%self.server, show_group)
 
         
-        GroupForm = model_form(
-            Group, player_groups.session, exclude=[ 'server', 'name', 'owners', 'members' ],
-            field_args={
-                'mail': {
-                    'description': 'Optional contact email for your %s. Will allow you a custom avatar.'%self.group,
-                    'validators': [Optional(), Email()]
-                    },
-                })
+        def group_form(register=False):
+            exclude = [ 'server', 'name', 'owners', 'members' ]
+            if not register: exclude.append('display_name')
+            return model_form(
+                Group, player_groups.session, exclude=exclude,
+                field_args={
+                    'public': {
+                        'label': 'Public registration',
+                        'description': 'Check this to allow anyone to join your %s without prior invitation.'%self.group
+                        },
+                    'mail': {
+                        'description': 'Optional contact email for your %s. Will allow you a custom avatar.'%self.group,
+                        'validators': [Optional(), Email()]
+                        },
+                    'invited_owners': {
+                        'label': self.owners.capitalize()
+                        },
+                    'invited_members': {
+                        'label': self.members.capitalize()
+                        },
+                    })
+
+        GroupEditForm = group_form()
+        GroupRegisterForm = group_form(register=True)
         
+        @player_groups.blueprint.route('/%s/%s/<name>/edit'%(self.server, self.group),
+                                       endpoint='%s_edit_group'%self.server,
+                                       methods=('GET', 'POST'))
         @flask_login.login_required
-        def edit_group(group):
+        def edit_group(name):
             """Edit group page, endpoint specific"""
             try: group = player_groups.session.query(Group).filter(Group.id.in_([
-                        "%s.%s"%(self.server,group),
-                        "%s.pending.%s"%(self.server,self.group)
+                        "%s.%s"%(self.server,name),
+                        "%s.pending.%s"%(self.server,name)
                         ])).first()
             except NoResultFound: abort(404)
-            if not group.name == group:
-                # Redirect to preferred spelling
-                return redirect(url_for('player_groups.%s_edit_group'%self.server, group=group.name))
             user = player_groups.session.query(User).filter(User.name==flask_login.current_user.name).one()
             if not user in group.owners: abort(403)
-            form = GroupForm(request.form, group)
+            form = GroupEditForm(request.form, group)
             if request.method == 'POST' and form.validate():
                 form.populate_obj(group)
                 # Make ownership and membership mutually exclusive
                 group.invited_owners = list(set(group.invited_owners + [user]))
                 group.invited_members = list(set(group.invited_members) - set(group.invited_owners))
                 # Remove uninvited players, promote & demote
-                _owners = set(group.owners)
-                _members = set(group.members)
-                group.owners = list((_owners & set(group.invited_owners)) |
-                                    (set(group.invited_owners) & _members))
-                group.members = list((_members & set(group.invited_members)) |
-                                      (set(group.invited_members) & _owners))
+                promotions = set(group.invited_owners) & set(group.members)
+                demotions = set(group.invited_members) & set(group.owners)
+                group.owners = list(promotions | (set(group.owners) & set(group.invited_owners)))
+                group.members = list(demotions | (set(group.members) & set(group.invited_members)))
                 # Commit
                 player_groups.session.add(group)
                 player_groups.session.commit()
                 # Done
                 flash('%s saved'%self.group.capitalize())
-                return redirect(url_for('player_groups.%s_edit_group'%self.server, group=group))
-            return render_template('edit_group.html', endpoint=self, form=form)
-        player_groups.blueprint.add_url_rule('/%s/%s/<group>/edit'%(self.server, self.group),
-                                             '%s_edit_group'%self.server, edit_group, methods=('GET', 'POST'))
+                return redirect(url_for('player_groups.%s_edit_group'%self.server, name=group.name))
+            if not group.name == name:
+                # Redirect to preferred caps
+                return redirect(url_for('player_groups.%s_edit_group'%self.server, name=group.name))
+            return render_template('edit_group.html', endpoint=self, form=form, group=group)
         
+        @player_groups.blueprint.route('/%s/%s/register'%(self.server, self.groups),
+                                       endpoint='%s_register_group'%self.server,
+                                       methods=('GET', 'POST'))
         @flask_login.login_required
         def register_group():
             """Register group page, endpoint specific"""
             group = Group()
-            form = GroupForm(request.form, group)
+            form = GroupRegisterForm(request.form, group, register=True)
             user = player_groups.session.query(User).filter(User.name==flask_login.current_user.name).one()
             if request.method == 'POST' and form.validate():
                 form.populate_obj(group)
-                group.display_name = re.sub(r'\s+', ' ', name.strip())
+                group.display_name = re.sub(r'\s+', ' ', group.display_name.strip())
+                group.server = self.server
                 group.name = re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', group.display_name))
                 group.id = "%s.pending.%s"%(self.server, group.name)
                 # Make ownership and membership mutually exclusive
@@ -177,23 +220,21 @@ class Endpoint(object):
                 player_groups.session.add(group)
                 player_groups.session.commit()
                 # Done
-                flash('%s registerd'%self.group.capitalize())
-                return redirect(url_for('player_groups.%s_show_group'%self.server, group=group))
+                flash('%s registration complete pending confirmation by other %s.'%(self.group.capitalize(), self.members))
+                return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
             return render_template('edit_group.html', endpoint=self, form=form, register=True)
-        player_groups.blueprint.add_url_rule('/%s/%s/register'%(self.server, self.groups),
-                                             '%s_register_group'%self.server, register_group, methods=('GET', 'POST'))
         
+        @player_groups.blueprint.route('/%s/%s/<name>/join'%(self.server, self.group),
+                                       endpoint='%s_join_group'%self.server,
+                                       methods=('GET', 'POST'))
         @flask_login.login_required
-        def join_group(group):
+        def join_group(name):
             """Join group page, endpoint specific"""
             try: group = player_groups.session.query(Group).filter(Group.id.in_([
-                        "%s.%s"%(self.server,group),
-                        "%s.pending.%s"%(self.server,self.group)
+                        "%s.%s"%(self.server,name),
+                        "%s.pending.%s"%(self.server,name)
                         ])).first()
             except NoResultFound: abort(404)
-            if not group.name == group:
-                # Redirect to preferred spelling
-                return redirect(url_for('player_groups.%s_join_group'%self.server, group=group.name))
             user = player_groups.session.query(User).filter(User.name==flask_login.current_user.name).one()
             if not user in group.members and not user in group.owners:
                 if request.method == 'POST':
@@ -206,33 +247,34 @@ class Endpoint(object):
                     else:
                         abort(403)
                     # Check for confirmation of group registration
-                    if group.id == "%s.pending.%s"%(self.server,self.group):
-                        group.id = "%s.%s"%(self.server,self.group)
+                    if group.id == "%s.pending.%s"%(self.server,group.name):
+                        player_groups.session.delete(group)
+                        group = Group.confirm(group)
                     player_groups.session.add(group)
                     player_groups.session.commit()
                     flash("You have joined %s"%group.display_name)
-                    return redirect(url_for('player_groups.%s_show_group'%self.server, group=group))
+                    return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
+                if not group.name == name:
+                    # Redirect to preferred caps
+                    return redirect(url_for('player_groups.%s_join_group'%self.server, name=group.name))
                 return render_template('join_group.html', endpoint=self, group=group)
             abort(403)
-        player_groups.blueprint.add_url_rule('/%s/%s/<group>/join'%(self.server, self.group),
-                                             '%s_join_group'%self.server, join_group, methods=('GET', 'POST'))
             
 
-
-@player_groups.blueprint.route('/groups/<server>/show/<group>')
-def show_group(server, group):
+@player_groups.blueprint.route('/groups/<server>/show/<name>')
+def show_group(server, name):
     """Redirects to preferred url of server"""
     endpoint = player_groups.endpoints.get(server)
     if endpoint:
-        return redirect(url_for('player_groups.%s_show_group'%endpoint.server, group=group))
+        return redirect(url_for('player_groups.%s_show_group'%endpoint.server, name=name))
     abort(404)
 
-@player_groups.blueprint.route('/groups/<server>/edit/<group>')
-def edit_group(server, group):
+@player_groups.blueprint.route('/groups/<server>/edit/<name>')
+def edit_group(server, name):
     """Redirects to preferred url of server"""
     endpoint = player_groups.endpoints.get(server)
     if endpoint:
-        return redirect(url_for('player_groups.%s_edit_group'%endpoint.server, group=group))
+        return redirect(url_for('player_groups.%s_edit_group'%endpoint.server, name=name))
     abort(404)
 
 @player_groups.blueprint.route('/groups/<server>/register')
