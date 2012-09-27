@@ -85,7 +85,9 @@ class Profile(Base, object):
     @staticmethod
     def default_user(name):
         """Return a default user"""
-        return User(name=name)
+        user = User(name=name)
+        user.default = True
+        return user
 
 
 
@@ -123,7 +125,7 @@ def validate_show_stats(form, field):
         raise ValidationError('Invalid servers: %s'%', '.join(invalid))
 
 ProfileForm = model_form(
-    Profile, player_profiles.session, exclude_pk=True, exclude_fk=True,
+    Profile, player_profiles.session,
     field_args={ 'show_stats': {
             'label': 'Displayed stats',
             'description': "You can remove any or all servers from this list to hide them on your profile.",
@@ -137,6 +139,9 @@ ProfileForm = model_form(
 @player_profiles.route('/profile/<player>')
 def show_profile(player):
     profile = player_profiles.get_by_name(player)
+    if not profile.user.default and not profile.user.name == player:
+        # Redirect to preferred spelling url
+        return redircet(url_for("player_profiles.show-profile", player=profile.user.name))
     if profile.default and not sum(map(lambda (_, stats): len(stats), profile.stats.items())):
         # Error out if the default profile is loaded and there are no stats.
         # This should be the case if the player has never logged onto any of the servers.

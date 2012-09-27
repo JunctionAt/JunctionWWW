@@ -64,7 +64,7 @@ def wpass():
     flash(u"The username or password was incorrect.")
     return redirectd("/login")
 	
-@blueprint.route("/login", methods=["GET", "POST"])
+@current_app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST" and "username" in request.form and "password" in request.form:
 	username = request.form["username"]
@@ -81,7 +81,7 @@ def login():
                     remember = request.form.get("remember", "no") == "yes"
                     if login_user(load_user_name(username), remember=remember):
                         flash("Logged in!")
-                        return redirect("/control")
+                        return redirect(request.args.get("next", "/control"))
                     else:
                         return wpass()
                 else:

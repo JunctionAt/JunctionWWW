@@ -7,14 +7,12 @@
 {% from 'formhelpers.html' import render_field %}
 <form id=profile-form method=post action={{ url_for('player_profiles.edit_profile') }}>
   {{ form.csrf_token }}
-  <dl>
-    {{ render_field(form.tagline) }}
-    {{ render_field(form.realname) }}
-    {{ render_field(form.location) }}
-    {{ render_field(form.link) }}
-    {{ render_field(form.show_stats) }}
-  </dl>
-  <p><input type=submit value=Save></p>
+  {{ render_field(form.tagline) }}
+  {{ render_field(form.realname) }}
+  {{ render_field(form.location) }}
+  {{ render_field(form.link) }}
+  {{ render_field(form.show_stats) }}
+  <p class=profile-submit><input type=submit value=Save></p>
 </form>
 
 {% endblock %}

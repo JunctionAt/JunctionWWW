@@ -14,3 +14,6 @@ class User(Base, object):
     mail = Column(String(60))
     registered = Column(DateTime)
     verified = Column(Boolean)
+
+    def __repr__(self):
+        return self.name

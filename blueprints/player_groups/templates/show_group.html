@@ -1,44 +1,21 @@
-{% macro render_profile(profile) -%}
+{% macro render_group(group) -%}
 
-<div class=profile>
+<div class=group>
 
-{% if profile.user.avatar.link: %}<a href={{ profile.user.avatar.link }} class=profile-avatar-link>{% endif %}<img class=profile-avatar src={{ profile.user.avatar.portrait }}>{% if profile.user.avatar.link: %}</a>{% endif %}
+{% if group.avatar.link: %}<a href={{ group.avatar.link }} class=group-avatar-link>{% endif %}<img class=group-avatar src={{ group.avatar.portrait }}>{% if group.avatar.link: %}</a>{% endif %}
 
-<h1 class=profile-name>{{ profile.name }}</h1>
+<h1 class=group-name>{{ group.display_name }}</h1>
 
-{% if profile.tagline: -%}
-<p class=profile-tagline><quote>{{ profile.tagline }}</quote></p>
+{% if group.tagline: -%}
+<blockquote class=group-shortinfo>{{ group.tagline }}</blockquote>
 {%- endif %}
 
-{% if profile.realname or profile.location or profile.link: -%}
-<p class=profile-info>
-
-  {% if profile.realname: -%}
-  <span class=profile-realname>{{ profile.realname }}</span><br>
-  {%- endif %}
-
-  {% if profile.location: -%}
-  <span class=profile-location>{{ profile.location }}</span><br>
-  {%- endif %}
-
-  {% if profile.link: -%}
-  <span class=profile-link><a href={{ profile.link }}>{{ profile.link }}</a></span><br>
-  {%- endif %}
-
-</p>
+{% if group.link: -%}
+<p class=group-link><a href={{ group.link }}>{{ group.link }}</a></p>
 {%- endif %}
 
-{% if profile.profile_stats: -%}
-
-<h2>Player stats</h2>
-
-{% from 'player_stats.html' import render_stats %}
-
-  {% for name, stats in profile.profile_stats.iteritems(): -%}
-  <h3>{{ name }}</h3>
-  {{ render_stats(stats) }}
-  {%- endfor %}
-
+{% if group.info: -%}
+<p class=group-longinfo>{{ group.info|markdown }}</p>
 {%- endif %}
 
 </div>
@@ -47,5 +24,5 @@
 
 {% extends "base.html" %}
 {% block content %}
-{{ render_profile(profile) }}
+{{ render_group(group) }}
 {%- endblock %}

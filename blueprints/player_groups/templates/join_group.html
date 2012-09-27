@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% from 'show_group.html' import render_group %}
+{% block content %}
+
+<h1>Join {{ endpoint.group }}</h1>
+
+<form id=join-group-form method=post action={{ url_for('player_groups.join_group', server=endpoint.server) }}>
+  
+  {{ form.csrf_token }}
+  
+  <p class=group-submit><input type=submit value="Join {{ group.display_name }}"></p>
+
+  {{ render_group(group) }}
+  
+</form>
+
+{% endblock %}

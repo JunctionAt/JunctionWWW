@@ -2,16 +2,40 @@
 
 {% block content %}
 
-<h1>Edit {{ group }}</h1>
+{% if register: -%}
+<h1>Register {{ endpoint.group }}</h1>
+{%- else -%}
+<h1>Edit {{ endpoint.group }}</h1>
+{%- endif %}
 
 {% from 'formhelpers.html' import render_field %}
-<form id=profile-form method=post action={{ url_for('player_groups.edit_group) }}>
+<form id=group-{% if register: %}register{% else %}edit{% endif %}-form method=post action={{ url_for('player_groups.register_group', server=endpoint.server) }}>
   {{ form.csrf_token }}
-  <dl>
-    {{ form.name }}
-
-  </dl>
-  <p><input type=submit value=Save></p>
+  {% if register: -%}
+  {{ render_field(form.display_name) }}
+  {%- endif %}
+  {{ render_field(form.mail) }}
+  {{ render_field(form.tagline) }}
+  {{ render_field(form.link) }}
+  {% if register: -%}
+  <p>
+    <small>
+      You will need to have at least one other confirmed {{ endpoint.member }} or {{ endpoint.owner }} to complete registration.
+      If you do not see the player's name in the list, you must wait until the player has created an account
+      before registering your {{ endpoint.group }}.
+    </small>
+  </p>
+  {%- endif %}
+  {{ render_field(form.invited_owners) }}
+  {{ render_field(form.invited_members) }}
+  {% if not register: -%}
+  {{ render_field(form.info) }}
+  {%- endif %}
+  {% if register: -%}
+  <p class=group-submit><input type=submit value=Register></p>
+  {%- else: -%}
+  <p class=group-submit><input type=submit value=Save></p>
+  {%- endif %}
 </form>
 
 {% endblock %}
