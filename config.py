@@ -43,8 +43,5 @@ BLUEPRINTS = [
                      owner='leader', owners='leaders'),
                 ])),
     
-    # Notifications (should probably load this blueprint after any that generate notifications)
-    dict(blueprint=player_notifications.player_notifications),
-    
     ]
 

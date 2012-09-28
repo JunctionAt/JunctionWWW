@@ -4,7 +4,7 @@ from sqlalchemy import Column
 from sqlalchemy.types import *
 import sqlalchemy.orm
 
-from blueprints.base import Base
+from blueprints.base import Base, session
 
 
 class User(Base, object):
@@ -26,19 +26,16 @@ class User(Base, object):
     # Static class property
     def _current_user(self, cls, owner):
         if User._user is False:
-            if flask_login.current_user:
-                User._user = sqlalchemy.orm.sessionmaker(flask.current_app.config['ENGINE'])() \
-                    .query(User) \
+            if not flask_login.current_user.name == u'Anonymous':
+                User._user = session.query(User) \
                     .filter(User.name==flask_login.current_user.name) \
                     .one()
             else:
                 User._user = None
         return User._user
-    
     current_user = type('property', (property,), dict(__get__=_current_user))()
-
 
     @staticmethod
     @flask.current_app.before_request
-    def reset_current_user():
+    def reset_current_user(*args):
         setattr(User, '_user', False)

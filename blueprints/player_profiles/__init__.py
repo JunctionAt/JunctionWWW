@@ -12,7 +12,7 @@ from wtalchemy.orm import model_form
 from wtforms.validators import Optional, Length, ValidationError
 import re
 
-from blueprints.base import Base
+from blueprints.base import Base, session
 from blueprints.auth.user_model import User
 from blueprints.player_stats import player_stats
 from blueprints.avatar import avatar
@@ -45,7 +45,7 @@ class Profile(Base, object):
         """
         if not self._user:
             try:
-                self._user = player_profiles.session.query(User) \
+                self._user = session.query(User) \
                     .filter(User.name==self.name).one()
             except NoResultFound:
                 self._user = Profile.default_user(self.name)
@@ -92,18 +92,18 @@ class Profile(Base, object):
         user.default = True
         return user
 
+
 setattr(User, 'profile', property(lambda self: self._profile or Profile.default_profile(self.name, user=self)))
 
 
 class Blueprint(flask.Blueprint, object):
-    """Our blueprint that will lazy load it's session when in a flask context"""
 
     def register(self, *args, **kwargs):
 
         @self.route('/profile/<name>')
         def show_profile(name):
             try:
-                profile = player_profiles.session.query(Profile).filter(Profile.name==name).one()
+                profile = session.query(Profile).filter(Profile.name==name).one()
             except NoResultFound:
                 profile = Profile.default_profile(name)
             if not getattr(profile.user, 'default', False) and not profile.user.name == name:
@@ -123,8 +123,8 @@ class Blueprint(flask.Blueprint, object):
             if request.method == 'POST' and form.validate():
                 form.populate_obj(profile)
                 profile.show_stats = ' '.join(re.compile('[,\s]+').split(profile.show_stats.lower()))
-                player_profiles.session.add(profile)
-                player_profiles.session.commit()
+                session.add(profile)
+                session.commit()
                 flash('Profile saved')
                 return redirect(url_for('player_profiles.edit_profile'))
             return render_template('edit_profile.html', form=form)
@@ -140,7 +140,7 @@ class Blueprint(flask.Blueprint, object):
                 raise ValidationError('Invalid servers: %s'%', '.join(invalid))
 
         ProfileForm = model_form(
-            Profile, player_profiles.session,
+            Profile, session,
             field_args=dict(show_stats=dict(
                     label='Displayed stats',
                     description="You can remove any or all servers from this list to hide them on your profile.",
@@ -152,4 +152,3 @@ class Blueprint(flask.Blueprint, object):
 """Singleton blueprint object"""
 player_profiles = Blueprint('player_profiles', __name__, template_folder='templates')
 
-player_profiles.session = sqlalchemy.orm.sessionmaker(current_app.config['ENGINE'])()

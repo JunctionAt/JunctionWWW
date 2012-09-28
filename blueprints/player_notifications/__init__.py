@@ -24,31 +24,23 @@ class Notification(Base):
     message = Column(String(256))
     user = relation(User, backref='notifications')
 
-class Blueprint(flask.Blueprint):
-    
-    def register(self, *args, **kwargs):
-        
-        app = args[0] # yup.
-        
-        @app.context_processor
-        def inject_notifications():
-            return dict(notifications=self.notifications)
-        
-        @app.before_request
-        def populate_notifications(*args):
-            self.notifications = list()
-            if User.current_user:
-                # Show notifications
-                for (module, notifications) in reduce(
-                    lambda modules, notification:
-                        dict(modules.items() + [(notification.module, modules.get(notification.module, []) + [notification])]),
-                    User.current_user.notifications, dict()).iteritems(): notify(module, notifications)
-                self.notifications = list()
-        
-        @notification(name='player_notifications')
-        def show(notification):
-            self.notifications.append(notification)
-        
-        return super(Blueprint, self).register(*args, **kwargs)
+@flask.current_app.context_processor
+def inject_notifications():
+    return dict(notifications=__notifications__)
 
-player_notifications = Blueprint('player_notifications', __name__)
+@flask.current_app.before_request
+def populate_notifications(*args):
+    while len(__notifications__): __notifications__.pop()
+    if User.current_user:
+        # Show notifications
+        for module, notifications in reduce(
+            lambda modules, notification:
+                dict(modules.items() + [(notification.module, modules.get(notification.module, list()) + [notification])]),
+            User.current_user.notifications, dict()).iteritems():
+            notify(module, notifications)
+
+@notification(name='player_notifications')
+def show(notification):
+    __notifications__.append(notification)
+
+__notifications__ = list()

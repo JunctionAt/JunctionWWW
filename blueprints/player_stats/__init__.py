@@ -6,7 +6,7 @@ from datetime import datetime
 import types
 import re
 
-from blueprints.base import Base
+from blueprints.base import Base, session
 
 
 def player_stats(servers=[]):
@@ -30,8 +30,6 @@ player_stats.endpoints = dict()
 
 # Blueprint
 player_stats.blueprint = Blueprint('player_stats', __name__, template_folder='templates')
-
-player_stats.session = sqlalchemy.orm.sessionmaker(current_app.config['ENGINE'])()
 
 class Endpoint(object):
     """Wrapper for calls to PlayerStats that contain db or table specifics"""
@@ -59,7 +57,7 @@ class Endpoint(object):
         self.weights = weights
         
     def get_by_name(self, player):
-        return PlayerStats.player_stats(self.model, player_stats.session, player,
+        return PlayerStats.player_stats(self.model, session, player,
                                         self.show, self.hide, self.transforms, self.weights)
     
     def format(self, rows):

@@ -15,9 +15,11 @@ from yell import notify
 from yell.decorators import notification
 import re
 
-from blueprints.base import Base
+from blueprints.base import Base, session
 from blueprints.auth.user_model import User
 from blueprints.avatar import avatar
+from blueprints.player_profiles import Profile
+from blueprints.player_notifications import Notification
 
 
 def player_groups(servers=[]):
@@ -97,8 +99,6 @@ player_groups.endpoints = dict()
 # Blueprint
 player_groups.blueprint = Blueprint('player_groups', __name__, template_folder='templates')
 
-player_groups.session = sqlalchemy.orm.sessionmaker(current_app.config['ENGINE'])()
-
 
 class Endpoint(object):
     """Wrapper to distinguish server groups"""
@@ -125,7 +125,7 @@ class Endpoint(object):
         def show_group(name):
             """Show group page, endpoint specific """
 
-            try: group = player_groups.session.query(Group).filter(Group.id.in_([
+            try: group = session.query(Group).filter(Group.id.in_([
                         "%s.%s"%(self.server,name),
                         "%s.pending.%s"%(self.server,name)
                         ])).first()
@@ -143,14 +143,14 @@ class Endpoint(object):
             if name == '_':
                 raise ValidationError("Your %s name must include at least letter or number."%self.group)
             id = "%s.%s"%(self.server, name)
-            if player_groups.session.query(Group).filter(Group.id==id).count() > 0:
+            if session.query(Group).filter(Group.id==id).count() > 0:
                 raise ValidationError("%s name not available."%self.group.capitalize())
             
         def group_form(register=False):
             exclude = [ 'server', 'name', 'owners', 'members' ]
             if not register: exclude.append('display_name')
             return model_form(
-                Group, player_groups.session, exclude=exclude,
+                Group, session, exclude=exclude,
                 field_args=dict(
                     display_name=dict(
                         label='%s name'%self.group,
@@ -175,7 +175,7 @@ class Endpoint(object):
         @flask_login.login_required
         def edit_group(name):
             """Edit group page, endpoint specific"""
-            try: group = player_groups.session.query(Group).filter(Group.id.in_([
+            try: group = session.query(Group).filter(Group.id.in_([
                         "%s.%s"%(self.server,name),
                         "%s.pending.%s"%(self.server,name)
                         ])).first()
@@ -194,10 +194,10 @@ class Endpoint(object):
                 group.owners = list(promotions | (set(group.owners) & set(group.invited_owners)))
                 group.members = list(demotions | (set(group.members) & set(group.invited_members)))
                 # Commit
-                player_groups.session.add(group)
-                player_groups.session.commit()
+                session.add(group)
+                session.commit()
                 # Send notifications
-                manage_invitation(group)
+                manage_invitations(group)
                 # Done
                 flash('%s saved'%self.group.capitalize())
                 return redirect(url_for('player_groups.%s_edit_group'%self.server, name=group.name))
@@ -227,10 +227,10 @@ class Endpoint(object):
                 # Registree is a confirmed owner
                 group.owners = [ user ]
                 # Delete any pending group registrations of the same id
-                player_groups.session.query(Group).filter(Group.id==id).delete()
+                session.query(Group).filter(Group.id==id).delete()
                 # Commit
-                player_groups.session.add(group)
-                player_groups.session.commit()
+                session.add(group)
+                session.commit()
                 # Send notifications
                 manage_invitations(group)
                 # Done
@@ -244,7 +244,7 @@ class Endpoint(object):
         @flask_login.login_required
         def join_group(name):
             """Join group page, endpoint specific"""
-            try: group = player_groups.session.query(Group).filter(Group.id.in_([
+            try: group = session.query(Group).filter(Group.id.in_([
                         "%s.%s"%(self.server,name),
                         "%s.pending.%s"%(self.server,name)
                         ])).first()
@@ -264,7 +264,7 @@ class Endpoint(object):
                             abort(403)
                         # Check for confirmation of group registration
                         if group.id == "%s.pending.%s"%(self.server,group.name):
-                            player_groups.session.delete(group)
+                            session.delete(group)
                             group = Group.confirm(group)
                         flash("You have joined %s."%group.display_name)
                     else:
@@ -277,27 +277,20 @@ class Endpoint(object):
                             abort(403)
                         flash("Invitation to %s rejected."%group.display_name)
                     # Delete player notification
-                    player_groups.session.query(Notification) \
+                    session.query(Notification) \
                         .filter(Notification.module=='player_groups') \
                         .filter(Notification.type=='invitation') \
                         .filter(Notification.from_=="%s.%s"%(group.server,group.name)) \
                         .filter(Notification.user_name==user.name) \
                         .delete()
-                    player_groups.session.add(group)
-                    player_groups.session.commit()
+                    session.add(group)
+                    session.commit()
                     return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
                 if not group.name == name:
                     # Redirect to preferred caps
                     return redirect(url_for('player_groups.%s_join_group'%self.server, name=group.name))
                 return render_template('join_group.html', endpoint=self, group=group)
             abort(403)
-
-        @notification(name='player_groups')
-        def show(notification):
-            """Display a group invitation if the profile doesn't hide them"""
-            
-            if not notification.type == 'invitation' or not Profile.current_profile.hide_group_invitations:
-                notify('player_notifications', notification)
 
         def manage_invitations(group):
             """Save and manage invitation notifications"""
@@ -308,21 +301,21 @@ class Endpoint(object):
                 (set(group.invited_members) - set(group.members))
             # People who have been notified
             notified = set(map(lambda notification: notification.user, \
-                                   player_groups.session.query(Notification) \
+                                   session.query(Notification) \
                                    .filter(Notification.module=='player_groups') \
                                    .filter(Notification.type=='invitation') \
                                    .filter(Notification.from_=="%s.%s"%(group.server,group.name)) \
                                    .all()))
             # Delete notifications for players that are no longer invited
-            player_groups.session.query(Notification) \
+            session.query(Notification) \
                 .filter(Notification.module=='player_groups') \
                 .filter(Notification.type=='invitation') \
                 .filter(Notification.from_=="%s.%s"%(group.server,group.name)) \
-                .filter(Notification.user.in_(notified - invited)) \
+                .filter(Notification.user_name.in_(map(lambda user: user.name, notified - invited))) \
                 .delete()
             # Add notifications for people who haven't been sent one
             for user in invited - notified:
-                player_groups.session.add(
+                session.add(
                     Notification(
                         user_name=user.name,
                         module='player_groups',
@@ -331,7 +324,7 @@ class Endpoint(object):
                         message="You have been invited to join [%s](%s)."% \
                             (group.display_name,
                              url_for('player_groups.%s_join_group'%group.server, name=group.name))))
-            player_groups.session.commit()
+            session.commit()
 
             
 
@@ -358,3 +351,16 @@ def register_group(server):
     if endpoint:
         return redirect(url_for('player_groups.%s_register_group'%endpoint.server))
     abort(404)
+
+@notification(name='player_groups')
+def show_notifications(notifications):
+    """Display a group invitation if the profile doesn't hide them"""
+    for notification in notifications:
+        if notification.type == 'invitation':
+            if User.current_user.profile.hide_group_invitations:
+                continue
+            (server, name) = notification.from_.split('.')
+            if request.path == url_for('player_groups.%s_join_group'%server, name=name):
+                continue
+        notify('player_notifications', notification)
+
