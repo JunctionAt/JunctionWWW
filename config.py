@@ -1,63 +1,50 @@
-from blueprints import auth, static_pages, avatar, player_stats, player_profiles, player_groups
+from flask import current_app
+from blueprints import auth, static_pages, avatar, player_notifications, player_stats, player_profiles, player_groups
+
+# Markdown support
+from flaskext.markdown import Markdown
+Markdown(current_app)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
 
     # Authentication
-    {
-        'blueprint': auth.blueprint,
-        },
+    dict(blueprint=auth.blueprint),
     
     # Static pages
-    {
-        'blueprint': static_pages.static_pages
-        },
+    dict(blueprint=static_pages.static_pages),
 
     # Avatars
-    {
-        'blueprint': avatar.avatar
-        },
+    dict(blueprint=avatar.avatar),
     
     # Player stats
-    {
-        'blueprint': player_stats.player_stats([
-                {
-                    'name': 'pve', 'tablename': 'pve_stats', 'hide': [
+    dict(blueprint=player_stats.player_stats([
+                dict(name='pve', tablename='pve_stats',
+                     hide=[
                         'comp.pk', 'kills.player', 'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
-                        ]},
-                {
-                    'name': 'event', 'tablename': 'event_stats', 'hide': [
+                        ]),
+                dict(name='event', tablename='event_stats',
+                     hide=[
                         'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
-                        ]},
-                ])
-        },
+                        ]),
+                ])),
     
     # Player profiles
-    {
-        'blueprint': player_profiles.player_profiles
-        },
+    dict(blueprint=player_profiles.player_profiles),
 
-    # Clans & Cities
-    {
-        'blueprint': player_groups.player_groups([
-                {
-                    'name': 'pve',
-                    'group': 'city',
-                    'groups': 'cities',
-                    'member': 'citizen',
-                    'members': 'citizens',
-                    'owner': 'mayor',
-                    'owners': 'mayors'
-                    },
-                {
-                    'name': 'survival',
-                    'group': 'clan',
-                    'groups': 'clans',
-                    'owner': 'leader',
-                    'owners': 'leaders'
-                    },
-                ])
-        },
+    # Player grops (Clans & Cities)
+    dict(blueprint=player_groups.player_groups([
+                dict(name='pve',
+                     group='city', groups='cities',
+                     member='citizen', members='citizens',
+                     owner='mayor', owners='mayors'),
+                dict(name='survival',
+                     group='clan', groups='clans',
+                     owner='leader', owners='leaders'),
+                ])),
+    
+    # Notifications (should probably load this blueprint after any that generate notifications)
+    dict(blueprint=player_notifications.player_notifications),
     
     ]
 

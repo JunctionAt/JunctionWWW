@@ -28,7 +28,8 @@ class Profile(Base, object):
     tagline = Column(String(256))
     link = Column(String(256))
     show_stats = Column(String(64))
-    default = False
+    hide_group_invitations = Column(Boolean)
+    
     _user = relation(User, backref=backref('_profile', uselist=False), lazy=False)
     _stats = None
 
@@ -76,12 +77,13 @@ class Profile(Base, object):
     @staticmethod
     def default_profile(name, user=None):
         """Return a default profile for unregistered users"""
-        return Profile(
+        profile = Profile(
             name=name,
             show_stats=' '.join(player_stats.endpoints.keys()),
-            _user=user,
-            default=True
+            _user=user
         )
+        profile.default = True
+        return profile
     
     @staticmethod
     def default_user(name):
@@ -96,71 +98,58 @@ setattr(User, 'profile', property(lambda self: self._profile or Profile.default_
 class Blueprint(flask.Blueprint, object):
     """Our blueprint that will lazy load it's session when in a flask context"""
 
-    def get_by_name(self, name):
-        """Load a player profile for name, or the default profile.
-        
-        This is shorthand for profile = (user.profile or player_profiles.default_profile())
-        
-        """
-        try:
-            return player_profiles.session.query(Profile).filter(Profile.name==name).one()
-        except NoResultFound:
-            return Profile.default_profile(name)
+    def register(self, *args, **kwargs):
+
+        @self.route('/profile/<name>')
+        def show_profile(name):
+            try:
+                profile = player_profiles.session.query(Profile).filter(Profile.name==name).one()
+            except NoResultFound:
+                profile = Profile.default_profile(name)
+            if not getattr(profile.user, 'default', False) and not profile.user.name == name:
+                # Redirect to preferred spelling url
+                return redircet(url_for("player_profiles.show-profile", name=profile.user.name))
+            if getattr(profile, 'default', False) and not sum(map(lambda (_, stats): len(stats), profile.stats.items())):
+                # Error out if the default profile is loaded and there are no stats.
+                # This should be the case if the player has never logged onto any of the servers.
+                abort(404)
+            return render_template('show_profile.html', profile=profile)
+
+        @self.route('/profile', methods=('GET', 'POST'))
+        @flask_login.login_required
+        def edit_profile():
+            profile = User.current_user.profile
+            form = ProfileForm(request.form, profile)
+            if request.method == 'POST' and form.validate():
+                form.populate_obj(profile)
+                profile.show_stats = ' '.join(re.compile('[,\s]+').split(profile.show_stats.lower()))
+                player_profiles.session.add(profile)
+                player_profiles.session.commit()
+                flash('Profile saved')
+                return redirect(url_for('player_profiles.edit_profile'))
+            return render_template('edit_profile.html', form=form)
+
+        def validate_show_stats(form, field):
+            invalid = list()
+            parts = re.compile('[,\s]+').split(field.data.lower())
+            servers = player_stats.endpoints.keys()
+            for server in parts:
+                if not server in servers:
+                    invalid.append(server)
+            if len(invalid):
+                raise ValidationError('Invalid servers: %s'%', '.join(invalid))
+
+        ProfileForm = model_form(
+            Profile, player_profiles.session,
+            field_args=dict(show_stats=dict(
+                    label='Displayed stats',
+                    description="You can remove any or all servers from this list to hide them on your profile.",
+                    validators=[ Optional(), validate_show_stats ])))
+
+        return super(Blueprint, self).register(*args, **kwargs)
 
 
 """Singleton blueprint object"""
 player_profiles = Blueprint('player_profiles', __name__, template_folder='templates')
 
 player_profiles.session = sqlalchemy.orm.sessionmaker(current_app.config['ENGINE'])()
-    
-
-# Forms :)
-
-def validate_show_stats(form, field):
-    invalid = list()
-    parts = re.compile('[,\s]+').split(field.data.lower())
-    servers = player_stats.endpoints.keys()
-    for server in parts:
-        if not server in servers:
-            invalid.append(server)
-    if len(invalid):
-        raise ValidationError('Invalid servers: %s'%', '.join(invalid))
-
-ProfileForm = model_form(
-    Profile, player_profiles.session,
-    field_args={ 'show_stats': {
-            'label': 'Displayed stats',
-            'description': "You can remove any or all servers from this list to hide them on your profile.",
-            'validators': [ Optional(), validate_show_stats ]
-            }
-        })
-
-
-# Blueprint routes
-
-@player_profiles.route('/profile/<name>')
-def show_profile(name):
-    profile = player_profiles.get_by_name(name)
-    if not profile.user.__dict__.get('default') and not profile.user.name == name:
-        # Redirect to preferred spelling url
-        return redircet(url_for("player_profiles.show-profile", name=profile.user.name))
-    if profile.default and not sum(map(lambda (_, stats): len(stats), profile.stats.items())):
-        # Error out if the default profile is loaded and there are no stats.
-        # This should be the case if the player has never logged onto any of the servers.
-        abort(404)
-    return render_template('show_profile.html', profile=profile)
-
-@player_profiles.route('/profile', methods=('GET', 'POST'))
-@flask_login.login_required
-def edit_profile():
-    profile = player_profiles.session.query(Profile).filter(Profile.name==flask_login.current_user.name).one()
-    form = ProfileForm(request.form, profile)
-    if request.method == 'POST' and form.validate():
-        form.populate_obj(profile)
-        profile.show_stats = ' '.join(re.compile('[,\s]+').split(profile.show_stats.lower()))
-        player_profiles.session.add(profile)
-        player_profiles.session.commit()
-        flash('Profile saved')
-        return redirect(url_for('player_profiles.edit_profile'))
-    return render_template('edit_profile.html', form=form)
-

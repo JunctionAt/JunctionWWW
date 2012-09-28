@@ -35,6 +35,10 @@
 		<div class=flash>{{ message }}</div>
 		<br/>
 	{% endfor %}
+	{% for notification in notifications: %}
+		<div class=flash>{{ notification.message|markdown }}</div>
+		<br/>
+	{% endfor %}
 	{% block content %}
 	
 	{% endblock %}

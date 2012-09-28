@@ -44,13 +44,12 @@ class Endpoint(object):
 
         """
 
-        self.model = type(tablename, (Base,), {
-                '__tablename__': tablename,
-                'player': Column(String(32), primary_key=True),
-                'category': Column(String(32), primary_key=True),
-                'stat': Column(String(32), primary_key=True),
-                'value': Column(Integer),
-                })    
+        self.model = type(tablename, (Base,), dict(
+                __tablename__=tablename,
+                player=Column(String(32), primary_key=True),
+                category=Column(String(32), primary_key=True),
+                stat=Column(String(32), primary_key=True),
+                value=Column(Integer)))
         
         self.name = name
         self.tablename = tablename
@@ -74,7 +73,7 @@ def show_stats(server, player, ext):
     if endpoint:
         stats = endpoint.get_by_name(player)
         if ext == 'json':
-            return jsonify({ 'categories': stats })
+            return jsonify(dict(categories=stats))
         elif ext == 'html':
             return render_template('player_stats.html', categories=stats)
     abort(404)
@@ -179,7 +178,7 @@ class PlayerStats:
     @staticmethod
     def category_sorted(categories, weights, transforms):
         """Return readable stat categories in a sorted list"""
-        return map(lambda category: (lambda label: { 'name': label, 'stats': category['stats'] })
+        return map(lambda category: (lambda label: dict(name=label, stats=category['stats']))
                    (PlayerStats.stat_transform(PlayerStats.category_to_stat(category), transforms)),
                    sorted(categories, key=PlayerStats.stat_weight_key(weights, transform=PlayerStats.category_to_stat)))
 
@@ -187,7 +186,7 @@ class PlayerStats:
     def stat_sorted(categories, weights, transforms):
         """Return a list of categories with sorted stats and readable names"""
         return [dict([('name', category), ('stats', map(
-                            lambda stat: { 'name': stat[0][0], 'value': stat[0][1] },
+                            lambda stat: dict(name=stat[0][0], value=stat[0][1]),
                             sorted([(PlayerStats.stat_transform(stat, transforms),stat) for stat in stats],
                                    key=PlayerStats.stat_weight_key(weights, transform=lambda stat: stat[1]))))])
                 for category, stats in categories.iteritems()]
@@ -198,7 +197,7 @@ class PlayerStats:
         return reduce(
             lambda categories, stat:
                 dict(categories.items() + [(stat.category, categories.get(stat.category, []) + [stat])]),
-            visible, {})
+            visible, dict())
 
     @staticmethod
     def stat_filter(rows, show, hide):
@@ -248,10 +247,10 @@ class PlayerStats:
     @staticmethod
     def category_to_stat(category):
         """Returns an object wrapping category's properties that can be used with stat functions"""
-        return type('Stat', (object, ), {
-                'category': category['name'],
-                'stat': 'category',
-                'value': category['stats'] })
+        return type('Stat', (object, ), dict(
+                category=category['name'],
+                stat='category',
+                value=category['stats']))
 
     @staticmethod
     def pair(first, tuples):
