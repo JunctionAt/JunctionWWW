@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content -%}
+
+{% for notification in player_notifications: -%}
+
+<div class=flash>{{ notification.message|markdown }}</div>
+<br/>
+
+{%- endfor %}
+
+{%- endblock %}

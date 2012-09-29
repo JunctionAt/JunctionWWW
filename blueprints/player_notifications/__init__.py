@@ -1,4 +1,5 @@
 import flask
+from flask import url_for, render_template
 import sqlalchemy
 import sqlalchemy.orm
 from sqlalchemy.orm import relation
@@ -24,6 +25,12 @@ class Notification(Base):
     message = Column(String(256))
     user = relation(User, backref='notifications')
 
+player_notifications = flask.Blueprint('player_notifications', __name__, template_folder='templates')
+
+@player_notifications.route('/notifications')
+def show_notifications():
+    return render_template('show_notifications.html', player_notifications=User.current_user.notifications)
+
 @flask.current_app.context_processor
 def inject_notifications():
     return dict(notifications=__notifications__)
@@ -31,13 +38,16 @@ def inject_notifications():
 @flask.current_app.before_request
 def populate_notifications(*args):
     while len(__notifications__): __notifications__.pop()
+    if flask.request.path == url_for('player_notifications.show_notifications'): return
     if User.current_user:
         # Show notifications
-        for module, notifications in reduce(
-            lambda modules, notification:
-                dict(modules.items() + [(notification.module, modules.get(notification.module, list()) + [notification])]),
-            User.current_user.notifications, dict()).iteritems():
+        for module, notifications in by_module(User.current_user.notifications).iteritems():
             notify(module, notifications)
+
+def by_module(notifications):
+    return reduce(lambda modules, notification:
+                      dict(modules.items() + [(notification.module, modules.get(notification.module, list()) + [notification])]),
+                  notifications, dict())
 
 @notification(name='player_notifications')
 def show(notification):

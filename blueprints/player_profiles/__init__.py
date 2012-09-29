@@ -119,6 +119,7 @@ class Blueprint(flask.Blueprint, object):
         @flask_login.login_required
         def edit_profile():
             profile = User.current_user.profile
+            profile.show_stats = ' '.join(filter(lambda stats: stats in player_stats.endpoints.keys(), profile.show_stats.split(' ')))
             form = ProfileForm(request.form, profile)
             if request.method == 'POST' and form.validate():
                 form.populate_obj(profile)

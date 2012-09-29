@@ -57,8 +57,7 @@ class Endpoint(object):
         self.weights = weights
         
     def get_by_name(self, player):
-        return PlayerStats.player_stats(self.model, session, player,
-                                        self.show, self.hide, self.transforms, self.weights)
+        return PlayerStats.player_stats(self.model, player, self.show, self.hide, self.transforms, self.weights)
     
     def format(self, rows):
         return PlayerStats.stat_format(rows, self.show, self.hide, self.transforms, self.weights)
@@ -89,8 +88,7 @@ __transforms__ = [
     
     # Proper category names
     ('blockdestroy.category', 'Blocks destroyed'),
-    ('*.category', lambda cat:
-         cat.category.capitalize()),
+    ('*.category', lambda cat: cat.category.capitalize()),
 
     # Some misc labels
     ('deaths.player', 'Deaths'),
@@ -138,11 +136,10 @@ class PlayerStats:
     """Container for the data crunching methods"""
 
     @staticmethod
-    def player_stats(model, session, player, show=[], hide=[], transforms=[], weights=[]):
+    def player_stats(model, player, show=[], hide=[], transforms=[], weights=[]):
         """Returns the proper stats for a given player name in table
 
         model -- model class from sqlalchemy.
-        session -- sqlalchemy query session loaded off this table.
         hide -- list of stat names or lambdas to whitelist.
         show --  list of stat name or lambdas to blacklist.
         transforms -- list of tuples used to transform stat objects into readable information.

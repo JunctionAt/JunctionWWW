@@ -48,10 +48,10 @@ class Group(Base):
     link = Column(String(256))
     info = Column(Text(1024))
     public = Column(Boolean)
-    owners = relation(User, secondary=lambda:GroupOwners.__table__)
-    members = relation(User, secondary=lambda:GroupMembers.__table__)
-    invited_owners = relation(User, secondary=lambda:GroupInvitedOwners.__table__)
-    invited_members = relation(User, secondary=lambda:GroupInvitedMembers.__table__)
+    owners = relation(User, secondary=lambda:GroupOwners.__table__, backref="groups_owner")
+    members = relation(User, secondary=lambda:GroupMembers.__table__, backref="groups_member")
+    invited_owners = relation(User, secondary=lambda:GroupInvitedOwners.__table__, backref="groups_invited_owner")
+    invited_members = relation(User, secondary=lambda:GroupInvitedMembers.__table__, backref="groups_invited_member")
     
     @property
     def avatar(self):
@@ -135,9 +135,23 @@ class Endpoint(object):
                 return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
             return render_template('show_group.html', endpoint=self, group=group)
         
+        @player_groups.blueprint.route('/%s/%s/invitations'%(self.server, self.groups),
+                                       endpoint='%s_show_invitations'%self.server)
+        @flask_login.login_required
+        def show_invitations():
+            """Show all player invitations on a server"""
+            
+            owner = filter(lambda group: group.server == self.server, \
+                               list(set(User.current_user.groups_invited_owner or list()) -
+                                    set(User.current_user.groups_owner or list())))
+            member = filter(lambda group: group.server == self.server, \
+                                list(set(User.current_user.groups_invited_member or list()) -
+                                     set(User.current_user.groups_member or list())))
+            return render_template('show_invitations.html', endpoint=self, owner=owner, member=member)
+        
         def validate_display_name(form, field):
             """For registration form"""
-
+            
             display_name = re.sub(r'\s+', ' ', field.data.display_name.strip())
             name = re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', display_name))
             if name == '_':
@@ -326,7 +340,6 @@ class Endpoint(object):
                              url_for('player_groups.%s_join_group'%group.server, name=group.name))))
             session.commit()
 
-            
 
 @player_groups.blueprint.route('/groups/<server>/show/<name>')
 def show_group(server, name):
@@ -352,15 +365,36 @@ def register_group(server):
         return redirect(url_for('player_groups.%s_register_group'%endpoint.server))
     abort(404)
 
+@player_groups.blueprint.route('/groups/<server>/invitations')
+def register_group(server):
+    """Redirects to preferred url of server"""
+    endpoint = player_groups.endpoints.get(server)
+    if endpoint:
+        return redirect(url_for('player_groups.%s_show_invitations'%endpoint.server))
+    abort(404)
+
+
 @notification(name='player_groups')
 def show_notifications(notifications):
     """Display a group invitation if the profile doesn't hide them"""
-    for notification in notifications:
-        if notification.type == 'invitation':
-            if User.current_user.profile.hide_group_invitations:
-                continue
-            (server, name) = notification.from_.split('.')
-            if request.path == url_for('player_groups.%s_join_group'%server, name=name):
-                continue
-        notify('player_notifications', notification)
+    
+    # Break out the notifications by type so we can handle invitations specially
+    types = reduce(
+        lambda types, notification:
+            dict(types.items() +[(notification.type, types.get(notification.type, list()) + [notification])]),
+        notifications, dict())
+    for type_, notifications in types.iteritems():
+        if not type_ == 'invitation':
+            for notification in notifications:
+                notify('player_notifications', notification)
+        elif User.current_user.profile.hide_group_invitations:
+            # Collapse invitations by server
+            for endpoint in player_groups.endpoints:
+                notifications = filter(lambda notification: notification.from_ == endpoint.name, notifications)
+                if len(notifications) > 1:
+                    notify('player_notifications', Notification(
+                            message="You have been invited to join [%d %s](%s)."%
+                            (len(show), endpoint.groups, url_for('player_groups.%s_show_invitations'%endpoint.name))))
+                elif len(notifications) == 1:
+                    notify('player_notifications', notifications[1])
 

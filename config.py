@@ -14,6 +14,9 @@ BLUEPRINTS = [
     # Static pages
     dict(blueprint=static_pages.static_pages),
 
+    # Notifications
+    dict(blueprint=player_notifications.player_notifications),
+
     # Avatars
     dict(blueprint=avatar.avatar),
     
