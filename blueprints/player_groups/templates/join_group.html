@@ -1,5 +1,3 @@
-{% from 'grouphelpers.html' import render_group %}
-
 {% extends "base.html" %}
 
 {% block content -%}
@@ -15,8 +13,9 @@
     {%- endif %}
   </p>
 
-  {{ render_group(group, endpoint) }}
-  
 </form>
 
+{% include 'render_group.html' %}
+
 {%- endblock %}
+

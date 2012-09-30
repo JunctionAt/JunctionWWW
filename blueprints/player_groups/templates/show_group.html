@@ -1,44 +1,7 @@
-{% from 'profilehelpers.html' import render_profile_small %}
-
 {% extends "base.html" %}
+
 {% block content %}
-<div class=group>
 
-<img src="{{ group.avatar.portrait }}">
+{% include 'render_group.html' %}
 
-<h1 class=group-name>{{ group.display_name }}</h1>
-
-{% if group.tagline: -%}
-<blockquote class=group-shortinfo>{{ group.tagline }}</blockquote>
-{%- endif %}
-
-{% if group.link: -%}
-<p class=group-link><a href={{ group.link }}>{{ group.link }}</a></p>
-{%- endif %}
-
-{% if group.info: -%}
-<p class=group-longinfo>{{ group.info|markdown }}</p>
-{%- endif %}
-
-<h2 class=group-owners-heading>{{ endpoint.owners.capitalize() }}</h2>
-
-<div class=group-owners>
-  {% for owner in group.owners: -%}
-  {{ render_profile_small(owner.profile) }}
-  {%- endfor %}
-</div>
-
-{% if group.members: -%}
-
-<h2 class=group-members-heading>{{ endpoint.members.capitalize() }}</h2>
-
-<div class=group-members>
-  {% for member in group.members: -%}
-  {{ render_profile_small(member.profile) }}
-  {%- endfor %}
-</div>
-
-{%- endif %}
-
-</div>
 {%- endblock %}

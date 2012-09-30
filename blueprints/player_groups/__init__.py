@@ -13,6 +13,7 @@ from wtforms.validators import Required, Optional, Email, ValidationError
 from wtalchemy.orm import model_form
 from yell import notify
 from yell.decorators import notification
+import datetime
 import re
 
 from blueprints.base import Base, session
@@ -43,6 +44,7 @@ class Group(Base):
     server = Column(String(16))
     name = Column(String(32))
     display_name = Column(String(32))
+    created = Column(DateTime(), default=datetime.datetime.utcnow)
     mail = Column(String(256))
     tagline = Column(String(256))
     link = Column(String(256))
@@ -145,18 +147,12 @@ class Endpoint(object):
         def show_invitations():
             """Show all player invitations on a server"""
             
-            owner = filter(lambda group: group.server == self.server, \
-                               list(set(User.current_user.groups_invited_owner or list()) -
-                                    set(User.current_user.groups_owner or list())))
-            member = filter(lambda group: group.server == self.server, \
-                                list(set(User.current_user.groups_invited_member or list()) -
-                                     set(User.current_user.groups_member or list())))
-            return render_template('show_invitations.html', endpoint=self, owner=owner, member=member)
+            return render_template('show_invitations.html', endpoint=self)
         
         def validate_display_name(form, field):
             """For registration form"""
             
-            display_name = re.sub(r'\s+', ' ', field.data.display_name.strip())
+            display_name = re.sub(r'\s+', ' ', field.data.strip())
             name = re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', display_name))
             if name == '_':
                 raise ValidationError("Your %s name must include at least letter or number."%self.group)
@@ -165,13 +161,15 @@ class Endpoint(object):
                 raise ValidationError("%s name not available."%self.group.capitalize())
             
         def group_form(register=False):
-            exclude = [ 'server', 'name', 'owners', 'members' ]
+            """Create a group editing form class"""
+            
+            exclude = [ 'server', 'name', 'owners', 'members', 'created' ]
             if not register: exclude.append('display_name')
             return model_form(
                 Group, session, exclude=exclude,
                 field_args=dict(
                     display_name=dict(
-                        label='%s name'%self.group,
+                        label='%s name'%self.group.capitalize(),
                         validators=[ Required(), validate_display_name ]),
                     public=dict(
                         label='Open registration',
@@ -293,7 +291,7 @@ class Endpoint(object):
                             group.invited_members.remove(user)
                         else:
                             abort(403)
-                        flash("Invitation to %s rejected."%group.display_name)
+                        flash("Invitation to %s declined."%group.display_name)
                     # Delete player notification
                     session.query(Notification) \
                         .filter(Notification.module=='player_groups') \
@@ -345,10 +343,28 @@ class Endpoint(object):
             session.commit()
 
     def owned_by(self, user):
+        """Returns the groups user owns"""
+        
         return filter(lambda group: group.server == self.server, user.groups_owner)
 
     def member_of(self, user):
+        """Returns the groups user is a member of"""
+        
         return filter(lambda group: group.server == self.server, user.groups_member)
+
+    def invited_owner_of(self, user):
+        """Returns the unactioned member invitations of user"""
+        
+        return filter(lambda group: group.server == self.server, \
+                          list(set(User.current_user.groups_invited_owner or list()) -
+                               set(User.current_user.groups_owner or list())))
+
+    def invited_member_of(self, user):
+        """Returns the unactioned owner invitations of user"""
+        
+        return filter(lambda group: group.server == self.server, \
+                          list(set(User.current_user.groups_invited_member or list()) -
+                               set(User.current_user.groups_member or list())))
 
 
 @player_groups.blueprint.route('/groups/<server>/show/<name>')
@@ -397,14 +413,17 @@ def show_notifications(notifications):
         if not type_ == 'invitation':
             for notification in notifications:
                 notify('player_notifications', notification)
-        elif User.current_user.profile.hide_group_invitations:
+        elif not User.current_user.profile.hide_group_invitations:
             # Collapse invitations by server
-            for endpoint in player_groups.endpoints:
-                notifications = filter(lambda notification: notification.from_ == endpoint.name, notifications)
-                if len(notifications) > 1:
+            for server in player_groups.endpoints.keys():
+                if request.path == url_for('player_groups.%s_show_invitations'%server): continue
+                server_notifications = filter(lambda notification: notification.from_.startswith("%s."%server), notifications)
+                if len(server_notifications) > 1:
                     notify('player_notifications', Notification(
                             message="You have been invited to join [%d %s](%s)."%
-                            (len(show), endpoint.groups, url_for('player_groups.%s_show_invitations'%endpoint.name))))
-                elif len(notifications) == 1:
-                    notify('player_notifications', notifications[1])
+                            (len(server_notifications), endpoint.groups, url_for('player_groups.%s_show_invitations'%endpoint.name))))
+                elif len(server_notifications) == 1:
+                    if not request.path == url_for('player_groups.%s_join_group'%server,
+                                                   name=server_notifications[0].from_.split('.')[1]):
+                        notify('player_notifications', server_notifications[0])
 

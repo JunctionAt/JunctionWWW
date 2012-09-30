@@ -3,6 +3,7 @@ import flask_login
 from sqlalchemy import Column
 from sqlalchemy.types import *
 import sqlalchemy.orm
+import datetime
 
 from blueprints.base import Base, session
 
@@ -13,7 +14,7 @@ class User(Base, object):
     name = Column(String(16), primary_key=True)
     hash = Column(String(100))
     mail = Column(String(60))
-    registered = Column(DateTime)
+    registered = Column(DateTime, default=datetime.datetime.utcnow)
     verified = Column(Boolean)
     
     def __repr__(self):

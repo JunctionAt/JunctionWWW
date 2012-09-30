@@ -1,28 +1,32 @@
 {% extends 'base.html' %}
 
-{% from 'grouphelpers.html' import render_group %}
+{% from 'grouphelpers.html' import render_group_small %}
 
 {% block content -%}
 
-{% if owner: -%}
+{% if endpoint.invited_owner_of(user): -%}
 
 <h3>Invited as {{ endpoint.owner }}</h3>
-{% for group in owner: -%}
-{{ render_group(group, endpoint) }}
+{% for group in endpoint.invited_owner_of(user): -%}
+<a href="{{ url_for('player_groups.%s_join_group'%endpoint.server, name=group.name) }}">
+{{ render_group_small(group,link=False) }}
+</a>
 {%- endfor %}
 
 {%- endif %}
 
-{% if member: -%}
+{% if endpoint.invited_member_of(user): -%}
 
 <h3>Invited as {{ endpoint.member }}</h3>
-{% for group in member: -%}
-{{ render_group(group, endpoint) }}
+{% for group in endpoint.invited_member_of(user): -%}
+<a href="{{ url_for('player_groups.%s_join_group'%endpoint.server, name=group.name) }}">
+{{ render_group_small(group,link=False) }}
+</a>
 {%- endfor %}
 
 {%- endif %}
 
-{% if not members and not owners: -%}
+{% if not endpoint.invited_member_of(user) and not endpoint.invited_owner_of(user): -%}
 
 <p>No invitations.</p>
 
