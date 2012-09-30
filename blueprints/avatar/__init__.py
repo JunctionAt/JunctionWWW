@@ -11,7 +11,6 @@ class Blueprint(flask.Blueprint):
         link = "http://www.gravatar.com/%s"%hash if _mail else None
         default = urllib.quote("https://www.gravatar.com/avatar/%s.png?s="%md5.new("wiggitywhack@junction.at").hexdigest().lower())
         img = ("https://www.gravatar.com/avatar/%s.png?r=pg&d="%hash)+default
-        print img
         return type('Avatar', (object, ), dict(
                 link=link,
                 small="%s%d&s=%d"%(img,32,32),

@@ -23,7 +23,7 @@ class User(Base, object):
     # Static class property
     def _current_user(self, cls, owner):
         if User._user is False:
-            if not flask_login.current_user.name == u'Anonymous':
+            if not flask_login.current_user.is_anonymous():
                 User._user = session.query(User) \
                     .filter(User.name==flask_login.current_user.name) \
                     .one()
