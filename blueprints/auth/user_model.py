@@ -5,6 +5,8 @@ from sqlalchemy.types import *
 import sqlalchemy.orm
 import datetime
 
+from sqlalchemy.dialects import mysql
+
 from blueprints.base import Base, session
 
 
@@ -23,24 +25,12 @@ class User(Base, flask_login.UserMixin, object):
     def __repr__(self):
         return self.name
     
-    # Static class property
-    def _current_user(self, cls, owner):
-        if User._user is False:
-            if not flask_login.current_user.is_anonymous():
-                User._user = session.query(User) \
-                    .filter(User.name==flask_login.current_user.name) \
-                    .one()
-            else:
-                User._user = None
-        return User._user
-    current_user = type('property', (property,), dict(__get__=_current_user))()
+class Token(Base):
 
-    @flask.current_app.after_request
-    def reset_current_user(response):
-        setattr(User, '_user', False)
-        return response
-
-@flask.current_app.context_processor
-def inject_user():
-    return dict(current_user=User.current_user)
-    
+    __tablename__ = 'tokens'
+    token = Column(CHAR(6), primary_key=True)
+    name = Column(String(16), index=True)
+    hash = Column(String(100), index=True)
+    mail = Column(String(60))
+    ip = Column(String(39))
+    expires = Column(mysql.TIMESTAMP(), default=datetime.datetime.utcnow)

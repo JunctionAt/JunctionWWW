@@ -106,10 +106,10 @@ class Blueprint(flask.Blueprint, object):
                 profile = session.query(Profile).filter(Profile.name==name).one()
             except NoResultFound:
                 profile = Profile.default_profile(name)
-            if not getattr(profile.user, 'default', False) and not profile.user.name == name:
+            if not profile.user.is_anonymous() and not profile.user.name == name:
                 # Redirect to preferred spelling url
                 return redircet(url_for("player_profiles.show-profile", name=profile.user.name))
-            if getattr(profile, 'default', False) and not sum(map(lambda (_, stats): len(stats), profile.stats.items())):
+            if profile.user.is_anonymous() and not sum(map(lambda (_, stats): len(stats), profile.stats.items())):
                 # Error out if the default profile is loaded and there are no stats.
                 # This should be the case if the player has never logged onto any of the servers.
                 abort(404)
@@ -118,7 +118,7 @@ class Blueprint(flask.Blueprint, object):
         @self.route('/profile', methods=('GET', 'POST'))
         @flask_login.login_required
         def edit_profile():
-            profile = User.current_user.profile
+            profile = flask_login.current_user.profile
             profile.show_stats = ' '.join(filter(lambda stats: stats in player_stats.endpoints.keys(), profile.show_stats.split(' ')))
             form = ProfileForm(request.form, profile)
             if request.method == 'POST' and form.validate():

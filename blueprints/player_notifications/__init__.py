@@ -1,12 +1,12 @@
 import flask
 from flask import url_for, render_template
+import flask_login
 import sqlalchemy
 import sqlalchemy.orm
 from sqlalchemy.orm import relation
 from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import *
 from sqlalchemy import Column
-from flask_login import current_user
 from yell import notify
 from yell.decorators import notification
 
@@ -29,7 +29,7 @@ player_notifications = flask.Blueprint('player_notifications', __name__, templat
 
 @player_notifications.route('/notifications')
 def show_notifications():
-    return render_template('show_notifications.html', player_notifications=User.current_user.notifications)
+    return render_template('show_notifications.html', player_notifications=flask_login.current_user.notifications)
 
 @flask.current_app.context_processor
 def inject_notifications():
@@ -39,9 +39,9 @@ def inject_notifications():
 def populate_notifications(*args):
     while len(__notifications__): __notifications__.pop()
     if flask.request.path == url_for('player_notifications.show_notifications'): return
-    if User.current_user:
+    if not flask_login.current_user.is_anonymous():
         # Show notifications
-        for module, notifications in by_module(User.current_user.notifications).iteritems():
+        for module, notifications in by_module(flask_login.current_user.notifications).iteritems():
             notify(module, notifications)
 
 def by_module(notifications):

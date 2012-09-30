@@ -32,7 +32,7 @@ def load_user(id):
         User._user = user
     return user
 
-login_manager.setup_app(current_app)
+login_manager.setup_app(current_app, add_context_processor=True)
 
 def redirectd(path):
     return redirect(subpath+path)

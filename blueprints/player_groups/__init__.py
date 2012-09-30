@@ -45,7 +45,7 @@ class Group(Base):
     name = Column(String(32))
     display_name = Column(String(32))
     created = Column(DateTime(), default=datetime.datetime.utcnow)
-    mail = Column(String(256))
+    mail = Column(String(60))
     tagline = Column(String(256))
     link = Column(String(256))
     info = Column(Text(1024))
@@ -196,7 +196,7 @@ class Endpoint(object):
                         "%s.pending.%s"%(self.server,name)
                         ])).first()
             except NoResultFound: abort(404)
-            user = User.current_user
+            user = flask_login.current_user
             if not user in group.owners: abort(403)
             form = GroupEditForm(request.form, group)
             if request.method == 'POST' and form.validate():
@@ -230,7 +230,7 @@ class Endpoint(object):
             """Register group page, endpoint specific"""
             group = Group()
             form = GroupRegisterForm(request.form, group, register=True)
-            user = User.current_user
+            user = flask_login.current_user
             if request.method == 'POST' and form.validate():
                 form.populate_obj(group)
                 group.display_name = re.sub(r'\s+', ' ', group.display_name.strip())
@@ -265,7 +265,7 @@ class Endpoint(object):
                         "%s.pending.%s"%(self.server,name)
                         ])).first()
             except NoResultFound: abort(404)
-            user = User.current_user
+            user = flask_login.current_user
             if not user in group.members and not user in group.owners:
                 if request.method == 'POST':
                     if request.form['action'] == 'accept':
@@ -356,15 +356,15 @@ class Endpoint(object):
         """Returns the unactioned member invitations of user"""
         
         return filter(lambda group: group.server == self.server, \
-                          list(set(User.current_user.groups_invited_owner or list()) -
-                               set(User.current_user.groups_owner or list())))
+                          list(set(flask_login.current_user.groups_invited_owner or list()) -
+                               set(flask_login.current_user.groups_owner or list())))
 
     def invited_member_of(self, user):
         """Returns the unactioned owner invitations of user"""
         
         return filter(lambda group: group.server == self.server, \
-                          list(set(User.current_user.groups_invited_member or list()) -
-                               set(User.current_user.groups_member or list())))
+                          list(set(flask_login.current_user.groups_invited_member or list()) -
+                               set(flask_login.current_user.groups_member or list())))
 
 
 @player_groups.blueprint.route('/groups/<server>/show/<name>')
@@ -413,7 +413,7 @@ def show_notifications(notifications):
         if not type_ == 'invitation':
             for notification in notifications:
                 notify('player_notifications', notification)
-        elif not User.current_user.profile.hide_group_invitations:
+        elif not flask_login.current_user.profile.hide_group_invitations:
             # Collapse invitations by server
             for server in player_groups.endpoints.keys():
                 if request.path == url_for('player_groups.%s_show_invitations'%server): continue
