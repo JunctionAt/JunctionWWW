@@ -35,10 +35,10 @@ class User(Base, flask_login.UserMixin, object):
         return User._user
     current_user = type('property', (property,), dict(__get__=_current_user))()
 
-    @staticmethod
-    @flask.current_app.before_request
-    def reset_current_user(*args):
+    @flask.current_app.after_request
+    def reset_current_user(response):
         setattr(User, '_user', False)
+        return response
 
 @flask.current_app.context_processor
 def inject_user():
