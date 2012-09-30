@@ -7,7 +7,7 @@ class Blueprint(flask.Blueprint):
     @staticmethod
     def avatar(mail):
         default_email = "admin@junction.at"
-        _mail = mail or ""
+        _mail = mail or default_email
         hash = md5.new(_mail).hexdigest().lower()
         link = "http://www.gravatar.com/%s"%hash if _mail else None
         default = urllib.quote("https://www.gravatar.com/avatar/%s.png?s="%md5.new(default_email).hexdigest().lower())
