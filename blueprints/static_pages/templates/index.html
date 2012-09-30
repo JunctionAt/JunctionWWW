@@ -12,16 +12,30 @@
         position: absolute;
         height: 100%;
         width: 100%;
-        background: #353535 url({{ url_for('static_pages.static', filename='index.png') }}) 50% 50% no-repeat;
+        background: #353535 url({{ url_for('static_pages.static', filename='bg.jpg') }}) 50% 50% no-repeat;
       }
       #text {
+        position: relative;
+        left: -50%;
+        color: #999999;
+        font-size: 150%;
+      }
+      #txtcont {
         position: absolute;
+        left: 50%;
+        bottom: 10px;
       }
     </style>
   </head>
   <body>
     <div id="body">
-      <p id="text">Now with 350% more vegetables.</p>
+      <div id="logocont" style="text-align:center; margin-top:10em;">
+        <img style="opacity:0.8;" src="{{ url_for('static_pages.static', filename='bg3.png') }}">
+      </div>
+      <div id="" style="text-align:center; bottom: 20px;">
+        <!--<p id="text">Cumming verry verry sun!</p>-->
+        <img style="opacity:0.6; height:7em;" src="{{ url_for('static_pages.static', filename='under.png') }}">
+      </div>
     </div>
   </body>
 </html>
