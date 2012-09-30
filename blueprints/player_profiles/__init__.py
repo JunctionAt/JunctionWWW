@@ -89,7 +89,8 @@ class Profile(Base, object):
     def default_user(name):
         """Return a default user"""
         user = User(name=name)
-        user.default = True
+        user.is_anonymous = lambda: True # I know, it's not really anonymous if it has a name
+        
         return user
 
 
@@ -105,14 +106,10 @@ class Blueprint(flask.Blueprint, object):
             try:
                 profile = session.query(Profile).filter(Profile.name==name).one()
             except NoResultFound:
-                profile = Profile.default_profile(name)
-            if not profile.user.is_anonymous() and not profile.user.name == name:
-                # Redirect to preferred spelling url
-                return redircet(url_for("player_profiles.show-profile", name=profile.user.name))
-            if profile.user.is_anonymous() and not sum(map(lambda (_, stats): len(stats), profile.stats.items())):
-                # Error out if the default profile is loaded and there are no stats.
-                # This should be the case if the player has never logged onto any of the servers.
                 abort(404)
+            if not profile.user.name == name:
+                # Redirect to preferred caps
+                return redircet(url_for("player_profiles.show_profile", name=profile.user.name))
             return render_template('show_profile.html', profile=profile)
 
         @self.route('/profile', methods=('GET', 'POST'))
