@@ -104,7 +104,7 @@ class Blueprint(flask.Blueprint, object):
         @self.route('/profile/<name>')
         def show_profile(name):
             try:
-                profile = session.query(Profile).filter(Profile.name==name).one()
+                profile = session.query(User).filter(User.name==name).one().profile
             except NoResultFound:
                 abort(404)
             if not profile.user.name == name:

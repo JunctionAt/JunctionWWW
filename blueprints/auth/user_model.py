@@ -19,6 +19,12 @@ class User(Base, flask_login.UserMixin, object):
     registered = Column(DateTime, default=datetime.datetime.utcnow)
     verified = Column(Boolean)
     
+    def get_id(self):
+        return self.name
+
+    def get_name(self):
+        return self.name
+        
     def is_active(self):
         return self.verified
 
