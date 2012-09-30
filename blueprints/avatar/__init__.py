@@ -9,13 +9,14 @@ class Blueprint(flask.Blueprint):
         _mail = mail or ""
         hash = md5.new(_mail).hexdigest().lower()
         link = "http://www.gravatar.com/%s"%hash if _mail else None
-        img = "https://www.gravatar.com/avatar/%s.png?r=pg&d=retro"%hash
-        return type('Avatar', (object, ), {
-                "link": link,
-                "small": "%s&s=32"%img,
-                "medium": "%s&s=64"%img,
-                "large": "%s&s=128"%img,
-                "portrait": "%s&s=256"%img
-                })
+        default = urllib.quote("https://www.gravatar.com/avatar/%s.png?s="%md5.new("wiggitywhack@junction.at").hexdigest().lower())
+        img = ("https://www.gravatar.com/avatar/%s.png?r=pg&d="%hash)+default
+        print img
+        return type('Avatar', (object, ), dict(
+                link=link,
+                small="%s%d&s=%d"%(img,32,32),
+                medium="%s%d&s=%d"%(img,64,64),
+                large="%s%d&s=%d"%(img,128,128),
+                portrait="%s%d&s=%d"%(img,256,256)))
 
 avatar = Blueprint('avatar', __name__)

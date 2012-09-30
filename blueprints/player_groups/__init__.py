@@ -57,7 +57,7 @@ class Group(Base):
     
     @property
     def avatar(self):
-        return avatar.avatar(self.mail or "%s.%s"%(self.server,self.name))
+        return avatar.avatar(self.mail)
 
     @staticmethod
     def confirm(pending):
