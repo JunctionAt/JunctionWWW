@@ -1,25 +1,13 @@
 from flask import Flask, Blueprint, request, render_template, redirect, url_for, flash, current_app
 from flask_login import (LoginManager, current_user, login_required,
-                            login_user, logout_user, UserMixin, AnonymousUser,
+                            login_user, logout_user, AnonymousUser,
                             confirm_login, fresh_login_required)
 import random
 import bcrypt
 import re
 
 from blueprints.base import session
-
-class User(UserMixin):
-    def __init__(self, name, hash, mail, registered, verified):
-        self.id = name
-        self.name = name
-        self.hash = hash
-        self.mail = mail
-        self.registered = registered
-        self.verified = verified
-
-    def is_active(self):
-        return self.verified
-
+from blueprints.auth.user_model import User
 
 class Anonymous(AnonymousUser):
     name = u"Anonymous"
@@ -47,9 +35,8 @@ def redirectd(path):
     return redirect(subpath+path)
 
 def load_user_field(field, value):
-    result = session.execute("SELECT name, hash, mail, registered, verified FROM users WHERE %s=:value;"%field, dict(value=value)).fetchone()
-    if result is None: return None
-    return User(result[0], result[1], result[2], result[3], result[4])
+    #result = session.execute("SELECT name, hash, mail, registered, verified FROM users WHERE %s=:value;"%field, dict(value=value)).fetchone()
+    return session.query(User).filter(getattr(User,field)==value).first()
 
 def load_user_name(name):
     return load_user_field("name", name)
@@ -63,11 +50,12 @@ def login():
     if request.method == "POST" and "username" in request.form and "password" in request.form:
 	username = request.form["username"]
 	password = request.form["password"]
-        result = session.execute("SELECT name, hash, verified FROM users WHERE name=:username;", dict(username=username)).fetchone()
-        if result != None:
-            hashed = bcrypt.hashpw(password, result[1])
-            if hashed == result[1]:
-                if result[2] == False:
+        #result = session.execute("SELECT name, hash, verified FROM users WHERE name=:username;", dict(username=username)).fetchone()
+        user = session.query(User).filter(User.name==username).first()
+        if user:
+            hashed = bcrypt.hashpw(password, user.hash)
+            if hashed == user.hash:
+                if not user.verified:
                     flash(u"Please check your mail.")
                     return redirect("/login")
                 remember = request.form.get("remember", "no") == "yes"

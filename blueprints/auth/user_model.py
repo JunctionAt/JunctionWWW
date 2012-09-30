@@ -8,7 +8,7 @@ import datetime
 from blueprints.base import Base, session
 
 
-class User(Base, object):
+class User(Base, flask_login.UserMixin, object):
 
     __tablename__ = 'users'
     name = Column(String(16), primary_key=True)
@@ -17,6 +17,9 @@ class User(Base, object):
     registered = Column(DateTime, default=datetime.datetime.utcnow)
     verified = Column(Boolean)
     
+    def is_active(self):
+        return self.verified
+
     def __repr__(self):
         return self.name
     

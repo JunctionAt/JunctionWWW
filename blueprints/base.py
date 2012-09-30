@@ -1,35 +1,25 @@
 import flask
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 Base = declarative_base()
 Base.metadata.bind = flask.current_app.config['ENGINE']
 
 class Session:
     
-    session = property(lambda self: self._session if self._session else self.create())
-    _session = None
-    
     def __init__(self):
-        self.sessionmaker = sessionmaker(flask.current_app.config['ENGINE'])
-
-    def create(self):
-        self._session = self.sessionmaker()
-        return self._session
-                       
+        self.Session = scoped_session(sessionmaker(flask.current_app.config['ENGINE']))
 
     @flask.current_app.after_request
-    def close(response):
-        if session._session:
-            session._session.close()
-            session._session = None
+    def remove(response):
+        session.Session.remove()
         return response
 
     def execute(self, *args, **kwargs):
-        return self.session.execute(*args, **kwargs)
+        return self.Session.execute(*args, **kwargs)
 
     def query(self, *args, **kwargs):
-        return self.session.query(*args, **kwargs)
+        return self.Session.query(*args, **kwargs)
     
 
 session = Session()
