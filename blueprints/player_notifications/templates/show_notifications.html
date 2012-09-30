@@ -2,11 +2,13 @@
 
 {% block content -%}
 
+{% if player_notifications: -%}
 {% for notification in player_notifications: -%}
-
 <div class=flash>{{ notification.message|markdown }}</div>
 <br/>
-
 {%- endfor %}
+{%- else -%}
+<p>You don't have any notifications.</p>
+{%- endif %}
 
 {%- endblock %}

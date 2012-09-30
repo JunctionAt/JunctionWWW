@@ -18,4 +18,4 @@ class Blueprint(flask.Blueprint):
                 "portrait": "%s&s=256"%img
                 })
 
-avatar = Blueprint('avatar', __name__, template_folder='templates')
+avatar = Blueprint('avatar', __name__)

@@ -1,47 +1,12 @@
 {% from 'statshelpers.html' import render_stats %}
-{% from 'avatarhelpers.html' import render_avatar %}
 
-{% macro render_profile(profile) -%}
-
-<div class=profile>
-
-{{ render_avatar(profile) }}
-
-<h1 class=profile-name>{{ profile.name }}</h1>
-
-{% if profile.tagline: -%}
-<p class=profile-tagline><quote>{{ profile.tagline }}</quote></p>
-{%- endif %}
-
-{% if profile.realname or profile.location or profile.link: -%}
-<p class=profile-info>
-
-  {% if profile.realname: -%}
-  <span class=profile-realname>{{ profile.realname }}</span><br>
-  {%- endif %}
-
-  {% if profile.location: -%}
-  <span class=profile-location>{{ profile.location }}</span><br>
-  {%- endif %}
-
-  {% if profile.link: -%}
-  <span class=profile-link><a href={{ profile.link }}>{{ profile.link }}</a></span><br>
-  {%- endif %}
-
-</p>
-{%- endif %}
-
-{% if profile.profile_stats: -%}
-
-<h2>Player stats</h2>
-
-  {% for name, stats in profile.profile_stats.iteritems(): -%}
-  <h3>{{ name }}</h3>
-  {{ render_stats(stats) }}
-  {%- endfor %}
-
-{%- endif %}
-
-</div>
-
+{% macro render_profile_small(profile, link=True) -%}
+{% if link -%}
+<a href="{{ url_for('player_profiles.show_profile', name=profile.name) }}">
+{%- endif -%}
+<img src="{{ profile.avatar.small }}">
+{{ profile.name }}
+{%- if link: -%}
+</a>
+{%- endif -%}
 {%- endmacro %}

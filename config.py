@@ -1,9 +1,5 @@
-from flask import current_app
+import flask
 from blueprints import auth, static_pages, avatar, player_notifications, player_stats, player_profiles, player_groups
-
-# Markdown support
-from flaskext.markdown import Markdown
-Markdown(current_app)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
@@ -35,7 +31,7 @@ BLUEPRINTS = [
     # Player profiles
     dict(blueprint=player_profiles.player_profiles),
 
-    # Player grops (Clans & Cities)
+    # Player groups (Clans & Cities)
     dict(blueprint=player_groups.player_groups([
                 dict(name='pve',
                      group='city', groups='cities',
@@ -47,4 +43,14 @@ BLUEPRINTS = [
                 ])),
     
     ]
+
+
+# Markdown support
+from flaskext.markdown import Markdown
+Markdown(flask.current_app)
+
+# Server name global
+@flask.current_app.context_processor
+def inject_server():
+    return dict(server_display_name=lambda server: dict(pve='PvE', survival='Survival', event='Event')[server],)
 

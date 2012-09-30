@@ -78,7 +78,6 @@ class Group(Base):
         group.id = "%s.%s"%(group.server,group.name)
         return group
 
-
 def GroupUserRelation(tablename):
     """Generate secondary table linking groups to users"""
     
@@ -98,6 +97,11 @@ player_groups.endpoints = dict()
 
 # Blueprint
 player_groups.blueprint = Blueprint('player_groups', __name__, template_folder='templates')
+
+# player_groups global
+@flask.current_app.context_processor
+def inject_groups():
+    return dict(player_groups=player_groups)
 
 
 class Endpoint(object):
@@ -339,6 +343,12 @@ class Endpoint(object):
                             (group.display_name,
                              url_for('player_groups.%s_join_group'%group.server, name=group.name))))
             session.commit()
+
+    def owned_by(self, user):
+        return filter(lambda group: group.server == self.server, user.groups_owner)
+
+    def member_of(self, user):
+        return filter(lambda group: group.server == self.server, user.groups_member)
 
 
 @player_groups.blueprint.route('/groups/<server>/show/<name>')

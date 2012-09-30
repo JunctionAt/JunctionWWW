@@ -1,6 +1,68 @@
-{% from 'profilehelpers.html' import render_profile %}
+{% from 'statshelpers.html' import render_stats %}
+{% from 'grouphelpers.html' import render_group_small %}
 
 {% extends "base.html" %}
 {% block content %}
-{{ render_profile(profile) }}
+<div class="profile">
+
+<a href="{{ profile.avatar.link }}"><img src="{{ profile.avatar.portrait }}"></a>
+
+<h1 class=profile-name>{{ profile.name }}</h1>
+
+{% if profile.tagline: -%}
+<div class=profile-tagline><q>{{ profile.tagline }}</q></div>
+{%- endif %}
+
+{% if profile.realname or profile.location or profile.link: -%}
+<div class=profile-info>
+
+  {% if profile.realname: -%}
+  <span class=profile-realname>{{ profile.realname }}</span><br>
+  {%- endif %}
+
+  {% if profile.location: -%}
+  <span class=profile-location>{{ profile.location }}</span><br>
+  {%- endif %}
+
+  {% if profile.link: -%}
+  <span class=profile-link><a href={{ profile.link }}>{{ profile.link }}</a></span><br>
+  {%- endif %}
+
+</div>
+{%- endif -%}
+
+{% if profile.user.groups_owner: -%}
+{% for server, endpoint in player_groups.endpoints.iteritems(): -%}
+{% set groups = endpoint.owned_by(profile.user) -%}
+{% if groups: -%}
+<h2>{{ server_display_name(server) }} {{ endpoint.owner.capitalize() }} of</h2>
+{% for group in groups: -%}
+{{ render_group_small(group) }}
+{%- endfor %}
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+
+{% if profile.user.groups_member: -%}
+{% for server, endpoint in player_groups.endpoints.iteritems(): -%}
+{% set groups = endpoint.owned_by(profile.user) -%}
+{% if groups: -%}
+<h2>{{ server_display_name(server) }} {{ endpoint.member.capitalize() }} of</h2>
+{% for group in groups: -%}
+{{ render_group_small(group) }}
+{%- endfor %}
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+
+{% if profile.profile_stats: -%}
+<h2>Player stats</h2>
+{% for name, stats in profile.profile_stats.iteritems(): -%}
+<h3>{{ server_display_name(name) }}</h3>
+{{ render_stats(stats) }}
+{%- endfor %}
+{%- endif %}
+
+</div>
+
 {%- endblock %}

@@ -19,10 +19,6 @@ class User(Base, object):
     def __repr__(self):
         return self.name
     
-    @flask.current_app.context_processor
-    def inject_user():
-        return dict(current_user=User.current_user)
-    
     # Static class property
     def _current_user(self, cls, owner):
         if User._user is False:
@@ -39,3 +35,8 @@ class User(Base, object):
     @flask.current_app.before_request
     def reset_current_user(*args):
         setattr(User, '_user', False)
+
+@flask.current_app.context_processor
+def inject_user():
+    return dict(current_user=User.current_user)
+    
