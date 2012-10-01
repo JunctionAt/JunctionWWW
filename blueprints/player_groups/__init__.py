@@ -169,7 +169,6 @@ class Endpoint(object):
             if not register: exclude.append('display_name')
             return model_form(
                 Group, session, exclude=exclude,
-                csrf_enabled=False,
                 field_args=dict(
                     display_name=dict(
                         label='%s name'%self.group.capitalize(),
@@ -201,7 +200,7 @@ class Endpoint(object):
             except NoResultFound: abort(404)
             user = flask_login.current_user
             if not user in group.owners: abort(403)
-            form = GroupEditForm(request.form, group)
+            form = GroupEditForm(request.form, group, csrf_enabled=False)
             if request.method == 'POST' and form.validate():
                 form.populate_obj(group)
                 # Make ownership and membership mutually exclusive
@@ -233,7 +232,7 @@ class Endpoint(object):
             """Register group page, endpoint specific"""
             group = Group()
             user = flask_login.current_user
-            form = GroupRegisterForm(request.form, group, register=True)
+            form = GroupRegisterForm(request.form, group, csrf_enabled=False, register=True)
             if request.method == 'POST':
                 form.populate_obj(group)
                 # Make ownership and membership mutually exclusive

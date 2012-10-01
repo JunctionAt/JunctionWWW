@@ -156,7 +156,7 @@ class Blueprint(flask.Blueprint, object):
         def edit_profile():
             profile = flask_login.current_user.profile
             profile.show_stats = ' '.join(filter(lambda stats: stats in player_stats.endpoints.keys(), profile.show_stats.split(' ')))
-            form = ProfileForm(request.form, profile)
+            form = ProfileForm(request.form, profile, csrf_enabled=False)
             if request.method == 'POST' and form.validate():
                 form.populate_obj(profile)
                 profile.show_stats = ' '.join(re.compile('[,\s]+').split(profile.show_stats.lower()))
@@ -178,7 +178,6 @@ class Blueprint(flask.Blueprint, object):
 
         ProfileForm = model_form(
             Profile, session,
-            csrf_enabled=False,
             field_args=dict(show_stats=dict(
                     label='Displayed stats',
                     description="You can remove any or all servers from this list to hide them on your profile.",
