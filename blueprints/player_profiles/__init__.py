@@ -1,6 +1,6 @@
 import flask
 import flask_login
-from flask import render_template, request, current_app, abort, flash, redirect, url_for
+from flask import jsonify, render_template, request, current_app, abort, flash, redirect, url_for
 import sqlalchemy
 import sqlalchemy.orm
 from sqlalchemy.orm import relation, backref
@@ -109,8 +109,9 @@ class Blueprint(flask.Blueprint, object):
 
     def register(self, *args, **kwargs):
 
-        @self.route('/profile/<name>')
-        def show_profile(name):
+        @self.route('/profile/<name>', defaults=dict(ext='html'))
+        @self.route('/profile/<name>.<ext>')
+        def show_profile(name, ext):
             try:
                 profile = session.query(User).filter(User.name==name).one().profile
             except NoResultFound:
@@ -123,7 +124,32 @@ class Blueprint(flask.Blueprint, object):
             if not profile.user.name == name:
                 # Redirect to preferred caps
                 return redirect(url_for("player_profiles.show_profile", name=profile.user.name))
-            return render_template('show_profile.html', profile=profile)
+            if ext == 'html':
+                return render_template('show_profile.html', profile=profile)
+            elif ext == 'json':
+                p = dict(name=profile.name)
+                if profile.realname: p['realname']=profile.realname
+                if profile.location: p['location']=profile.location
+                if profile.tagline: p['tagline']=profile.tagline
+                if profile.link: p['link']=profile.link
+                if profile.user.groups_owner:
+                    servers = reduce(lambda group, servers:
+                                         dict(servers.items() + [(group.server, servers.get(group.server, list()) + [ group.name ])]),
+                                     profile.user.groups_owner,
+                                     dict())
+                    for server, groups in servers:
+                        endpoint = player_groups.endpoints[group.server]
+                        p['%s %s'%(server_display_name(server), endpoint.owner)] = groups
+                if profile.user.groups_member:
+                    servers = reduce(lambda group, servers:
+                                         dict(servers.items() + [(group.server, servers.get(group.server, list()) + [ group.name ])]),
+                                     profile.user.groups_member,
+                                     dict())
+                    for server, groups in servers:
+                        endpoint = player_groups.endpoints[group.server]
+                        p['%s %s'%(server_display_name(server), endpoint.member)] = groups
+                return jsonify(dict(profile=p))
+            abort(404)
 
         @self.route('/profile', methods=('GET', 'POST'))
         @flask_login.login_required
@@ -152,6 +178,7 @@ class Blueprint(flask.Blueprint, object):
 
         ProfileForm = model_form(
             Profile, session,
+            csrf_enabled=False,
             field_args=dict(show_stats=dict(
                     label='Displayed stats',
                     description="You can remove any or all servers from this list to hide them on your profile.",

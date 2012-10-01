@@ -64,6 +64,7 @@ class Endpoint(object):
 
 
 # Define a route to get stats
+@player_stats.blueprint.route('/<server>/stats/<player>', defaults=dict(ext='html'))
 @player_stats.blueprint.route('/<server>/stats/<player>.<ext>')
 def show_stats(server, player, ext):
     endpoint = player_stats.endpoints.get(server)

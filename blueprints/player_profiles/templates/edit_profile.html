@@ -8,7 +8,6 @@
 
 {% from 'formhelpers.html' import render_field %}
 <form id=profile-form method=post action={{ url_for('player_profiles.edit_profile') }}>
-  {{ form.csrf_token }}
   {{ render_field(form.tagline) }}
   {{ render_field(form.realname) }}
   {{ render_field(form.location) }}

@@ -169,6 +169,7 @@ class Endpoint(object):
             if not register: exclude.append('display_name')
             return model_form(
                 Group, session, exclude=exclude,
+                csrf_enabled=False,
                 field_args=dict(
                     display_name=dict(
                         label='%s name'%self.group.capitalize(),

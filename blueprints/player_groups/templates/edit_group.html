@@ -14,7 +14,6 @@
 {%- else: -%}
 <form id=group-edit-form method=post action={{ url_for('player_groups.%s_edit_group'%endpoint.server, name=group.name) }}>
 {%- endif %}
-  {{ form.csrf_token }}
   {% if register: -%}
   {{ render_field(form.display_name) }}
   {%- endif %}
