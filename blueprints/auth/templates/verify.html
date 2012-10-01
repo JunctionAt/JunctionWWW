@@ -27,8 +27,10 @@
 {% block content %}
 <form accept-charset="UTF-8" action="" method="post" name="registerform" >
 	  <input type="hidden" name="regstage" value="2">
-	  <p>Fire up Minecraft, and connect to the server "auth.junction.at". You should be kicked, and given a Validation Token. Please enter this below.</p>
-	  <br/>
+	  <p>Fire up Minecraft, and connect to the server <span style="white-space: nowrap;">"{{ auth_server }}"</span>.</p>
+          <br>
+          <p>You should be kicked, and given a Validation Token. <br>Please enter it below.</p>
+          <br>
 	  <div class="field text-field">
 	    <label for="user_session_login">Validation Token</label><br />
 	    <input class="text-field" name="token" size="30" type="text" />

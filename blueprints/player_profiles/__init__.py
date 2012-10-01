@@ -29,6 +29,7 @@ class Profile(Base, object):
     link = Column(String(256))
     show_stats = Column(String(64))
     hide_group_invitations = Column(Boolean)
+    default = False
     
     _user = relation(User, backref=backref('_profile', uselist=False), lazy=False)
     _stats = None
@@ -106,10 +107,15 @@ class Blueprint(flask.Blueprint, object):
             try:
                 profile = session.query(User).filter(User.name==name).one().profile
             except NoResultFound:
-                abort(404)
+                # Look for stats
+                stat = reduce(lambda stat, (server, endpoint):
+                                  stat or session.query(endpoint.model).filter(endpoint.model.player==name).first(),
+                              player_stats.endpoints.iteritems(), None)
+                if not stat: abort(404)
+                profile = Profile.default_profile(stat.player)
             if not profile.user.name == name:
                 # Redirect to preferred caps
-                return redircet(url_for("player_profiles.show_profile", name=profile.user.name))
+                return redirect(url_for("player_profiles.show_profile", name=profile.user.name))
             return render_template('show_profile.html', profile=profile)
 
         @self.route('/profile', methods=('GET', 'POST'))

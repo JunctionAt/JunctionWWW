@@ -131,7 +131,7 @@ def activatetoken():
         flash(u"Registration sucessful! You can now log in with your account.")
         return redirect("/login")
     else:
-	return render_template("verify.html")
+	return render_template("verify.html", auth_server=current_app.config.get('AUTH_SERVER', 'auth.junction.at'))
 
 @blueprint.route("/control", methods=["GET", "POST"])
 @fresh_login_required
