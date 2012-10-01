@@ -33,13 +33,8 @@ BLUEPRINTS = [
 
     # Player groups (Clans & Cities)
     dict(blueprint=player_groups.player_groups([
-                dict(name='pve',
-                     group='city', groups='cities',
-                     member='citizen', members='citizens',
-                     owner='mayor', owners='mayors'),
-                dict(name='survival',
-                     group='clan', groups='clans',
-                     owner='leader', owners='leaders'),
+                dict(name='pve', group='city', groups='cities', member='citizen', owner='mayor'),
+                dict(name='survival', group='clan', owner='leader'),
                 ])),
     
     ]

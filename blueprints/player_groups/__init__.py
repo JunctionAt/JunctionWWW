@@ -111,20 +111,22 @@ class Endpoint(object):
 
     def __init__(self, name,
                  group='group',
-                 groups='groups',
+                 a_group=None,
+                 groups=None,
                  member='member',
-                 members='members',
+                 members=None,
                  owner='owner',
-                 owners='owners'):
+                 owners=None):
         """Create a player_groups endpoint for server name"""
 
         self.server = name
         self.group = group
-        self.groups = groups
+        self.a_group = a_group if a_group else "a %s"%self.group
+        self.groups = groups if groups else "%ss"%self.group
         self.member = member
-        self.members = members
+        self.members = members if members else "%ss"%self.member
         self.owner = owner
-        self.owners = owners
+        self.owners = owners if owners else "%ss"%self.owner
 
         @player_groups.blueprint.route('/%s/%s/<name>'%(self.server, self.group),
                                        endpoint='%s_show_group'%self.server)
@@ -159,7 +161,7 @@ class Endpoint(object):
             id = "%s.%s"%(self.server, name)
             if session.query(Group).filter(Group.id==id).count() > 0:
                 raise ValidationError("%s name not available."%self.group.capitalize())
-            
+
         def group_form(register=False):
             """Create a group editing form class"""
             
@@ -176,7 +178,7 @@ class Endpoint(object):
                         description='Check this to allow anyone to join your %s without prior invitation.'%self.group),
                     mail=dict(
                         description='Optional contact email for your %s. Will allow you a custom avatar.'%self.group,
-                        validators=[Optional(), Email()]),
+                        validators=[ Optional(), Email() ]),
                     invited_owners=dict(
                         label=self.owners.capitalize()),
                     invited_members=dict(
@@ -229,29 +231,35 @@ class Endpoint(object):
         def register_group():
             """Register group page, endpoint specific"""
             group = Group()
-            form = GroupRegisterForm(request.form, group, register=True)
             user = flask_login.current_user
-            if request.method == 'POST' and form.validate():
+            form = GroupRegisterForm(request.form, group, register=True)
+            if request.method == 'POST':
                 form.populate_obj(group)
-                group.display_name = re.sub(r'\s+', ' ', group.display_name.strip())
-                group.server = self.server
-                group.name = re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', group.display_name))
-                group.id = "%s.pending.%s"%(self.server, group.name)
                 # Make ownership and membership mutually exclusive
                 group.invited_owners = list(set(group.invited_owners + [ user ]))
                 group.invited_members = list(set(group.invited_members) - set(group.invited_owners))
                 # Registree is a confirmed owner
                 group.owners = [ user ]
-                # Delete any pending group registrations of the same id
-                session.query(Group).filter(Group.id==id).delete()
-                # Commit
-                session.add(group)
-                session.commit()
-                # Send notifications
-                manage_invitations(group)
-                # Done
-                flash('%s registration complete pending confirmation by other %s.'%(self.group.capitalize(), self.members))
-                return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
+                if len(group.invited_owners) + len(group.invited_members) < 2:
+                    form.validate()
+                    form.invited_members.errors = [
+                        "You need to invite at least one other %s or %s in order to register %s."%(self.owner,self.member,self.a_group)
+                        ]
+                elif form.validate():
+                    group.display_name = re.sub(r'\s+', ' ', group.display_name.strip())
+                    group.server = self.server
+                    group.name = re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', group.display_name))
+                    group.id = "%s.pending.%s"%(self.server, group.name)
+                    # Delete any pending group registrations of the same id
+                    session.query(Group).filter(Group.id==id).delete()
+                    # Commit
+                    session.add(group)
+                    session.commit()
+                    # Send notifications
+                    manage_invitations(group)
+                    # Done
+                    flash('%s registration complete pending confirmation by other %s.'%(self.group.capitalize(), self.members))
+                    return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
             return render_template('edit_group.html', endpoint=self, form=form, register=True)
         
         @player_groups.blueprint.route('/%s/%s/<name>/join'%(self.server, self.group),

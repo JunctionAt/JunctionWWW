@@ -88,14 +88,21 @@ __transforms__ = [
     
     # Proper category names
     ('blockdestroy.category', 'Blocks destroyed'),
+    ('blockcreate.category', 'Blocks placed'),
+    ('damagedealt.category', 'Damage dealt'),
+    ('damagetaken.category', 'Damage taken'),
     ('*.category', lambda cat: cat.category.capitalize()),
 
     # Some misc labels
     ('deaths.player', 'Deaths'),
+    ('stats.damagehealed', 'Total healed'),
+    ('stats.healsatiated', 'Healed from food'),
+    ('stats.magicregen', 'Healed from magic'),
     ('stats.armswing', 'Armswings'),
     ('stats.move', 'Meters walked'),
     ('stats.login', 'Number of logins'),
     ('stats.totalblockdestroy', 'Total blocks destroyed'),
+    ('stats.totalblockcreate', 'Total blocks placed'),
 
     # Convert timestamps to strings
     ('stats.firstlogin', lambda stat:
@@ -109,6 +116,15 @@ __transforms__ = [
     
     # Proper block names
     ('blockdestroy.*', lambda stat:
+         stat.stat.capitalize()),
+    ('blockcreate.*', lambda stat:
+         stat.stat.capitalize()),
+
+    # Proper mob names
+    ('damagetaken.*', lambda stat:
+         stat.stat.capitalize()),
+    ('damagedealt.entityattack', 'Total attack'),
+    ('damagedealt.*', lambda stat:
          stat.stat.capitalize()),
 
     ]
@@ -129,6 +145,7 @@ __weights__ = [
     ('stats.lastlogin', 3),
     ('stats.login', 4),
     ('stats.totalblockdestroy', 5),
+    ('stats.totalblockcreate', 6),
     ]
 
 
