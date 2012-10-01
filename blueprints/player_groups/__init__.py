@@ -134,7 +134,7 @@ class Endpoint(object):
             try: group = session.query(Group).filter(Group.id.in_([
                         "%s.%s"%(self.server,name),
                         "%s.pending.%s"%(self.server,name)
-                        ])).first()
+                        ])).one()
             except NoResultFound: abort(404)
             if not group.name == name:
                 # Redirect to preferred caps
@@ -194,7 +194,7 @@ class Endpoint(object):
             try: group = session.query(Group).filter(Group.id.in_([
                         "%s.%s"%(self.server,name),
                         "%s.pending.%s"%(self.server,name)
-                        ])).first()
+                        ])).one()
             except NoResultFound: abort(404)
             user = flask_login.current_user
             if not user in group.owners: abort(403)
@@ -263,7 +263,7 @@ class Endpoint(object):
             try: group = session.query(Group).filter(Group.id.in_([
                         "%s.%s"%(self.server,name),
                         "%s.pending.%s"%(self.server,name)
-                        ])).first()
+                        ])).one()
             except NoResultFound: abort(404)
             user = flask_login.current_user
             if not user in group.members and not user in group.owners:
