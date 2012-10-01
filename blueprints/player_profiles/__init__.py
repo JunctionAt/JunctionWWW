@@ -33,6 +33,13 @@ class Profile(Base, object):
     
     _user = relation(User, backref=backref('_profile', uselist=False), lazy=False)
     _stats = None
+    
+    @property
+    def display_link(self):
+        if not self.link: return None
+        if re.match('^https?://', self.link):
+            return (self.link, re.sub('^https?://', ''))
+        return ("http://%s"%self.link, self.link)
 
     @property
     def user(self):
