@@ -38,7 +38,7 @@ class Profile(Base, object):
     def display_link(self):
         if not self.link: return None
         if re.match('^https?://', self.link):
-            return (self.link, re.sub('^https?://', ''))
+            return (self.link, re.sub('^https?://', '', self.link))
         return ("http://%s"%self.link, self.link)
 
     @property
