@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
   <head>
@@ -7,6 +6,7 @@
       body {
         padding: 0;
         margin: 0;
+        background: #000;
       }
       #body {
         position: absolute;
@@ -33,9 +33,16 @@
         <img style="opacity:0.8;" src="{{ url_for('static_pages.static', filename='bg3.png') }}">
       </div>
       <div id="" style="text-align:center; bottom: 20px;">
-        <!--<p id="text">Cumming verry verry sun!</p>-->
         <img style="opacity:0.6; height:7em;" src="{{ url_for('static_pages.static', filename='under.png') }}">
       </div>
+      {% if urls: -%}
+      <div style="position: absolute; width: 800px; margin-left: -420px; padding: 5px; top: 0; left: 50%; background: #FFF; opacity: 0.95; font-weight: bold; font-size: 18px; line-height: 1.6em;">
+        <h1 style="text-align: center; margin: .2em 0; padding: 0">URL Rules</h1>
+        {% for url in urls: -%}
+        <div style="background: #CCC; margin: 4px; padding: 0 10px;"><a href="{{url[0]}}" style="display: inline-block; width: 300px; text-decoration: none">{{ url[0] }}</a> {{ url[1] }}</div>
+        {%- endfor %}
+      </div>
+      {%- endif -%}
     </div>
   </body>
 </html>
