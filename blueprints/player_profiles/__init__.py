@@ -110,7 +110,7 @@ class Blueprint(flask.Blueprint, object):
     def register(self, *args, **kwargs):
 
         @self.route('/profile/<name>', defaults=dict(ext='html'))
-        @self.route('/profile/<name>.<ext>')
+        @self.route('/profile/<name>.json', defaults=dict(ext='json'))
         def show_profile(name, ext):
             try:
                 profile = session.query(User).filter(User.name==name).one().profile
@@ -127,33 +127,19 @@ class Blueprint(flask.Blueprint, object):
             if ext == 'html':
                 return render_template('show_profile.html', profile=profile)
             elif ext == 'json':
-                p = dict(name=profile.name)
+                # compile a dictionary to serve
+                p = dict()
                 if profile.realname: p['realname']=profile.realname
                 if profile.location: p['location']=profile.location
                 if profile.tagline: p['tagline']=profile.tagline
                 if profile.link: p['link']=profile.link
-                if profile.user.groups_owner:
-                    servers = reduce(lambda group, servers:
-                                         dict(servers.items() + [(group.server, servers.get(group.server, list()) + [ group.name ])]),
-                                     profile.user.groups_owner,
-                                     dict())
-                    for server, groups in servers:
-                        endpoint = player_groups.endpoints[group.server]
-                        p['%s %s'%(server_display_name(server), endpoint.owner)] = groups
-                if profile.user.groups_member:
-                    servers = reduce(lambda group, servers:
-                                         dict(servers.items() + [(group.server, servers.get(group.server, list()) + [ group.name ])]),
-                                     profile.user.groups_member,
-                                     dict())
-                    for server, groups in servers:
-                        endpoint = player_groups.endpoints[group.server]
-                        p['%s %s'%(server_display_name(server), endpoint.member)] = groups
-                return jsonify(dict(profile=p))
+                return jsonify({profile.name:p})
             abort(404)
 
-        @self.route('/profile', methods=('GET', 'POST'))
+        @self.route('/profile', defaults=dict(ext='html'), methods=('GET', 'POST'))
+        @self.route('/profile.json', defaults=dict(ext='json'), methods=('POST'))
         @flask_login.login_required
-        def edit_profile():
+        def edit_profile(ext):
             profile = flask_login.current_user.profile
             profile.show_stats = ' '.join(filter(lambda stats: stats in player_stats.endpoints.keys(), profile.show_stats.split(' ')))
             form = ProfileForm(request.form, profile, csrf_enabled=False)
@@ -162,8 +148,10 @@ class Blueprint(flask.Blueprint, object):
                 profile.show_stats = ' '.join(re.compile('[,\s]+').split(profile.show_stats.lower()))
                 session.add(profile)
                 session.commit()
+                if ext == 'json': abort(200)
                 flash('Profile saved')
                 return redirect(url_for('player_profiles.edit_profile'))
+            if ext == 'json': abort(400)
             return render_template('edit_profile.html', form=form)
 
         def validate_show_stats(form, field):
