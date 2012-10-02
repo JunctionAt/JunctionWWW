@@ -36,7 +36,7 @@
         <img style="opacity:0.6; height:7em;" src="{{ url_for('static_pages.static', filename='under.png') }}">
       </div>
       {% if urls: -%}
-      <div style="position: absolute; width: 800px; margin-left: -420px; padding: 5px; top: 0; left: 50%; background: #FFF; opacity: 0.95; font-weight: bold; font-size: 18px; line-height: 1.6em;">
+      <div style="position: absolute; width: 1000px; margin-left: -500px; padding: 5px; top: 0; left: 50%; background: #FFF; opacity: 0.95; font-weight: bold; font-size: 16px; line-height: 1.6em;">
         <h1 style="text-align: center; margin: .2em 0; padding: 0">URL Rules</h1>
         {% for url in urls: -%}
         <div style="background: #CCC; margin: 4px; padding: 0 10px;"><a href="{{url[0]}}" style="display: inline-block; width: 300px; text-decoration: none">{{ url[0] }}</a> {{ url[1] }}</div>

@@ -65,13 +65,13 @@ class Endpoint(object):
 
 # Define a route to get stats
 @player_stats.blueprint.route('/<server>/stats/<player>', defaults=dict(ext='html'))
-@player_stats.blueprint.route('/<server>/stats/<player>.<ext>')
+@player_stats.blueprint.route('/<server>/stats/<player>.json', defaults=dict(ext='json'))
 def show_stats(server, player, ext):
     endpoint = player_stats.endpoints.get(server)
     if endpoint:
         stats = endpoint.get_by_name(player)
         if ext == 'json':
-            return jsonify(dict(categories=stats))
+            return jsonify(categories=stats)
         elif ext == 'html':
             return render_template('player_stats.html', categories=stats)
     abort(404)

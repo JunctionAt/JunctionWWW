@@ -4,16 +4,22 @@
 
 <h1>Join {{ endpoint.group }}</h1>
 
-<form id=group-join-form method=post action={{ url_for('player_groups.%s_join_group'%endpoint.server, name=group.name) }}>
-  
-  <p class=group-submit>
-    <button class=group-join name=action type=submit value=accept>Join {{ group.display_name }}</button>
-    {% if not group.publc: -%}
-    <button class=group-decline name=action type=submit value=decline>No, thanks</button>
-    {%- endif %}
-  </p>
-
+<form id=group-join-form method=POST action="{{ url_for('player_groups.%s_join_group'%endpoint.server, name=group.name, ext='html') }}">
+  <button class=group-join type=submit>Join {{ group.display_name }}</button>
 </form>
+
+{% if not group.publc: -%}
+<button class=group-decline type=submit onclick="decline()">No, thanks</button>
+<script>
+  function decline() {
+    $.ajax({
+      url: '{{ url_for('player_groups.%s_join_group'%endpoint.server, name=group.name) }}',
+      method: 'delete',
+      complete: function() { window.location = '{{ url_for('player_groups.%s_show_group'%endpoint.server, name=group.name, ext='json') }}'; }
+    });
+  }
+</script>
+{%- endif %}
 
 {% include 'render_group.html' %}
 

@@ -1,5 +1,5 @@
 import flask
-from flask import url_for, render_template
+from flask import url_for, render_template, jsonify
 import flask_login
 import sqlalchemy
 import sqlalchemy.orm
@@ -9,6 +9,7 @@ from sqlalchemy.types import *
 from sqlalchemy import Column
 from yell import notify
 from yell.decorators import notification
+import markdown
 
 from blueprints.base import Base
 from blueprints.auth.user_model import User
@@ -27,8 +28,17 @@ class Notification(Base):
 
 player_notifications = flask.Blueprint('player_notifications', __name__, template_folder='templates')
 
-@player_notifications.route('/notifications')
-def show_notifications():
+@player_notifications.route('/notifications', defaults=dict(ext='html'))
+@player_notifications.route('/notifications.json', defaults=dict(ext='json'))
+@flask_login.login_required
+def show_notifications(ext):
+    if ext == 'json': return jsonify(
+        notifications=map(lambda notification: {
+                'module': notification.module,
+                'type': notification.type,
+                'from': notification.from_,
+                'message': markdown.markdown(notification.message)
+                }, flask_login.current_user.notifications))
     return render_template('show_notifications.html', player_notifications=flask_login.current_user.notifications)
 
 @flask.current_app.context_processor

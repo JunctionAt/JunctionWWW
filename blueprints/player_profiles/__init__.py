@@ -123,7 +123,7 @@ class Blueprint(flask.Blueprint, object):
                 profile = Profile.default_profile(stat.player)
             if not profile.user.name == name:
                 # Redirect to preferred caps
-                return redirect(url_for("player_profiles.show_profile", name=profile.user.name))
+                return redirect(url_for("player_profiles.show_profile", name=profile.user.name, ext=ext))
             if ext == 'html':
                 return render_template('show_profile.html', profile=profile)
             elif ext == 'json':
@@ -137,7 +137,7 @@ class Blueprint(flask.Blueprint, object):
             abort(404)
 
         @self.route('/profile', defaults=dict(ext='html'), methods=('GET', 'POST'))
-        @self.route('/profile.json', defaults=dict(ext='json'), methods=('POST'))
+        @self.route('/profile.json', defaults=dict(ext='json'), methods=('POST',))
         @flask_login.login_required
         def edit_profile(ext):
             profile = flask_login.current_user.profile
@@ -148,30 +148,36 @@ class Blueprint(flask.Blueprint, object):
                 profile.show_stats = ' '.join(re.compile('[,\s]+').split(profile.show_stats.lower()))
                 session.add(profile)
                 session.commit()
-                if ext == 'json': abort(200)
+                if ext == 'json': return "", 200
                 flash('Profile saved')
-                return redirect(url_for('player_profiles.edit_profile'))
-            if ext == 'json': abort(400)
+                return redirect(url_for('player_profiles.edit_profile', ext=ext))
+            if ext == 'json': return jsonify(
+                fields=reduce(lambda errors, (name, field):
+                                  errors if not len(field.errors) else errors + [dict(name=name, errors=field.errors)],
+                              form._fields.iteritems(),
+                              list())), 400
             return render_template('edit_profile.html', form=form)
 
-        def validate_show_stats(form, field):
-            invalid = list()
-            parts = re.compile('[,\s]+').split(field.data.lower())
-            servers = player_stats.endpoints.keys()
-            for server in parts:
-                if not server in servers:
-                    invalid.append(server)
-            if len(invalid):
-                raise ValidationError('Invalid servers: %s'%', '.join(invalid))
-
-        ProfileForm = model_form(
-            Profile, session,
-            field_args=dict(show_stats=dict(
-                    label='Displayed stats',
-                    description="You can remove any or all servers from this list to hide them on your profile.",
-                    validators=[ Optional(), validate_show_stats ])))
-
         return super(Blueprint, self).register(*args, **kwargs)
+
+
+def validate_show_stats(form, field):
+    invalid = list()
+    parts = re.compile('[,\s]+').split(field.data.lower())
+    servers = player_stats.endpoints.keys()
+    for server in parts:
+        if not server in servers:
+            invalid.append(server)
+    if len(invalid):
+        raise ValidationError('Invalid servers: %s'%', '.join(invalid))
+
+ProfileForm = model_form(
+    Profile, session,
+    field_args=dict(
+        show_stats=dict(
+            label='Displayed stats',
+            description="You can remove any or all servers from this list to hide them on your profile.",
+            validators=[ Optional(), validate_show_stats ])))
 
 
 """Singleton blueprint object"""

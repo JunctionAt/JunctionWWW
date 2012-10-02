@@ -1,6 +1,6 @@
 import flask
 import flask_login
-from flask import Blueprint, render_template, request, current_app, abort, flash, redirect, url_for
+from flask import Blueprint, render_template, jsonify, request, current_app, abort, flash, redirect, url_for
 import sqlalchemy
 import sqlalchemy.orm
 from sqlalchemy.orm import relation
@@ -114,8 +114,10 @@ class Endpoint(object):
                  a_group=None,
                  groups=None,
                  member='member',
+                 a_member=None,
                  members=None,
                  owner='owner',
+                 a_owner=None,
                  owners=None):
         """Create a player_groups endpoint for server name"""
 
@@ -124,13 +126,19 @@ class Endpoint(object):
         self.a_group = a_group if a_group else "a %s"%self.group
         self.groups = groups if groups else "%ss"%self.group
         self.member = member
+        self.a_member = a_member if a_member else "a %s"%self.member
         self.members = members if members else "%ss"%self.member
         self.owner = owner
+        self.a_owner = a_owner if a_owner else "a %s"%self.owner
         self.owners = owners if owners else "%ss"%self.owner
 
         @player_groups.blueprint.route('/%s/%s/<name>'%(self.server, self.group),
+                                       defaults=dict(ext='html'),
                                        endpoint='%s_show_group'%self.server)
-        def show_group(name):
+        @player_groups.blueprint.route('/%s/%s/<name>.json'%(self.server, self.group),
+                                       defaults=dict(ext='json'),
+                                       endpoint='%s_show_group'%self.server)
+        def show_group(name, ext):
             """Show group page, endpoint specific """
 
             try: group = session.query(Group).filter(Group.id.in_([
@@ -140,15 +148,33 @@ class Endpoint(object):
             except NoResultFound: abort(404)
             if not group.name == name:
                 # Redirect to preferred caps
-                return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
+                return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name, ext=ext))
+            if ext == 'json':
+                g = dict(display_name=group.display_name)
+                if group.tagline: g['tagline']=group.tagline
+                if group.link: g['link']=group.link
+                if group.info: g['info']=group.info
+                if group.public: g['public']=group.public
+                return jsonify({group.name:g})
             return render_template('show_group.html', endpoint=self, group=group)
         
         @player_groups.blueprint.route('/%s/%s/invitations'%(self.server, self.groups),
+                                       defaults=dict(ext='html'),
+                                       endpoint='%s_show_invitations'%self.server)
+        @player_groups.blueprint.route('/%s/%s/invitations.json'%(self.server, self.groups),
+                                       defaults=dict(ext='json'),
                                        endpoint='%s_show_invitations'%self.server)
         @flask_login.login_required
-        def show_invitations():
+        def show_invitations(ext):
             """Show all player invitations on a server"""
-            
+
+            if ext == 'json':
+                n=[]
+                owner = self.invited_owner_of(flask_login.current_user)
+                if len(owner): n += map(lambda group: dict(role=self.owner, name=group.name), owner)
+                member = self.invited_member_of(flask_login.current_user)
+                if len(member): n += map(lambda group: dict(role=self.member, name=group.name), member)
+                return jsonify(invitations=n)
             return render_template('show_invitations.html', endpoint=self)
         
         def validate_display_name(form, field):
@@ -162,6 +188,14 @@ class Endpoint(object):
             if session.query(Group).filter(Group.id==id).count() > 0:
                 raise ValidationError("%s name not available."%self.group.capitalize())
 
+        def validate_members(form, user):
+            invited_owners = set(form.invited_owners.raw_data + [ user.name ])
+            invited_members = list(set(form.invited_members.raw_data) - invited_owners)
+            if len(invited_owners) + len(invited_members) < 2:
+                form.invited_members.errors = [ "You need to invite at least one other %s or %s in order to register %s."%(self.owner,self.member,self.a_group) ]
+                return False
+            return True
+            
         def group_form(register=False):
             """Create a group editing form class"""
             
@@ -188,10 +222,15 @@ class Endpoint(object):
         GroupRegisterForm = group_form(register=True)
         
         @player_groups.blueprint.route('/%s/%s/<name>/edit'%(self.server, self.group),
+                                       defaults=dict(ext='html'),
                                        endpoint='%s_edit_group'%self.server,
                                        methods=('GET', 'POST'))
+        @player_groups.blueprint.route('/%s/%s/<name>/edit.json'%(self.server, self.group),
+                                       defaults=dict(ext='json'),
+                                       endpoint='%s_edit_group'%self.server,
+                                       methods=('POST',))
         @flask_login.login_required
-        def edit_group(name):
+        def edit_group(name, ext):
             """Edit group page, endpoint specific"""
             try: group = session.query(Group).filter(Group.id.in_([
                         "%s.%s"%(self.server,name),
@@ -201,7 +240,10 @@ class Endpoint(object):
             user = flask_login.current_user
             if not user in group.owners: abort(403)
             form = GroupEditForm(request.form, group, csrf_enabled=False)
-            if request.method == 'POST' and form.validate():
+            if not group.name == name:
+                # Redirect to preferred caps
+                return redirect(url_for('player_groups.%s_edit_group'%self.server, name=group.name))
+            if request.method == 'POST' and form.validate() & validate_members(form, user):
                 form.populate_obj(group)
                 # Make ownership and membership mutually exclusive
                 group.invited_owners = list(set(group.invited_owners + [ user ]))
@@ -215,68 +257,85 @@ class Endpoint(object):
                 session.add(group)
                 session.commit()
                 # Send notifications
-                manage_invitations(group)
+                manage_notifications(group)
                 # Done
+                if ext == 'json': return "",200
                 flash('%s saved'%self.group.capitalize())
                 return redirect(url_for('player_groups.%s_edit_group'%self.server, name=group.name))
-            if not group.name == name:
-                # Redirect to preferred caps
-                return redirect(url_for('player_groups.%s_edit_group'%self.server, name=group.name))
+            if ext == 'json': return jsonify(
+                fields=reduce(lambda errors, (name, field):
+                                  errors if not len(field.errors) else errors + [dict(name=name, errors=field.errors)],
+                              form._fields.iteritems(),
+                              list())), 400
             return render_template('edit_group.html', endpoint=self, form=form, group=group)
         
         @player_groups.blueprint.route('/%s/%s/register'%(self.server, self.groups),
+                                       defaults=dict(ext='html'),
                                        endpoint='%s_register_group'%self.server,
                                        methods=('GET', 'POST'))
+        @player_groups.blueprint.route('/%s/%s/register.json'%(self.server, self.groups),
+                                       defaults=dict(ext='json'),
+                                       endpoint='%s_register_group'%self.server,
+                                       methods=('POST',))
         @flask_login.login_required
-        def register_group():
+        def register_group(ext):
             """Register group page, endpoint specific"""
             group = Group()
             user = flask_login.current_user
-            form = GroupRegisterForm(request.form, group, csrf_enabled=False, register=True)
-            if request.method == 'POST':
+            form = GroupRegisterForm(request.form, group, csrf_enabled=False)
+            if request.method == 'POST' and form.validate() & validate_members(form, user):
                 form.populate_obj(group)
                 # Make ownership and membership mutually exclusive
                 group.invited_owners = list(set(group.invited_owners + [ user ]))
                 group.invited_members = list(set(group.invited_members) - set(group.invited_owners))
                 # Registree is a confirmed owner
                 group.owners = [ user ]
-                if len(group.invited_owners) + len(group.invited_members) < 2:
-                    form.validate()
-                    form.invited_members.errors = [
-                        "You need to invite at least one other %s or %s in order to register %s."%(self.owner,self.member,self.a_group)
-                        ]
-                elif form.validate():
-                    group.display_name = re.sub(r'\s+', ' ', group.display_name.strip())
-                    group.server = self.server
-                    group.name = re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', group.display_name))
-                    group.id = "%s.pending.%s"%(self.server, group.name)
-                    # Delete any pending group registrations of the same id
-                    session.query(Group).filter(Group.id==id).delete()
-                    # Commit
-                    session.add(group)
-                    session.commit()
-                    # Send notifications
-                    manage_invitations(group)
-                    # Done
-                    flash('%s registration complete pending confirmation by other %s.'%(self.group.capitalize(), self.members))
-                    return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
+                group.display_name = re.sub(r'\s+', ' ', group.display_name.strip())
+                group.server = self.server
+                group.name = re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', group.display_name))
+                group.id = "%s.pending.%s"%(self.server, group.name)
+                # Delete any pending group registrations of the same id
+                session.query(Group).filter(Group.id==id).delete()
+                # Commit
+                session.add(group)
+                session.commit()
+                # Send notifications
+                manage_notifications(group)
+                # Done
+                if ext == 'json': return "", 200
+                flash('%s registration complete pending confirmation by other %s.'%(self.group.capitalize(), self.members))
+                return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
+            if ext == 'json': return jsonify(
+                    fields=reduce(lambda errors, (name, field):
+                                      errors if not len(field.errors) else errors + [dict(name=name, errors=field.errors)],
+                                  form._fields.iteritems(),
+                                  list())), 400
             return render_template('edit_group.html', endpoint=self, form=form, register=True)
         
         @player_groups.blueprint.route('/%s/%s/<name>/join'%(self.server, self.group),
+                                       defaults=dict(ext='html'),
                                        endpoint='%s_join_group'%self.server,
-                                       methods=('GET', 'POST'))
+                                       methods=('GET', 'POST', 'DELETE'))
+        @player_groups.blueprint.route('/%s/%s/<name>/join.json'%(self.server, self.group),
+                                       defaults=dict(ext='json'),
+                                       endpoint='%s_join_group'%self.server,
+                                       methods=('POST','DELETE'))
         @flask_login.login_required
-        def join_group(name):
+        def join_group(name, ext):
             """Join group page, endpoint specific"""
+            
             try: group = session.query(Group).filter(Group.id.in_([
                         "%s.%s"%(self.server,name),
                         "%s.pending.%s"%(self.server,name)
                         ])).one()
             except NoResultFound: abort(404)
             user = flask_login.current_user
+            if not group.name == name:
+                # Redirect to preferred caps
+                return redirect(url_for('player_groups.%s_join_group'%self.server, name=group.name))
             if not user in group.members and not user in group.owners:
-                if request.method == 'POST':
-                    if request.form['action'] == 'accept':
+                if request.method in ('POST', 'DELETE'):
+                    if request.method == 'POST':
                         # Join action
                         if not group.public and user in group.invited_owners:
                             group.owners.append(user)
@@ -290,7 +349,7 @@ class Endpoint(object):
                         if group.id == "%s.pending.%s"%(self.server,group.name):
                             session.delete(group)
                             group = Group.confirm(group)
-                        flash("You have joined %s."%group.display_name)
+                        if ext == 'html': flash("You have joined %s."%group.display_name)
                     else:
                         # Pass action
                         if user in group.invited_owners:
@@ -299,24 +358,29 @@ class Endpoint(object):
                             group.invited_members.remove(user)
                         else:
                             abort(403)
-                        flash("Invitation to %s declined."%group.display_name)
-                    # Delete player notification
-                    session.query(Notification) \
-                        .filter(Notification.module=='player_groups') \
-                        .filter(Notification.type=='invitation') \
-                        .filter(Notification.from_=="%s.%s"%(group.server,group.name)) \
-                        .filter(Notification.user_name==user.name) \
-                        .delete()
+                        if ext == 'html': flash("Invitation to %s declined."%group.display_name)
+                    delete_invitation_notification(user, group)
                     session.add(group)
                     session.commit()
+                    if ext == 'json': return "", 200
                     return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name))
-                if not group.name == name:
-                    # Redirect to preferred caps
-                    return redirect(url_for('player_groups.%s_join_group'%self.server, name=group.name))
                 return render_template('join_group.html', endpoint=self, group=group)
             abort(403)
 
-        def manage_invitations(group):
+        def delete_invitation_notification(users, group):
+            """Delete player notification"""
+            
+            # If this is broken, uncomment the try and except statements
+            #try: \
+            session.query(Notification) \
+                .filter(Notification.module=='player_groups') \
+                .filter(Notification.type=='invitation') \
+                .filter(Notification.from_=="%s.%s"%(group.server,group.name)) \
+                .filter(Notification.user_name.in_(users)) \
+                .delete()
+            #except TypeError: delete_invitation_notification([users], group)
+
+        def manage_notifications(group):
             """Save and manage invitation notifications"""
 
             # People who have been invited but not confirmed
@@ -331,12 +395,7 @@ class Endpoint(object):
                                    .filter(Notification.from_=="%s.%s"%(group.server,group.name)) \
                                    .all()))
             # Delete notifications for players that are no longer invited
-            session.query(Notification) \
-                .filter(Notification.module=='player_groups') \
-                .filter(Notification.type=='invitation') \
-                .filter(Notification.from_=="%s.%s"%(group.server,group.name)) \
-                .filter(Notification.user_name.in_(map(lambda user: user.name, notified - invited))) \
-                .delete()
+            delete_invitation_notifications(map(lambda user: user.name, notified - invited), group)
             # Add notifications for people who haven't been sent one
             for user in invited - notified:
                 session.add(
@@ -375,36 +434,40 @@ class Endpoint(object):
                                set(flask_login.current_user.groups_member or list())))
 
 
-@player_groups.blueprint.route('/groups/<server>/show/<name>')
-def show_group(server, name):
+@player_groups.blueprint.route('/groups/<server>/show/<name>', defaults=dict(ext='html'))
+@player_groups.blueprint.route('/groups/<server>/show/<name>.json', defaults=dict(ext='json'))
+def show_group(server, name, ext):
     """Redirects to preferred url of server"""
     endpoint = player_groups.endpoints.get(server)
     if endpoint:
-        return redirect(url_for('player_groups.%s_show_group'%endpoint.server, name=name))
+        return redirect(url_for('player_groups.%s_show_group'%endpoint.server, name=name, ext=ext))
     abort(404)
 
-@player_groups.blueprint.route('/groups/<server>/edit/<name>')
-def edit_group(server, name):
+@player_groups.blueprint.route('/groups/<server>/edit/<name>', defaults=dict(ext='html'))
+@player_groups.blueprint.route('/groups/<server>/edit/<name>.json', defaults=dict(ext='json'))
+def edit_group(server, name, ext):
     """Redirects to preferred url of server"""
     endpoint = player_groups.endpoints.get(server)
     if endpoint:
-        return redirect(url_for('player_groups.%s_edit_group'%endpoint.server, name=name))
+        return redirect(url_for('player_groups.%s_edit_group'%endpoint.server, name=name, ext=ext))
     abort(404)
 
-@player_groups.blueprint.route('/groups/<server>/register')
-def register_group(server):
+@player_groups.blueprint.route('/groups/<server>/register', defaults=dict(ext='html'))
+@player_groups.blueprint.route('/groups/<server>/register.json', defaults=dict(ext='json'))
+def register_group(server, ext):
     """Redirects to preferred url of server"""
     endpoint = player_groups.endpoints.get(server)
     if endpoint:
-        return redirect(url_for('player_groups.%s_register_group'%endpoint.server))
+        return redirect(url_for('player_groups.%s_register_group'%endpoint.server, ext=ext))
     abort(404)
 
-@player_groups.blueprint.route('/groups/<server>/invitations')
-def register_group(server):
+@player_groups.blueprint.route('/groups/<server>/invitations', defaults=dict(ext='html'))
+@player_groups.blueprint.route('/groups/<server>/invitations.json', defaults=dict(ext='json'))
+def show_invitations(server, ext):
     """Redirects to preferred url of server"""
     endpoint = player_groups.endpoints.get(server)
     if endpoint:
-        return redirect(url_for('player_groups.%s_show_invitations'%endpoint.server))
+        return redirect(url_for('player_groups.%s_show_invitations'%endpoint.server, ext=ext))
     abort(404)
 
 
