@@ -370,15 +370,16 @@ class Endpoint(object):
         def delete_invitation_notification(users, group):
             """Delete player notification"""
             
-            # If this is broken, uncomment the try and except statements
-            #try: \
+            try:
+                iter(users)
+            except TypeError:
+                delete_invitation_notification([users], group)
             session.query(Notification) \
                 .filter(Notification.module=='player_groups') \
                 .filter(Notification.type=='invitation') \
                 .filter(Notification.from_=="%s.%s"%(group.server,group.name)) \
                 .filter(Notification.user_name.in_(users)) \
                 .delete()
-            #except TypeError: delete_invitation_notification([users], group)
 
         def manage_notifications(group):
             """Save and manage invitation notifications"""
