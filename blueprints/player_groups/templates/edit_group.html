@@ -12,7 +12,7 @@
 {% if register: -%}
 <form id=group-register-form method=post action={{ url_for('player_groups.%s_register_group'%endpoint.server, ext='html') }}>
 {%- else: -%}
-<form id=group-edit-form method=post action={{ url_for('player_groups.%s_edit_group'%endpoint.server, name=group.name, ext='html') }}>
+<form id=group-edit-form method=post action={{ url_for('player_groups.%s_edit_group'%endpoint.server, name=group.name, ext='html', _method='POST') }}>
 {%- endif %}
   {% if register: -%}
   {{ render_field(form.display_name) }}

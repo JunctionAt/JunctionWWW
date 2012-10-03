@@ -123,7 +123,7 @@ class Blueprint(flask.Blueprint, object):
                 profile = Profile.default_profile(stat.player)
             if not profile.user.name == name:
                 # Redirect to preferred caps
-                return redirect(url_for("player_profiles.show_profile", name=profile.user.name, ext=ext))
+                return redirect(url_for("player_profiles.show_profile", name=profile.user.name, ext=ext)), 301
             if ext == 'html':
                 return render_template('show_profile.html', profile=profile)
             elif ext == 'json':
@@ -148,9 +148,8 @@ class Blueprint(flask.Blueprint, object):
                 profile.show_stats = ' '.join(re.compile('[,\s]+').split(profile.show_stats.lower()))
                 session.add(profile)
                 session.commit()
-                if ext == 'json': return "", 200
-                flash('Profile saved')
-                return redirect(url_for('player_profiles.edit_profile', ext=ext))
+                if ext == 'html': flash('Profile saved')
+                return redirect(url_for('player_profiles.edit_profile', ext=ext)), 303
             if ext == 'json': return jsonify(
                 fields=reduce(lambda errors, (name, field):
                                   errors if not len(field.errors) else errors + [dict(name=name, errors=field.errors)],

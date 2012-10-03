@@ -13,7 +13,5 @@ static_pages = Blueprint('static_pages', __name__,
 @static_pages.route('/')
 def landing_page():
     debug = current_app.config.get('DEBUG', False)
-    urls = map(
-        lambda rule: re.sub('^<Rule|>$|\'', '', rule.__repr__()).replace('(', ':(').split(':'),
-        sorted(current_app.url_map.iter_rules(), key=lambda rule: str(rule))) if debug else None
-    return render_template('index.html', urls=urls)
+    rules = sorted(current_app.url_map.iter_rules(), key=lambda rule: rule.endpoint) if debug else None
+    return render_template('index.html', rules=rules, set=lambda *args: set(*args), list=lambda *args: list(*args))
