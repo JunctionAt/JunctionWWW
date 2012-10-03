@@ -56,6 +56,9 @@ class Endpoint(object):
         self.transforms = transforms
         self.weights = weights
         
+        player_stats.blueprint.add_url_rule('/%s/stats/<player>'%self.name, 'show_stats', defaults=dict(server=self.name, ext='html'))
+        player_stats.blueprint.add_url_rule('/%s/stats/<player>.json'%self.name, 'show_stats', defaults=dict(server=self.name, ext='json'))
+        
     def get_by_name(self, player):
         return PlayerStats.player_stats(self.model, player, self.show, self.hide, self.transforms, self.weights)
     
@@ -64,18 +67,15 @@ class Endpoint(object):
 
 
 # Define a route to get stats
-@player_stats.blueprint.route('/<server>/stats/<player>', defaults=dict(ext='html'))
-@player_stats.blueprint.route('/<server>/stats/<player>.json', defaults=dict(ext='json'))
 def show_stats(server, player, ext):
     endpoint = player_stats.endpoints.get(server)
-    if endpoint:
-        stats = endpoint.get_by_name(player)
-        if ext == 'json':
-            return jsonify(categories=stats)
-        elif ext == 'html':
-            return render_template('player_stats.html', categories=stats)
-    abort(404)
+    stats = endpoint.get_by_name(player)
+    if ext == 'json':
+        return jsonify(categories=stats)
+    elif ext == 'html':
+        return render_template('player_stats.html', categories=stats)
 
+current_app.view_functions['show_stats'] = show_stats
 
 """Transform array (in order of precedence) for stat names and values
 
