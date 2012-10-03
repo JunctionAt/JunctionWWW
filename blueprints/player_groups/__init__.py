@@ -8,7 +8,7 @@ from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import *
 from sqlalchemy.sql.expression import and_
 from sqlalchemy import Column
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from wtforms.validators import Required, Optional, Email, ValidationError
 from wtalchemy.orm import model_form
 from yell import notify
@@ -126,10 +126,10 @@ class Endpoint(object):
         self.a_group = a_group if a_group else "a %s"%self.group
         self.groups = groups if groups else "%ss"%self.group
         self.member = member
-        self.a_member = a_member if a_member else "a %s"%self.member
+        self.a_member = a_member if a_member else ("a %s"%self.member if not self.member[0] in ('aeiou') else "an %s"%self.member)
         self.members = members if members else "%ss"%self.member
         self.owner = owner
-        self.a_owner = a_owner if a_owner else "a %s"%self.owner
+        self.a_owner = a_owner if a_owner else ("a %s"%self.owner if not self.owner[0] in ('aeiou') else "an %s"%self.owner)
         self.owners = owners if owners else "%ss"%self.owner
 
         @player_groups.blueprint.route('/%s/%s/<name>'%(self.server, self.group),
@@ -159,6 +159,54 @@ class Endpoint(object):
                 return render_template('show_group.html', endpoint=self, group=group)
             except NoResultFound:
                 abort(404)
+            except MultipleResultsFound:
+                abort(500)
+        
+        @player_groups.blueprint.route('/%s/%s/%s.json'%(self.server, self.group, self.members),
+                                       defaults=dict(ext='json'),
+                                       endpoint='%s_show_members'%self.server)
+        def show_members(name, ext):
+            """Show group page, endpoint specific """
+
+            try:
+                group = session.query(Group).filter(Group.id.in_([
+                            "%s.%s"%(self.server,name),
+                            "%s.pending.%s"%(self.server,name)
+                            ])).one()
+                if not group.name == name:
+                    # Redirect to preferred caps
+                    return redirect(url_for('player_groups.%s_show_members'%self.server, name=group.name, ext=ext)), 301
+                if ext == 'json':
+                    return jsonify({self.members:map(lambda member: member.name, group.members)})
+                #return render_template('show_members.html', endpoint=self, group=group)
+                abort(404)
+            except NoResultFound:
+                abort(404)
+            except MultipleResultsFound:
+                abort(500)
+        
+        @player_groups.blueprint.route('/%s/%s/%s.json'%(self.server, self.group, self.owners),
+                                       defaults=dict(ext='json'),
+                                       endpoint='%s_show_owners'%self.server)
+        def show_owners(name, ext):
+            """Show group page, endpoint specific """
+
+            try:
+                group = session.query(Group).filter(Group.id.in_([
+                            "%s.%s"%(self.server,name),
+                            "%s.pending.%s"%(self.server,name)
+                            ])).one()
+                if not group.name == name:
+                    # Redirect to preferred caps
+                    return redirect(url_for('player_groups.%s_show_owners'%self.server, name=group.name, ext=ext)), 301
+                if ext == 'json':
+                    return jsonify({self.owners:map(lambda owner: owner.name, group.owners)})
+                #return render_template('show_members.html', endpoint=self, group=group)
+                abort(404)
+            except NoResultFound:
+                abort(404)
+            except MultipleResultsFound:
+                abort(500)
         
         @player_groups.blueprint.route('/%s/%s/invitations'%(self.server, self.groups),
                                        defaults=dict(ext='html'),
@@ -275,6 +323,8 @@ class Endpoint(object):
                 return render_template('edit_group.html', endpoint=self, form=form, group=group)
             except NoResultFound:
                 abort(404)
+            except MultipleResultsFound:
+                abort(500)
         
         @player_groups.blueprint.route('/%s/%s/register'%(self.server, self.groups),
                                        defaults=dict(ext='html'),
@@ -373,6 +423,8 @@ class Endpoint(object):
                 abort(403)
             except NoResultFound:
                 abort(404)
+            except MultipleResultsFound:
+                abort(500)
         
         @player_groups.blueprint.route('/%s/%s/<name>/leave'%(self.server, self.group),
                                        defaults=dict(ext='html'),
@@ -409,6 +461,8 @@ class Endpoint(object):
                 abort(403)
             except NoResultFound:
                 abort(404)
+            except MultipleResultsFound:
+                abort(500)
         
         @player_groups.blueprint.route('/%s/%s/<name>/%s/<player>'%(self.server, self.group, self.members),
                                        defaults=dict(ext='html'),
@@ -462,6 +516,8 @@ class Endpoint(object):
                 abort(403)
             except NoResultFound:
                 abort(404)
+            except MultipleResultsFound:
+                abort(500)
         
         @player_groups.blueprint.route('/%s/%s/<name>/%s/<player>'%(self.server, self.group, self.owners),
                                        defaults=dict(ext='html'),
@@ -515,6 +571,8 @@ class Endpoint(object):
                 abort(403)
             except NoResultFound:
                 abort(404)
+            except MultipleResultsFound:
+                abort(500)
         
         def delete_notifications(users, group):
             """Delete player notification"""

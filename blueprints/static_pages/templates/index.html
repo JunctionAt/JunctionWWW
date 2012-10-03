@@ -37,11 +37,19 @@
       </div>
       {% if rules: -%}
       <div style="position: absolute; width: 1000px; margin-left: -500px; padding: 5px; top: 0; left: 50%; background: #FFF; opacity: 0.95; font-weight: bold; font-size: 16px; line-height: 1.6em;">
-        <h1 style="text-align: center; margin: .2em 0; padding: 0">URL Rules</h1>
+        <table style="width: 100%">
+          <thead>
+            <td>Rule</td>
+            <td>Methods</td>
+            <td>Endpoint</td>
         {% for rule in rules: -%}
-        <div style="background: #CCC; margin: 4px; padding: 0 10px;"><a href="{{rule['rule']}}" style="display: inline-block; width: 300px; text-decoration: none">{{rule['rule']}}</a>
-          {{ list(rule.methods - set(('HEAD', 'OPTIONS'))) }} -> {{ rule['endpoint'] }}</div>
+          <tr>
+            <td style="background: #CCC"><a href="{{rule['rule']}}" style="text-decoration: none">{{rule['rule']}}</a></td>
+            <td style="background: #CCC">{{ tuple(rule.methods - set(('HEAD', 'OPTIONS'))) }}</td>
+            <td style="background: #CCC">{{ rule['endpoint'] }}</td>
+          </tr>
         {%- endfor %}
+        </table>
       </div>
       {%- endif -%}
     </div>
