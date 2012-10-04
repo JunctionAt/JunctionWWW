@@ -26,7 +26,8 @@ from blueprints.player_notifications import Notification
 
 
 def player_groups(servers=[]):
-    """Create routes for all group endpoints defined in servers
+    """
+    Create routes for all group endpoints defined in servers
     
     Returns the blueprint for easy setup.
 
@@ -427,7 +428,12 @@ def register_group(server, ext):
 
 @flask_login.login_required
 def join_group(server, group, ext):
-    """Join group name"""
+    """
+    Used by the current player to join or decline an invitation to ``group``.
+
+    Sending a POST request to this...
+
+    """
 
     self = player_goups.endpoints[server]
     name = group

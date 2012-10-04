@@ -1,13 +1,32 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>junction.at API</title>
+    <title>Junction.at/api</title>
   </head>
   <body>
-      {% for endpoint in endpoints: -%}
-      <h2>{{ endpoint.rule }}</h2>
-      <p>Methods: {{ endpoint.methods }}</p>
-      {{ endpoint.doc|markdown }}
+    <h1>Junction.at/api</h1>
+    <p>
+      This document explains the Junction JSON API...
+    </p>
+    <hr>
+    {% for blueprint, doc, endpoints in blueprints: %}
+    <h2>{{ blueprint }}</h2>
+    {{ doc }}
+    <ul>
+      {% for (rule, endpoint) in endpoints: -%}
+      <li>
+        <h3>{{ rule }}</h3>
+        <ul>
+          {% for method in endpoint: -%}
+          <li>
+            {{ method.methods }}
+            {{ method.doc }}
+          </li>
+          {%- endfor %}
+        </ul>
+      </li>
       {%- endfor %}
+    </ul>
+    {%- endfor %}
   </body>
 </html>

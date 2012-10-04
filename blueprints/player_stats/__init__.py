@@ -12,13 +12,8 @@ from blueprints.base import Base, session
 
 
 def player_stats(servers=[]):
-    """Create routes for all stat endpoints defined in servers
-    
-    Use player_stats.endpoints['server_name'] to get the autoloaded model (endpoints['pve_stats'].model)
-    or call player_stats from these endpoints.
-    
-    Returns the blueprint for easy setup.
-    
+    """
+    These endpoints are used to pull real-time player statistics from a game server database.
     """
     
     for server in servers:
@@ -68,8 +63,12 @@ class Endpoint(object):
         return PlayerStats.stat_format(rows, self.show, self.hide, self.transforms, self.weights)
 
 
-# Define a route to get stats
 def show_stats(server, player, ext):
+    """
+    Returns an object with a ``categories`` key containing a weighted list of objects that each contain a ``name`` and ``stats`` keys,
+    where ``name`` is the category name and ``stats`` is a weighted list of stat objects containing ``name`` and ``value`` keys.
+    """
+    
     endpoint = player_stats.endpoints.get(server)
     stats = endpoint.get_by_name(player)
     if ext == 'json':

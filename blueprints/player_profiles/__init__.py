@@ -108,12 +108,19 @@ setattr(User, 'profile', property(lambda self: self._profile or Profile.default_
 
 
 class Blueprint(flask.Blueprint, object):
+    """
+    Endpoints to change your profile and get fields from other players' profiles.
+    """
 
     def register(self, *args, **kwargs):
 
         @self.route('/profile/<player>', defaults=dict(ext='html'))
         @self.route('/profile/<player>.json', defaults=dict(ext='json'))
         def show_profile(player, ext):
+            """
+            Returns an object with a ``<player>`` key, containing the profile's fields.
+            """
+            
             try:
                 profile = session.query(User).filter(User.name==player).one().profile
             except NoResultFound:
@@ -142,6 +149,10 @@ class Blueprint(flask.Blueprint, object):
         @self.route('/profile.json', defaults=dict(ext='json'), methods=('POST',))
         @flask_login.login_required
         def edit_profile(ext):
+            """
+            Set the current user's profile to the values passed as formdata in the POST request body.
+            """
+            
             profile = flask_login.current_user.profile
             profile.show_stats = ' '.join(filter(lambda stats: stats in player_stats.endpoints.keys(), profile.show_stats.split(' ')))
             form = ProfileForm(request.form, profile, csrf_enabled=False)
