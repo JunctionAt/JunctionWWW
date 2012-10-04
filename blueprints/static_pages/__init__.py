@@ -18,7 +18,6 @@ def landing_page():
 
 @static_pages.route('/api')
 def api():
-    for rule in current_app.url_map.iter_rules(): print rule.__dict__
     return render_template(
         'api.html',
         endpoints=map(
