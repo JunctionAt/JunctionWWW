@@ -1,3 +1,5 @@
+"""Persistant player notification system"""
+
 import flask
 from flask import url_for, render_template, jsonify
 import flask_login
@@ -43,16 +45,7 @@ def show_notifications(ext):
 
 @flask.current_app.context_processor
 def inject_notifications():
-    return dict(notifications=__notifications__)
-
-@flask.current_app.before_request
-def populate_notifications(*args):
-    while len(__notifications__): __notifications__.pop()
-    if flask.request.path == url_for('player_notifications.show_notifications'): return
-    if not flask_login.current_user.is_anonymous():
-        # Show notifications
-        for module, notifications in by_module(flask_login.current_user.notifications).iteritems():
-            notify(module, notifications)
+    return dict(get_notifications=get_notifications)
 
 def by_module(notifications):
     return reduce(lambda modules, notification:
@@ -64,3 +57,12 @@ def show(notification):
     __notifications__.append(notification)
 
 __notifications__ = list()
+
+def get_notifications():
+    while len(__notifications__): __notifications__.pop()
+    if flask.request.path == url_for('player_notifications.show_notifications'): return
+    if not flask_login.current_user.is_anonymous():
+        # Show notifications
+        for module, notifications in by_module(flask_login.current_user.notifications).iteritems():
+            notify(module, notifications)
+    return __notifications__

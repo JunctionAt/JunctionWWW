@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>junction.at API</title>
+  </head>
+  <body>
+      {% for endpoint in endpoints: -%}
+      <h2>{{ endpoint.rule }}</h2>
+      <p>Methods: {{ endpoint.methods }}</p>
+      {{ endpoint.doc|markdown }}
+      {%- endfor %}
+  </body>
+</html>

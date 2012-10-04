@@ -8,7 +8,7 @@
 
 <h3>Invited as {{ endpoint.owner }}</h3>
 {% for group in endpoint.invited_owner_of(user): -%}
-<a href="{{ url_for('player_groups.%s_join_group'%endpoint.server, name=group.name) }}">
+<a href="{{ url_for('player_groups.join_group', server=endpoint.server, group=group.name) }}">
 {{ render_group_small(group,link=False) }}
 </a>
 {%- endfor %}
@@ -19,7 +19,7 @@
 
 <h3>Invited as {{ endpoint.member }}</h3>
 {% for group in endpoint.invited_member_of(user): -%}
-<a href="{{ url_for('player_groups.%s_join_group'%endpoint.server, name=group.name) }}">
+<a href="{{ url_for('player_groups.join_group', server=endpoint.server, group=group.name) }}">
 {{ render_group_small(group,link=False) }}
 </a>
 {%- endfor %}

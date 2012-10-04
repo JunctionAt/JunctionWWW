@@ -15,7 +15,7 @@
 {%- endif %}
 
 {% if group.info: -%}
-<p class=group-longinfo>{{ group.info|markdown }}</p>
+<div class=group-longinfo>{{ group.info|markdown }}</div>
 {%- endif %}
 
 <h2 class=group-owners-heading>{{ endpoint.owners.capitalize() }}</h2>

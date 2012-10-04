@@ -1,3 +1,5 @@
+"""Player profiles"""
+
 import flask
 import flask_login
 from flask import jsonify, render_template, request, current_app, abort, flash, redirect, url_for
@@ -109,21 +111,21 @@ class Blueprint(flask.Blueprint, object):
 
     def register(self, *args, **kwargs):
 
-        @self.route('/profile/<name>', defaults=dict(ext='html'))
-        @self.route('/profile/<name>.json', defaults=dict(ext='json'))
-        def show_profile(name, ext):
+        @self.route('/profile/<player>', defaults=dict(ext='html'))
+        @self.route('/profile/<player>.json', defaults=dict(ext='json'))
+        def show_profile(player, ext):
             try:
-                profile = session.query(User).filter(User.name==name).one().profile
+                profile = session.query(User).filter(User.name==player).one().profile
             except NoResultFound:
                 # Look for stats
                 stat = reduce(lambda stat, (server, endpoint):
-                                  stat or session.query(endpoint.model).filter(endpoint.model.player==name).first(),
+                                  stat or session.query(endpoint.model).filter(endpoint.model.player==player).first(),
                               player_stats.endpoints.iteritems(), None)
                 if not stat: abort(404)
                 profile = Profile.default_profile(stat.player)
-            if not profile.user.name == name:
+            if not profile.user.name == player:
                 # Redirect to preferred caps
-                return redirect(url_for("player_profiles.show_profile", name=profile.user.name, ext=ext)), 301
+                return redirect(url_for("player_profiles.show_profile", player=profile.user.name, ext=ext)), 301
             if ext == 'html':
                 return render_template('show_profile.html', profile=profile)
             elif ext == 'json':

@@ -1,3 +1,5 @@
+"""Clan/city features"""
+
 import flask
 import flask_login
 from flask import Blueprint, render_template, jsonify, request, current_app, abort, flash, redirect, url_for
@@ -8,7 +10,7 @@ from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import *
 from sqlalchemy.sql.expression import and_
 from sqlalchemy import Column
-from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
+from sqlalchemy.orm.exc import NoResultFound
 from wtforms.validators import Required, Optional, Email, ValidationError
 from wtalchemy.orm import model_form
 from yell import notify
@@ -93,7 +95,6 @@ GroupMembers = GroupUserRelation('player_groups_members')
 GroupInvitedOwners = GroupUserRelation('player_groups_invited_owners')
 GroupInvitedMembers = GroupUserRelation('player_groups_invited_members')
 
-
 # Endpoints
 player_groups.endpoints = dict()
 
@@ -136,16 +137,16 @@ class Endpoint(object):
         self.GroupRegisterForm = self.group_form(register=True)
 
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/<name>'%(self.server, self.group), 'show_group',
+            '/%s/%s/<group>'%(self.server, self.group), 'show_group',
             defaults=dict(server=self.server, ext='html'))
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/<name>.json'%(self.server, self.group), 'show_group',
+            '/%s/%s/<group>.json'%(self.server, self.group), 'show_group',
             defaults=dict(server=self.server, ext='json'))
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/%s.json'%(self.server, self.group, self.members), 'show_members',
+            '/%s/%s/<group>/%s.json'%(self.server, self.group, self.members), 'show_members',
             defaults=dict(server=self.server, ext='json'))
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/%s.json'%(self.server, self.group, self.owners), 'show_owners',
+            '/%s/%s/<group>/%s.json'%(self.server, self.group, self.owners), 'show_owners',
             defaults=dict(server=self.server, ext='json'))
         player_groups.blueprint.add_url_rule(
             '/%s/%s/invitations'%(self.server, self.groups), 'show_invitations',
@@ -154,47 +155,47 @@ class Endpoint(object):
             '/%s/%s/invitations.json'%(self.server, self.groups), 'show_invitations',
             defaults=dict(server=self.server, ext='json'))
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/<name>/edit'%(self.server, self.group), 'edit_group',
+            '/%s/%s/<group>/edit'%(self.server, self.group), 'edit_group',
             defaults=dict(server=self.server, ext='html'),
             methods=('GET',))
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/<name>'%(self.server, self.group), 'edit_group',
+            '/%s/%s/<group>'%(self.server, self.group), 'edit_group',
             defaults=dict(server=self.server, ext='html'),
             methods=('POST',))
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/<name>.json'%(self.server, self.group), 'edit_group',
+            '/%s/%s/<group>.json'%(self.server, self.group), 'edit_group',
             defaults=dict(server=self.server, ext='json'),
             methods=('POST',))
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/<name>/join'%(self.server, self.group), 'join_group',
+            '/%s/%s/<group>/join'%(self.server, self.group), 'join_group',
             defaults=dict(server=self.server, ext='html'),
             methods=('GET', 'POST', 'DELETE'))
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/<name>/join.json'%(self.server, self.group), 'join_group',
+            '/%s/%s/<group>/join.json'%(self.server, self.group), 'join_group',
             defaults=dict(server=self.server, ext='json'),
             methods=('POST','DELETE'))
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/<name>/leave'%(self.server, self.group), 'leave_group',
+            '/%s/%s/<group>/leave'%(self.server, self.group), 'leave_group',
             defaults=dict(server=self.server, ext='html'),
             methods=('GET', 'POST'))
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/<name>/leave.json'%(self.server, self.group), 'leave_group',
+            '/%s/%s/<group>/leave.json'%(self.server, self.group), 'leave_group',
             defaults=dict(server=self.server, ext='json'),
             methods=('POST',))
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/<name>/%s/<player>'%(self.server, self.group, self.members), 'manage_members',
+            '/%s/%s/<group>/%s/<player>'%(self.server, self.group, self.members), 'manage_members',
             defaults=dict(server=self.server, ext='html'),
             methods=('GET', 'PUT','DELETE'))
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/<name>/%s/<player>.json'%(self.server, self.group, self.members), 'manage_members',
+            '/%s/%s/<group>/%s/<player>.json'%(self.server, self.group, self.members), 'manage_members',
             defaults=dict(server=self.server, ext='json'),
             methods=('GET', 'PUT','DELETE'))
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/<name>/%s/<player>'%(self.server, self.group, self.owners), 'manage_owners',
+            '/%s/%s/<group>/%s/<player>'%(self.server, self.group, self.owners), 'manage_owners',
             defaults=dict(server=self.server, ext='html'),
             methods=('GET', 'PUT','DELETE'))
         player_groups.blueprint.add_url_rule(
-            '/%s/%s/<name>/%s/<player>.json'%(self.server, self.group, self.owners), 'manage_owners',
+            '/%s/%s/<group>/%s/<player>.json'%(self.server, self.group, self.owners), 'manage_owners',
             defaults=dict(server=self.server, ext='json'),
             methods=('GET', 'PUT','DELETE'))
 
@@ -265,10 +266,11 @@ class Endpoint(object):
                           list(set(flask_login.current_user.groups_invited_member or list()) -
                                set(flask_login.current_user.groups_member or list())))
 
-def show_group(server, name, ext):
-    """Show group page, endpoint specific """
-
+def show_group(server, group, ext):
+    """Show info for group name"""
+    
     self = player_groups.endpoints[server]
+    name = group
     try:
         group = session.query(Group).filter(Group.id.in_([
                     "%s.%s"%(self.server,name),
@@ -276,7 +278,7 @@ def show_group(server, name, ext):
                     ])).one()
         if not group.name == name:
             # Redirect to preferred caps
-            return redirect(url_for('player_groups.show_group', server=self.server, name=group.name, ext=ext)), 301
+            return redirect(url_for('player_groups.show_group', server=self.server, group=group.name, ext=ext)), 301
         if ext == 'json':
             g = dict(display_name=group.display_name)
             if group.tagline: g['tagline']=group.tagline
@@ -288,10 +290,11 @@ def show_group(server, name, ext):
     except NoResultFound:
         abort(404)
 
-def show_members(server, name, ext):
-    """Show group page, endpoint specific """
+def show_members(server, group, ext):
+    """Show members of group name"""
 
     self = player_groups.endpoints[server]
+    name = group
     try:
         group = session.query(Group).filter(Group.id.in_([
                     "%s.%s"%(self.server,name),
@@ -299,7 +302,7 @@ def show_members(server, name, ext):
                     ])).one()
         if not group.name == name:
             # Redirect to preferred caps
-            return redirect(url_for('player_groups.%s_show_members'%self.server, name=group.name, ext=ext)), 301
+            return redirect(url_for('player_groups.show_members'%self.server, group=group.name, ext=ext)), 301
         if ext == 'json':
             return jsonify({self.members:map(lambda member: member.name, group.members)})
         #return render_template('show_members.html', endpoint=self, group=group)
@@ -307,10 +310,11 @@ def show_members(server, name, ext):
     except NoResultFound:
         abort(404)
 
-def show_owners(server, name, ext):
-    """Show group page, endpoint specific"""
+def show_owners(server, group, ext):
+    """Show owners of group name"""
 
     self = player_groups.endpoints[server]
+    name = group
     try:
         group = session.query(Group).filter(Group.id.in_([
                     "%s.%s"%(self.server,name),
@@ -318,7 +322,7 @@ def show_owners(server, name, ext):
                     ])).one()
         if not group.name == name:
             # Redirect to preferred caps
-            return redirect(url_for('player_groups.%s_show_owners'%self.server, name=group.name, ext=ext)), 301
+            return redirect(url_for('player_groups.show_owners'%self.server, group=group.name, ext=ext)), 301
         if ext == 'json':
             return jsonify({self.owners:map(lambda owner: owner.name, group.owners)})
         #return render_template('show_members.html', endpoint=self, group=group)
@@ -328,9 +332,10 @@ def show_owners(server, name, ext):
 
 @flask_login.login_required
 def show_invitations(server, ext):
-    """Show all player invitations on a server"""
+    """Show players invitations"""
 
     self = player_groups.endpoints[server]
+    name = group
     if ext == 'json':
         n=[]
         owner = self.invited_owner_of(flask_login.current_user)
@@ -341,10 +346,11 @@ def show_invitations(server, ext):
     return render_template('show_invitations.html', endpoint=self)
 
 @flask_login.login_required
-def edit_group(server, name, ext):
-    """Edit group page, endpoint specific"""
+def edit_group(server, group, ext):
+    """Edit info for group name"""
 
     self = player_groups.endpoints[server]
+    name = group
     try:
         group = session.query(Group).filter(Group.id.in_([
                     "%s.%s"%(self.server,name),
@@ -352,7 +358,7 @@ def edit_group(server, name, ext):
                     ])).one()
         if not group.name == name:
             # Redirect to preferred caps
-            return redirect(url_for('player_groups.%s_edit_group'%self.server, name=group.name, ext=ext)), 301
+            return redirect(url_for('player_groups.edit_group'%self.server, group=group.name, ext=ext)), 301
         user = flask_login.current_user
         if not user in group.owners: abort(403)
         form = GroupEditForm(request.form, group, csrf_enabled=False)
@@ -373,7 +379,7 @@ def edit_group(server, name, ext):
             manage_notifications(group)
             # Done
             if ext == 'html': flash('%s saved'%self.group.capitalize())
-            return redirect(url_for('player_groups.%s_edit_group'%self.server, name=group.name, ext=ext)), 303
+            return redirect(url_for('player_groups.edit_group'%self.server, group=group.name, ext=ext)), 303
         if ext == 'json': return jsonify(
             fields=reduce(lambda errors, (name, field):
                               errors if not len(field.errors) else errors + [dict(name=name, errors=field.errors)],
@@ -385,7 +391,7 @@ def edit_group(server, name, ext):
 
 @flask_login.login_required
 def register_group(server, ext):
-    """Register group page, endpoint specific"""
+    """Register group"""
 
     self = player_groups.endpoints[server]
     group = Group()
@@ -411,7 +417,7 @@ def register_group(server, ext):
         manage_notifications(group)
         # Done
         if ext == 'html': flash('%s registration complete pending confirmation by other %s.'%(self.group.capitalize(), self.members))
-        return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name, ext=ext)), 303
+        return redirect(url_for('player_groups.show_group'%self.server, group=group.name, ext=ext)), 303
     if ext == 'json': return jsonify(
             fields=reduce(lambda errors, (name, field):
                               errors if not len(field.errors) else errors + [dict(name=name, errors=field.errors)],
@@ -420,10 +426,11 @@ def register_group(server, ext):
     return render_template('edit_group.html', endpoint=self, form=form, register=True)
 
 @flask_login.login_required
-def join_group(server, name, ext):
-    """Join group page, endpoint specific"""
+def join_group(server, group, ext):
+    """Join group name"""
 
     self = player_goups.endpoints[server]
+    name = group
     try:
         group = session.query(Group).filter(Group.id.in_([
                     "%s.%s"%(self.server,name),
@@ -432,7 +439,7 @@ def join_group(server, name, ext):
         user = flask_login.current_user
         if not group.name == name:
             # Redirect to preferred caps
-            return redirect(url_for('player_groups.%s_join_group'%self.server, name=group.name, ext=ext)), 301
+            return redirect(url_for('player_groups.join_group'%self.server, group=group.name, ext=ext)), 301
         if not user in group.members and not user in group.owners:
             if request.method in ('POST', 'DELETE'):
                 if request.method == 'POST':
@@ -462,17 +469,18 @@ def join_group(server, name, ext):
                 manage_notifications(group)
                 session.add(group)
                 session.commit()
-                return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name, ext=ext)), 303
+                return redirect(url_for('player_groups.show_group'%self.server, group=group.name, ext=ext)), 303
             return render_template('join_group.html', endpoint=self, group=group)
         abort(403)
     except NoResultFound:
         abort(404)
 
 @flask_login.login_required
-def leave_group(server, name, ext):
-    """Leave group page, endpoint specific"""
+def leave_group(server, group, ext):
+    """Leave group name"""
 
     self = player_groups.endpoints[server]
+    name = group
     try:
         group = session.query(Group).filter(Group.id.in_([
                     "%s.%s"%(self.server,name),
@@ -481,7 +489,7 @@ def leave_group(server, name, ext):
         user = flask_login.current_user
         if not group.name == name:
             # Redirect to preferred caps
-            return redirect(url_for('player_groups.%s_leave_group'%self.server, name=group.name, ext=ext)), 301
+            return redirect(url_for('player_groups.leave_group'%self.server, group=group.name, ext=ext)), 301
         if user in group.members or user in group.owners:
             if request.method == 'POST':
                 group.owners -= [user]
@@ -491,17 +499,18 @@ def leave_group(server, name, ext):
                 session.add(group)
                 session.commit()
                 if ext == 'html': flash("You are no longer %s of %s."%(group.a_member, group.display_name))
-                return redirect(url_for('player_groups.%s_show_group'%self.server, name=group.name, ext=ext)), 303
+                return redirect(url_for('player_groups.show_group'%self.server, group=group.name, ext=ext)), 303
             return render_template('leave_group.html', endpoint=self, group=group)
         abort(403)
     except NoResultFound:
         abort(404)
 
 @flask_login.login_required
-def manage_members(server, name, player, ext):
+def manage_members(server, group, player, ext):
     """Group member query and management"""
 
     self = player_groups.endpoints[server]
+    name = group
     try:
         group = session.query(Group).filter(Group.id.in_([
                     "%s.%s"%(self.server,name),
@@ -510,11 +519,11 @@ def manage_members(server, name, player, ext):
         member = session.query(User).filter(User.name==player)
         if not group.name == name or not member.name == player:
             # Redirect to preferred caps
-            return redirect(url_for('player_groups.%s_manage_members'%self.server, name=group.name, player=member.name, ext=ext)), 301
+            return redirect(url_for('player_groups.manage_members'%self.server, group=group.name, player=member.name, ext=ext)), 301
         if request.method == 'GET':
             # Test for membership
             if member in group.members:
-                return redirect(url_for('player_profiles.show_profile', name=member.name, ext=ext)), 303
+                return redirect(url_for('player_profiles.show_profile', player=member.name, ext=ext)), 303
             abort(404)
         elif user in group.owners:
             if request.method == 'PUT' and not user == member and not member in group.invited_members:
@@ -528,7 +537,7 @@ def manage_members(server, name, player, ext):
                 manage_notifications(group)
                 session.add(group)
                 session.commit()
-                return redirect(url_for('player_groups.%s_manage_members'%self.server, name=group.name, player=member.name, ext=ext)), 303
+                return redirect(url_for('player_groups.manage_members'%self.server, group=group.name, player=member.name, ext=ext)), 303
             elif request.method == 'DELETE':
                 if member in groups.invited_members or member in groups.members:
                     # Remove membership
@@ -537,17 +546,18 @@ def manage_members(server, name, player, ext):
                     manage_notifications(group)
                     session.add(group)
                     session.commit()
-                    return redirect(url_for('player_groups.%s_manage_members'%self.server, name=group.name, player=member.name, ext=ext)), 303
+                    return redirect(url_for('player_groups.manage_members'%self.server, group=group.name, player=member.name, ext=ext)), 303
                 abort(404)
         abort(403)
     except NoResultFound:
         abort(404)
 
 @flask_login.login_required
-def manage_owners(server, name, player, ext):
+def manage_owners(server, group, player, ext):
     """Group owner query and management"""
 
     self = player_groups.endpoints[server]
+    name = group
     try:
         group = session.query(Group).filter(Group.id.in_([
                     "%s.%s"%(self.server,name),
@@ -556,11 +566,11 @@ def manage_owners(server, name, player, ext):
         owner = session.query(User).filter(User.name==player)
         if not group.name == name or not owner.name == player:
             # Redirect to preferred caps
-            return redirect(url_for('player_groups.%s_manage_owners'%self.server, name=group.name, player=owner.name, ext=ext)), 301
+            return redirect(url_for('player_groups.manage_owners'%self.server, group=group.name, player=owner.name, ext=ext)), 301
         if request.method == 'GET':
             # Test for ownership
             if member in group.owners:
-                return redirect(url_for('player_profiles.show_profile', name=member.name, ext=ext)), 303
+                return redirect(url_for('player_profiles.show_profile', player=member.name, ext=ext)), 303
             abort(404)
         elif user in group.owners:
             if request.method == 'PUT' and not user == owner and not owner in group.invited_owners:
@@ -574,7 +584,7 @@ def manage_owners(server, name, player, ext):
                 manage_notifications(group)
                 session.add(group)
                 session.commit()
-                return redirect(url_for('player_groups.%s_manage_owners'%self.server, name=group.name, player=owner.name, ext=ext)), 303
+                return redirect(url_for('player_groups.manage_owners'%self.server, group=group.name, player=owner.name, ext=ext)), 303
             elif request.method == 'DELETE':
                 if owner in groups.invited_owners or owner in groups.owners:
                     # Remove ownership
@@ -583,38 +593,38 @@ def manage_owners(server, name, player, ext):
                     manage_notifications(group)
                     session.add(group)
                     session.commit()
-                    return redirect(url_for('player_groups.%s_manage_owners'%self.server, name=group.name, player=owner.name, ext=ext)), 303
+                    return redirect(url_for('player_groups.manage_owners'%self.server, group=group.name, player=owner.name, ext=ext)), 303
                 abort(404)
         abort(403)
     except NoResultFound:
         abort(404)
 
+# Register endpoints
 current_app.view_functions = dict(current_app.view_functions.items() + [
-        ('show_group', show_group),
-        ('show_members', show_members),
-        ('show_owners', show_owners),
-        ('show_invitations', show_invitations),
-        ('register_group', register_group),
-        ('edit_group', edit_group),
-        ('join_group', join_group),
-        ('leave_group', leave_group),
-        ('manage_members', manage_members),
-        ('manage_owners', manage_owners)
+        ('player_groups.show_group', show_group),
+        ('player_groups.show_members', show_members),
+        ('player_groups.show_owners', show_owners),
+        ('player_groups.show_invitations', show_invitations),
+        ('player_groups.register_group', register_group),
+        ('player_groups.edit_group', edit_group),
+        ('player_groups.join_group', join_group),
+        ('player_groups.leave_group', leave_group),
+        ('player_groups.manage_members', manage_members),
+        ('player_groups.manage_owners', manage_owners)
         ])
 
 def delete_notifications(users, group):
     """Delete player notification"""
 
     try:
-        iter(users)
+        session.query(Notification) \
+            .filter(Notification.user_name.in_(users)) \
+            .filter(Notification.module=='player_groups') \
+            .filter(Notification.type=='invitation') \
+            .filter(Notification.from_=="%s.%s"%(group.server,group.name)) \
+            .delete()
     except TypeError:
         return delete_notifications([users], group)
-    session.query(Notification) \
-        .filter(Notification.module=='player_groups') \
-        .filter(Notification.type=='invitation') \
-        .filter(Notification.from_=="%s.%s"%(group.server,group.name)) \
-        .filter(Notification.user_name.in_(users)) \
-        .delete()
 
 def manage_notifications(group):
     """Save and manage invitation notifications"""
@@ -642,7 +652,7 @@ def manage_notifications(group):
                 from_="%s.%s"%(group.server,group.name),
                 message="You have been invited to join [%s](%s)."% \
                     (group.display_name,
-                     url_for('player_groups.%s_join_group'%group.server, name=group.name))))
+                     url_for('player_groups.join_group'%group.server, name=group.name))))
     session.commit()
 
 @notification(name='player_groups')
@@ -661,14 +671,14 @@ def show_notifications(notifications):
         elif not flask_login.current_user.profile.hide_group_invitations:
             # Collapse invitations by server
             for server in player_groups.endpoints.keys():
-                if request.path == url_for('player_groups.%s_show_invitations'%server): continue
+                if request.path == url_for('player_groups.show_invitations'%server): continue
                 server_notifications = filter(lambda notification: notification.from_.startswith("%s."%server), notifications)
                 if len(server_notifications) > 1:
                     notify('player_notifications', Notification(
                             message="You have been invited to join [%d %s](%s)."%
-                            (len(server_notifications), endpoint.groups, url_for('player_groups.%s_show_invitations'%endpoint.name))))
+                            (len(server_notifications), endpoint.groups, url_for('player_groups.show_invitations'%endpoint.name))))
                 elif len(server_notifications) == 1:
-                    if not request.path == url_for('player_groups.%s_join_group'%server,
+                    if not request.path == url_for('player_groups.join_group'%server,
                                                    name=server_notifications[0].from_.split('.')[1]):
                         notify('player_notifications', server_notifications[0])
 

@@ -1,3 +1,5 @@
+"""Player stats from beardstat plugin"""
+
 from flask import Blueprint, render_template, jsonify, abort, current_app
 import sqlalchemy
 from sqlalchemy import Column
@@ -75,7 +77,7 @@ def show_stats(server, player, ext):
     elif ext == 'html':
         return render_template('player_stats.html', categories=stats)
 
-current_app.view_functions['show_stats'] = show_stats
+current_app.view_functions['player_stats.show_stats'] = show_stats
 
 """Transform array (in order of precedence) for stat names and values
 

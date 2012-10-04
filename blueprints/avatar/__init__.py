@@ -1,3 +1,5 @@
+"""Avatar support for objects with a mail string field"""
+
 import flask
 import md5
 import urllib

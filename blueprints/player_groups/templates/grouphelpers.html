@@ -1,6 +1,6 @@
 {% macro render_group_small(group, link=True) -%}
 {% if link -%}
-<a href="{{ url_for('player_groups.%s_show_group'%group.server, name=group.name) }}">
+<a href="{{ url_for('player_groups.show_group', server=group.server, group=group.name) }}">
 {%- endif -%}
 <img src="{{ group.avatar.small  }}">
 {{ group.display_name }}

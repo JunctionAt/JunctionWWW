@@ -4,7 +4,7 @@
 
 <h1>Leave {{ endpoint.group }}</h1>
 
-<form id=group-leave-form method=POST action="{{ url_for('player_groups.%s_leave_group'%endpoint.server, name=group.name, ext='html') }}">
+<form id=group-leave-form method=POST action="{{ url_for('player_groups.leave_group', server=endpoint.server, group=group.name, ext='html') }}">
   <button class=group-leave type=submit>Leave {{ group.display_name }}</button>
 </form>
 

@@ -2,7 +2,7 @@
 
 {% macro render_profile_small(profile, link=True) -%}
 {% if link -%}
-<a href="{{ url_for('player_profiles.show_profile', name=profile.name) }}">
+<a href="{{ url_for('player_profiles.show_profile', player=profile.name) }}">
 {%- endif -%}
 <img src="{{ profile.avatar.small }}">
 {{ profile.name }}

@@ -35,7 +35,7 @@
 		<div class=flash>{{ message }}</div>
 		<br/>
 	{% endfor %}
-	{% for notification in notifications: %}
+	{% for notification in get_notifications(): %}
 		<div class=flash>{{ notification.message|markdown }}</div>
 		<br/>
 	{% endfor %}
