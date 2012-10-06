@@ -1,4 +1,9 @@
-"""Player stats from beardstat plugin"""
+"""
+Player Stats
+============
+
+Realtime player stats.
+"""
 
 from flask import Blueprint, render_template, jsonify, abort, current_app
 import sqlalchemy
@@ -9,16 +14,12 @@ import types
 import re
 
 from blueprints.base import Base, session
+from blueprints.api import apidoc
 
 
 def player_stats(servers=[]):
-    """
-    These endpoints are used to pull real-time player statistics from a game server database.
-    """
-    
     for server in servers:
         player_stats.endpoints[server['name']] = Endpoint(**server)
-
     return player_stats.blueprint
 
 
@@ -54,7 +55,6 @@ class Endpoint(object):
         self.weights = weights
         
         player_stats.blueprint.add_url_rule('/%s/stats/<player>'%self.name, 'show_stats', defaults=dict(server=self.name, ext='html'))
-        player_stats.blueprint.add_url_rule('/%s/stats/<player>.json'%self.name, 'show_stats', defaults=dict(server=self.name, ext='json'))
         
     def get_by_name(self, player):
         return PlayerStats.player_stats(self.model, player, self.show, self.hide, self.transforms, self.weights)
@@ -63,20 +63,55 @@ class Endpoint(object):
         return PlayerStats.stat_format(rows, self.show, self.hide, self.transforms, self.weights)
 
 
-def show_stats(server, player, ext):
+@apidoc(__name__, player_stats.blueprint, '/<server>/stats/<player>.json', endpoint='show_stats', defaults=dict(ext='json'))
+def show_stats_api(server, player, ext):
     """
-    Returns an object with a ``categories`` key containing a weighted list of objects that each contain a ``name`` and ``stats`` keys,
-    where ``name`` is the category name and ``stats`` is a weighted list of stat objects containing ``name`` and ``value`` keys.
-    """
+    Returns a weighted list of stat categories for ``player``. Eg.:
+
+    .. code-block::
     
-    endpoint = player_stats.endpoints.get(server)
+       {
+           "wiggitywhack": [
+               {
+                   "name": "Stats",
+                   "stats": [
+                       {
+                           "name": "Hours played",
+                           "value": 0.783
+                       },
+                       {
+                           "name": "First login",
+                           "value": "2012-09-22"
+                       },
+                       {
+                           "name": "Meters walked",
+                           "value": 21
+                       }
+                   ]
+               },
+               {
+                   "name": "Deaths",
+                   "stats": [
+                       {
+                           "name": "Deaths",
+                           "value": 0
+                       }
+                   ]
+               },
+           ]
+    """
+
+@player_stats.blueprint.route('/<server>/stats/<player>', defaults=dict(ext='html'))
+def show_stats(server, player, ext):
+    try:
+        endpoint = player_stats.endpoints.get(server)
+    except KeyError:
+        abort(404)
     stats = endpoint.get_by_name(player)
     if ext == 'json':
-        return jsonify(categories=stats)
+        return jsonify({player:stats})
     elif ext == 'html':
         return render_template('player_stats.html', categories=stats)
-
-current_app.view_functions['player_stats.show_stats'] = show_stats
 
 """Transform array (in order of precedence) for stat names and values
 

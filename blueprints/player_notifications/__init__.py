@@ -1,7 +1,14 @@
-"""Persistant player notification system"""
+"""
+Notifications
+=============
+
+Persistant player notification system.
+Notifications do not go away until they are actioned upon.
+Currently, only player group invitations will spawn notifications.
+"""
 
 import flask
-from flask import url_for, render_template, jsonify
+from flask import Blueprint, url_for, render_template, jsonify, current_app
 import flask_login
 import sqlalchemy
 import sqlalchemy.orm
@@ -16,6 +23,7 @@ import markdown
 from blueprints.base import Base
 from blueprints.auth.user_model import User
 from blueprints.player_profiles import Profile
+from blueprints.api import apidoc
 
 class Notification(Base):
     """DB table to store notifications"""
@@ -28,10 +36,13 @@ class Notification(Base):
     message = Column(String(256))
     user = relation(User, backref='notifications')
 
-player_notifications = flask.Blueprint('player_notifications', __name__, template_folder='templates')
+player_notifications = Blueprint('player_notifications', __name__, template_folder='templates')
 
-@player_notifications.route('/notifications', defaults=dict(ext='html'))
-@player_notifications.route('/notifications.json', defaults=dict(ext='json'))
+@apidoc(__name__, player_notifications, '/notifications.json', endpoint='show_notifications', defaults=dict(ext='json'))
+def show_notifications_api(ext):
+    """Returns an object with a ``notifications`` key. The notifications are a list of objects with ``module``, ``type``, ``from``, and ``message`` strings."""
+
+@player_notifications.route('/notifications', defaults=dict(ext='html'), endpoint='show_notifications')
 @flask_login.login_required
 def show_notifications(ext):
     if ext == 'json': return jsonify(
@@ -61,7 +72,7 @@ __notifications__ = list()
 def get_notifications():
     while len(__notifications__): __notifications__.pop()
     if flask.request.path == url_for('player_notifications.show_notifications'): return
-    if not flask_login.current_user.is_anonymous():
+    if flask_login.current_user.is_authenticated():
         # Show notifications
         for module, notifications in by_module(flask_login.current_user.notifications).iteritems():
             notify(module, notifications)

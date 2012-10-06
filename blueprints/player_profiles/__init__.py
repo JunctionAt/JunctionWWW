@@ -1,8 +1,13 @@
-"""Player profiles"""
+"""
+Profiles
+========
+
+Endpoints for getting and editing player profile data.
+"""
 
 import flask
 import flask_login
-from flask import jsonify, render_template, request, current_app, abort, flash, redirect, url_for
+from flask import Blueprint, jsonify, render_template, request, current_app, abort, flash, redirect, url_for
 import sqlalchemy
 import sqlalchemy.orm
 from sqlalchemy.orm import relation, backref
@@ -18,7 +23,7 @@ from blueprints.base import Base, session
 from blueprints.auth.user_model import User
 from blueprints.player_stats import player_stats
 from blueprints.avatar import avatar
-
+from blueprints.api import apidoc
 
 class Profile(Base, object):
     """The player profile table"""
@@ -99,79 +104,96 @@ class Profile(Base, object):
     def default_user(name):
         """Return a default user"""
         user = User(name=name)
-        user.is_anonymous = lambda: True # I know, it's not really anonymous if it has a name
-        
         return user
 
 
 setattr(User, 'profile', property(lambda self: self._profile or Profile.default_profile(self.name, user=self)))
 
+player_profiles = Blueprint('player_profiles', __name__, template_folder='templates')
 
-class Blueprint(flask.Blueprint, object):
+@apidoc(__name__, player_profiles, '/profile/<name>.json', endpoint='show_profile', defaults=dict(ext='json'))
+def show_profile_api(player, ext):
+    """Returns an object with a primary key being the preferred display name of ``player`` containing the profile's public fields. Eg.:
+
+    .. code-block::
+
+       {
+           "wiggitywhack": {
+               "tagline": "indietechnohippie",
+               "realname": "John Driscoll",
+               "link": "twitter.com/johndriskull",
+               "location": "California"
+           }
+       }
     """
-    Endpoints to change your profile and get fields from other players' profiles.
-    """
 
-    def register(self, *args, **kwargs):
+@player_profiles.route('/profile/<player>', defaults=dict(ext='html'))
+def show_profile(player, ext):
+    try:
+        profile = session.query(User).filter(User.name==player).one().profile
+    except NoResultFound:
+        # Look for stats
+        stat = reduce(lambda stat, (server, endpoint):
+                          stat or session.query(endpoint.model).filter(endpoint.model.player==player).first(),
+                      player_stats.endpoints.iteritems(), None)
+        if not stat: abort(404)
+        profile = Profile.default_profile(stat.player)
+    if not profile.user.name == player:
+        # Redirect to preferred caps
+        return redirect(url_for("player_profiles.show_profile", player=profile.user.name, ext=ext)), 301
+    if ext == 'html':
+        return render_template('show_profile.html', profile=profile)
+    elif ext == 'json':
+        # compile a dictionary to serve
+        p = dict()
+        if profile.realname: p['realname']=profile.realname
+        if profile.location: p['location']=profile.location
+        if profile.tagline: p['tagline']=profile.tagline
+        if profile.link: p['link']=profile.link
+        return jsonify({profile.name:p})
+    abort(404)
+    
+@apidoc(__name__, player_profiles, '/profile.json', endpoint='edit_profile', defaults=dict(ext='json'))
+def edit_profile_get_api(ext):
+    """Used by the current player to get all editable fields in their profile."""
+    
 
-        @self.route('/profile/<player>', defaults=dict(ext='html'))
-        @self.route('/profile/<player>.json', defaults=dict(ext='json'))
-        def show_profile(player, ext):
-            """
-            Returns an object with a ``<player>`` key, containing the profile's fields.
-            """
-            
-            try:
-                profile = session.query(User).filter(User.name==player).one().profile
-            except NoResultFound:
-                # Look for stats
-                stat = reduce(lambda stat, (server, endpoint):
-                                  stat or session.query(endpoint.model).filter(endpoint.model.player==player).first(),
-                              player_stats.endpoints.iteritems(), None)
-                if not stat: abort(404)
-                profile = Profile.default_profile(stat.player)
-            if not profile.user.name == player:
-                # Redirect to preferred caps
-                return redirect(url_for("player_profiles.show_profile", player=profile.user.name, ext=ext)), 301
-            if ext == 'html':
-                return render_template('show_profile.html', profile=profile)
-            elif ext == 'json':
-                # compile a dictionary to serve
-                p = dict()
-                if profile.realname: p['realname']=profile.realname
-                if profile.location: p['location']=profile.location
-                if profile.tagline: p['tagline']=profile.tagline
-                if profile.link: p['link']=profile.link
-                return jsonify({profile.name:p})
-            abort(404)
+@apidoc(__name__, player_profiles, '/profile.json', endpoint='edit_profile', methods=('POST',), defaults=dict(ext='json'))
+def edit_profile_post_api(ext):
+    """Used by the current player to set profile fields passed as form encoded data in the POST request body."""
 
-        @self.route('/profile', defaults=dict(ext='html'), methods=('GET', 'POST'))
-        @self.route('/profile.json', defaults=dict(ext='json'), methods=('POST',))
-        @flask_login.login_required
-        def edit_profile(ext):
-            """
-            Set the current user's profile to the values passed as formdata in the POST request body.
-            """
-            
-            profile = flask_login.current_user.profile
-            profile.show_stats = ' '.join(filter(lambda stats: stats in player_stats.endpoints.keys(), profile.show_stats.split(' ')))
-            form = ProfileForm(request.form, profile, csrf_enabled=False)
-            if request.method == 'POST' and form.validate():
-                form.populate_obj(profile)
-                profile.show_stats = ' '.join(re.compile('[,\s]+').split(profile.show_stats.lower()))
-                session.add(profile)
-                session.commit()
-                if ext == 'html': flash('Profile saved')
-                return redirect(url_for('player_profiles.edit_profile', ext=ext)), 303
-            if ext == 'json': return jsonify(
+@player_profiles.route('/profile', defaults=dict(ext='html'), methods=('GET', 'POST'))
+@flask_login.login_required
+def edit_profile(ext):
+    profile = flask_login.current_user.profile
+    profile.show_stats = ' '.join(filter(lambda stats: stats in player_stats.endpoints.keys(), profile.show_stats.split(' ')))
+    form = ProfileForm(request.form, profile, csrf_enabled=False)
+    if request.method == 'POST' and form.validate():
+        profile.tagline = form._fields['tagline'] or profile.tagline
+        profile.location = form._fields['location'] or profile.location
+        profile.link = form._fields['link'] or profile.link
+        profile.hide_group_invitations = form._fields['hide_group_invitations'] or profile.hide_group_invitations
+        if form._fields['show_stats']:
+            profile.show_stats = ' '.join(re.compile(r'[,\s]+').split(form._fields['show_stats'].lower()))
+        session.add(profile)
+        session.commit()
+        if ext == 'html': flash('Profile saved')
+        return redirect(url_for('player_profiles.edit_profile', ext=ext)), 303
+    if ext == 'json':
+        if request.method == 'POST':
+            return jsonify(
                 fields=reduce(lambda errors, (name, field):
                                   errors if not len(field.errors) else errors + [dict(name=name, errors=field.errors)],
                               form._fields.iteritems(),
                               list())), 400
-            return render_template('edit_profile.html', form=form)
-
-        return super(Blueprint, self).register(*args, **kwargs)
-
+        return jsonify(profile=dict(
+                    realname=profile.realname,
+                    location=profile.location,
+                    tagline=profile.tagline,
+                    link=profile.link,
+                    show_stats=profile.show_stats,
+                    hide_group_invitations=profile.hide_group_notifications))
+    return render_template('edit_profile.html', form=form)
 
 def validate_show_stats(form, field):
     invalid = list()
@@ -190,8 +212,3 @@ ProfileForm = model_form(
             label='Displayed stats',
             description="You can remove any or all servers from this list to hide them on your profile.",
             validators=[ Optional(), validate_show_stats ])))
-
-
-"""Singleton blueprint object"""
-player_profiles = Blueprint('player_profiles', __name__, template_folder='templates')
-

@@ -7,7 +7,7 @@
 <div><a href="{{ current_user.profile.avatar.link }}"><img src="{{ current_user.profile.avatar.portrait }}"></a></div>
 
 {% from 'formhelpers.html' import render_field %}
-<form id=profile-form method=post action={{ url_for('player_profiles.edit_profile', ext='html') }}>
+<form id=profile-form method=post action="{{ url_for('player_profiles.edit_profile', ext='html') }}">
   {{ render_field(form.tagline) }}
   {{ render_field(form.realname) }}
   {{ render_field(form.location) }}
