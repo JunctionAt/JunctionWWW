@@ -7,7 +7,8 @@ Endpoints for getting and editing player group data.
 
 import flask
 import flask_login
-from flask import Blueprint, render_template, jsonify, request, current_app, abort, flash, redirect, url_for
+from flask import render_template, jsonify, request, current_app, abort, flash, redirect, url_for
+from werkzeug.datastructures import MultiDict
 from sqlalchemy.orm.exc import *
 from wtforms.validators import Required, Optional, Email, ValidationError
 from wtalchemy.orm import model_form
@@ -17,17 +18,23 @@ import datetime
 import re
 
 from blueprints.base import Base, session, db
+from blueprints.auth import login_required
 from blueprints.auth.user_model import User
 from blueprints.avatar import avatar
 from blueprints.player_profiles import Profile
 from blueprints.player_notifications import Notification
 from blueprints.api import apidoc
 
-def player_groups(servers=[]):
-    for server in servers:
-        player_groups.endpoints[server['name']] = Endpoint(**server)
-    return player_groups.blueprint
+class Blueprint(flask.Blueprint):
 
+    endpoints = dict()
+
+    def __call__(self, servers=[]):
+        for server in servers:
+            self.endpoints[server['name']] = Endpoint(**server)
+        return self
+
+player_groups = Blueprint('player_groups', __name__, template_folder='templates')
 
 class Group(Base):
     """The player group table"""
@@ -86,12 +93,6 @@ GroupMembers = GroupUserRelation('player_groups_members')
 GroupInvitedOwners = GroupUserRelation('player_groups_invited_owners')
 GroupInvitedMembers = GroupUserRelation('player_groups_invited_members')
 
-# Endpoints
-player_groups.endpoints = dict()
-
-# Blueprint
-player_groups.blueprint = Blueprint('player_groups', __name__, template_folder='templates')
-
 # player_groups global
 @flask.current_app.context_processor
 def inject_groups():
@@ -127,21 +128,21 @@ class Endpoint(object):
         self.GroupEditForm = self.group_form()
         self.GroupRegisterForm = self.group_form(register=True)
 
-        player_groups.blueprint.add_url_rule(
+        player_groups.add_url_rule(
             '/%s/%s/<group>'%(self.server, self.group), 'show_group',
             defaults=dict(server=self.server, ext='html'))
-        player_groups.blueprint.add_url_rule(
+        player_groups.add_url_rule(
             '/%s/%s/invitations'%(self.server, self.groups), 'show_invitations',
             defaults=dict(server=self.server, ext='html'))
-        player_groups.blueprint.add_url_rule(
+        player_groups.add_url_rule(
             '/%s/%s/<group>/edit'%(self.server, self.group), 'edit_group',
             defaults=dict(server=self.server, ext='html'),
             methods=('GET','POST'))
-        player_groups.blueprint.add_url_rule(
+        player_groups.add_url_rule(
             '/%s/%s/<group>/join'%(self.server, self.group), 'join_group',
             defaults=dict(server=self.server, ext='html'),
             methods=('GET', 'POST', 'DELETE'))
-        player_groups.blueprint.add_url_rule(
+        player_groups.add_url_rule(
             '/%s/%s/<group>/leave'%(self.server, self.group), 'leave_group',
             defaults=dict(server=self.server, ext='html'),
             methods=('GET', 'POST'))
@@ -214,7 +215,7 @@ class Endpoint(object):
                                set(flask_login.current_user.groups_member or list())))
 
 
-@apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>.json', endpoint='show_group', defaults=dict(ext='json'))
+@apidoc(__name__, player_groups, '/<server>/group/<group>.json', endpoint='show_group', defaults=dict(ext='json'))
 def show_group_api(server, group, ext):
     """Show info for ``group``.
 
@@ -260,7 +261,7 @@ def show_group(server, group, ext):
     except NoResultFound:
         abort(404)
 
-@apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>/members.json', endpoint='show_members', defaults=dict(ext='json'))
+@apidoc(__name__, player_groups, '/<server>/group/<group>/members.json', endpoint='show_members', defaults=dict(ext='json'))
 def show_members_api(server, group, ext):
     """List players that are currently invited and have accepted membership of ``group``.
 
@@ -298,7 +299,7 @@ def show_members(server, group, ext):
     except NoResultFound:
         abort(404)
 
-@apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>/owners.json', endpoint='show_owners', defaults=dict(ext='json'))
+@apidoc(__name__, player_groups, '/<server>/group/<group>/owners.json', endpoint='show_owners', defaults=dict(ext='json'))
 def show_owners_api(server, group, ext):
     """List players that are currently invited and have accepted ownership of ``group``.
 
@@ -336,17 +337,17 @@ def show_owners(server, group, ext):
     except NoResultFound:
         abort(404)
 
-@apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>.json', endpoint='edit_group', defaults=dict(ext='json'), methods=('POST',))
+@apidoc(__name__, player_groups, '/<server>/group/<group>.json', endpoint='edit_group', defaults=dict(ext='json'), methods=('POST',))
 def edit_group_post_api(server, group, ext):
     """Edit info for ``group`` using new fields from the request body.
     
     In additon to the fields returned by the /<server>/group/<group>.json endpoint,
     membership and ownership of this group can be set en masse by providing
     a list of player names as the new values for ``invited_members`` or ``invited_owners``.
-    The ``display_name`` of a group CANNOT be changed.
+    The ``display_name`` of a group cannot be changed.
     """
 
-@flask_login.login_required
+@login_required
 def edit_group(server, group, ext):
     try:
         self = player_groups.endpoints[server]
@@ -363,7 +364,7 @@ def edit_group(server, group, ext):
             return redirect(url_for('player_groups.edit_group', server=server, group=group.name, ext=ext)), 301
         user = flask_login.current_user
         if not user in group.owners: abort(403)
-        form = GroupEditForm(request.json or request.form, group, csrf_enabled=False)
+        form = GroupEditForm(MultiDict(request.json) or request.form, group, csrf_enabled=False)
         if request.method == 'POST' and form.validate() & validate_members(form, user):
             group.tagline = form._fields['tagline'].data or group.tagline
             group.link = form._fields['link'].data or group.link
@@ -400,7 +401,7 @@ def edit_group(server, group, ext):
     except NoResultFound:
         abort(404)
 
-@apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>/join.json', endpoint='join_group', defaults=dict(ext='json'), methods=('POST',))
+@apidoc(__name__, player_groups, '/<server>/group/<group>/join.json', endpoint='join_group', defaults=dict(ext='json'), methods=('POST',))
 def join_group_post_api(server, group, ext):
     """
     Used by the current player to join ``group``.
@@ -408,13 +409,13 @@ def join_group_post_api(server, group, ext):
     If ``group`` is not public, the player must have been invited to join.
     """
     
-@apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>/join.json', endpoint='join_group', defaults=dict(ext='json'), methods=('DELETE',))
+@apidoc(__name__, player_groups, '/<server>/group/<group>/join.json', endpoint='join_group', defaults=dict(ext='json'), methods=('DELETE',))
 def join_group_delete_api(server, group, ext):
     """
     Used by the current player to decline an invitation to join ``group``.
     """
 
-@flask_login.login_required
+@login_required
 def join_group(server, group, ext):
     try:
         self = player_goups.endpoints[server]
@@ -470,13 +471,13 @@ def join_group(server, group, ext):
     except NoResultFound:
         abort(404)
 
-@apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>/leave.json', endpoint='leave_group', defaults=dict(ext='json'), methods=('POST',))
+@apidoc(__name__, player_groups, '/<server>/group/<group>/leave.json', endpoint='leave_group', defaults=dict(ext='json'), methods=('POST',))
 def leave_group_api(server, group, ext):
     """
     Used by the current player to give up membership of ``group``.
     """
     
-@flask_login.login_required
+@login_required
 def leave_group(server, group, ext):
     try:
         self = player_groups.endpoints[server]
@@ -511,13 +512,13 @@ def leave_group(server, group, ext):
     except NoResultFound:
         abort(404)
 
-@apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>/member/<player>.json', endpoint='manage_members', defaults=dict(ext='json'), methods=('GET',))
+@apidoc(__name__, player_groups, '/<server>/group/<group>/member/<player>.json', endpoint='manage_members', defaults=dict(ext='json'), methods=('GET',))
 def manage_members_get_api(server, group, player, ext):
     """
     Used to assert ``player``'s membership status in ``group``.
     """
 
-@apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>/member/<player>.json', endpoint='manage_members', defaults=dict(ext='json'), methods=('PUT',))
+@apidoc(__name__, player_groups, '/<server>/group/<group>/member/<player>.json', endpoint='manage_members', defaults=dict(ext='json'), methods=('PUT',))
 def manage_members_put_api(server, group, player, ext):
     """
     Used by an owner of ``group`` to invite or demote ``player`` to membership.
@@ -526,7 +527,7 @@ def manage_members_put_api(server, group, player, ext):
     sending an invitation for ``player`` to accept the new role.
     """
 
-@apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>/member/<player>.json', endpoint='manage_members', defaults=dict(ext='json'), methods=('DELETE',))
+@apidoc(__name__, player_groups, '/<server>/group/<group>/member/<player>.json', endpoint='manage_members', defaults=dict(ext='json'), methods=('DELETE',))
 def manage_members_delete_api(server, group, player, ext):
     """
     Used by an owner of ``group`` to remove  ``player``'s membership.
@@ -590,13 +591,13 @@ def manage_members(server, group, player, ext):
     except NoResultFound:
         abort(404)
 
-@apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>/owner/<player>.json', endpoint='manage_owners', defaults=dict(ext='json'))
+@apidoc(__name__, player_groups, '/<server>/group/<group>/owner/<player>.json', endpoint='manage_owners', defaults=dict(ext='json'))
 def manage_owners_get_api(server, group, player, ext):
     """
     Used to check ``player``'s ownership status in ``group``.
     """
 
-@apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>/owner/<player>.json', endpoint='manage_owners', defaults=dict(ext='json'), methods=('PUT',))
+@apidoc(__name__, player_groups, '/<server>/group/<group>/owner/<player>.json', endpoint='manage_owners', defaults=dict(ext='json'), methods=('PUT',))
 def manage_owners_put_api(server, group, player, ext):
     """
     Used by an owner of ``group`` to invite or promote ``player`` to ownership.
@@ -605,7 +606,7 @@ def manage_owners_put_api(server, group, player, ext):
     sending an invitation for ``player`` to accept the new role.
     """
 
-@apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>/owner/<player>.json', endpoint='manage_owners', defaults=dict(ext='json'), methods=('DELETE',))
+@apidoc(__name__, player_groups, '/<server>/group/<group>/owner/<player>.json', endpoint='manage_owners', defaults=dict(ext='json'), methods=('DELETE',))
 def manage_owners_delete_api(server, group, player, ext):
     """
     Used by an owner of ``group`` to remove  ``player``'s ownership.
@@ -669,7 +670,7 @@ def manage_owners(server, group, player, ext):
     except NoResultFound:
         abort(404)
 
-@apidoc(__name__, player_groups.blueprint, '/<server>/groups/invitations.json', endpoint='show_invitations', defaults=dict(ext='json'))
+@apidoc(__name__, player_groups, '/<server>/groups/invitations.json', endpoint='show_invitations', defaults=dict(ext='json'))
 def show_invitations_api(server, group, ext):
     """List the current player's group invitations on ``server``.
 
@@ -687,7 +688,7 @@ def show_invitations_api(server, group, ext):
        }
     """
 
-@flask_login.login_required
+@login_required
 def show_invitations(server, ext):
     try:
         self = player_groups.endpoints[server]
@@ -703,16 +704,16 @@ def show_invitations(server, ext):
         return jsonify(invitations=n)
     return render_template('show_invitations.html', endpoint=self)
 
-@apidoc(__name__, player_groups.blueprint, '/<server>/groups/register.json', endpoint='register_group', defaults=dict(ext='json'), methods=('POST',))
+@apidoc(__name__, player_groups, '/<server>/groups/register.json', endpoint='register_group', defaults=dict(ext='json'), methods=('POST',))
 def register_group_api(server, group, ext):
     """
     Register a new group using fields from the request body.
     
-    The request MUST include a ``display_name`` field and at least one ``invited_members`` or ``invited_owners`` that is not the player making the request.
-    The request MAY include any other fields returned in the /<server>/group/<group>.json endpoint.
+    The request must include a ``display_name`` field and at least one ``invited_members`` or ``invited_owners`` that is not the player making the request.
+    The request may include any other fields returned in the /<server>/group/<group>.json endpoint.
     """
 
-@flask_login.login_required
+@login_required
 def register_group(server, ext):
     """Register group"""
 
@@ -722,7 +723,7 @@ def register_group(server, ext):
         abort(404)
     group = Group()
     user = flask_login.current_user
-    form = GroupRegisterForm(request.json or request.form, group, csrf_enabled=False)
+    form = GroupRegisterForm(MultiDict(request.json) or request.form, group, csrf_enabled=False)
     if request.method == 'POST' and form.validate() & validate_members(form, user):
         form.populate_obj(group)
         # Make ownership and membership mutually exclusive

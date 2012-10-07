@@ -5,7 +5,8 @@ Player Stats
 Realtime player stats.
 """
 
-from flask import Blueprint, render_template, jsonify, abort, current_app
+import flask
+from flask import render_template, jsonify, abort, current_app
 from datetime import datetime
 import types
 import re
@@ -14,17 +15,16 @@ from blueprints.base import Base, session, db
 from blueprints.api import apidoc
 
 
-def player_stats(servers=[]):
-    for server in servers:
-        player_stats.endpoints[server['name']] = Endpoint(**server)
-    return player_stats.blueprint
+class Blueprint(flask.Blueprint):
 
+    endpoints = dict()
 
-# Endpoints
-player_stats.endpoints = dict()
+    def __call__(self, servers=[]):
+        for server in servers:
+            self.endpoints[server['name']] = Endpoint(**server)
+        return self
 
-# Blueprint
-player_stats.blueprint = Blueprint('player_stats', __name__, template_folder='templates')
+player_stats = Blueprint('player_stats', __name__, template_folder='templates')
 
 class Endpoint(object):
     """Wrapper for calls to PlayerStats that contain db or table specifics"""
@@ -51,7 +51,7 @@ class Endpoint(object):
         self.transforms = transforms
         self.weights = weights
         
-        player_stats.blueprint.add_url_rule('/%s/stats/<player>'%self.name, 'show_stats', defaults=dict(server=self.name, ext='html'))
+        player_stats.add_url_rule('/%s/stats/<player>'%self.name, 'show_stats', defaults=dict(server=self.name, ext='html'))
         
     def get_by_name(self, player):
         return PlayerStats.player_stats(self.model, player, self.show, self.hide, self.transforms, self.weights)
@@ -60,7 +60,7 @@ class Endpoint(object):
         return PlayerStats.stat_format(rows, self.show, self.hide, self.transforms, self.weights)
 
 
-@apidoc(__name__, player_stats.blueprint, '/<server>/stats/<player>.json', endpoint='show_stats', defaults=dict(ext='json'))
+@apidoc(__name__, player_stats, '/<server>/stats/<player>.json', endpoint='show_stats', defaults=dict(ext='json'))
 def show_stats_api(server, player, ext):
     """
     Returns a weighted list of stat categories for ``player``. Eg.:
@@ -99,7 +99,7 @@ def show_stats_api(server, player, ext):
        }
     """
 
-@player_stats.blueprint.route('/<server>/stats/<player>', defaults=dict(ext='html'))
+@player_stats.route('/<server>/stats/<player>', defaults=dict(ext='html'))
 def show_stats(server, player, ext):
     try:
         endpoint = player_stats.endpoints.get(server)

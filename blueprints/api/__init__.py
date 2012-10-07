@@ -4,6 +4,11 @@ Junction.at/api
 
 This document describes the API to the Junction site and Minecraft servers.
 
+Authorization
+-------------
+You may use a cookie or HTTP Basic Auth for authorization.
+You must have a registered and verified Junction.at user account to make requests that require authorization.
+
 URI Arguments
 --------------
 All URIs and arguments are case-sensitive.  The server will redirect to the preffered capitalization of these resources with a 301 status code.
@@ -44,6 +49,8 @@ General rules for how status codes are used by the API:
 
 500
     Internal Error. Does not indicate an invalid request. You may try the same request later for successful completion.
+
+The following sections describe the available endpoints and their accepted methods.
 """
 
 from flask import Blueprint, Markup, render_template, current_app

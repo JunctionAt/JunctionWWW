@@ -6,6 +6,7 @@
   <body>
     {{ doc }}
     {% for module, doc, endpoints in blueprints: %}
+    <hr>
     {{ doc }}
     <ul>
       {% for rule, endpoint in endpoints: -%}

@@ -8,12 +8,14 @@ Endpoints for getting and editing player profile data.
 import flask
 import flask_login
 from flask import Blueprint, jsonify, render_template, request, current_app, abort, flash, redirect, url_for
+from werkzeug.datastructures import MultiDict
 from sqlalchemy.orm.exc import *
 from wtalchemy.orm import model_form
 from wtforms.validators import Optional, Length, ValidationError
 import re
 
 from blueprints.base import Base, session, db
+from blueprints.auth import login_required
 from blueprints.auth.user_model import User
 from blueprints.player_stats import player_stats
 from blueprints.avatar import avatar
@@ -157,18 +159,18 @@ def edit_profile_post_api(ext):
     """Used by the current player to set profile fields from the request body."""
 
 @player_profiles.route('/profile', defaults=dict(ext='html'), methods=('GET', 'POST'))
-@flask_login.login_required
+@login_required
 def edit_profile(ext):
     profile = flask_login.current_user.profile
     profile.show_stats = ' '.join(filter(lambda stats: stats in player_stats.endpoints.keys(), profile.show_stats.split(' ')))
-    form = ProfileForm(request.json or request.form, profile, csrf_enabled=False)
+    form = ProfileForm(MultiDict(request.json) or request.form, profile, csrf_enabled=False)
     if request.method == 'POST' and form.validate():
-        profile.tagline = form._fields['tagline'] or profile.tagline
-        profile.location = form._fields['location'] or profile.location
-        profile.link = form._fields['link'] or profile.link
-        profile.hide_group_invitations = form._fields['hide_group_invitations'] or profile.hide_group_invitations
+        profile.tagline = form._fields['tagline'].data or profile.tagline
+        profile.location = form._fields['location'].data or profile.location
+        profile.link = form._fields['link'].data or profile.link
+        profile.hide_group_invitations = form._fields['hide_group_invitations'].data or profile.hide_group_invitations
         if form._fields['show_stats']:
-            profile.show_stats = ' '.join(re.compile(r'[,\s]+').split(form._fields['show_stats'].lower()))
+            profile.show_stats = ' '.join(re.compile(r'[,\s]+').split(form._fields['show_stats'].data.lower()))
         session.add(profile)
         try:
             session.commit()
@@ -190,7 +192,7 @@ def edit_profile(ext):
                     tagline=profile.tagline,
                     link=profile.link,
                     show_stats=profile.show_stats,
-                    hide_group_invitations=profile.hide_group_notifications))
+                    hide_group_invitations=profile.hide_group_invitations))
     return render_template('edit_profile.html', form=form)
 
 def validate_show_stats(form, field):
