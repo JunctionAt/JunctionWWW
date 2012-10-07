@@ -21,8 +21,14 @@ class Blueprint(flask.Blueprint):
 
     def __call__(self, servers=[]):
         for server in servers:
-            self.endpoints[server['name']] = Endpoint(**server)
+            self[server['name']] = Endpoint(**server)
         return self
+
+    def __getitem__(self, server):
+        return self.endpoints[server]
+
+    def __setitem__(self, server, endpoint):
+        self.endpoints[server] = endpoint
 
 player_stats = Blueprint('player_stats', __name__, template_folder='templates')
 
@@ -102,7 +108,7 @@ def show_stats_api(server, player, ext):
 @player_stats.route('/<server>/stats/<player>', defaults=dict(ext='html'))
 def show_stats(server, player, ext):
     try:
-        endpoint = player_stats.endpoints.get(server)
+        endpoint = player_stats[server]
     except KeyError:
         abort(404)
     stats = endpoint.get_by_name(player)

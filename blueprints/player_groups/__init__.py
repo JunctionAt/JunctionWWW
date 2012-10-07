@@ -31,8 +31,14 @@ class Blueprint(flask.Blueprint):
 
     def __call__(self, servers=[]):
         for server in servers:
-            self.endpoints[server['name']] = Endpoint(**server)
+            self[server['name']] = Endpoint(**server)
         return self
+
+    def __getitem__(self, key):
+        return self.endpoints[key]
+
+    def __setitem__(self, server, endpoint):
+        self.endpoints[server] = endpoint
 
 player_groups = Blueprint('player_groups', __name__, template_folder='templates')
 
@@ -229,7 +235,7 @@ def show_group_api(server, group, ext):
                "tagline": "Do you need halp?",
                "link": "junction.at",
                "info": "Currently documenting the API...",
-               "public": "0"
+               "public": 0
            }
        }
 
@@ -238,7 +244,7 @@ def show_group_api(server, group, ext):
 
 def show_group(server, group, ext):
     try:
-        self = player_groups.endpoints[server]
+        self = player_groups[server]
     except KeyError:
         abort(404)
     name = group
@@ -280,7 +286,7 @@ def show_members_api(server, group, ext):
 
 def show_members(server, group, ext):
     try:
-        self = player_groups.endpoints[server]
+        self = player_groups[server]
     except KeyError:
         abort(404)
     name = group
@@ -318,7 +324,7 @@ def show_owners_api(server, group, ext):
 
 def show_owners(server, group, ext):
     try:
-        self = player_groups.endpoints[server]
+        self = player_groups[server]
     except KeyError:
         abort(404)
     name = group
@@ -350,7 +356,7 @@ def edit_group_post_api(server, group, ext):
 @login_required
 def edit_group(server, group, ext):
     try:
-        self = player_groups.endpoints[server]
+        self = player_groups[server]
     except KeyError:
         abort(404)
     name = group
@@ -418,7 +424,7 @@ def join_group_delete_api(server, group, ext):
 @login_required
 def join_group(server, group, ext):
     try:
-        self = player_goups.endpoints[server]
+        self = player_goups[server]
     except KeyError:
         abort(404)
     name = group
@@ -480,7 +486,7 @@ def leave_group_api(server, group, ext):
 @login_required
 def leave_group(server, group, ext):
     try:
-        self = player_groups.endpoints[server]
+        self = player_groups[server]
     except KeyError:
         abort(404)
     name = group
@@ -535,7 +541,7 @@ def manage_members_delete_api(server, group, player, ext):
 
 def manage_members(server, group, player, ext):
     try:
-        self = player_groups.endpoints[server]
+        self = player_groups[server]
     except KeyError:
         abort(404)
     name = group
@@ -614,7 +620,7 @@ def manage_owners_delete_api(server, group, player, ext):
 
 def manage_owners(server, group, player, ext):
     try:
-        self = player_groups.endpoints[server]
+        self = player_groups[server]
     except KeyError:
         abort(404)
     name = group
@@ -691,7 +697,7 @@ def show_invitations_api(server, group, ext):
 @login_required
 def show_invitations(server, ext):
     try:
-        self = player_groups.endpoints[server]
+        self = player_groups[server]
     except KeyError:
         abort(404)
     name = group
@@ -718,7 +724,7 @@ def register_group(server, ext):
     """Register group"""
 
     try:
-        self = player_groups.endpoints[server]
+        self = player_groups[server]
     except KeyError:
         abort(404)
     group = Group()

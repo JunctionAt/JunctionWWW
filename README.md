@@ -11,10 +11,11 @@ and any other configs you want for your test environment:
 If you want to create all the tables (at least the ones wiggity has added models for):
 
     $ python
-    >>> import app
+    >>> from app import application
     >>> from blueprints.base import db
-    >>> db.create_all()
-
+    >>> with application.app_context(): db.create_all()
+    ...
+    >>>
 
 Launch as a usual flask app:
 

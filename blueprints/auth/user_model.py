@@ -1,6 +1,5 @@
 import flask
 import flask_login
-import sqlalchemy.orm
 import datetime
 
 from blueprints.base import Base, session, db

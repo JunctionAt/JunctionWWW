@@ -1,6 +1,7 @@
 import flask
-from blueprints import (auth, static_pages, api, avatar,
-                        player_notifications, player_stats, player_profiles, player_groups)
+from blueprints import (auth, roles, static_pages, api, avatar,
+                        player_notifications, player_stats, player_profiles, player_groups,
+                        logs)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
@@ -13,6 +14,12 @@ BLUEPRINTS = [
 
     # API Doc
     dict(blueprint=api.api),
+
+    # User roles
+    dict(blueprint=roles.roles),
+
+    # Logs
+    dict(blueprint=logs.logs),
 
     # Notifications
     dict(blueprint=player_notifications.player_notifications),

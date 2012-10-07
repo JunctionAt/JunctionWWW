@@ -9,6 +9,7 @@ from flask import Flask, Blueprint, request, render_template, redirect, url_for,
 import flask_login
 from flask_login import (LoginManager, login_required as __login_required__,
                             login_user, logout_user, confirm_login, fresh_login_required)
+from flask.ext.principal import identity_changed, AnonymousIdentity
 import random
 import bcrypt
 import re
@@ -40,6 +41,8 @@ def login_required(f):
                 if not user or not user.hash == bcrypt.hashpw(auth.password, user.hash):
                     raise Exception
                 login_user(user)
+                identity_changed.send(current_app._get_current_object(),
+                                      identity=Identity(user.name))
             except:
                 return __login_required__(f)(*args, **kwargs)
         return f(*args, **kwargs)
@@ -84,6 +87,8 @@ def login(ext):
                 return redirect("/login")
             remember = request.form.get("remember", "no") == "yes"
             if login_user(load_user_name(username), remember=remember):
+                identity_changed.send(current_app._get_current_object(),
+                                      identity=Identity(user.name))
                 if ext == 'json': return redirect(url_for('player_profiles.show_profile', player=username, ext=ext)), 303
                 flash("Logged in!")
                 return redirect(request.args.get("next", "/control"))
@@ -112,6 +117,10 @@ def logout_api(ext):
 @login_required
 def logout(ext):
     logout_user()
+    for key in ('identity.name', 'identity.auth_type'):
+        session.pop(key, None)
+    identity_changed.send(current_app._get_current_object(),
+                          identity=AnonymousIdentity())
     if ext == 'json': return "", 200
     flash("Logged out.")
     return redirect(url_for('auth.login', ext=ext))
