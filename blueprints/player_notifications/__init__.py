@@ -1,6 +1,6 @@
 """
 Notifications
-=============
+-------------
 
 Persistant player notification system.
 Notifications do not go away until they are actioned upon.

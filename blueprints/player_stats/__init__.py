@@ -1,6 +1,6 @@
 """
 Player Stats
-============
+------------
 
 Realtime player stats.
 """

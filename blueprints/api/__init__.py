@@ -2,14 +2,22 @@
 Junction.at/api
 ===============
 
-
 This document describes the API to the Junction site and Minecraft servers.
 
-All resources have a .json extension and will respond with JSON data on success, either in the initial response body or through another resource via redirect.
+URI Arguments
+--------------
+All URIs and arguments are case-sensitive.  The server will redirect to the preffered capitalization of these resources with a 301 status code.
 
 For many resources, you must specify a <server>. Possible values for <server> are ``pve``, ``survival``, ``creative``, and ``event``.
 
-Variables in a URI are case-sensitive.  The server will redirect to the preffered capitalization of these resources with a 301 status code.
+JSON
+----
+All resources have a .json extension and will respond with JSON data on success, either in the initial response body or through another resource via redirect.
+
+Data provided in a request body must be either form or JSON encoded. JSON data must include a ``Content-Type: application/json`` request header.
+
+Status Codes
+------------
 
 General rules for how status codes are used by the API:
 

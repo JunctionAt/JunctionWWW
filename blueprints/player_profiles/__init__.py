@@ -1,6 +1,6 @@
 """
 Profiles
-========
+--------
 
 Endpoints for getting and editing player profile data.
 """
@@ -154,14 +154,14 @@ def edit_profile_get_api(ext):
 
 @apidoc(__name__, player_profiles, '/profile.json', endpoint='edit_profile', methods=('POST',), defaults=dict(ext='json'))
 def edit_profile_post_api(ext):
-    """Used by the current player to set profile fields passed as form encoded data in the POST request body."""
+    """Used by the current player to set profile fields from the request body."""
 
 @player_profiles.route('/profile', defaults=dict(ext='html'), methods=('GET', 'POST'))
 @flask_login.login_required
 def edit_profile(ext):
     profile = flask_login.current_user.profile
     profile.show_stats = ' '.join(filter(lambda stats: stats in player_stats.endpoints.keys(), profile.show_stats.split(' ')))
-    form = ProfileForm(request.form, profile, csrf_enabled=False)
+    form = ProfileForm(request.json or request.form, profile, csrf_enabled=False)
     if request.method == 'POST' and form.validate():
         profile.tagline = form._fields['tagline'] or profile.tagline
         profile.location = form._fields['location'] or profile.location

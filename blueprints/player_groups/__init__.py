@@ -1,6 +1,6 @@
 """
 Groups
-======
+------
 
 Endpoints for getting and editing player group data.
 """
@@ -338,19 +338,12 @@ def show_owners(server, group, ext):
 
 @apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>.json', endpoint='edit_group', defaults=dict(ext='json'), methods=('POST',))
 def edit_group_post_api(server, group, ext):
-    """Edit info for ``group``.
+    """Edit info for ``group`` using new fields from the request body.
     
-    New field values must be form encoded in the POST request body.
     In additon to the fields returned by the /<server>/group/<group>.json endpoint,
     membership and ownership of this group can be set en masse by providing
     a list of player names as the new values for ``invited_members`` or ``invited_owners``.
-    The ``display_name`` of a group CANNOT be changed. Eg.:
-
-    .. code-block::
-    
-       POST /pve/group/TechStaff.json HTTP/1.1
-       ...
-       tagline=This+is+usurping&invited_owners=wiggitywhack&invited_owners=hansihe&invited_owners=nullsquare&invited_owners=barneygale
+    The ``display_name`` of a group CANNOT be changed.
     """
 
 @flask_login.login_required
@@ -370,7 +363,7 @@ def edit_group(server, group, ext):
             return redirect(url_for('player_groups.edit_group', server=server, group=group.name, ext=ext)), 301
         user = flask_login.current_user
         if not user in group.owners: abort(403)
-        form = GroupEditForm(request.form, group, csrf_enabled=False)
+        form = GroupEditForm(request.json or request.form, group, csrf_enabled=False)
         if request.method == 'POST' and form.validate() & validate_members(form, user):
             group.tagline = form._fields['tagline'].data or group.tagline
             group.link = form._fields['link'].data or group.link
@@ -713,10 +706,8 @@ def show_invitations(server, ext):
 @apidoc(__name__, player_groups.blueprint, '/<server>/groups/register.json', endpoint='register_group', defaults=dict(ext='json'), methods=('POST',))
 def register_group_api(server, group, ext):
     """
-    Register a new group.
+    Register a new group using fields from the request body.
     
-    Fields must be form encoded in the POST request body.
-
     The request MUST include a ``display_name`` field and at least one ``invited_members`` or ``invited_owners`` that is not the player making the request.
     The request MAY include any other fields returned in the /<server>/group/<group>.json endpoint.
     """
@@ -731,7 +722,7 @@ def register_group(server, ext):
         abort(404)
     group = Group()
     user = flask_login.current_user
-    form = GroupRegisterForm(request.form, group, csrf_enabled=False)
+    form = GroupRegisterForm(request.json or request.form, group, csrf_enabled=False)
     if request.method == 'POST' and form.validate() & validate_members(form, user):
         form.populate_obj(group)
         # Make ownership and membership mutually exclusive

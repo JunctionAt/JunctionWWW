@@ -5,27 +5,23 @@
   </head>
   <body>
     {{ doc }}
+    {% for module, doc, endpoints in blueprints: %}
+    {{ doc }}
     <ul>
-      {% for module, doc, endpoints in blueprints: %}
+      {% for rule, endpoint in endpoints: -%}
       <li>
-        {{ doc }}
+        <h3>{{ rule }}</h3>
         <ul>
-          {% for rule, endpoint in endpoints: -%}
+          {% for method in endpoint: -%}
           <li>
-            <h3>{{ rule }}</h3>
-            <ul>
-              {% for method in endpoint: -%}
-              <li>
-                <h4>{{ method.method }}</h4>
-                {{ method.doc }}
-              </li>
-              {%- endfor %}
-            </ul>
+            <h4>{{ method.method }}</h4>
+            {{ method.doc }}
           </li>
           {%- endfor %}
         </ul>
       </li>
       {%- endfor %}
     </ul>
+    {%- endfor %}
   </body>
 </html>
