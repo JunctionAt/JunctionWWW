@@ -636,7 +636,7 @@ def manage_owners(server, group, player, ext):
         if request.method == 'GET':
             # Test for ownership
             if member in group.owners:
-                return redirect(url_for('player_profiles.show_profile', player=member.name, ext=ext)), 307
+                return redirect(url_for('player_profiles.show_profile', player=member.name, ext=ext)), 302
             abort(404)
         elif user.is_authenticated() and user in group.owners:
             if request.method == 'PUT' and not user == owner and not owner in group.invited_owners:

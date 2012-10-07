@@ -11,16 +11,16 @@ For many resources, you must specify a <server>. Possible values for <server> ar
 
 Variables in a URI are case-sensitive.  The server will redirect to the preffered capitalization of these resources with a 301 status code.
 
-General rules for how return codes are used by the API:
+General rules for how status codes are used by the API:
 
 200
     Resource found. The response body will be JSON data.
 
 301
-    Resource can be found at preferred URI. Send the same request to provided URI to complete operation.
+    Resource can be found at preferred URI. Do not use this URI for future requests. Send the same request to provided URI to complete operation.
 
 302
-    Resource found. Follow redirect with a GET request for relevant JSON data.
+    Resource found or assertion succeeded. Follow redirect with a GET request for relevant JSON data.
 
 303
     Operation successful. You may follow the redirect with a GET request, but is not guaranteed to return a successful status code depending on the operation performed.
