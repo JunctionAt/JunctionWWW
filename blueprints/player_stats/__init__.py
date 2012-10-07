@@ -96,6 +96,7 @@ def show_stats_api(server, player, ext):
                    ]
                },
            ]
+       }
     """
 
 @player_stats.blueprint.route('/<server>/stats/<player>', defaults=dict(ext='html'))
@@ -105,6 +106,8 @@ def show_stats(server, player, ext):
     except KeyError:
         abort(404)
     stats = endpoint.get_by_name(player)
+    if not len(stats):
+        abort(404)
     if ext == 'json':
         return jsonify({player:stats})
     elif ext == 'html':
@@ -155,6 +158,8 @@ __transforms__ = [
          stat.stat.capitalize()),
 
     # Proper mob names
+    ('kills.*', lambda stat:
+         stat.stat.capitalize()),
     ('damagetaken.*', lambda stat:
          stat.stat.capitalize()),
     ('damagedealt.entityattack', 'Total attack'),
@@ -173,13 +178,13 @@ __hide__ = [
 
 """Default sorting weight"""
 __weights__ = [
-    ('stats.category', 1),
-    ('stats.playedfor', 1),
-    ('stats.firstlogin', 2),
-    ('stats.lastlogin', 3),
-    ('stats.login', 4),
-    ('stats.totalblockdestroy', 5),
-    ('stats.totalblockcreate', 6),
+    ('stats.category',),
+    ('stats.playedfor',),
+    ('stats.firstlogin',),
+    ('stats.lastlogin',),
+    ('stats.login',),
+    ('stats.totalblockdestroy',),
+    ('stats.totalblockcreate',),
     ]
 
 
@@ -271,10 +276,8 @@ class PlayerStats:
             if transform:
                 stat = transform(stat)
             pattern = PlayerStats.stat_match(stat, map(lambda weight: weight[0], weights))
-            weight = PlayerStats.pair(pattern, weights)[1]
-            if callable(weight):
-                return weight(stat)
-            return weight
+            pair = PlayerStats.pair(pattern, weights)
+            return weights.index(pair) if len(pair) == 1 else pair[1](stat) if callable(pair[1]) else pair[1]
         return key
 
     @staticmethod

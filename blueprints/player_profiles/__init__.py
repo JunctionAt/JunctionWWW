@@ -8,6 +8,7 @@ Endpoints for getting and editing player profile data.
 import flask
 import flask_login
 from flask import Blueprint, jsonify, render_template, request, current_app, abort, flash, redirect, url_for
+from sqlalchemy.orm.exc import *
 from wtalchemy.orm import model_form
 from wtforms.validators import Optional, Length, ValidationError
 import re
@@ -104,7 +105,7 @@ setattr(User, 'profile', property(lambda self: self._profile or Profile.default_
 
 player_profiles = Blueprint('player_profiles', __name__, template_folder='templates')
 
-@apidoc(__name__, player_profiles, '/profile/<name>.json', endpoint='show_profile', defaults=dict(ext='json'))
+@apidoc(__name__, player_profiles, '/profile/<player>.json', endpoint='show_profile', defaults=dict(ext='json'))
 def show_profile_api(player, ext):
     """Returns an object with a primary key being the preferred display name of ``player`` containing the profile's public fields. Eg.:
 

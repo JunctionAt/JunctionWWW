@@ -8,6 +8,7 @@ Endpoints for getting and editing player group data.
 import flask
 import flask_login
 from flask import Blueprint, render_template, jsonify, request, current_app, abort, flash, redirect, url_for
+from sqlalchemy.orm.exc import *
 from wtforms.validators import Required, Optional, Email, ValidationError
 from wtalchemy.orm import model_form
 from yell import notify
