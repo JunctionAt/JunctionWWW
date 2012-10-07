@@ -1,13 +1,6 @@
-import flask
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, scoped_session
+from flask import current_app
+from flask.ext.sqlalchemy import SQLAlchemy
 
-Base = declarative_base()
-Base.metadata.bind = flask.current_app.config['ENGINE']
-
-session = scoped_session(sessionmaker(flask.current_app.config['ENGINE']))
-
-@flask.current_app.after_request
-def remove(response):
-    session.remove()
-    return response
+db = SQLAlchemy(current_app)
+session = db.session
+Base = db.Model

@@ -12,15 +12,11 @@ from flask import Blueprint, url_for, render_template, jsonify, current_app
 import flask_login
 import sqlalchemy
 import sqlalchemy.orm
-from sqlalchemy.orm import relation
-from sqlalchemy.schema import ForeignKey
-from sqlalchemy.types import *
-from sqlalchemy import Column
 from yell import notify
 from yell.decorators import notification
 import markdown
 
-from blueprints.base import Base
+from blueprints.base import Base, db
 from blueprints.auth.user_model import User
 from blueprints.player_profiles import Profile
 from blueprints.api import apidoc
@@ -29,12 +25,12 @@ class Notification(Base):
     """DB table to store notifications"""
 
     __tablename__ = 'player_notifications'
-    user_name = Column(String(16), ForeignKey(User.name), primary_key=True)
-    module = Column(String(32), primary_key=True)
-    type = Column(String(16), primary_key=True)
-    from_ = Column('from', String(16), primary_key=True)
-    message = Column(String(256))
-    user = relation(User, backref='notifications')
+    user_name = db.Column(db.String(16), db.ForeignKey(User.name), primary_key=True)
+    module = db.Column(db.String(32), primary_key=True)
+    type = db.Column(db.String(16), primary_key=True)
+    from_ = db.Column('from', db.String(16), primary_key=True)
+    message = db.Column(db.String(256))
+    user = db.relation(User, backref='notifications')
 
 player_notifications = Blueprint('player_notifications', __name__, template_folder='templates')
 

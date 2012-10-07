@@ -8,18 +8,11 @@ Endpoints for getting and editing player profile data.
 import flask
 import flask_login
 from flask import Blueprint, jsonify, render_template, request, current_app, abort, flash, redirect, url_for
-import sqlalchemy
-import sqlalchemy.orm
-from sqlalchemy.orm import relation, backref
-from sqlalchemy.schema import ForeignKey
-from sqlalchemy.types import *
-from sqlalchemy import Column
-from sqlalchemy.orm.exc import NoResultFound
 from wtalchemy.orm import model_form
 from wtforms.validators import Optional, Length, ValidationError
 import re
 
-from blueprints.base import Base, session
+from blueprints.base import Base, session, db
 from blueprints.auth.user_model import User
 from blueprints.player_stats import player_stats
 from blueprints.avatar import avatar
@@ -29,16 +22,16 @@ class Profile(Base, object):
     """The player profile table"""
 
     __tablename__ = 'player_profiles'
-    name = Column(String(16), ForeignKey(User.name), primary_key=True)
-    realname = Column(String(64))
-    location = Column(String(64))
-    tagline = Column(String(256))
-    link = Column(String(256))
-    show_stats = Column(String(64))
-    hide_group_invitations = Column(Boolean)
+    name = db.Column(db.String(16), db.ForeignKey(User.name), primary_key=True)
+    realname = db.Column(db.String(64))
+    location = db.Column(db.String(64))
+    tagline = db.Column(db.String(256))
+    link = db.Column(db.String(256))
+    show_stats = db.Column(db.String(64))
+    hide_group_invitations = db.Column(db.Boolean)
     default = False
     
-    _user = relation(User, backref=backref('_profile', uselist=False), lazy=False)
+    _user = db.relation(User, backref=db.backref('_profile', uselist=False), lazy=False)
     _stats = None
     
     @property
@@ -176,7 +169,11 @@ def edit_profile(ext):
         if form._fields['show_stats']:
             profile.show_stats = ' '.join(re.compile(r'[,\s]+').split(form._fields['show_stats'].lower()))
         session.add(profile)
-        session.commit()
+        try:
+            session.commit()
+        except:
+            session.rollback()
+            abort(500)
         if ext == 'html': flash('Profile saved')
         return redirect(url_for('player_profiles.edit_profile', ext=ext)), 303
     if ext == 'json':

@@ -1,23 +1,19 @@
 import flask
 import flask_login
-from sqlalchemy import Column
-from sqlalchemy.types import *
 import sqlalchemy.orm
 import datetime
 
-from sqlalchemy.dialects import mysql
-
-from blueprints.base import Base, session
+from blueprints.base import Base, session, db
 
 
 class User(Base, flask_login.UserMixin, object):
 
     __tablename__ = 'users'
-    name = Column(String(16), primary_key=True)
-    hash = Column(String(100))
-    mail = Column(String(60))
-    registered = Column(DateTime, default=datetime.datetime.utcnow)
-    verified = Column(Boolean)
+    name = db.Column(db.String(16), primary_key=True)
+    hash = db.Column(db.String(100))
+    mail = db.Column(db.String(60))
+    registered = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    verified = db.Column(db.Boolean)
     
     def get_id(self):
         return self.name
@@ -34,9 +30,9 @@ class User(Base, flask_login.UserMixin, object):
 class Token(Base):
 
     __tablename__ = 'tokens'
-    token = Column(CHAR(6), primary_key=True)
-    name = Column(String(16), index=True)
-    hash = Column(String(100), index=True)
-    mail = Column(String(60))
-    ip = Column(String(39))
-    expires = Column(mysql.TIMESTAMP(), default=datetime.datetime.utcnow)
+    token = db.Column(db.CHAR(6), primary_key=True)
+    name = db.Column(db.String(16), index=True)
+    hash = db.Column(db.String(100), index=True)
+    mail = db.Column(db.String(60))
+    ip = db.Column(db.String(39))
+    expires = db.Column(db.TIMESTAMP(), default=datetime.datetime.utcnow)

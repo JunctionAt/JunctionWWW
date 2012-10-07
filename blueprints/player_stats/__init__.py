@@ -6,14 +6,11 @@ Realtime player stats.
 """
 
 from flask import Blueprint, render_template, jsonify, abort, current_app
-import sqlalchemy
-from sqlalchemy import Column
-from sqlalchemy.types import String, Integer
 from datetime import datetime
 import types
 import re
 
-from blueprints.base import Base, session
+from blueprints.base import Base, session, db
 from blueprints.api import apidoc
 
 
@@ -42,10 +39,10 @@ class Endpoint(object):
 
         self.model = type(tablename, (Base,), dict(
                 __tablename__=tablename,
-                player=Column(String(32), primary_key=True),
-                category=Column(String(32), primary_key=True),
-                stat=Column(String(32), primary_key=True),
-                value=Column(Integer)))
+                player=db.Column(db.String(32), primary_key=True),
+                category=db.Column(db.String(32), primary_key=True),
+                stat=db.Column(db.String(32), primary_key=True),
+                value=db.Column(db.Integer)))
         
         self.name = name
         self.tablename = tablename

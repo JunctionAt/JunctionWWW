@@ -7,7 +7,7 @@ This document describes the API to the Junction site and Minecraft servers.
 
 All resources have a .json extension and will respond with JSON data on success, either in the initial response body or through another resource via redirect.
 
-Possible values for the <server> variable are ``pve``, ``survival``, ``creative``, and ``event``.
+For many resources, you must specify a <server>. Possible values for <server> are ``pve``, ``survival``, ``creative``, and ``event``.
 
 Variables in a URI are case-sensitive.  The server will redirect to the preffered capitalization of these resources with a 301 status code.
 
@@ -32,7 +32,10 @@ General rules for how return codes are used by the API:
     Your account does not have permission to perform the requested operation.
 
 404
-    Resource not found.
+    Resource not found or assertion failed.
+
+500
+    Internal Error. Does not indicate an invalid request. You may try the same request later for successful completion.
 """
 
 from flask import Blueprint, Markup, render_template, current_app

@@ -8,14 +8,6 @@ Endpoints for getting and editing player group data.
 import flask
 import flask_login
 from flask import Blueprint, render_template, jsonify, request, current_app, abort, flash, redirect, url_for
-import sqlalchemy
-import sqlalchemy.orm
-from sqlalchemy.orm import relation
-from sqlalchemy.schema import ForeignKey
-from sqlalchemy.types import *
-from sqlalchemy.sql.expression import and_
-from sqlalchemy import Column
-from sqlalchemy.orm.exc import NoResultFound
 from wtforms.validators import Required, Optional, Email, ValidationError
 from wtalchemy.orm import model_form
 from yell import notify
@@ -23,7 +15,7 @@ from yell.decorators import notification
 import datetime
 import re
 
-from blueprints.base import Base, session
+from blueprints.base import Base, session, db
 from blueprints.auth.user_model import User
 from blueprints.avatar import avatar
 from blueprints.player_profiles import Profile
@@ -40,20 +32,20 @@ class Group(Base):
     """The player group table"""
 
     __tablename__ = 'player_groups'
-    id = Column(String(64), primary_key=True)
-    server = Column(String(16))
-    name = Column(String(32))
-    display_name = Column(String(32))
-    created = Column(DateTime(), default=datetime.datetime.utcnow)
-    mail = Column(String(60))
-    tagline = Column(String(256))
-    link = Column(String(256))
-    info = Column(Text(1024))
-    public = Column(Boolean)
-    owners = relation(User, secondary=lambda:GroupOwners.__table__, backref="groups_owner")
-    members = relation(User, secondary=lambda:GroupMembers.__table__, backref="groups_member")
-    invited_owners = relation(User, secondary=lambda:GroupInvitedOwners.__table__, backref="groups_invited_owner")
-    invited_members = relation(User, secondary=lambda:GroupInvitedMembers.__table__, backref="groups_invited_member")
+    id = db.Column(db.String(64), primary_key=True)
+    server = db.Column(db.String(16))
+    name = db.Column(db.String(32))
+    display_name = db.Column(db.String(32))
+    created = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
+    mail = db.Column(db.String(60))
+    tagline = db.Column(db.String(256))
+    link = db.Column(db.String(256))
+    info = db.Column(db.Text(1024))
+    public = db.Column(db.Boolean)
+    owners = db.relation(User, secondary=lambda:GroupOwners.__table__, backref="groups_owner")
+    members = db.relation(User, secondary=lambda:GroupMembers.__table__, backref="groups_member")
+    invited_owners = db.relation(User, secondary=lambda:GroupInvitedOwners.__table__, backref="groups_invited_owner")
+    invited_members = db.relation(User, secondary=lambda:GroupInvitedMembers.__table__, backref="groups_invited_member")
     
     @property
     def avatar(self):
@@ -85,8 +77,8 @@ def GroupUserRelation(tablename):
     
     return type(tablename, (Base,), dict(
             __tablename__=tablename,
-            group_id=Column(String(64), ForeignKey(Group.id), primary_key=True),
-            user_name=Column(String(16), ForeignKey(User.name), primary_key=True),))
+            group_id=db.Column(db.String(64), db.ForeignKey(Group.id), primary_key=True),
+            user_name=db.Column(db.String(16), db.ForeignKey(User.name), primary_key=True),))
 
 GroupOwners = GroupUserRelation('player_groups_owners')
 GroupMembers = GroupUserRelation('player_groups_members')
@@ -393,11 +385,15 @@ def edit_group(server, group, ext):
             demotions = set(group.invited_members) & set(group.owners)
             group.owners = list(promotions | (set(group.owners) & set(group.invited_owners)))
             group.members = list(demotions | (set(group.members) & set(group.invited_members)))
-            # Commit
-            session.add(group)
-            session.commit()
             # Send notifications
             manage_notifications(group)
+            # Commit
+            session.add(group)
+            try:
+                session.commit()
+            except:
+                session.rollback()
+                abort(500)
             # Done
             if ext == 'html': flash('%s saved'%self.group.capitalize())
             return redirect(url_for('player_groups.edit_group', server=server, group=group.name, ext=ext)), 303
@@ -467,8 +463,13 @@ def join_group(server, group, ext):
                         abort(403)
                     if ext == 'html': flash("Invitation to %s declined."%group.display_name)
                 manage_notifications(group)
+                # Commit
                 session.add(group)
-                session.commit()
+                try:
+                    session.commit()
+                except:
+                    session.rollback()
+                    abort(500)
                 return redirect(url_for('player_groups.show_group', server=server, group=group.name, ext=ext)), 303
             return render_template('join_group.html', endpoint=self, group=group)
         abort(403)
@@ -504,7 +505,11 @@ def leave_group(server, group, ext):
                 group.invited_owners -= [user]
                 group.invited_members -= [user]
                 session.add(group)
-                session.commit()
+                try:
+                    session.commit()
+                except:
+                    session.rollback()
+                    abort(500)
                 if ext == 'html': flash("You are no longer %s of %s."%(group.a_member, group.display_name))
                 return redirect(url_for('player_groups.show_group', server=server, group=group.name, ext=ext)), 303
             return render_template('leave_group.html', endpoint=self, group=group)
@@ -515,7 +520,7 @@ def leave_group(server, group, ext):
 @apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>/member/<player>.json', endpoint='manage_members', defaults=dict(ext='json'), methods=('GET',))
 def manage_members_get_api(server, group, player, ext):
     """
-    Used to check ``player``'s membership status in ``group``.
+    Used to assert ``player``'s membership status in ``group``.
     """
 
 @apidoc(__name__, player_groups.blueprint, '/<server>/group/<group>/member/<player>.json', endpoint='manage_members', defaults=dict(ext='json'), methods=('PUT',))
@@ -564,8 +569,13 @@ def manage_members(server, group, player, ext):
                 group.invited_owners -= [member]
                 group.invited_members += [member]
                 manage_notifications(group)
+                # Commit
                 session.add(group)
-                session.commit()
+                try:
+                    session.commit()
+                except:
+                    session.rollback()
+                    abort(500)
                 return redirect(url_for('player_groups.manage_members', server=server, group=group.name, player=member.name, ext=ext)), 303
             elif request.method == 'DELETE':
                 if member in groups.invited_members or member in groups.members:
@@ -573,8 +583,13 @@ def manage_members(server, group, player, ext):
                     group.members -= [member]
                     group.invited_members -= [member]
                     manage_notifications(group)
+                    # Commit
                     session.add(group)
-                    session.commit()
+                    try:
+                        session.commit()
+                    except:
+                        session.rollback()
+                        abort(500)
                     return redirect(url_for('player_groups.manage_members', server=server, group=group.name, player=member.name, ext=ext)), 303
                 abort(404)
         abort(403)
@@ -633,8 +648,13 @@ def manage_owners(server, group, player, ext):
                 group.invited_members -= [owner]
                 group.invited_owners += [owner]
                 manage_notifications(group)
+                # Commit
                 session.add(group)
-                session.commit()
+                try:
+                    session.commit()
+                except:
+                    session.rollback()
+                    abort(500)
                 return redirect(url_for('player_groups.manage_owners', server=server, group=group.name, player=owner.name, ext=ext)), 303
             elif request.method == 'DELETE':
                 if owner in groups.invited_owners or owner in groups.owners:
@@ -642,8 +662,13 @@ def manage_owners(server, group, player, ext):
                     group.owner -= [owner]
                     group.invited_owner -= [owner]
                     manage_notifications(group)
+                    # Commit
                     session.add(group)
-                    session.commit()
+                    try:
+                        session.commit()
+                    except:
+                        session.rollback()
+                        abort(500)
                     return redirect(url_for('player_groups.manage_owners', server=server, group=group.name, player=owner.name, ext=ext)), 303
                 abort(404)
         abort(403)
@@ -719,11 +744,14 @@ def register_group(server, ext):
         group.id = "%s.pending.%s"%(self.server, group.name)
         # Delete any pending group registrations of the same id
         session.query(Group).filter(Group.id==id).delete()
+        manage_notifications(group)
         # Commit
         session.add(group)
-        session.commit()
-        # Send notifications
-        manage_notifications(group)
+        try:
+            session.commit()
+        except:
+            session.rollback()
+            abort(500)
         # Done
         if ext == 'html': flash('%s registration complete pending confirmation by other %s.'%(self.group.capitalize(), self.members))
         return redirect(url_for('player_groups.show_group', server=server, group=group.name, ext=ext)), 303
@@ -788,7 +816,6 @@ def manage_notifications(group):
                 message="You have been invited to join [%s](%s)."% \
                     (group.display_name,
                      url_for('player_groups.join_group'%group.server, name=group.name))))
-    session.commit()
 
 @notification(name='player_groups')
 def show_notifications(notifications):
