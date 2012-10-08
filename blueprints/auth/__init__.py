@@ -5,16 +5,15 @@ Authorization
 Cookie based login method. HTTP Basic Auth is also accepted, allowing you to bypass the login and cookie.
 """
 
-from flask import Flask, Blueprint, request, render_template, redirect, url_for, flash, current_app
+from flask import Flask, Blueprint, request, render_template, redirect, url_for, flash, current_app, session
 import flask_login
 from flask_login import (LoginManager, login_required as __login_required__,
                             login_user, logout_user, confirm_login, fresh_login_required)
-from flask.ext.principal import identity_changed, AnonymousIdentity
 import random
 import bcrypt
 import re
 
-from blueprints.base import session
+from blueprints.base import db
 from blueprints.auth.user_model import User
 from blueprints.api import apidoc
 
@@ -26,23 +25,26 @@ blueprint = Blueprint('auth', __name__, template_folder='templates', static_fold
 
 login_manager = LoginManager()
 
-login_manager.login_view = "login"
+login_manager.login_view = "auth.login"
 login_manager.login_message = u"Please log in to access this page."
 login_manager.refresh_view = "reauth"
 
 from functools import wraps
 def login_required(f):
+    """
+    This is a custom version of the flask_login decorator that will accept HTTP Basic Auth or
+    fall back on the regular login_required provided by flask_login.
+    """
+    
     @wraps(f)
     def decorated(*args, **kwargs):
         if not flask_login.current_user.is_authenticated():
             try:
                 auth = request.authorization
-                user = session.query(User).filter(User.name==auth.username).first()
-                if not user or not user.hash == bcrypt.hashpw(auth.password, user.hash):
+                user = db.session.query(User).filter(User.name==auth.username).first()
+                if not user or not user.hash == bcrypt.hashpw(auth.password, user.hash) or \
+                        not login_user(user, remember=False, force=True):
                     raise Exception
-                login_user(user)
-                identity_changed.send(current_app._get_current_object(),
-                                      identity=Identity(user.name))
             except:
                 return __login_required__(f)(*args, **kwargs)
         return f(*args, **kwargs)
@@ -58,8 +60,8 @@ def redirectd(path):
     return redirect(subpath+path)
 
 def load_user_field(field, value):
-    #result = session.execute("SELECT name, hash, mail, registered, verified FROM users WHERE %s=:value;"%field, dict(value=value)).fetchone()
-    return session.query(User).filter(getattr(User,field)==value).first()
+    #result = db.session.execute("SELECT name, hash, mail, registered, verified FROM users WHERE %s=:value;"%field, dict(value=value)).fetchone()
+    return db.session.query(User).filter(getattr(User,field)==value).first()
 
 def load_user_name(name):
     return load_user_field("name", name)
@@ -74,12 +76,12 @@ def login_api(ext):
     Login with ``username`` and ``passwords`` fields. Use the cookie in the response header for subsequent requests.
     """
 
-@current_app.route("/login", defaults=dict(ext='html'), methods=["GET", "POST"])
+@blueprint.route("/login", defaults=dict(ext='html'), methods=("GET", "POST"))
 def login(ext):
     if request.method == "POST" and ("username" in request.form or "username" in request.json) and ("password" in request.form or "password" in request.json):
 	username = (request.json or request.form)["username"]
 	password = (request.json or request.form)["password"]
-        user = session.query(User).filter(User.name==username).first()
+        user = db.session.query(User).filter(User.name==username).first()
         if user and user.hash == bcrypt.hashpw(password, user.hash):
             if not user.verified:
                 if ext == 'json': abort(403)
@@ -87,8 +89,6 @@ def login(ext):
                 return redirect("/login")
             remember = request.form.get("remember", "no") == "yes"
             if login_user(load_user_name(username), remember=remember):
-                identity_changed.send(current_app._get_current_object(),
-                                      identity=Identity(user.name))
                 if ext == 'json': return redirect(url_for('player_profiles.show_profile', player=username, ext=ext)), 303
                 flash("Logged in!")
                 return redirect(request.args.get("next", "/control"))
@@ -117,10 +117,6 @@ def logout_api(ext):
 @login_required
 def logout(ext):
     logout_user()
-    for key in ('identity.name', 'identity.auth_type'):
-        session.pop(key, None)
-    identity_changed.send(current_app._get_current_object(),
-                          identity=AnonymousIdentity())
     if ext == 'json': return "", 200
     flash("Logged out.")
     return redirect(url_for('auth.login', ext=ext))
@@ -140,16 +136,16 @@ def register():
                 return redirect("/register")
             playertoken = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(6))
             hashed = bcrypt.hashpw(request.form['password1'], bcrypt.gensalt())
-            session.execute("INSERT INTO tokens (token, name, hash, mail, ip, expires) VALUES (:token, :name, :hash, :mail, :ip, now()+INTERVAL 10 MINUTE);",
+            db.session.execute("INSERT INTO tokens (token, name, hash, mail, ip, expires) VALUES (:token, :name, :hash, :mail, :ip, now()+INTERVAL 10 MINUTE);",
                             dict(token=playertoken,
                                  name=request.form['username'],
                                  hash=hashed,
                                  mail=request.form['mail'],
                                  ip=request.remote_addr))
             try:
-                session.commit()
+                db.session.commit()
             except:
-                session.rollback()
+                db.session.rollback()
                 abort(500)
             return redirect("/activate")
     else:
@@ -158,19 +154,19 @@ def register():
 @blueprint.route("/activate", methods=["GET", "POST"])
 def activatetoken():
     if request.method == "POST":
-        result = session.execute("SELECT name, hash, mail FROM tokens WHERE token=:token AND expires>NOW();", dict(token=str(request.form['token']))).fetchone()
+        result = db.session.execute("SELECT name, hash, mail FROM tokens WHERE token=:token AND expires>NOW();", dict(token=str(request.form['token']))).fetchone()
         if result is None:
             flash(u"Validation token invalid. Make sure you entered the right one, and that you didn't use more then 10 minutes since the registration.")
             return render_template("register.html")
-        session.execute("DELETE FROM tokens WHERE token=:token;", dict(token=(request.form['token'])))
-        if not session.execute("INSERT INTO users (name, hash, mail, registered, verified) VALUES (:name, :hash, :mail, NOW(), TRUE);",
+        db.session.execute("DELETE FROM tokens WHERE token=:token;", dict(token=(request.form['token'])))
+        if not db.session.execute("INSERT INTO users (name, hash, mail, registered, verified) VALUES (:name, :hash, :mail, NOW(), TRUE);",
                                dict(name=result[0], hash=result[1], mail=result[2])):
             flash(u"An internal error occured. If this continues happening, please contact staff at contact@junction.at")
             return redirect("/login")
         try:
-            session.commit()
+            db.session.commit()
         except:
-            session.rollback()
+            db.session.rollback()
             abort(500)
         flash(u"Registration sucessful! You can now log in with your account.")
         return redirect("/login")
@@ -183,11 +179,11 @@ def controlpanel():
     if request.method == "POST":
         if request.form['newpassword']:
             hashed = bcrypt.hashpw(request.form['newpassword'], bcrypt.gensalt())
-            session.execute('UPDATE users SET hash=:hash WHERE name=:name;', dict(hash=hashed, name=flask_login.current_user.name))
+            db.session.execute('UPDATE users SET hash=:hash WHERE name=:name;', dict(hash=hashed, name=flask_login.current_user.name))
             try:
-                session.commit()
+                db.session.commit()
             except:
-                session.rollback()
+                db.session.rollback()
                 abort(500)
             flash('Updated password')
             return render_template("controlpanel.html")

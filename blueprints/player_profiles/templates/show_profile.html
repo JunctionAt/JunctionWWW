@@ -33,9 +33,9 @@
 
 {% if profile.user.groups_owner: -%}
 {% for server, endpoint in player_groups.endpoints.iteritems(): -%}
-{% set groups = endpoint.owned_by(profile.user) -%}
+{% set groups = endpoint.owner_of(profile.user) -%}
 {% if groups: -%}
-<h2>{{ server_display_name(server) }} {{ endpoint.owner.capitalize() }} of</h2>
+<h2>{{ server_display_name(server) }} {{ endpoint.owner }} of</h2>
 {% for group in groups: -%}
 {{ render_group_small(group) }}
 {%- endfor %}
@@ -45,9 +45,9 @@
 
 {% if profile.user.groups_member: -%}
 {% for server, endpoint in player_groups.endpoints.iteritems(): -%}
-{% set groups = endpoint.owned_by(profile.user) -%}
+{% set groups = endpoint.member_of(profile.user) -%}
 {% if groups: -%}
-<h2>{{ server_display_name(server) }} {{ endpoint.member.capitalize() }} of</h2>
+<h2>{{ server_display_name(server) }} {{ endpoint.member  }}</h2>
 {% for group in groups: -%}
 {{ render_group_small(group) }}
 {%- endfor %}

@@ -70,12 +70,15 @@ class apidoc(object):
         self.blueprint = blueprint
         self.rule = rule
         self.method = kwargs.get('methods', ('GET',))[0]
-        self.endpoint = kwargs.get('endpoint', None)
+        self.endpoint = kwargs.pop('endpoint', None)
         self.kwargs = kwargs
         
     def __call__(self, func):
         global __order__, __endpoints__
-        if not self.endpoint: self.endpoint = func.__name__
+        route = False
+        if not self.endpoint:
+            route = True
+            self.endpoint = func.__name__
         self.doc = to_html(func.__doc__)
         __order__ += [self]
         endpoints = __endpoints__.get(self.import_name, dict())
@@ -85,7 +88,9 @@ class apidoc(object):
         endpoints[self.rule] = methods
         if not self.rule in __order__: __order__ += [self.rule]
         methods += [self]
-        return self.blueprint.route(self.rule, **self.kwargs)(func)
+        if route:
+            return self.blueprint.route(self.rule, **self.kwargs)(func)
+        return self.blueprint.add_url_rule(self.rule, self.endpoint, **self.kwargs)
 
 api = Blueprint('api', __name__, template_folder='templates')
 

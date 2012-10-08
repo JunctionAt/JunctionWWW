@@ -1,7 +1,7 @@
 import flask
 from blueprints import (auth, roles, static_pages, api, avatar,
                         player_notifications, player_stats, player_profiles, player_groups,
-                        logs)
+                        logs, as_user)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
@@ -17,6 +17,9 @@ BLUEPRINTS = [
 
     # User roles
     dict(blueprint=roles.roles),
+
+    # User switching
+    dict(blueprint=as_user.as_user),
 
     # Logs
     dict(blueprint=logs.logs),
@@ -44,6 +47,7 @@ BLUEPRINTS = [
 
     # Player groups (Clans & Cities)
     dict(blueprint=player_groups.player_groups([
+                dict(name='staff'),
                 dict(name='pve', group='city', groups='cities', member='citizen', owner='mayor'),
                 dict(name='survival', group='clan', owner='leader'),
                 ])),
@@ -58,5 +62,5 @@ Markdown(flask.current_app)
 # Server name global
 @flask.current_app.context_processor
 def inject_server():
-    return dict(server_display_name=lambda server: dict(pve='PvE', survival='Survival', event='Event')[server],)
+    return dict(server_display_name=lambda server: dict(pve='PvE', survival='Survival', event='Event', staff='Staff')[server],)
 

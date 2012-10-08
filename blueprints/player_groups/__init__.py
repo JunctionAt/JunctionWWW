@@ -109,15 +109,9 @@ class Endpoint(object):
     """Wrapper to distinguish server groups"""
 
     def __init__(self, name,
-                 group='group',
-                 a_group=None,
-                 groups=None,
-                 member='member',
-                 a_member=None,
-                 members=None,
-                 owner='owner',
-                 a_owner=None,
-                 owners=None):
+                 group='group', a_group=None, groups=None,
+                 member='member', a_member=None, members=None,
+                 owner='owner', a_owner=None, owners=None):
         """Create a player_groups endpoint for server name"""
 
         self.server = name
@@ -210,15 +204,15 @@ class Endpoint(object):
         """Returns the unactioned member invitations of user"""
         
         return filter(lambda group: group.server == self.server, \
-                          list(set(flask_login.current_user.groups_invited_owner or list()) -
-                               set(flask_login.current_user.groups_owner or list())))
+                          list(set(user.groups_invited_owner or list()) -
+                               set(user.groups_owner or list())))
 
     def invited_member_of(self, user):
         """Returns the unactioned owner invitations of user"""
         
         return filter(lambda group: group.server == self.server, \
-                          list(set(flask_login.current_user.groups_invited_member or list()) -
-                               set(flask_login.current_user.groups_member or list())))
+                          list(set(user.groups_invited_member or list()) -
+                               set(user.groups_member or list())))
 
 
 @apidoc(__name__, player_groups, '/<server>/group/<group>.json', endpoint='show_group', defaults=dict(ext='json'))
@@ -230,8 +224,8 @@ def show_group_api(server, group, ext):
     .. code-block::
     
        {
-           "TechAdmins": {
-               "display_name": "Tech Admins",
+           "Techs": {
+               "display_name": "Techs",
                "tagline": "Do you need halp?",
                "link": "junction.at",
                "info": "Currently documenting the API...",
