@@ -2,7 +2,7 @@
 As User
 -------
 
-Staff may use this endpoint to request cookie authorization as another user.  Alternatively to using cookie
+Staff may use this endpoint to request cookie authorization as another user.  As an alternative to using cookie
 authorization for switching users, a client may include a ``From`` HTTP header with the name of the player
 to act as during the context of the request.
 """
@@ -58,14 +58,14 @@ def switch_user(player, ext):
                 login_user(original_user)
                 response = make_response(redirect(url_for('player_profiles.show_profile', player=original_user.name, ext=ext)), 303)
             elif request.method == 'DELETE':
-                return redirect(url_for('as_user.switch_user', player=current_user.name, ext=ext)), 302
+                return redirect(url_for('as_user.switch_user', player=current_user.name, ext=ext)), 307
             else:
                 # User attempting a switch while already switched
                 login_user(original_user)
                 raise KeyError()
         except KeyError:
-            with Permission(RoleNeed('as_user')).require(): pass
-            if request.method == 'DELETE' or player == current_user.name: abort(403)
+            Permission(RoleNeed('as_user')).require(403)
+            if request.method == 'DELETE': abort(403)
             # User without original_user, or, user just switched to original_user with an additional switch necessary
             user = db.session.query(User).filter(User.name==player).one()
             if not player == user.name:

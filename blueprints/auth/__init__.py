@@ -73,7 +73,7 @@ def wpass():
 @apidoc(__name__, blueprint, '/login.json', endpoint='login', defaults=dict(ext='json'), methods=('POST',))
 def login_api(ext):
     """
-    Login with ``username`` and ``passwords`` fields. Use the cookie in the response header for subsequent requests.
+    Login with ``username`` and ``password`` fields. Use the cookie in the response header for subsequent requests.
     """
 
 @blueprint.route("/login", defaults=dict(ext='html'), methods=("GET", "POST"))

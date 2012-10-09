@@ -233,7 +233,7 @@ def show_group_api(server, group, ext):
            }
        }
 
-    Note: Blank fields in ``group`` will be omitted from the object.
+    *Note:* Blank fields in ``group`` will be omitted from the object.
     """
 
 def show_group(server, group, ext):

@@ -4,6 +4,15 @@
     <title>Junction.at/api</title>
   </head>
   <body>
+    <h1>Junction.at/api</h1>
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#foreword">Foreword</a></li>
+      <li><a href="#response-codes">Response Codes</a></li>
+      {% for title, _, _ in blueprints: -%}
+      <li><a href="#{{ title.lower().replace(' ', '-') }}">{{ title }}</a></li>
+      {%- endfor %}
+    </ol>
     {{ doc }}
     {% for module, doc, endpoints in blueprints: %}
     <hr>

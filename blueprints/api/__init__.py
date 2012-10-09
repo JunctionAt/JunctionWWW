@@ -1,54 +1,56 @@
 """
-Junction.at/api
-===============
+Foreword
+========
 
-This document describes the API to the Junction site and Minecraft servers.
+This document describes the API to the Junction site and Minecraft servers. It is an HTTP and JSON service
+that can be used to access any of the information on the web front-end. There are several components to the
+service that should be noted:
 
-Authorization
--------------
-You may use a cookie or HTTP Basic Auth for authorization.
-You must have a registered and verified Junction.at user account to make requests that require authorization.
+- Authorization
 
-URI Arguments
---------------
-All URIs and arguments are case-sensitive.  The server will redirect to the preffered capitalization of these resources with a 301 status code.
+    You may use a cookie or HTTP Basic Auth for authorization. You must have a registered and verified
+    Junction.at user account to make requests that require authorization.
 
-For many resources, you must specify a <server>. Possible values for <server> are ``pve``, ``survival``, ``creative``, and ``event``.
+- URI Arguments
 
-JSON
-----
-All resources have a .json extension and will respond with JSON data on success, either in the initial response body or through another resource via redirect.
+    All URIs and arguments are case-sensitive.  The server will redirect to the preferred capitalization of these resources with a 301 status code.
 
-Data provided in a request body must be either form or JSON encoded. JSON data must include a ``Content-Type: application/json`` request header.
+    For many resources, you must specify a <server>. Possible values for <server> may include ``pve``, ``survival``, ``creative``, ``event`` or ``staff``.
 
-Status Codes
-------------
+- JSON
 
-General rules for how status codes are used by the API:
+    All resources have a .json extension and will respond with JSON data on success, either in the initial response body or through another
+    resource via redirect. Data provided in a request body must be either form or JSON encoded. JSON data must include a
+    ``Content-Type: application/json`` request header.
+
+- Response Codes
+
+    The server will use status codes as abbreviated responses and consolidate data sent by redirecting to relevant
+    endpoints upon success.  It is often adequate to act upon a response by its status code without following its
+    redirect or parsing the response body. The following section contains an explaination on how status codes are
+    used by the API.
+
+Response Codes
+==============
 
 200
-    Resource found. The response body will be JSON data.
-
+  Resource found. The response body will be JSON data.
 301
-    Resource can be found at preferred URI. Do not use this URI for future requests. Send the same request to provided URI to complete operation.
-
+  Resource can be found at preferred URI. Do not use the requested URI in the future. Send the same request to provided URI to complete operation.
 302
-    Resource found or assertion succeeded. Follow redirect with a GET request for relevant JSON data.
-
+  Resource found or assertion succeeded. Follow redirect with a GET request for relevant JSON data.
 303
-    Operation successful. You may follow the redirect with a GET request, but is not guaranteed to return a successful status code depending on the operation performed.
-
+  Operation successful. You may follow the redirect with a GET request, but is not guaranteed to return a successful status code depending on the operation performed.
+307
+  Temporary redirect. Send the same request to provided URI to complete operation. *Note:* The same request may be available at this URI in the future.
 400
-    Operation unsuccessfull. Relevant JSON data will be provided in the response body.
-
+  Operation unsuccessfull. Relevant JSON data may be provided in the response body.
 403
-    Your account does not have permission to perform the requested operation.
-
+  Your account does not have permission to perform the requested operation.
 404
-    Resource not found or assertion failed.
-
+  Resource not found or assertion failed.
 500
-    Internal Error. Does not indicate an invalid request. You may try the same request later for successful completion.
+  Internal Error. Does not indicate an invalid request. You may try the same request later for successful completion.
 
 The following sections describe the available endpoints and their accepted methods.
 """
@@ -101,7 +103,7 @@ def apidocs():
         doc=to_html(__doc__, indent=None),
         blueprints=\
             map(lambda pair:
-                    (re.sub(r'^.*_', '', pair[0].split('.')[-1]).capitalize(),
+                    (reduce(lambda first, line: first or line, (import_string(pair[0]).__doc__ or "").split('\n'), ""),
                      to_html(import_string(pair[0]).__doc__ or "", indent=None),
                      sorted(pair[1].items(), key=lambda pair: __order__.index(pair[0]))),
                 sorted(__endpoints__.items(),  key=lambda pair: __order__.index(pair[0]))))
