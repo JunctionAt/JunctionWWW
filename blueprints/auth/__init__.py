@@ -9,6 +9,7 @@ from flask import Flask, Blueprint, request, render_template, redirect, url_for,
 import flask_login
 from flask_login import (LoginManager, login_required as __login_required__,
                             login_user, logout_user, confirm_login, fresh_login_required)
+from functools import wraps
 import random
 import bcrypt
 import re
@@ -29,7 +30,6 @@ login_manager.login_view = "auth.login"
 login_manager.login_message = u"Please log in to access this page."
 login_manager.refresh_view = "reauth"
 
-from functools import wraps
 def login_required(f):
     """
     This is a custom version of the flask_login decorator that will accept HTTP Basic Auth or
@@ -114,7 +114,6 @@ def logout_api(ext):
     """
 
 @blueprint.route("/logout", defaults=dict(ext='html'))
-@login_required
 def logout(ext):
     logout_user()
     if ext == 'json': return "", 200

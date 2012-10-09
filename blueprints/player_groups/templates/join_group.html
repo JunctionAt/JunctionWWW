@@ -14,7 +14,7 @@
   function decline() {
     $.ajax({
       url: '{{ url_for('player_groups.join_group', server=endpoint.server, group=group.name) }}',
-      method: 'delete',
+      type: 'delete',
       complete: function() { window.location = '{{ url_for('player_groups.show_group', server=endpoint.server, group=group.name, ext='json') }}'; }
     });
   }

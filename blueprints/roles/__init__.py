@@ -1,7 +1,7 @@
-from flask import Blueprint, current_app, abort, request, render_template, url_for, session
+from flask import Blueprint, current_app, abort, request, render_template, url_for, session, redirect
 from flask.ext.principal import (Principal, Identity, PermissionDenied, Permission,
                                  identity_loaded, identity_changed, RoleNeed, UserNeed, AnonymousIdentity)
-from flask.ext.login import current_user, user_logged_in, user_logged_out
+from flask.ext.login import current_user, user_logged_in, user_logged_out, AnonymousUser
 from sqlalchemy.orm.exc import NoResultFound
 from wtalchemy.orm import model_form
 import re
@@ -39,21 +39,26 @@ class GroupRoleRelation(db.Model):
 
 @user_logged_in.connect_via(current_app._get_current_object())
 def on_user_logged_in(sender, user):
-    identity_loaded.send(current_app._get_current_object(),
-                         identity=Identity(user.name))
+    identity_changed.send(current_app, identity=Identity(user.name))
 
 @user_logged_out.connect_via(current_app._get_current_object())
 def on_user_logged_out(sender, user):
-    for key in ('identity.name', 'identity.auth_type'):
-        session.pop(key, None)
-    identity_changed.send(current_app._get_current_object(),
-                          identity=AnonymousIdentity())
+    for key in ('identity.name', 'identity.auth_type'): session.pop(key, None)
+    identity_changed.send(current_app, identity=AnonymousIdentity())
 
 @identity_loaded.connect_via(current_app._get_current_object())
-@identity_changed.connect_via(current_app._get_current_object())
 def on_identity_loaded(sender, identity):
-    identity.user = current_user
+    identity_roles(identity)
+
+def identity_roles(identity):
     identity.provides = set(UserNeed(identity.name))
+    if current_user.is_authenticated() and identity.name == current_user.name:
+        identity.user = current_user
+    else:
+        try:
+            identity.user = db.session.query(User).filter(User.name==identity.name).one()
+        except NoResultFound:
+            identity.user = AnonymousUser()
     if hasattr(identity.user, 'roles'):
         for role in identity.user.roles:
             identity.provides.add(RoleNeed(role.name))
@@ -65,6 +70,7 @@ def on_identity_loaded(sender, identity):
         for group in identity.user.groups_member:
             for role in group.roles:
                 identity.provides.add(RoleNeed(role.name))
+    return identity
 
 roles = Blueprint('roles', __name__, template_folder='templates')
 

@@ -1,0 +1,35 @@
+{% if can_switch(): -%}
+{% from 'profilehelpers.html' import render_profile_small -%}
+<div id=as-user-helper style=clear:both>
+  {% if request.path.startswith('/profile/') and
+        not current_user.name == profile.name and
+        not (get_original_user() and get_original_user().name == profile.name)
+        and not profile.default:  -%}
+  <button id=switchTo onclick="switchTo()">Switch to {{ profile.name }}</button>
+  <script>
+    function switchTo() {
+      $.ajax({
+        url: '/as/{{ profile.name }}.json',
+        type: 'PUT',
+        complete: function() { window.location = window.location; }
+      });
+    }
+  </script>
+  {%- endif %}
+  {% if get_original_user(): -%}
+  <button id=switchBack onclick="switchBack()">{{ render_profile_small(get_original_user().profile, link=False) }}</button>
+  <script>
+    $switchBack = $('#switchBack');
+    $switchTo = $('#switchTo');
+    function switchBack() {
+      $.ajax({
+        url: '/as/{{ current_user.name }}.json',
+        type: 'DELETE',
+        complete: function() { window.location = window.location; }
+      });
+    }
+  </script>
+  {%- endif %}
+</div>
+{%- endif %}
+
