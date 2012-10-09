@@ -1,6 +1,6 @@
 """
-Foreword
-========
+Introduction
+============
 
 This document describes the API to the Junction site and Minecraft servers. It is an HTTP and JSON service
 that can be used to access any of the information on the web front-end. There are several components to the
