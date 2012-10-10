@@ -3,35 +3,21 @@ Introduction
 ============
 
 This document describes the API to the Junction site and Minecraft servers. It is an HTTP and JSON service
-that can be used to access any of the information on the web front-end. There are several components to the
-service that should be noted:
+that can be used to access any of the information on the web front-end.
 
-- Authorization
+All URIs and arguments are case-sensitive. The server will redirect to the preferred capitalization of these
+resources with a 301 status code.
 
-    You may use a cookie or HTTP Basic Auth for authorization. You must have a registered and verified
-    Junction.at user account to make requests that require authorization.
-
-- URI Arguments
-
-    All URIs and arguments are case-sensitive.  The server will redirect to the preferred capitalization of these resources with a 301 status code.
-
-    For many resources, you must specify a <server>. Possible values for <server> may include ``pve``, ``survival``, ``creative``, ``event`` or ``staff``.
-
-- JSON
-
-    All resources have a .json extension and will respond with JSON data on success, either in the initial response body or through another
-    resource via redirect. Data provided in a request body must be either form or JSON encoded. JSON data must include a
-    ``Content-Type: application/json`` request header.
-
-- Response Codes
-
-    The server will use status codes as abbreviated responses and consolidate data sent by redirecting to relevant
-    endpoints upon success.  It is often adequate to act upon a response by its status code without following its
-    redirect or parsing the response body. The following section contains an explaination on how status codes are
-    used by the API.
+Data provided by the user in a request body must be either form or JSON encoded.
+`JSON data must be sent with a` ``Content-Type: application/json`` `request header`.
 
 Response Codes
 ==============
+
+The server will use status codes as abbreviated responses and consolidate data sent by redirecting to relevant
+endpoints upon success.  It is often adequate to act upon a response by its status code without following its
+redirect or parsing the response body. The following section contains an explaination on how status codes are
+used by the API.
 
 200
   Resource found. The response body will be JSON data.

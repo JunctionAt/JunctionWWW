@@ -9,7 +9,6 @@ import flask
 from flask import render_template, jsonify, abort, current_app
 from datetime import datetime
 import types
-import re
 
 from blueprints.base import Base, session, db
 from blueprints.api import apidoc
@@ -178,7 +177,8 @@ __transforms__ = [
 __hide__ = [
 
     # Don't show block variation stats
-    lambda stat: re.search('_\d+$', stat.stat),
+    # this might break. if you're the one who is fixing it, please don't use regex
+    lambda stat: stat.stat[-2] == '_' and stat.stat[-1] in '0123456789',
 
     ]
 

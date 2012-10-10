@@ -4,7 +4,6 @@ from flask.ext.principal import (Principal, Identity, PermissionDenied, Permissi
 from flask.ext.login import current_user, user_logged_in, user_logged_out, AnonymousUser
 from sqlalchemy.orm.exc import NoResultFound
 from wtalchemy.orm import model_form
-import re
 
 from blueprints.auth import login_required
 from blueprints.base import db

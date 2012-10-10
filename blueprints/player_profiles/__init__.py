@@ -40,8 +40,10 @@ class Profile(Base, object):
     @property
     def display_link(self):
         if not self.link: return None
-        if re.match('^https?://', self.link):
-            return (self.link, re.sub('^https?://', '', self.link))
+        if self.link.beginswith('http://'):
+            return self.link[7:]
+        elif self.link.beginswith('https://'):
+            return self.link[8:]
         return ("http://%s"%self.link, self.link)
 
     @property
@@ -170,7 +172,7 @@ def edit_profile(ext):
         profile.link = form._fields['link'].data or profile.link
         profile.hide_group_invitations = form._fields['hide_group_invitations'].data or profile.hide_group_invitations
         if form._fields['show_stats']:
-            profile.show_stats = ' '.join(re.compile(r'[,\s]+').split(form._fields['show_stats'].data.lower()))
+            profile.show_stats = ' '.join(re.split(r'[,\s]+', form._fields['show_stats'].data.lower()))
         session.add(profile)
         try:
             session.commit()
@@ -197,7 +199,7 @@ def edit_profile(ext):
 
 def validate_show_stats(form, field):
     invalid = list()
-    parts = re.compile('[,\s]+').split(field.data.lower())
+    parts = re.split('[,\s]+', field.data.lower())
     servers = player_stats.endpoints.keys()
     for server in parts:
         if not server in servers:

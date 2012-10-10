@@ -2,9 +2,11 @@
 As User
 -------
 
-Staff may use this endpoint to request cookie authorization as another user.  As an alternative to using cookie
-authorization for switching users, a client may include a ``From`` HTTP header with the name of the player
-to act as during the context of the request.
+Staff may use this endpoint to request cookie authorization as another user.
+
+As an alternative to using cookie authorization for users switching, a client may
+include a ``From`` request header with the name of the player to act as during the
+context of the request.  Any URI can be requested using a ``From`` header.
 """
 
 from flask import Blueprint, current_app, abort, request, render_template, url_for, session, make_response, g, redirect
@@ -13,7 +15,6 @@ from flask.ext.login import current_user, user_logged_out, logout_user, login_us
 from werkzeug.exceptions import Forbidden, BadRequest, NotFound, InternalServerError
 from sqlalchemy.orm.exc import NoResultFound
 from wtalchemy.orm import model_form
-import re
 
 from blueprints.auth import login_required
 from blueprints.base import db
@@ -67,7 +68,10 @@ def switch_user(player, ext):
             Permission(RoleNeed('as_user')).require(403)
             if request.method == 'DELETE': abort(403)
             # User without original_user, or, user just switched to original_user with an additional switch necessary
-            user = db.session.query(User).filter(User.name==player).one()
+            try:
+                user = db.session.query(User).filter(User.name==player).one()
+            except NoResultFound:
+                abort(404)
             if not player == user.name:
                 return redirect(redirect(url_for('as_user', player=user.name, ext=ext))), 301
             response = make_response(redirect(url_for('player_profiles.show_profile', player=player, ext=ext)), 303)
@@ -98,9 +102,14 @@ def on_identity_changed(sender, identity, **_):
     try:
         player = request.headers['From']
         if current_user.name == player: return
+        original_user = identity.user
         with identity.require(Permission(RoleNeed('as_user'))): pass
         user = db.session.query(User).filter(User.name==player).one()
         login_user(user)
+        @after_this_request
+        def switch_back(response):
+            login_user(original_user)
+            return response
     except NoResultFound:
         @after_this_request
         def get_response(response):

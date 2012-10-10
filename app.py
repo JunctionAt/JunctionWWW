@@ -12,5 +12,9 @@ with application.app_context():
 for blueprint in application.config["BLUEPRINTS"]:
     application.register_blueprint(**blueprint)
 
-if __name__ == "__main__":
-    application.run(port=application.config['PORT'])
+def run():
+    application.run(
+        host=application.config.get('HOST', '127.0.0.1'),
+        port=application.config.get('PORT', '5000'))
+
+if __name__ == "__main__": run()

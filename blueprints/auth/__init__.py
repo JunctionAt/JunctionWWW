@@ -1,11 +1,22 @@
 """
-Authorization
--------------
+Authentication
+--------------
 
-Cookie based login method. HTTP Basic Auth is also accepted, allowing you to bypass the login and cookie.
+The API has resources that are only valid for an authenicated user.
+A user needs a registered and verified Junction account to access these resources.
+The best way to maintain authentication during your session is to request a session cookie
+that you use for all requests. To get a session cookie, use the /login.json endpoint.
+The /login.json endpoint will accept HTTP Basic Auth or request body data containing your
+username and password.
+
+`Note:` All restricted resources will accept HTTP Basic Auth, however, using HTTP Basic Auth
+for multiple requests is not recommended. The server will attempt to verify your credentilas
+on every request including HTTP Basic Auth, which will cause the request to take longer than
+normal to complete. Only use HTTP Basic Auth once to obtain a session cookie if you are making
+multiple requests.
 """
 
-from flask import Flask, Blueprint, request, render_template, redirect, url_for, flash, current_app, session
+from flask import Flask, Blueprint, request, render_template, redirect, url_for, flash, current_app, session, abort
 import flask_login
 from flask_login import (LoginManager, login_required as __login_required__,
                             login_user, logout_user, confirm_login, fresh_login_required)
@@ -44,7 +55,7 @@ def login_required(f):
                 user = db.session.query(User).filter(User.name==auth.username).first()
                 if not user or not user.hash == bcrypt.hashpw(auth.password, user.hash) or \
                         not login_user(user, remember=False, force=True):
-                    raise Exception
+                    raise Exception()
             except:
                 return __login_required__(f)(*args, **kwargs)
         return f(*args, **kwargs)
@@ -70,10 +81,16 @@ def wpass():
     flash(u"The username or password was incorrect.")
     return redirectd("/login")
 	
-@apidoc(__name__, blueprint, '/login.json', endpoint='login', defaults=dict(ext='json'), methods=('POST',))
-def login_api(ext):
+@apidoc(__name__, blueprint, '/login.json', endpoint='login', defaults=dict(ext='json'), methods=('GET',))
+def login_get_api(ext):
     """
-    Login with ``username`` and ``password`` fields. Use the cookie in the response header for subsequent requests.
+    Send a GET request to /login.json if using HTTP Basic Auth. Use the returned cookie for subsequent requests.
+    """
+
+@apidoc(__name__, blueprint, '/login.json', endpoint='login', defaults=dict(ext='json'), methods=('POST',))
+def login_post_api(ext):
+    """
+    If not logging in with HTTP Basic Auth, send a POST request including a ``username`` and ``password`` field. Use the returned cookie for subsequent requests.
     """
 
 @blueprint.route("/login", defaults=dict(ext='html'), methods=("GET", "POST"))
@@ -94,7 +111,8 @@ def login(ext):
                 return redirect(request.args.get("next", "/control"))
         if ext == 'html':
             return wpass()
-    if ext == 'json': abort(403)
+    if ext == 'json':
+        return login_required(lambda: (redirect(url_for('player_profiles.show_profile', player=flask_login.current_user.name, ext=ext)), 303))()
     return render_template("login.html")
 
 @blueprint.route("/reauth", methods=["GET", "POST"])
