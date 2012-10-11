@@ -38,23 +38,33 @@ def switch_user_delete_api(player, ext):
     Has the same effect as a PUT request to /as/``original_player_name``.json
     """
 
+
+
 @as_user.route('/as/<player>', defaults=dict(ext='html'), methods=('PUT','DELETE'))
 @login_required
 def switch_user(player, ext):
     try:
         response = None
+        to_user = None
         try:
-            original_user = db.session.query(User).filter(User.name==session['original_user']).one()
+            try:
+                original_user = db.session.query(User).filter(User.name==session['original_user']).one()
+            except NoResultFound:
+                raise KeyError()
             if not identity_roles(Identity(original_user.name)).can(Permission(RoleNeed('as_user'))):
+                # Edge case where a switched user's account no longer has as_user role
+                login_user(original_user)
                 raise PermissionDenied()
+            to_user = db.session.query(User).filter(User.name==player).one()
             # User with previous authorization via original_user
-            if request.method == 'DELETE' and player == current_user.name:
+            if request.method == 'DELETE' and player.lower() == current_user.name.lower():
                 target = current_user.name
-            elif request.method == 'PUT' and player == original_user.name:
+            elif request.method == 'PUT' and player.lower() == original_user.name.lower():
                 target = original_user.name
             if target and not player == target:
                 return redirect(redirect(url_for('as_user', player=target, ext=ext))), 301
             elif target:
+                to_user = db.session.query(User).filter(User.name==player).one()
                 # Returning to normal
                 login_user(original_user)
                 response = make_response(redirect(url_for('player_profiles.show_profile', player=original_user.name, ext=ext)), 303)
@@ -68,19 +78,16 @@ def switch_user(player, ext):
             Permission(RoleNeed('as_user')).require(403)
             if request.method == 'DELETE': abort(403)
             # User without original_user, or, user just switched to original_user with an additional switch necessary
-            try:
-                user = db.session.query(User).filter(User.name==player).one()
-            except NoResultFound:
-                abort(404)
-            if not player == user.name:
-                return redirect(redirect(url_for('as_user', player=user.name, ext=ext))), 301
+            if not to_user: to_user = db.session.query(User).filter(User.name==player).one()
+            if not player == to_user.name:
+                return redirect(redirect(url_for('as_user', player=to_user.name, ext=ext))), 301
             response = make_response(redirect(url_for('player_profiles.show_profile', player=player, ext=ext)), 303)
             response.set_cookie('original_user', current_user.name)
             session['original_user'] = current_user.name
-            login_user(user)
+            login_user(to_user)
             return response
     except NoResultFound:
-        response = Forbidden().get_response(dict())
+        abort(404)
     except PermissionDenied:
         response = Forbidden().get_response(dict())
     response.set_cookie('original_user', '')

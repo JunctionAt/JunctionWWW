@@ -11,12 +11,13 @@ username and password.
 
 `Note:` All restricted resources will accept HTTP Basic Auth, however, using HTTP Basic Auth
 for multiple requests is not recommended. The server will attempt to verify your credentilas
-on every request including HTTP Basic Auth, which will cause the request to take longer than
-normal to complete. Only use HTTP Basic Auth once to obtain a session cookie if you are making
+on every Basic Auth request, which will cause the request to take longer than
+normal to complete. Only use Basic Auth once to obtain a session cookie if you are making
 multiple requests.
 """
 
-from flask import Flask, Blueprint, request, render_template, redirect, url_for, flash, current_app, session, abort
+from flask import (Flask, Blueprint, request, render_template, redirect, url_for, flash,
+                   current_app, session, abort)
 import flask_login
 from flask_login import (LoginManager, login_required as __login_required__,
                             login_user, logout_user, confirm_login, fresh_login_required)
@@ -33,7 +34,8 @@ subpath = ''
 
 mailregex = re.compile("[^@]+@[^@]+\.[^@]+")
 
-blueprint = Blueprint('auth', __name__, template_folder='templates', static_folder='static', static_url_path='/auth/static')
+blueprint = Blueprint('auth', __name__, template_folder='templates',
+                      static_folder='static', static_url_path='/auth/static')
 
 login_manager = LoginManager()
 
@@ -90,12 +92,14 @@ def login_get_api(ext):
 @apidoc(__name__, blueprint, '/login.json', endpoint='login', defaults=dict(ext='json'), methods=('POST',))
 def login_post_api(ext):
     """
-    If not logging in with HTTP Basic Auth, send a POST request including a ``username`` and ``password`` field. Use the returned cookie for subsequent requests.
+    If not logging in with HTTP Basic Auth, send a POST request including a ``username`` and ``password`` field.
+    Use the returned cookie for subsequent requests.
     """
 
 @blueprint.route("/login", defaults=dict(ext='html'), methods=("GET", "POST"))
 def login(ext):
-    if request.method == "POST" and ("username" in request.form or "username" in request.json) and ("password" in request.form or "password" in request.json):
+    if request.method == "POST" and ("username" in request.form or "username" in request.json) and \
+            ("password" in request.form or "password" in request.json):
 	username = (request.json or request.form)["username"]
 	password = (request.json or request.form)["password"]
         user = db.session.query(User).filter(User.name==username).first()
@@ -106,13 +110,15 @@ def login(ext):
                 return redirect("/login")
             remember = request.form.get("remember", "no") == "yes"
             if login_user(load_user_name(username), remember=remember):
-                if ext == 'json': return redirect(url_for('player_profiles.show_profile', player=username, ext=ext)), 303
+                if ext == 'json': return redirect(url_for('player_profiles.show_profile',
+                                                          player=username, ext=ext)), 303
                 flash("Logged in!")
                 return redirect(request.args.get("next", "/control"))
         if ext == 'html':
             return wpass()
     if ext == 'json':
-        return login_required(lambda: (redirect(url_for('player_profiles.show_profile', player=flask_login.current_user.name, ext=ext)), 303))()
+        return login_required(lambda: (redirect(url_for('player_profiles.show_profile',
+                                                        player=flask_login.current_user.name, ext=ext)), 303))()
     return render_template("login.html")
 
 @blueprint.route("/reauth", methods=["GET", "POST"])
