@@ -14,7 +14,7 @@ for blueprint in application.config["BLUEPRINTS"]:
 
 def run():
     application.run(
-        host=application.config.get('HOST', '127.0.0.1'),
-        port=application.config.get('PORT', '5000'))
+        host=application.config.get('HOST', None),
+        port=application.config.get('PORT', None))
 
 if __name__ == "__main__": run()

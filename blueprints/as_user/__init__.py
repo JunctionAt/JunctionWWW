@@ -38,8 +38,6 @@ def switch_user_delete_api(player, ext):
     Has the same effect as a PUT request to /as/``original_player_name``.json
     """
 
-
-
 @as_user.route('/as/<player>', defaults=dict(ext='html'), methods=('PUT','DELETE'))
 @login_required
 def switch_user(player, ext):
@@ -50,6 +48,7 @@ def switch_user(player, ext):
             try:
                 original_user = db.session.query(User).filter(User.name==session['original_user']).one()
             except NoResultFound:
+                # original_user not found? Ignore this.
                 raise KeyError()
             if not identity_roles(Identity(original_user.name)).can(Permission(RoleNeed('as_user'))):
                 # Edge case where a switched user's account no longer has as_user role
