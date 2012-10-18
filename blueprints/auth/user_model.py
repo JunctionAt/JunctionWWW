@@ -30,8 +30,9 @@ class Token(Base):
 
     __tablename__ = 'tokens'
     token = db.Column(db.CHAR(6), primary_key=True)
-    name = db.Column(db.String(16), index=True)
+    name = db.Column(db.String(16), db.ForeignKey(User.name), index=True)
     hash = db.Column(db.String(100), index=True)
     mail = db.Column(db.String(60))
     ip = db.Column(db.String(39))
     expires = db.Column(db.TIMESTAMP(), default=datetime.datetime.utcnow)
+    user = db.relation(User, backref='tokens')

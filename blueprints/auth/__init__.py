@@ -1,8 +1,8 @@
 """
-Authentication
---------------
+Authentication and Registration
+-------------------------------
 
-The API has resources that are only valid for an authenicated user.
+Some API resources are only accessible to authenicated users.
 A user needs a registered and verified Junction account to access these resources.
 The best way to maintain authentication during your session is to request a session cookie
 that you use for all requests. To get a session cookie, use the /login.json endpoint.
@@ -22,12 +22,15 @@ import flask_login
 from flask_login import (LoginManager, login_required as __login_required__,
                             login_user, logout_user, confirm_login, fresh_login_required)
 from functools import wraps
+from wtforms import Form, TextField, PasswordField, ValidationError
+from wtforms.validators import *
+import datetime
 import random
 import bcrypt
 import re
 
 from blueprints.base import db
-from blueprints.auth.user_model import User
+from blueprints.auth.user_model import User, Token
 from blueprints.api import apidoc
 
 subpath = ''
@@ -144,35 +147,46 @@ def logout(ext):
     flash("Logged out.")
     return redirect(url_for('auth.login', ext=ext))
 
-@blueprint.route("/register", methods=["GET", "POST"])
-def register():
-    if request.method == "POST":
-	if "username" in request.form and "password1" in request.form and "mail" in request.form:
-            if len(request.form.get('username', '')) <2:
-                flash(u"The Minecraft username was too short.")
-                return redirect("/register")
-            if len(request.form['username']) > 16:
-		flash(u"The Minecraft username was too long.")
-		return redirect("/register")
-            if not mailregex.match(request.form['mail']):
-                flash(u"Please enter a valid email adress.")
-                return redirect("/register")
-            playertoken = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(6))
-            hashed = bcrypt.hashpw(request.form['password1'], bcrypt.gensalt())
-            db.session.execute("INSERT INTO tokens (token, name, hash, mail, ip, expires) VALUES (:token, :name, :hash, :mail, :ip, now()+INTERVAL 10 MINUTE);",
-                            dict(token=playertoken,
-                                 name=request.form['username'],
-                                 hash=hashed,
-                                 mail=request.form['mail'],
-                                 ip=request.remote_addr))
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                abort(500)
-            return redirect("/activate")
-    else:
-        return render_template("register.html")
+@apidoc(__name__, blueprint, '/register.json', endpoint='register', defaults=dict(ext='json'), methods=('POST',))
+def register_api(ext):
+    """
+    Used to register a Junction account. The request must include a ``username`` and ``password`` field.
+    An optional ``mail`` field may contain the users e-mail address.
+    """
+
+class RegistrationForm(Form):
+    username = TextField('Username', [ Required(), Length(min=2, max=16) ])
+    mail = TextField('Email', description='Optional. Use for Gravatars.', validators=[ Optional(), Email() ])
+    password = PasswordField('Password', [ Required() ])
+    password_match = PasswordField('Verify Password', [ Optional() ])
+    def validate_username(form, field):
+        if db.session.query(User).filter(User.name==field.data).count():
+            raise ValidationError('This username is already registered.')
+
+@blueprint.route("/register", defaults=dict(ext='html'), methods=["GET", "POST"])
+def register(ext):
+    form = RegistrationForm(request.json or request.form)
+    if request.method == "POST" and form.validate():
+        token = Token()
+        token.token = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(6))
+        token.hash = bcrypt.hashpw(form.password.data, bcrypt.gensalt())
+        token.mail = form.mail.data
+        token.ip = request.remote_addr
+        token.expires = datetime.datetime.now + 10 * 60
+        db.session.add(token)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            abort(500)
+        return redirect(url_for('auth.activatetoken', ext=ext)), 303
+    if ext == 'json':
+        return jsonify(
+            fields=reduce(lambda errors, (name, field):
+                              errors if not len(field.errors) else errors + [dict(name=name, errors=field.errors)],
+                          form._fields.iteritems(),
+                          list())), 400
+    return render_template("register.html", form=form)
 
 @blueprint.route("/activate", methods=["GET", "POST"])
 def activatetoken():

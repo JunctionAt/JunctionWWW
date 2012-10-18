@@ -13,8 +13,9 @@
       <li><a href="#{{ title.lower().replace(' ', '-') }}">{{ title }}</a></li>
       {%- endfor %}
     </ol>
+    <hr>
     {{ doc }}
-    {% for module, doc, endpoints in blueprints: %}
+    {% for module, doc, endpoints in blueprints: -%}
     <hr>
     {{ doc }}
     <ul>

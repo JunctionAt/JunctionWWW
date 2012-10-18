@@ -11,11 +11,13 @@ resources with a 301 status code.
 Data provided by the user in a request body must be either form or JSON encoded.
 `JSON data must be sent with a` ``Content-Type: application/json`` `request header`.
 
+----
+
 Response Codes
 ==============
 
 The server will use status codes as abbreviated responses and consolidate data sent by redirecting to relevant
-endpoints upon success.  It is often adequate to act upon a response by its status code without following its
+endpoints upon success.  It is often adequate to act upon a response by its status code alone, without following its
 redirect or parsing the response body. The following section contains an explaination on how status codes are
 used by the API.
 
@@ -72,9 +74,10 @@ class apidoc(object):
         endpoints = __endpoints__.get(self.import_name, dict())
         __endpoints__[self.import_name] = endpoints
         if not self.import_name in __order__: __order__ += [self.import_name]
-        methods = endpoints.get(self.rule, list())
-        endpoints[self.rule] = methods
-        if not self.rule in __order__: __order__ += [self.rule]
+        rule = re.sub('<p>|</p>', '', to_html(re.sub(r'(<[^>]+>)', '``\\1``', self.rule))).strip()
+        methods = endpoints.get(rule, list())
+        endpoints[rule] = methods
+        if not rule in __order__: __order__ += [rule]
         methods += [self]
         if route:
             return self.blueprint.route(self.rule, **self.kwargs)(func)
