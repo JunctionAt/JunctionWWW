@@ -21,7 +21,7 @@
 {% endblock %}
 
 {% block accountnav %}
-	<p><a href="/login" data-skip-pjax="true">I already have an account</a></p>
+	<p><a href="{{ url_for('auth.login', ext='html') }}" data-skip-pjax="true">I already have an account</a></p>
 {% endblock %}
 
 {% from 'formhelpers.html' import render_field %}

@@ -1,53 +1,23 @@
 {% extends "base.html" %}
 
-{% block head %}
-	<script src="./static/verifynotify.js" type="text/javascript"></script>
-	<script>
-		$(document).ready(function() {
-			$("input[type='text']:first", document.forms[0]).focus();
-		});
-	</script>
-	<script>
-		$(function() {
-		    $('.password1').keyup(function() { 
-		        verify.check();
-		    });
-		});
-	</script>
-{% endblock %}
-
 {% block topleft %}
 	<p style="color: #cccccc;" >Register (Step 2 of 2)</p>
 {% endblock %}
 
 {% block accountnav %}
-	<p><a href="/login" data-skip-pjax="true">I already have an account</a></p>
+	<p><a href="{{ url_for('auth.login', ext='html') }}" data-skip-pjax="true">I already have an account</a></p>
 {% endblock %}
 
+{% from 'formhelpers.html' import render_field %}
+
 {% block content %}
-<form accept-charset="UTF-8" action="" method="post" name="registerform" >
-	  <input type="hidden" name="regstage" value="2">
-	  <p>Fire up Minecraft, and connect to the server <span style="white-space: nowrap;">"{{ auth_server }}"</span>.</p>
-          <br>
-          <p>You should be kicked, and given a Validation Token. <br>Please enter it below.</p>
-          <br>
-	  <div class="field text-field">
-	    <label for="user_session_login">Validation Token</label><br />
-	    <input class="text-field" name="token" size="30" type="text" />
-	  </div>
-	  <div class="actions" align="right">
-	    <input class="button" name="commit" type="submit" value="Finish registration" />
-	  </div>
+<form accept-charset="UTF-8" action="{{ url_for('auth.activatetoken', ext='html') }}" method="post">
+  <p>Fire up Minecraft, and connect to the server <span style="white-space: nowrap;">"{{ auth_server }}"</span>.</p>
+  <p>You should be kicked, and given a Validation Token. <br>Please enter it below.</p>
+  {{ render_field(form.password) }}
+  {{ render_field(form.token) }}
+  <div class="actions" align="right">
+    <input class="button" name="commit" type="submit" value="Finish registration" />
+  </div>
 </form>
-
-<script type="text/javascript">
-	verify = new verifynotify();
-	verify.field1 = document.registerform.password1;
-	verify.field2 = document.registerform.password2;
-	verify.result_id = "passwordstate";
-
-	verify.check();
-
-</script>
-
 {% endblock %}

@@ -4,7 +4,7 @@ As User
 
 Staff may use this endpoint to request cookie authorization as another user.
 
-As an alternative to using cookie authorization for users switching, a client may
+As an alternative to using cookie authorization for user switching, a client may
 include a ``From`` request header with the name of the player to act as during the
 context of the request.  Any URI can be requested using a ``From`` header.
 """
@@ -74,17 +74,17 @@ def switch_user(player, ext):
                 login_user(original_user)
                 raise KeyError()
         except KeyError:
-            Permission(RoleNeed('as_user')).require(403)
-            if request.method == 'DELETE': abort(403)
-            # User without original_user, or, user just switched to original_user with an additional switch necessary
-            if not to_user: to_user = db.session.query(User).filter(User.name==player).one()
-            if not player == to_user.name:
-                return redirect(redirect(url_for('as_user', player=to_user.name, ext=ext))), 301
-            response = make_response(redirect(url_for('player_profiles.show_profile', player=player, ext=ext)), 303)
-            response.set_cookie('original_user', current_user.name)
-            session['original_user'] = current_user.name
-            login_user(to_user)
-            return response
+            with Permission(RoleNeed('as_user')).require(403):
+                if request.method == 'DELETE': abort(403)
+                # User without original_user, or, user just switched to original_user with an additional switch necessary
+                if not to_user: to_user = db.session.query(User).filter(User.name==player).one()
+                if not player == to_user.name:
+                    return redirect(redirect(url_for('as_user', player=to_user.name, ext=ext))), 301
+                response = make_response(redirect(url_for('player_profiles.show_profile', player=player, ext=ext)), 303)
+                response.set_cookie('original_user', current_user.name)
+                session['original_user'] = current_user.name
+                login_user(to_user)
+                return response
     except NoResultFound:
         abort(404)
     except PermissionDenied:
@@ -109,13 +109,13 @@ def on_identity_changed(sender, identity, **_):
         player = request.headers['From']
         if current_user.name == player: return
         original_user = identity.user
-        with identity.require(Permission(RoleNeed('as_user'))): pass
-        user = db.session.query(User).filter(User.name==player).one()
-        login_user(user)
-        @after_this_request
-        def switch_back(response):
-            login_user(original_user)
-            return response
+        with identity.require(Permission(RoleNeed('as_user'))):
+            user = db.session.query(User).filter(User.name==player).one()
+            login_user(user)
+            @after_this_request
+            def switch_back(response):
+                login_user(original_user)
+                return response
     except NoResultFound:
         @after_this_request
         def get_response(response):

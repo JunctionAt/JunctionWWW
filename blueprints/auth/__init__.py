@@ -10,20 +10,22 @@ The /login.json endpoint will accept HTTP Basic Auth or request body data contai
 username and password.
 
 `Note:` All restricted resources will accept HTTP Basic Auth, however, using HTTP Basic Auth
-for multiple requests is not recommended. The server will attempt to verify your credentilas
+for multiple requests is not recommended. The server will attempt to verify your password
 on every Basic Auth request, which will cause the request to take longer than
 normal to complete. Only use Basic Auth once to obtain a session cookie if you are making
 multiple requests.
 """
 
 from flask import (Flask, Blueprint, request, render_template, redirect, url_for, flash,
-                   current_app, session, abort)
+                   current_app, session, abort, jsonify)
 import flask_login
 from flask_login import (LoginManager, login_required as __login_required__,
-                            login_user, logout_user, confirm_login, fresh_login_required)
+                         login_user, logout_user, confirm_login, fresh_login_required)
+from flask.ext.principal import Permission, RoleNeed
 from functools import wraps
 from wtforms import Form, TextField, PasswordField, ValidationError
 from wtforms.validators import *
+from sqlalchemy.orm.exc import *
 import datetime
 import random
 import bcrypt
@@ -44,7 +46,7 @@ login_manager = LoginManager()
 
 login_manager.login_view = "auth.login"
 login_manager.login_message = u"Please log in to access this page."
-login_manager.refresh_view = "reauth"
+login_manager.refresh_view = "auth.reauth"
 
 def login_required(f):
     """
@@ -72,9 +74,6 @@ def load_user(id):
 
 login_manager.setup_app(current_app, add_context_processor=True)
 
-def redirectd(path):
-    return redirect(subpath+path)
-
 def load_user_field(field, value):
     #result = db.session.execute("SELECT name, hash, mail, registered, verified FROM users WHERE %s=:value;"%field, dict(value=value)).fetchone()
     return db.session.query(User).filter(getattr(User,field)==value).first()
@@ -84,8 +83,33 @@ def load_user_name(name):
 	
 def wpass():
     flash(u"The username or password was incorrect.")
-    return redirectd("/login")
+    return redirect(url_for('auth.login', ext='html'))
 	
+@blueprint.route("/login", defaults=dict(ext='html'), methods=("GET", "POST"))
+def login(ext):
+    if request.method == "POST" and ("username" in request.form or "username" in request.json) and \
+            ("password" in request.form or "password" in request.json):
+	username = (request.json or request.form)["username"]
+	password = (request.json or request.form)["password"]
+        user = db.session.query(User).filter(User.name==username).first()
+        if user and user.hash == bcrypt.hashpw(password, user.hash):
+            if not user.verified:
+                if ext == 'json': abort(403)
+                flash(u"Please check your mail.")
+                return redirect(url_for('auth.login', ext='html'))
+            remember = request.form.get("remember", "no") == "yes"
+            if login_user(load_user_name(username), remember=remember):
+                if ext == 'json': return redirect(url_for('player_profiles.show_profile',
+                                                          player=username, ext=ext)), 303
+                flash("Logged in!")
+                return redirect(request.args.get("next", url_for('auth.controlpanel')))
+        if ext == 'html':
+            return wpass()
+    if ext == 'json':
+        return login_required(lambda: (redirect(url_for('player_profiles.show_profile',
+                                                        player=flask_login.current_user.name, ext=ext)), 303))()
+    return render_template("login.html")
+
 @apidoc(__name__, blueprint, '/login.json', endpoint='login', defaults=dict(ext='json'), methods=('GET',))
 def login_get_api(ext):
     """
@@ -99,46 +123,15 @@ def login_post_api(ext):
     Use the returned cookie for subsequent requests.
     """
 
-@blueprint.route("/login", defaults=dict(ext='html'), methods=("GET", "POST"))
-def login(ext):
-    if request.method == "POST" and ("username" in request.form or "username" in request.json) and \
-            ("password" in request.form or "password" in request.json):
-	username = (request.json or request.form)["username"]
-	password = (request.json or request.form)["password"]
-        user = db.session.query(User).filter(User.name==username).first()
-        if user and user.hash == bcrypt.hashpw(password, user.hash):
-            if not user.verified:
-                if ext == 'json': abort(403)
-                flash(u"Please check your mail.")
-                return redirect("/login")
-            remember = request.form.get("remember", "no") == "yes"
-            if login_user(load_user_name(username), remember=remember):
-                if ext == 'json': return redirect(url_for('player_profiles.show_profile',
-                                                          player=username, ext=ext)), 303
-                flash("Logged in!")
-                return redirect(request.args.get("next", "/control"))
-        if ext == 'html':
-            return wpass()
-    if ext == 'json':
-        return login_required(lambda: (redirect(url_for('player_profiles.show_profile',
-                                                        player=flask_login.current_user.name, ext=ext)), 303))()
-    return render_template("login.html")
-
 @blueprint.route("/reauth", methods=["GET", "POST"])
 @login_required
 def reauth():
     if request.method == "POST":
 	confirm_login()
 	flash(u"Reauthenticated.")
-	return redirect(request.args.get("next") or "/control")
+	return redirect(request.args.get("next", url_for('auth.controlpanel')))
     return render_template("reauth.html")
 
-
-@apidoc(__name__, blueprint, '/logout.json', endpoint='logout', defaults=dict(ext='json'))
-def logout_api(ext):
-    """
-    Clears login session cookie.
-    """
 
 @blueprint.route("/logout", defaults=dict(ext='html'))
 def logout(ext):
@@ -147,11 +140,10 @@ def logout(ext):
     flash("Logged out.")
     return redirect(url_for('auth.login', ext=ext))
 
-@apidoc(__name__, blueprint, '/register.json', endpoint='register', defaults=dict(ext='json'), methods=('POST',))
-def register_api(ext):
+@apidoc(__name__, blueprint, '/logout.json', endpoint='logout', defaults=dict(ext='json'))
+def logout_api(ext):
     """
-    Used to register a Junction account. The request must include a ``username`` and ``password`` field.
-    An optional ``mail`` field may contain the users e-mail address.
+    Clears login session cookie.
     """
 
 class RegistrationForm(Form):
@@ -163,6 +155,13 @@ class RegistrationForm(Form):
         if db.session.query(User).filter(User.name==field.data).count():
             raise ValidationError('This username is already registered.')
 
+@apidoc(__name__, blueprint, '/register.json', endpoint='register', defaults=dict(ext='json'), methods=('POST',))
+def register_api(ext):
+    """
+    Used to register a Junction account. The request must include a ``username`` and ``password`` field.
+    An optional ``mail`` field may contain the users e-mail address.
+    """
+
 @blueprint.route("/register", defaults=dict(ext='html'), methods=["GET", "POST"])
 def register(ext):
     form = RegistrationForm(request.json or request.form)
@@ -172,7 +171,7 @@ def register(ext):
         token.hash = bcrypt.hashpw(form.password.data, bcrypt.gensalt())
         token.mail = form.mail.data
         token.ip = request.remote_addr
-        token.expires = datetime.datetime.now + 10 * 60
+        token.expires = datetime.datetime.utcnownow + 10 * 60
         db.session.add(token)
         try:
             db.session.commit()
@@ -188,27 +187,73 @@ def register(ext):
                           list())), 400
     return render_template("register.html", form=form)
 
-@blueprint.route("/activate", methods=["GET", "POST"])
-def activatetoken():
-    if request.method == "POST":
-        result = db.session.execute("SELECT name, hash, mail FROM tokens WHERE token=:token AND expires>NOW();", dict(token=str(request.form['token']))).fetchone()
-        if result is None:
-            flash(u"Validation token invalid. Make sure you entered the right one, and that you didn't use more then 10 minutes since the registration.")
-            return render_template("register.html")
-        db.session.execute("DELETE FROM tokens WHERE token=:token;", dict(token=(request.form['token'])))
-        if not db.session.execute("INSERT INTO users (name, hash, mail, registered, verified) VALUES (:name, :hash, :mail, NOW(), TRUE);",
-                               dict(name=result[0], hash=result[1], mail=result[2])):
-            flash(u"An internal error occured. If this continues happening, please contact staff at contact@junction.at")
-            return redirect("/login")
+class ActivationForm(Form):
+    """Form to verify user by token."""
+    
+    token = TextField('Token', [ Required(), Length(min=6,max=6) ])
+    password = PasswordField('Password', [ Required() ])
+    
+    def validate_password(form, field):
+        try:
+            setattr(
+                form, 'token',
+                db.session.query(Token) \
+                    .filter(Token.token==form._fields['token'].data) \
+                    .filter(Token.expires>=datetime.datetime.utcnow).one())
+            if not bcrypt.hashpw(field.data, token.hash):
+                raise ValidationError("Incorrect password.")
+        except KeyError: pass
+        except NoResultFound: pass
+            
+    def validate_token(form, field):
+        if not hasattr(form, 'token'):
+            raise ValidationError("Invalid token. Please note that activation tokens are only valid for 10 minutes.")
+
+@apidoc(__name__, blueprint, '/activate.json', endpoint='activatetoken', defaults=dict(ext='json'), methods=('POST',))
+def activatetoken_api(ext):
+    """
+    Used to activate an account with the token generated during the registration process. A client must send a ``password``, and ``token`` field.
+    """
+
+@blueprint.route("/activate", defaults=dict(ext='html'), methods=["GET", "POST"])
+def activatetoken(ext):
+    form = ActivationForm(request.json or request.form)
+    if request.method == "POST" and form.validate():
+        user = User()
+        user.name = form.token.name
+        user.hash = form.token.password
+        user.mail = form.token.mail
+        db.session.add(user)
+        db.session.remove(form.token)
         try:
             db.session.commit()
         except:
             db.session.rollback()
             abort(500)
-        flash(u"Registration sucessful! You can now log in with your account.")
-        return redirect("/login")
-    else:
-	return render_template("verify.html", auth_server=current_app.config.get('AUTH_SERVER', 'auth.junction.at'))
+        if ext == 'html': flash(u"Registration sucessful! You can now log in with your account.")
+        return redirect(url_for('auth.login'), ext=ext)
+    if ext == 'json':
+        return jsonify(
+            fields=reduce(lambda errors, (name, field):
+                              errors if not len(field.errors) else errors + [dict(name=name, errors=field.errors)],
+                          form._fields.iteritems(),
+                          list())), 400
+    return render_template("verify.html", form=form, auth_server=current_app.config.get('AUTH_SERVER', 'auth.junction.at'))
+
+@apidoc(__name__, blueprint, '/token/<player>.json', defaults=dict(ext='json'))
+@login_required
+def get_token(player, ext):
+    """
+    Used by staff to get the activation cookie for ``player``.
+    """
+
+    with Permission(RoleNeed('get_token')).require(403):
+        try:
+            return jsonify(token=db.session.query(Token) \
+                               .filter(Token.name==player) \
+                               .filter(Token.expires>=datetime.datetime.utcnow).one().token)
+        except NoResultFound:
+            abort(404)
 
 @blueprint.route("/control", methods=["GET", "POST"])
 @fresh_login_required

@@ -80,25 +80,23 @@ GroupRolesForm = model_form(Group, db.session, only=['roles'])
 @login_required
 def edit_player_roles(player):
     try:
-        with Permission(RoleNeed('edit_roles')).require(): pass
-        user = db.session.query(User).filter(User.name==player).one()
-        if not user.name == player:
-            redirect(url_for('roles.edit_player_roles', player=user.name)), 301
-        form = UserRolesForm(request.form, user, only=['roles'])
-        if request.method == 'POST':
-            form.populate_obj(user)
-            db.session.add(user)
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                abort(500)
-            flash('Saved')
-        return render_template('edit_roles.html', form=form, name=user.name, action=url_for('roles.edit_player_roles', player=user.name))
+        with Permission(RoleNeed('edit_roles')).require(403):
+            user = db.session.query(User).filter(User.name==player).one()
+            if not user.name == player:
+                redirect(url_for('roles.edit_player_roles', player=user.name)), 301
+            form = UserRolesForm(request.form, user, only=['roles'])
+            if request.method == 'POST':
+                form.populate_obj(user)
+                db.session.add(user)
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    abort(500)
+                flash('Saved')
+            return render_template('edit_roles.html', form=form, name=user.name, action=url_for('roles.edit_player_roles', player=user.name))
     except NoResultFound:
         abort(404)
-    except PermissionDenied:
-        abort(403)
 
 @roles.route('/<server>/group/<group>/roles', methods=('GET','POST'))
 @login_required
@@ -109,20 +107,20 @@ def edit_group_roles(server, group):
     except KeyError:
         abort(404)
     try:
-        with Permission(RoleNeed('edit_roles')).require(403): pass
-        group = db.session.query(Group).filter(Group.id=="%s.%s"%(self.server, name)).one()
-        if not group.name == name:
-            redirect(url_for('roles.edit_group_roles', server=server, group=group.name)), 301
-        form = GroupRolesForm(request.form, group)
-        if request.method == 'POST' and form.validate():
-            form.populate_obj(group)
-            db.session.add(group)
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                abort(500)
-            flash('Saved')
-        return render_template('edit_roles.html', form=form, name=group.name, action=url_for('roles.edit_group_roles', server=server, group=group.name))
+        with Permission(RoleNeed('edit_roles')).require(403):
+            group = db.session.query(Group).filter(Group.id=="%s.%s"%(self.server, name)).one()
+            if not group.name == name:
+                redirect(url_for('roles.edit_group_roles', server=server, group=group.name)), 301
+            form = GroupRolesForm(request.form, group)
+            if request.method == 'POST' and form.validate():
+                form.populate_obj(group)
+                db.session.add(group)
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    abort(500)
+                flash('Saved')
+            return render_template('edit_roles.html', form=form, name=group.name, action=url_for('roles.edit_group_roles', server=server, group=group.name))
     except NoResultFound:
         abort(404)
