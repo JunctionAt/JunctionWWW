@@ -19,6 +19,6 @@ If you want to create all the tables (at least the ones wiggity has added models
 
 Launch as a usual flask app:
 
-    $ python app.py
+    $ sudo -u www-data python app.py
      * Running on http://127.0.0.1:9001/
      * Restarting with reloader
