@@ -25,7 +25,11 @@
   {%- endif %}
 
   {% if profile.display_link: -%}
-  <span class=profile-link><a href={{ profile.display_link[0] }}>{{ profile.display_link[1] }}</a></span><br>
+  <span class=profile-link><a href="{{ profile.display_link[0] }}">{{ profile.display_link[1] }}</a></span><br>
+  {%- endif %}
+
+  {% if profile.reddit_name: -%}
+  <span class=profile-reddit-name>Reddit: <a href="http://reddit.com/user/{{ profile.reddit_name }}">{{ profile.reddit_name }}</a></span><br>
   {%- endif %}
 
 </div>

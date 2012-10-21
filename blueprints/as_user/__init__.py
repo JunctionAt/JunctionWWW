@@ -5,8 +5,8 @@ As User
 Staff may use this endpoint to request cookie authorization as another user.
 
 As an alternative to using cookie authorization for user switching, a client may
-include a ``From`` request header with the name of the player to act as during the
-context of the request.  Any URI can be requested using a ``From`` header.
+include an ``X-From`` request header with the name of the player to act as during the
+context of the request.  Any URI can be requested using an ``X-From`` header.
 """
 
 from flask import Blueprint, current_app, abort, request, render_template, url_for, session, make_response, g, redirect
@@ -106,7 +106,7 @@ def on_identity_changed(sender, identity, **_):
     """
     
     try:
-        player = request.headers['From']
+        player = request.headers['X-From']
         if current_user.name == player: return
         original_user = identity.user
         with identity.require(Permission(RoleNeed('as_user'))):

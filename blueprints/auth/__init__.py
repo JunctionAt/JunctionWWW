@@ -171,7 +171,7 @@ def register(ext):
         token.hash = bcrypt.hashpw(form.password.data, bcrypt.gensalt())
         token.mail = form.mail.data
         token.ip = request.remote_addr
-        token.expires = datetime.datetime.utcnownow + 10 * 60
+        token.expires = datetime.datetime.utcnow + 10 * 60
         db.session.add(token)
         try:
             db.session.commit()
@@ -244,7 +244,7 @@ def activatetoken(ext):
 @login_required
 def get_token(player, ext):
     """
-    Used by staff to get the activation cookie for ``player``.
+    Used by staff to get the activation token for ``player``.
     """
 
     with Permission(RoleNeed('get_token')).require(403):

@@ -30,6 +30,7 @@ class Profile(Base, object):
     location = db.Column(db.String(64))
     tagline = db.Column(db.String(256))
     link = db.Column(db.String(256))
+    reddit_name = db.Column(db.String(20))
     show_stats = db.Column(db.String(64))
     hide_group_invitations = db.Column(db.Boolean)
     default = False
@@ -77,9 +78,9 @@ class Profile(Base, object):
     @property
     def profile_stats(self):
         """Return the stats specified in the player's show_stats field and with empty servers removed"""
-        stats = filter(lambda (name, stats):
-                           len(stats) and (not self.show_stats or name in self.show_stats),
-                       self.stats.iteritems())
+        stats = self.stats
+        if not self.user.is_anonymous():
+            stats = filter(lambda (name, stats): name in self.show_stats, stats.iteritems())
         if not len(stats): return None
         return dict(stats)
 
@@ -147,6 +148,7 @@ def show_profile(player, ext):
         if profile.realname: p['realname']=profile.realname
         if profile.location: p['location']=profile.location
         if profile.tagline: p['tagline']=profile.tagline
+        if profile.reddit_name: p['reddit_name']=profile.reddit_name
         if profile.link: p['link']=profile.link
         return jsonify({profile.name:p})
     abort(404)
@@ -170,6 +172,7 @@ def edit_profile(ext):
         profile.tagline = form._fields['tagline'].data or profile.tagline
         profile.location = form._fields['location'].data or profile.location
         profile.link = form._fields['link'].data or profile.link
+        profile.reddit_name = form._fields['reddit_name'].data or profile.reddit_name
         profile.hide_group_invitations = form._fields['hide_group_invitations'].data or profile.hide_group_invitations
         if form._fields['show_stats']:
             profile.show_stats = ' '.join(re.split(r'[,\s]+', form._fields['show_stats'].data.lower()))
@@ -194,6 +197,7 @@ def edit_profile(ext):
                     tagline=profile.tagline,
                     link=profile.link,
                     show_stats=profile.show_stats,
+                    reddit_name=profile.reddit_name,
                     hide_group_invitations=profile.hide_group_invitations))
     return render_template('edit_profile.html', form=form)
 
@@ -213,4 +217,6 @@ ProfileForm = model_form(
         show_stats=dict(
             label='Displayed stats',
             description="You can remove any or all servers from this list to hide them on your profile.",
-            validators=[ Optional(), validate_show_stats ])))
+            validators=[ Optional(), validate_show_stats ]),
+        reddit_name=dict(
+            validators=[ Optional(), Length(min=3, max=20) ])))

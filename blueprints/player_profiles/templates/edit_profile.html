@@ -12,6 +12,7 @@
   {{ render_field(form.realname) }}
   {{ render_field(form.location) }}
   {{ render_field(form.link) }}
+  {{ render_field(form.reddit_name) }} <a href="http://www.reddit.com/message/compose?to=JunctionBot&subject=flair&message={{ current_user.name }}">Verify subreddit flair</a>
   {{ render_field(form.show_stats) }}
   {{ render_field(form.hide_group_invitations) }}
   <p class=profile-submit><input type=submit value=Save></p>
