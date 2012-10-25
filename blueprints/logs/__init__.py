@@ -1,8 +1,7 @@
 import flask
 from flask import Blueprint, abort
-from flask.ext.login import login_required
 from flask.ext.principal import Permission, RoleNeed
-
+from blueprints.auth import login_required
 
 logs = Blueprint('logs', __name__, template_folder="templates")
 
