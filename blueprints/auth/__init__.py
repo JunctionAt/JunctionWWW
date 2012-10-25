@@ -64,6 +64,7 @@ def login_required(f):
                         not login_user(user, remember=False, force=True):
                     raise Exception()
             except:
+                if request.path[-5:] == '.json': abort(403)
                 return __login_required__(f)(*args, **kwargs)
         return f(*args, **kwargs)
     return decorated
