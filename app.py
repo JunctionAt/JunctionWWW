@@ -1,4 +1,5 @@
 from flask import Flask
+from reverse_proxied import ReverseProxied
 
 application = Flask(__name__)
 
@@ -12,6 +13,8 @@ with application.app_context():
 for blueprint in application.config["BLUEPRINTS"]:
     application.register_blueprint(**blueprint)
 
+ReverseProxied(application)
+    
 def run():
     application.run(
         host=application.config.get('HOST', None),
