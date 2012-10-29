@@ -1,4 +1,5 @@
 import time
+import requests
 
 #If a feature is unsupported, return None
 
@@ -16,8 +17,17 @@ def getbans(user):
               - O string : server	
           -   ...
     """
-    time.sleep(2)
-    return {"bancount" : 0}
+    response = {"bancount" : 0, "bans" : []}
+
+    r = requests.get("http://minebans.com/feed/player_bans.json?player_name=%s" % (user,))
+    j = r.json
+    for ban in j:
+        convban = {}
+        convban['reason'] = "%s: %s" % (ban['reason'], ban['long_reason'])
+        convban['server'] = ban['server_name']
+        response['bans'].append(convban)
+        response['bancount'] += 1
+    return response
 
 def getipbans(ip):
     """
@@ -33,7 +43,7 @@ def getipbans(ip):
               - O string : server
           -   ...
     """
-    return {"bancount" : 0}
+    return None
 
 def getnotes(user):
     """
@@ -50,13 +60,13 @@ def getnotes(user):
               - O string : note
           -   ...
     """
-    return {"notecount" : 0}
+    return None
 
 def fulllookup(user):
     """
     Should return a dict containing info about the user.
     It should be containing the following info:
-      -   int : bancount
+      -   int : bancount - None if unsupported
       - O string : uid
       - O int : playerrep - 0-10, the higher the better
       - O string : error - if this is returned, it is fine to not return anything else
@@ -67,14 +77,14 @@ def fulllookup(user):
               - O string : reason
               - O string : server
           -   ...  
-      -   int : altcount
+      -   int : altcount - None if unsupported
       - O array : altlist
           -   dict - info about the alt
               -   string : username
               - O string : uid
               - O int : playerrep
           -   ...
-      -   int : notecount
+      -   int : notecount - None if unsupported
       - O array : notelist
           -   dict - note
               - O string : uid
@@ -83,5 +93,5 @@ def fulllookup(user):
               - O string : note
           -   ...
     """
-    return {"bancount" : 0, "altcount" : 0, "notecount" : 0}
+    return {"bancount" : 0, "altcount" : None, "notecount" : None}
 
