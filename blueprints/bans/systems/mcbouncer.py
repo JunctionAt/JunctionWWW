@@ -21,7 +21,7 @@ def getbans(user):
     """
     response = {"bancount" : 0, "bans" : []}
 
-    r = requests.get("http://www.mcbouncer.com/api/getBans/9eadd4b46859e9b54a93880e9e3506dd/%s/0/-1" % (user,))
+    r = requests.get("http://www.mcbouncer.com/api/getBans/%s/%s/0/-1" % (apikey, user,))
     j = r.json
     for ban in j['data']:
         convban = {}
@@ -63,7 +63,19 @@ def getnotes(user):
               - O string : note
           -   ...
     """
-    return None
+    response = {"notecount" : 0, "notes" : []}
+
+    r = requests.get("http://www.mcbouncer.com/api/getNotes/%s/%s/0/-1" % (apikey, user,))
+    j = r.json
+    for note in j['data']:
+        convnote = {}
+        convnote['uid'] = note['noteid']
+        convnote['note'] = note['note']
+        convnote['server'] = note['server']
+        convnote['issuer'] = note['issuer']
+        response['notes'].append(convnote)
+        response['notecount'] += 1
+    return response
 
 def fulllookup(user):
     """

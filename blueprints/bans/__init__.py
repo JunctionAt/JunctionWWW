@@ -37,7 +37,7 @@ def mergedata(retqueue):
                 response['notecount'] = 0
             for note in ret['notes']:
                 note['system'] = sysname
-                response['notes'].append(ban)
+                response['notes'].append(note)
                 response['notecount'] += 1
 
     return response
@@ -51,7 +51,8 @@ class ReqThread(Thread):
 
     def run(self):
         ret = self.func()
-        ret['_sysname'] = self.sysname
+        if ret != None:
+            ret['_sysname'] = self.sysname
         self.retqueue.put(ret)
 
 @bans.route('/bans/getbans.json')
@@ -71,6 +72,46 @@ def getbans():
         t.join()
 
     return json.dumps(mergedata(retqueue))
+
+@bans.route('/bans/getnotes.json')
+def getnotes():
+    args = request.args
+    if args.has_key('username') and verifyusername(args['username']):
+        username = args['username']
+    else:
+        return json.dumps({'error' : 'The username provided was invalid'})
+    retqueue = Queue.Queue()
+    threads = []
+    for key, value in bansystems.items():
+        t = ReqThread(lambda: value.getnotes(username), retqueue, key)
+        t.start()
+        threads.append(t)
+    for t in threads:
+        t.join()
+
+    return json.dumps(mergedata(retqueue))
+
+@bans.route('/bans/fulllookup.json')
+def fulllookup():
+    args = request.args
+    if args.has_key('username') and verifyusername(args['username']):
+        username = args['username']
+    else:
+        return json.dumps({'error' : 'The username provided was invalid'})
+    retqueue = Queue.Queue()
+    threads = []
+    for key, value in bansystems.items():
+        t = ReqThread(lambda: value.getnotes(username), retqueue, key)
+        t.start()
+        threads.append(t)
+        t = ReqThread(lambda: value.getbans(username), retqueue, key)
+        t.start()
+        threads.append(t)
+    for t in threads:
+        t.join()
+
+    return json.dumps(mergedata(retqueue))
+
 
 
 #methods = {"getbans" : getbans}
