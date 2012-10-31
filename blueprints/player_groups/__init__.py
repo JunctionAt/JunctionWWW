@@ -670,6 +670,38 @@ def manage_owners(server, group, player, ext):
     except NoResultFound:
         abort(404)
 
+@apidoc(__name__, player_groups, '/<server>/groups/membership/<player>.json', defaults=dict(ext='json'))
+def membership(server, player, ext):
+    """ Get all groups ``player`` is a member of. """
+    try:
+        self = player_groups[server]
+    except KeyError:
+        abort(404)
+    try:
+        user = session.query(User).filter(User.name==player).one()
+        if not user.name == player:
+            # Redirect to preferred caps
+            return redirect(url_for('player_groups.membership', server=server, player=user.name, ext=ext)), 301
+        return jsonify(groups=reduce(lambda groups, group: groups + [group.id], user.groups_member, []))
+    except NoResultFound:
+        abort(404)
+
+@apidoc(__name__, player_groups, '/<server>/groups/ownership/<player>.json', defaults=dict(ext='json'))
+def ownership(server, player, ext):
+    """ Get all groups ``player`` is an owner of. """
+    try:
+        self = player_groups[server]
+    except KeyError:
+        abort(404)
+    try:
+        user = session.query(User).filter(User.name==player).one()
+        if not user.name == player:
+            # Redirect to preferred caps
+            return redirect(url_for('player_groups.membership', server=server, player=user.name, ext=ext)), 301
+        return jsonify(groups=reduce(lambda groups, group: groups + [group.id[len(server)+1:]], user.groups_owner, []))
+    except NoResultFound:
+        abort(404)
+
 @apidoc(__name__, player_groups, '/<server>/groups/invitations.json', endpoint='show_invitations', defaults=dict(ext='json'))
 def show_invitations_api(server, group, ext):
     """List the current player's group invitations on ``server``.
