@@ -131,6 +131,7 @@ def show_profile(player, ext):
     try:
         profile = session.query(User).filter(User.name==player).one().profile
     except NoResultFound:
+        if ext == "json": abort(404)
         # Look for stats
         stat = reduce(lambda stat, (server, endpoint):
                           stat or session.query(endpoint.model).filter(endpoint.model.player==player).first(),
