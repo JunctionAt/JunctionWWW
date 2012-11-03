@@ -25,6 +25,7 @@ from flask.ext.principal import Permission, RoleNeed
 from functools import wraps
 from wtforms import Form, TextField, PasswordField, ValidationError
 from wtforms.validators import *
+from sqlalchemy.sql.operators import ColumnOperators
 from sqlalchemy.orm.exc import *
 import datetime
 import random
@@ -150,7 +151,7 @@ def logout_api(ext):
 class RegistrationForm(Form):
     username = TextField('Username', [ Required(), Length(min=2, max=16) ])
     mail = TextField('Email', description='Optional. Use for Gravatars.', validators=[ Optional(), Email() ])
-    password = PasswordField('Password', [ Required() ])
+    password = PasswordField('Password', [ Required(), Length(min=8) ])
     password_match = PasswordField('Verify Password', [ Optional() ])
     def validate_username(form, field):
         if db.session.query(User).filter(User.name==field.data).count():
@@ -168,11 +169,12 @@ def register(ext):
     form = RegistrationForm(request.json or request.form)
     if request.method == "POST" and form.validate():
         token = Token()
+        token.name = form.username.data
         token.token = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(6))
         token.hash = bcrypt.hashpw(form.password.data, bcrypt.gensalt())
         token.mail = form.mail.data
         token.ip = request.remote_addr
-        token.expires = datetime.datetime.utcnow + 10 * 60
+        token.expires = datetime.datetime.utcnow() + datetime.timedelta(0, 10 * 60)
         db.session.add(token)
         try:
             db.session.commit()
@@ -199,15 +201,14 @@ class ActivationForm(Form):
             setattr(
                 form, 'token',
                 db.session.query(Token) \
-                    .filter(Token.token==form._fields['token'].data) \
-                    .filter(Token.expires>=datetime.datetime.utcnow).one())
-            if not bcrypt.hashpw(field.data, token.hash):
+                    .filter(Token.token==form.token.data) \
+                    .filter(Token.expires>=datetime.datetime.utcnow()).order_by(ColumnOperators.desc(Token.expires)).first())
+            if not form.token or not bcrypt.hashpw(field.data, form.token.hash):
                 raise ValidationError("Incorrect password.")
         except KeyError: pass
-        except NoResultFound: pass
             
     def validate_token(form, field):
-        if not hasattr(form, 'token'):
+        if not form.token:
             raise ValidationError("Invalid token. Please note that activation tokens are only valid for 10 minutes.")
 
 @apidoc(__name__, blueprint, '/activate.json', endpoint='activatetoken', defaults=dict(ext='json'), methods=('POST',))
@@ -222,17 +223,18 @@ def activatetoken(ext):
     if request.method == "POST" and form.validate():
         user = User()
         user.name = form.token.name
-        user.hash = form.token.password
+        user.hash = form.token.hash
         user.mail = form.token.mail
+        user.verified = True
         db.session.add(user)
-        db.session.remove(form.token)
+        db.session.delete(form.token)
         try:
             db.session.commit()
         except:
             db.session.rollback()
             abort(500)
         if ext == 'html': flash(u"Registration sucessful! You can now log in with your account.")
-        return redirect(url_for('auth.login'), ext=ext)
+        return redirect(url_for('auth.login', ext=ext)), 303
     if ext == 'json':
         return jsonify(
             fields=reduce(lambda errors, (name, field):
@@ -252,7 +254,7 @@ def get_token(player, ext):
         try:
             return jsonify(token=db.session.query(Token) \
                                .filter(Token.name==player) \
-                               .filter(Token.expires>=datetime.datetime.utcnow).one().token)
+                               .filter(Token.expires>=datetime.datetime.utcnow()).order_by(ColumnOperators.desc(Token.expires)).first().token)
         except NoResultFound:
             abort(404)
 
