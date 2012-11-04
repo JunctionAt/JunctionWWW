@@ -172,11 +172,10 @@ class Endpoint(object):
     def validate_display_name(self, form, field):
         """For registration form"""
 
-        display_name = re.sub(r'\s+', ' ', field.data.strip())
-        name = re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', display_name))
-        if name == '_':
+        if not re.match('[a-zA-Z0-9]', field.data):
             raise ValidationError("Your %s name must include at least letter or number."%self.group)
-        id = "%s.%s"%(self.server, name)
+        display_name = re.sub(r'\s+', ' ', field.data.strip())
+        id = "%s.%s"%(self.server, re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', display_name)))
         if session.query(Group).filter(Group.id==id).count() > 0:
             raise ValidationError("%s name not available."%self.group.capitalize())
 
@@ -364,8 +363,8 @@ def edit_group(server, group, ext):
             return redirect(url_for('player_groups.edit_group', server=server, group=group.name, ext=ext)), 301
         user = flask_login.current_user
         if not user in group.owners: abort(403)
-        form = GroupEditForm(MultiDict(request.json) or request.form, group, csrf_enabled=False)
-        if request.method == 'POST' and form.validate() & validate_members(form, user):
+        form = self.GroupEditForm(MultiDict(request.json) or request.form, group, csrf_enabled=False)
+        if request.method == 'POST' and form.validate() & self.validate_members(form, user):
             group.tagline = form._fields['tagline'].data or group.tagline
             group.link = form._fields['link'].data or group.link
             group.info = form._fields['info'].data or group.info
@@ -755,8 +754,8 @@ def register_group(server, ext):
         abort(404)
     group = Group()
     user = flask_login.current_user
-    form = GroupRegisterForm(MultiDict(request.json) or request.form, group, csrf_enabled=False)
-    if request.method == 'POST' and form.validate() & validate_members(form, user):
+    form = self.GroupRegisterForm(MultiDict(request.json) or request.form, group, csrf_enabled=False)
+    if request.method == 'POST' and form.validate() & self.validate_members(form, user):
         form.populate_obj(group)
         # Make ownership and membership mutually exclusive
         group.invited_owners = list(set(group.invited_owners + [ user ]))
