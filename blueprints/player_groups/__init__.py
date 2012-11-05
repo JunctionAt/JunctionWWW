@@ -735,6 +735,24 @@ def show_invitations(server, ext):
         return jsonify(invitations=n)
     return render_template('show_invitations.html', endpoint=self)
 
+@apidoc(__name__, player_groups, '/<server>/groups/names.json', defaults=dict(ext='json'))
+def show_names_api(server, ext):
+    """Returns a map of the names used by ``server`` when referring to groups, members and owners."""
+    try:
+        self = player_groups[server]
+    except KeyError:
+        abort(404)
+    return jsonify(names=dict(
+        group=self.group,
+        a_group=self.a_group,
+        groups=self.groups,
+        member=self.member,
+        a_member=self.a_member,
+        members=self.members,
+        owner=self.owner,
+        a_owner=self.a_owner,
+        owners=self.owners))
+
 @apidoc(__name__, player_groups, '/<server>/groups/register.json', endpoint='register_group', defaults=dict(ext='json'), methods=('POST',))
 def register_group_api(server, group, ext):
     """
