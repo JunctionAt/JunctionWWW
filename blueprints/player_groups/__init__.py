@@ -713,7 +713,8 @@ def show_invitations_api(server, group, ext):
            "invitations": [
                {
                    "name": "Moo",
-                   "role": "citizen"
+                   "role": "citizen",
+                   "url": "/pve/city/Moo.json"
                }
            ]
        }
@@ -729,9 +730,17 @@ def show_invitations(server, ext):
     if ext == 'json':
         n=[]
         owner = self.invited_owner_of(flask_login.current_user)
-        if len(owner): n += map(lambda group: dict(role=self.owner, name=group.name), owner)
+        if len(owner): n += map(lambda group: dict(
+                role=self.owner,
+                name=group.name,
+                url=url_for('player_groups.show_group', server=self.server, group=group.id, ext='json')
+                ), owner)
         member = self.invited_member_of(flask_login.current_user)
-        if len(member): n += map(lambda group: dict(role=self.member, name=group.name), member)
+        if len(member): n += map(lambda group: dict(
+                role=self.member,
+                name=group.name,
+                url=url_for('player_groups.show_group', server=self.server, group=group.id, ext='json')
+                ), member)
         return jsonify(invitations=n)
     return render_template('show_invitations.html', endpoint=self)
 
