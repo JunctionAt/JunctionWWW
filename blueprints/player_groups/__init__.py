@@ -857,7 +857,7 @@ def manage_notifications(group):
                 from_="%s.%s"%(group.server,group.name),
                 message="You have been invited to join [%s](%s)."% \
                     (group.display_name,
-                     url_for('player_groups.join_group'%group.server, name=group.name))))
+                     url_for('player_groups.join_group', server=group.server, group=group.name, ext='html'))))
 
 @notification(name='player_groups')
 def show_notifications(notifications):
@@ -875,13 +875,14 @@ def show_notifications(notifications):
         elif not flask_login.current_user.profile.hide_group_invitations:
             # Collapse invitations by server
             for server in player_groups.endpoints.keys():
-                if request.path == url_for('player_groups.show_invitations'%server): continue
+                if request.path == url_for('player_groups.show_invitations', server=server): continue
                 server_notifications = filter(lambda notification: notification.from_.startswith("%s."%server), notifications)
                 if len(server_notifications) > 1:
                     notify('player_notifications', Notification(
                             message="You have been invited to join [%d %s](%s)."%
-                            (len(server_notifications), endpoint.groups, url_for('player_groups.show_invitations'%endpoint.name))))
+                            (len(server_notifications), endpoint.groups, url_for('player_groups.show_invitations',server=endpoint.name))))
                 elif len(server_notifications) == 1:
-                    if not request.path == url_for('player_groups.join_group'%server,
-                                                   name=server_notifications[0].from_.split('.')[1]):
+                    if not request.path == url_for('player_groups.join_group', server=server,
+                                                   group=server_notifications[0].from_.split('.')[1],
+                                                   ext='html'):
                         notify('player_notifications', server_notifications[0])
