@@ -417,7 +417,7 @@ def join_group_delete_api(server, group, ext):
 @login_required
 def join_group(server, group, ext):
     try:
-        self = player_goups[server]
+        self = player_groups[server]
     except KeyError:
         abort(404)
     name = group
@@ -795,7 +795,11 @@ def register_group(server, ext):
             abort(500)
         manage_notifications(group)
         # Commit
-        session.add(group)
+        try:
+            session.add(group)
+        except:
+            session.rollback()
+            abort(500)
         session.commit()
         # Done
         if ext == 'html': flash('%s registration complete pending confirmation by other %s.'%(self.group.capitalize(), self.members))
@@ -830,9 +834,11 @@ def delete_notifications(users, group):
             .filter(Notification.module=='player_groups') \
             .filter(Notification.type=='invitation') \
             .filter(Notification.from_=="%s.%s"%(group.server,group.name)) \
-            .delete()
+            .delete('fetch')
     except TypeError:
         return delete_notifications([users], group)
+    except:
+        abort(500)
 
 def manage_notifications(group):
     """Save and manage invitation notifications"""
