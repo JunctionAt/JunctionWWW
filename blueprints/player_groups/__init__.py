@@ -91,7 +91,7 @@ def GroupUserRelation(tablename):
     
     return type(tablename, (Base,), dict(
             __tablename__=tablename,
-            group_id=db.Column(db.String(64), db.ForeignKey(Group.id), primary_key=True),
+            group_id=db.Column(db.String(64), db.ForeignKey(Group.id, ondelete='DELETE'), primary_key=True),
             user_name=db.Column(db.String(16), db.ForeignKey(User.name), primary_key=True),))
 
 GroupOwners = GroupUserRelation('player_groups_owners')
@@ -444,7 +444,11 @@ def join_group(server, group, ext):
                         abort(403)
                     # Check for confirmation of group registration
                     if group.id == "%s.pending.%s"%(self.server,group.name):
-                        session.delete(group)
+                        try:
+                            session.delete(group)
+                        except:
+                            session.rollback()
+                            abort(500)
                         group = Group.confirm(group)
                     if ext == 'html': flash("You have joined %s."%group.display_name)
                 else:
@@ -543,7 +547,7 @@ def manage_members(server, group, player, ext):
                     "%s.%s"%(self.server,name),
                     "%s.pending.%s"%(self.server,name)
                     ])).one()
-        member = session.query(User).filter(User.name==player)
+        member = session.query(User).filter(User.name==player).one()
         user = flask_login.current_user
         if not group.name == name or not member.name == player:
             # Redirect to preferred caps
@@ -622,15 +626,15 @@ def manage_owners(server, group, player, ext):
                     "%s.%s"%(self.server,name),
                     "%s.pending.%s"%(self.server,name)
                     ])).one()
-        owner = session.query(User).filter(User.name==player)
+        owner = session.query(User).filter(User.name==player).one()
         user = flask_login.current_user
         if not group.name == name or not owner.name == player:
             # Redirect to preferred caps
             return redirect(url_for('player_groups.manage_owners', server=server, group=group.name, player=owner.name, ext=ext)), 301
         if request.method == 'GET':
             # Test for ownership
-            if member in group.owners:
-                return redirect(url_for('player_profiles.show_profile', player=member.name, ext=ext)), 302
+            if owner in group.owners:
+                return redirect(url_for('player_profiles.show_profile', player=owner.name, ext=ext)), 302
             abort(404)
         elif user.is_authenticated() and user in group.owners:
             if request.method == 'PUT' and not user == owner and not owner in group.invited_owners:
@@ -725,7 +729,6 @@ def show_invitations(server, ext):
         self = player_groups[server]
     except KeyError:
         abort(404)
-    name = group
     if ext == 'json':
         n=[]
         owner = self.invited_owner_of(flask_login.current_user)
@@ -785,15 +788,15 @@ def register_group(server, ext):
         group.name = re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', group.display_name))
         group.id = "%s.pending.%s"%(self.server, group.name)
         # Delete any pending group registrations of the same id
-        session.query(Group).filter(Group.id==id).delete()
-        manage_notifications(group)
-        # Commit
-        session.add(group)
         try:
-            session.commit()
+            session.query(Group).filter(Group.id==group.id).delete()
         except:
             session.rollback()
             abort(500)
+        manage_notifications(group)
+        # Commit
+        session.add(group)
+        session.commit()
         # Done
         if ext == 'html': flash('%s registration complete pending confirmation by other %s.'%(self.group.capitalize(), self.members))
         return redirect(url_for('player_groups.show_group', server=server, group=group.name, ext=ext)), 303
