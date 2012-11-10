@@ -454,9 +454,9 @@ def join_group(server, group, ext):
                 else:
                     # Pass action
                     if user in group.invited_owners:
-                        group.invited_owners -= [user]
+                        group.invited_owners = list(set(group.invited_owners) - set(user))
                     elif user in group.invited_members:
-                        group.invited_members -= [user]
+                        group.invited_members = list(set(group.invited_members) - set(user))
                     else:
                         abort(403)
                     if ext == 'html': flash("Invitation to %s declined."%group.display_name)
@@ -498,10 +498,10 @@ def leave_group(server, group, ext):
             return redirect(url_for('player_groups.leave_group', server=server, group=group.name, ext=ext)), 301
         if user in group.members or user in group.owners:
             if request.method == 'POST':
-                group.owners -= [user]
-                group.members -= [user]
-                group.invited_owners -= [user]
-                group.invited_members -= [user]
+                group.owners = list(set(group.owners) - set(user))
+                group.members = list(set(group.members) - set(user))
+                group.invited_owners = list(set(group.invited_owners) - set(user))
+                group.invited_members = list(set(group.invited_members) - set(user))
                 session.add(group)
                 try:
                     session.commit()
@@ -515,6 +515,34 @@ def leave_group(server, group, ext):
     except NoResultFound:
         abort(404)
 
+        
+@apidoc(__name__, player_groups, '/<server>/group/<group>/all/<player>.json', defaults=dict(ext='json'), methods=('GET',))
+def all_members(server, group, player, ext):
+    """
+    Used to assert ``player``'s membership or ownership in ``group``.
+    """
+    
+    try:
+        self = player_groups[server]
+    except KeyError:
+        abort(404)
+    name = group
+    try:
+        group = session.query(Group).filter(Group.id.in_([
+                    "%s.%s"%(self.server,name),
+                    "%s.pending.%s"%(self.server,name)
+                    ])).one()
+        member = session.query(User).filter(User.name==player).one()
+        if not group.name == name or not member.name == player:
+            # Redirect to preferred caps
+            return redirect(url_for('player_groups.all_members', server=server, group=group.name, player=member.name, ext=ext)), 301
+        if group in member.groups_member or group in member.groups_owner:
+            return redirect(url_for('player_profiles.show_profile', player=member.name, ext=ext)), 302
+        abort(404)
+    except NoResultFound:
+        abort(404)
+
+        
 @apidoc(__name__, player_groups, '/<server>/group/<group>/member/<player>.json', endpoint='manage_members', defaults=dict(ext='json'), methods=('GET',))
 def manage_members_get_api(server, group, player, ext):
     """
@@ -562,10 +590,10 @@ def manage_members(server, group, player, ext):
                 # Add membership
                 if member in group.owners:
                     # demotion
-                    group.owners -= [member]
-                    group.members += [member] 
-                group.invited_owners -= [member]
-                group.invited_members += [member]
+                    group.owners = list(set(group.owners) - set(member))
+                    group.members = list(set(group.members) - set(member))
+                group.invited_owners = list(set(group.invited_owners) - set(member))
+                group.invited_members = list(set(group.invited_members) - set(member))
                 manage_notifications(group)
                 # Commit
                 session.add(group)
@@ -578,8 +606,8 @@ def manage_members(server, group, player, ext):
             elif request.method == 'DELETE':
                 if member in groups.invited_members or member in groups.members:
                     # Remove membership
-                    group.members -= [member]
-                    group.invited_members -= [member]
+                    group.members = list(set(group.members) - set(member))
+                    group.invited_members = list(set(group.invited_members) - set(member))
                     manage_notifications(group)
                     # Commit
                     session.add(group)
@@ -641,10 +669,10 @@ def manage_owners(server, group, player, ext):
                 # Add ownership
                 if owner in group.members:
                     # Promotion
-                    group.members -= [owner]
-                    group.owners += [owner]
-                group.invited_members -= [owner]
-                group.invited_owners += [owner]
+                    group.members = list(set(group.members) - set(owner))
+                    group.owners = list(set(group.owners) - set(owner))
+                group.invited_members = list(set(group.invited_members) - set(owner))
+                group.invited_owners = list(set(group.invited_owners) - set(owner))
                 manage_notifications(group)
                 # Commit
                 session.add(group)
@@ -657,8 +685,8 @@ def manage_owners(server, group, player, ext):
             elif request.method == 'DELETE':
                 if owner in groups.invited_owners or owner in groups.owners:
                     # Remove ownership
-                    group.owner -= [owner]
-                    group.invited_owner -= [owner]
+                    group.owners = list(set(group.owners) - set(owner))
+                    group.invited_owners = list(set(group.invited_members) - set(owner))
                     manage_notifications(group)
                     # Commit
                     session.add(group)
