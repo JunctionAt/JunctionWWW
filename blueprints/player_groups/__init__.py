@@ -182,7 +182,7 @@ class Endpoint(object):
     def validate_members(self, form, user):
         """For registration form"""
 
-        invited_owners = set(form.invited_owners.raw_data + [ user.name ])
+        invited_owners = set(form.invited_owners.raw_data + [user.name])
         invited_members = list(set(form.invited_members.raw_data) - invited_owners)
         if len(invited_owners) + len(invited_members) < 2:
             form.invited_members.errors = [ "You must have at least one other %s or %s in %s."%(self.owner,self.member,self.a_group) ]
@@ -372,7 +372,7 @@ def edit_group(server, group, ext):
             group.invited_members = form._fields['invited_members'].data or group.invited_members
             group.invited_owners = form._fields['invited_owners'].data or group.invited_owners
             # Make ownership and membership mutually exclusive
-            group.invited_owners = list(set(group.invited_owners + [ user ]))
+            group.invited_owners = list(set(group.invited_owners + [user]))
             group.invited_members = list(set(group.invited_members) - set(group.invited_owners))
             # Remove uninvited players, promote & demote
             promotions = set(group.invited_owners) & set(group.members)
@@ -439,7 +439,7 @@ def join_group(server, group, ext):
                     elif group.public or user in group.invited_members:
                         group.members.append(user)
                         # Maintain invited status for members of public groups
-                        group.invited_members = list(set(group.invited_members + [ user ]))
+                        group.invited_members = list(set(group.invited_members + [user]))
                     else:
                         abort(403)
                     # Check for confirmation of group registration
@@ -454,9 +454,9 @@ def join_group(server, group, ext):
                 else:
                     # Pass action
                     if user in group.invited_owners:
-                        group.invited_owners = list(set(group.invited_owners) - set(user))
+                        group.invited_owners = list(set(group.invited_owners) - set([user]))
                     elif user in group.invited_members:
-                        group.invited_members = list(set(group.invited_members) - set(user))
+                        group.invited_members = list(set(group.invited_members) - set([user]))
                     else:
                         abort(403)
                     if ext == 'html': flash("Invitation to %s declined."%group.display_name)
@@ -498,10 +498,10 @@ def leave_group(server, group, ext):
             return redirect(url_for('player_groups.leave_group', server=server, group=group.name, ext=ext)), 301
         if user in group.members or user in group.owners:
             if request.method == 'POST':
-                group.owners = list(set(group.owners) - set(user))
-                group.members = list(set(group.members) - set(user))
-                group.invited_owners = list(set(group.invited_owners) - set(user))
-                group.invited_members = list(set(group.invited_members) - set(user))
+                group.owners = list(set(group.owners) - set([user]))
+                group.members = list(set(group.members) - set([user]))
+                group.invited_owners = list(set(group.invited_owners) - set([user]))
+                group.invited_members = list(set(group.invited_members) - set([user]))
                 session.add(group)
                 try:
                     session.commit()
@@ -590,10 +590,10 @@ def manage_members(server, group, player, ext):
                 # Add membership
                 if member in group.owners:
                     # demotion
-                    group.owners = list(set(group.owners) - set(member))
-                    group.members = list(set(group.members) - set(member))
-                group.invited_owners = list(set(group.invited_owners) - set(member))
-                group.invited_members = list(set(group.invited_members) - set(member))
+                    group.owners = list(set(group.owners) - set([member]))
+                    group.members = list(set(group.members + [member]))
+                group.invited_owners = list(set(group.invited_owners) - set([member]))
+                group.invited_members = list(set(group.invited_members + [member]))
                 manage_notifications(group)
                 # Commit
                 session.add(group)
@@ -606,8 +606,8 @@ def manage_members(server, group, player, ext):
             elif request.method == 'DELETE':
                 if member in groups.invited_members or member in groups.members:
                     # Remove membership
-                    group.members = list(set(group.members) - set(member))
-                    group.invited_members = list(set(group.invited_members) - set(member))
+                    group.members = list(set(group.members) - set([member]))
+                    group.invited_members = list(set(group.invited_members) - set([member]))
                     manage_notifications(group)
                     # Commit
                     session.add(group)
@@ -669,10 +669,10 @@ def manage_owners(server, group, player, ext):
                 # Add ownership
                 if owner in group.members:
                     # Promotion
-                    group.members = list(set(group.members) - set(owner))
-                    group.owners = list(set(group.owners) - set(owner))
-                group.invited_members = list(set(group.invited_members) - set(owner))
-                group.invited_owners = list(set(group.invited_owners) - set(owner))
+                    group.members = list(set(group.members) - set([owner]))
+                    group.owners = list(set(group.owners + [owner]))
+                group.invited_members = list(set(group.invited_members) - set([owner]))
+                group.invited_owners = list(set(group.invited_owners + [owner]))
                 manage_notifications(group)
                 # Commit
                 session.add(group)
@@ -685,8 +685,8 @@ def manage_owners(server, group, player, ext):
             elif request.method == 'DELETE':
                 if owner in groups.invited_owners or owner in groups.owners:
                     # Remove ownership
-                    group.owners = list(set(group.owners) - set(owner))
-                    group.invited_owners = list(set(group.invited_members) - set(owner))
+                    group.owners = list(set(group.owners) - set([owner]))
+                    group.invited_owners = list(set(group.invited_members) - set([owner]))
                     manage_notifications(group)
                     # Commit
                     session.add(group)
@@ -807,7 +807,7 @@ def register_group(server, ext):
     if request.method == 'POST' and form.validate() & self.validate_members(form, user):
         form.populate_obj(group)
         # Make ownership and membership mutually exclusive
-        group.invited_owners = list(set(group.invited_owners + [ user ]))
+        group.invited_owners = list(set(group.invited_owners + [user]))
         group.invited_members = list(set(group.invited_members) - set(group.invited_owners))
         # Registree is a confirmed owner
         group.owners = [ user ]
