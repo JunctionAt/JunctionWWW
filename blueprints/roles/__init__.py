@@ -27,13 +27,13 @@ class UserRoleRelation(db.Model):
 
     __tablename__ = 'users_roles'
     user_name = db.Column(db.String(16), db.ForeignKey(User.name), primary_key=True)
-    role_name = db.Column(db.String(16), db.ForeignKey(Role.name, ondelete='DELETE'), primary_key=True)
+    role_name = db.Column(db.String(16), db.ForeignKey(Role.name, ondelete='CASCADE'), primary_key=True)
 
 class GroupRoleRelation(db.Model):
 
     __tablename__ = 'player_groups_roles'
-    group_id = db.Column(db.String(64), db.ForeignKey(Group.id, ondelete='DELETE'), primary_key=True)
-    role_name = db.Column(db.String(16), db.ForeignKey(Role.name, ondelete='DELETE'), primary_key=True)
+    group_id = db.Column(db.String(64), db.ForeignKey(Group.id, ondelete='CASCADE'), primary_key=True)
+    role_name = db.Column(db.String(16), db.ForeignKey(Role.name, ondelete='CASCADE'), primary_key=True)
 
 
 @user_logged_in.connect_via(current_app._get_current_object())

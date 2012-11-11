@@ -91,7 +91,7 @@ def GroupUserRelation(tablename):
     
     return type(tablename, (Base,), dict(
             __tablename__=tablename,
-            group_id=db.Column(db.String(64), db.ForeignKey(Group.id, ondelete='DELETE'), primary_key=True),
+            group_id=db.Column(db.String(64), db.ForeignKey(Group.id, ondelete='CASCADE'), primary_key=True),
             user_name=db.Column(db.String(16), db.ForeignKey(User.name), primary_key=True),))
 
 GroupOwners = GroupUserRelation('player_groups_owners')
@@ -516,59 +516,85 @@ def leave_group(server, group, ext):
         abort(404)
 
         
-@apidoc(__name__, player_groups, '/<server>/group/<group>/all/<player>.json', defaults=dict(ext='json'), methods=('GET',))
-def all_members(server, group, player, ext):
+@apidoc(__name__, player_groups, '/<server>/group/<group>/<any(all,member,owner):type>/<player>.json', endpoint='manage_members', defaults=dict(ext='json', invite=None), methods=('GET',))
+def manage_members_get_api(server, group, invite, type, player, ext):
     """
-    Used to assert ``player``'s membership or ownership in ``group``.
-    """
+    Used to assert ``player``'s membership in ``group`` as specified by ``type``. These endpoints are only valid after ``player`` has accepted an invitation to join ``group``. Eg.
     
-    try:
-        self = player_groups[server]
-    except KeyError:
-        abort(404)
-    name = group
-    try:
-        group = session.query(Group).filter(Group.id.in_([
-                    "%s.%s"%(self.server,name),
-                    "%s.pending.%s"%(self.server,name)
-                    ])).one()
-        member = session.query(User).filter(User.name==player).one()
-        if not group.name == name or not member.name == player:
-            # Redirect to preferred caps
-            return redirect(url_for('player_groups.all_members', server=server, group=group.name, player=member.name, ext=ext)), 301
-        if group in member.groups_member or group in member.groups_owner:
-            return redirect(url_for('player_profiles.show_profile', player=member.name, ext=ext)), 302
-        abort(404)
-    except NoResultFound:
-        abort(404)
-
-        
-@apidoc(__name__, player_groups, '/<server>/group/<group>/member/<player>.json', endpoint='manage_members', defaults=dict(ext='json'), methods=('GET',))
-def manage_members_get_api(server, group, player, ext):
-    """
-    Used to assert ``player``'s membership status in ``group``.
+    ``/server/group/foo/all/bar.json``
+        Succeeds if player ``bar`` is a member *or* owner of group ``bar``.
+    ``/server/group/foo/member/baz.json``
+        Succeeds if player ``baz`` is a member of group ``foo`` and *not* an owner.
+    ``/server/group/foo/owner/qux.json``
+        Succeeds if player ``qux`` is an owner of group ``foo`` and *not* an member.
     """
 
-@apidoc(__name__, player_groups, '/<server>/group/<group>/member/<player>.json', endpoint='manage_members', defaults=dict(ext='json'), methods=('PUT',))
-def manage_members_put_api(server, group, player, ext):
+@apidoc(__name__, player_groups, '/<server>/group/<group>/<any(member,owner):type>/<player>.json', endpoint='manage_members', defaults=dict(ext='json', invite=None), methods=('PUT',))
+def manage_members_put_api(server, group, invite, type, player, ext):
     """
-    Used by an owner of ``group`` to invite or demote ``player`` to membership.
+    Used by an owner of ``group`` to promote or demote ``player``'s membership status as specified by ``type``.
+    
+    This resource is only valid if ``player`` is currently a member or owner of group, which requires ``player`` accepting an invitation to join ``group``.
+    
+    If ``player`` is currently an owner of ``group`` and ``type`` is ``"member"``, this will demote ``player`` without
+    sending an invitation for ``player`` to accept the new role.
 
-    If ``player`` is currently an owner of ``group``, this will demote ``player`` without
+    If ``player`` is currently a member of ``group`` and ``type`` is ``"owner"``, this will promote ``player`` without
     sending an invitation for ``player`` to accept the new role.
     """
 
-@apidoc(__name__, player_groups, '/<server>/group/<group>/member/<player>.json', endpoint='manage_members', defaults=dict(ext='json'), methods=('DELETE',))
-def manage_members_delete_api(server, group, player, ext):
+@apidoc(__name__, player_groups, '/<server>/group/<group>/invited/<any(all,member,owner):type>/<player>.json', endpoint='manage_members', defaults=dict(ext='json', invite=True), methods=('GET',))
+def manage_invited_members_get_api(server, group, invite, type, player, ext):
     """
-    Used by an owner of ``group`` to remove  ``player``'s membership.
+    Used to assert ``player``'s invitation status in ``group`` as specified by ``type``.
+
+    This resource may be valid after ``player`` has accepted an invitation to join ``group`` with regards to ``player``'s membership status being ``type``.
     """
 
-def manage_members(server, group, player, ext):
+@apidoc(__name__, player_groups, '/<server>/group/<group>/invited/<any(member,owner):type>/<player>.json', endpoint='manage_members', defaults=dict(ext='json', invite=True), methods=('PUT',))
+def manage_invited_members_put_api(server, group, invite, type, player, ext):
+    """
+    Used by an owner of ``group`` to invite ``player`` to the membership status as specified by ``type``.
+    
+    This resource is no longer valid after ``player`` has accepted an invitation to join ``group``.
+    """
+
+@apidoc(__name__, player_groups, '/<server>/group/<group>/invited/all/<player>.json', endpoint='manage_members', defaults=dict(ext='json', type='all', invite=True), methods=('DELETE',))
+def manage_invited_members_delete_api(server, group, invite, type, ext):
+    """
+    Used by an owner of ``group`` to remove  ``player``'s invitation *and* membership.
+
+    This resource remains valid after ``player`` has accepted an invitation to ``group`` and is the only way to revoke a player's membership or invitation to join.
+    """
+
+def manage_members(server, group, invite, type, player, ext):
+    """World's largest function"""
+
     try:
         self = player_groups[server]
     except KeyError:
         abort(404)
+    def members(group, val=None, invite=invite):
+        f = 'invited_members' if invite else 'members'
+        if val == None:
+            return getattr(group, f)
+        setattr(group, f, val)
+    def owners(group, val=None, invite=invite):
+        f = 'invited_owners' if invite else 'owners'
+        if val == None:
+            return getattr(group, f)
+        setattr(group, f, val)
+    def to(group, val=None, t=type, invite=invite):
+        return dict(
+            all=lambda: members(group, invite=invite) + owners(group, invite=invite),
+            member=lambda: members(group, val, invite),
+            owner=lambda: owners(group, val, invite)
+            )[t]()
+    def from_(group, val=None, t=type, invite=invite):
+        return dict(
+            member=lambda: owners(group, val, invite),
+            owner=lambda: members(group, val, invite)
+            )[t]()
     name = group
     try:
         group = session.query(Group).filter(Group.id.in_([
@@ -579,21 +605,44 @@ def manage_members(server, group, player, ext):
         user = flask_login.current_user
         if not group.name == name or not member.name == player:
             # Redirect to preferred caps
-            return redirect(url_for('player_groups.manage_members', server=server, group=group.name, player=member.name, ext=ext)), 301
-        if request.method == 'GET':
+            return redirect(url_for('player_groups.manage_members', server=server, group=group.name, type=type, player=member.name, ext=ext)), 301
+        if request.method == 'GET' and not invite:
             # Test for membership
-            if member in group.members:
+            if member in to(group):
                 return redirect(url_for('player_profiles.show_profile', player=member.name, ext=ext)), 302
             abort(404)
-        elif user.is_authenticated() and user in group.owners:
-            if request.method == 'PUT' and not user == member and not member in group.invited_members:
-                # Add membership
-                if member in group.owners:
-                    # demotion
-                    group.owners = list(set(group.owners) - set([member]))
-                    group.members = list(set(group.members + [member]))
+        if user.is_authenticated() and user in group.owners:
+            if request.method == 'GET': # invite == True
+                # Test for membership
+                if member in to(group) or member in to(group, invite=None):
+                    return redirect(url_for('player_profiles.show_profile', player=member.name, ext=ext)), 302
+                abort(404)
+            elif request.method == 'PUT' and (invite or member in from_(group)):
+                if invite and (member in group.owners or member in group.members):
+                    # This is no longer a valid resource once the member has joined
+                    abort(403)
+                from_(group, list(set(from_(group)) - set([member])))
+                to(group, list(set(to(group) + [member])))
+                if invite:
+                    manage_notifications(group)
+                else:
+                    # mirror invited status with membership status
+                    from_(group, list(set(from_(group, invite=True)) - set([member])), invite=True)
+                    to(group, list(set(to(group, invite=True) + [member])), invite=True)
+                # Commit
+                session.add(group)
+                try:
+                    session.commit()
+                except:
+                    session.rollback()
+                    abort(500)
+                return redirect(url_for('player_groups.manage_members', server=server, group=group.name, type=type, invite=invite, player=member.name, ext=ext)), 303
+            elif request.method == 'DELETE' and member in to(group):
+                # Remove membership and ownership
+                group.members = list(set(group.members) - set([member]))
+                group.owners = list(set(group.owners) - set([member]))
+                group.invited_members = list(set(group.invited_members) - set([member]))
                 group.invited_owners = list(set(group.invited_owners) - set([member]))
-                group.invited_members = list(set(group.invited_members + [member]))
                 manage_notifications(group)
                 # Commit
                 session.add(group)
@@ -602,104 +651,12 @@ def manage_members(server, group, player, ext):
                 except:
                     session.rollback()
                     abort(500)
-                return redirect(url_for('player_groups.manage_members', server=server, group=group.name, player=member.name, ext=ext)), 303
-            elif request.method == 'DELETE':
-                if member in groups.invited_members or member in groups.members:
-                    # Remove membership
-                    group.members = list(set(group.members) - set([member]))
-                    group.invited_members = list(set(group.invited_members) - set([member]))
-                    manage_notifications(group)
-                    # Commit
-                    session.add(group)
-                    try:
-                        session.commit()
-                    except:
-                        session.rollback()
-                        abort(500)
-                    return redirect(url_for('player_groups.manage_members', server=server, group=group.name, player=member.name, ext=ext)), 303
-                abort(404)
-        abort(403)
-    except NoResultFound:
-        abort(404)
-
-@apidoc(__name__, player_groups, '/<server>/group/<group>/owner/<player>.json', endpoint='manage_owners', defaults=dict(ext='json'))
-def manage_owners_get_api(server, group, player, ext):
-    """
-    Used to check ``player``'s ownership status in ``group``.
-    """
-
-@apidoc(__name__, player_groups, '/<server>/group/<group>/owner/<player>.json', endpoint='manage_owners', defaults=dict(ext='json'), methods=('PUT',))
-def manage_owners_put_api(server, group, player, ext):
-    """
-    Used by an owner of ``group`` to invite or promote ``player`` to ownership.
-
-    If ``player`` is currently a member of ``group``, this will promote ``player`` without
-    sending an invitation for ``player`` to accept the new role.
-    """
-
-@apidoc(__name__, player_groups, '/<server>/group/<group>/owner/<player>.json', endpoint='manage_owners', defaults=dict(ext='json'), methods=('DELETE',))
-def manage_owners_delete_api(server, group, player, ext):
-    """
-    Used by an owner of ``group`` to remove  ``player``'s ownership.
-    """
-
-def manage_owners(server, group, player, ext):
-    try:
-        self = player_groups[server]
-    except KeyError:
-        abort(404)
-    name = group
-    try:
-        group = session.query(Group).filter(Group.id.in_([
-                    "%s.%s"%(self.server,name),
-                    "%s.pending.%s"%(self.server,name)
-                    ])).one()
-        owner = session.query(User).filter(User.name==player).one()
-        user = flask_login.current_user
-        if not group.name == name or not owner.name == player:
-            # Redirect to preferred caps
-            return redirect(url_for('player_groups.manage_owners', server=server, group=group.name, player=owner.name, ext=ext)), 301
-        if request.method == 'GET':
-            # Test for ownership
-            if owner in group.owners:
-                return redirect(url_for('player_profiles.show_profile', player=owner.name, ext=ext)), 302
+                return redirect(url_for('player_groups.manage_members', server=server, group=group.name, type=type, invite=invite, player=member.name, ext=ext)), 303
             abort(404)
-        elif user.is_authenticated() and user in group.owners:
-            if request.method == 'PUT' and not user == owner and not owner in group.invited_owners:
-                # Add ownership
-                if owner in group.members:
-                    # Promotion
-                    group.members = list(set(group.members) - set([owner]))
-                    group.owners = list(set(group.owners + [owner]))
-                group.invited_members = list(set(group.invited_members) - set([owner]))
-                group.invited_owners = list(set(group.invited_owners + [owner]))
-                manage_notifications(group)
-                # Commit
-                session.add(group)
-                try:
-                    session.commit()
-                except:
-                    session.rollback()
-                    abort(500)
-                return redirect(url_for('player_groups.manage_owners', server=server, group=group.name, player=owner.name, ext=ext)), 303
-            elif request.method == 'DELETE':
-                if owner in groups.invited_owners or owner in groups.owners:
-                    # Remove ownership
-                    group.owners = list(set(group.owners) - set([owner]))
-                    group.invited_owners = list(set(group.invited_members) - set([owner]))
-                    manage_notifications(group)
-                    # Commit
-                    session.add(group)
-                    try:
-                        session.commit()
-                    except:
-                        session.rollback()
-                        abort(500)
-                    return redirect(url_for('player_groups.manage_owners', server=server, group=group.name, player=owner.name, ext=ext)), 303
-                abort(404)
         abort(403)
     except NoResultFound:
         abort(404)
+
 
 @apidoc(__name__, player_groups, '/<server>/groups/membership/<player>.json', defaults=dict(ext='json'))
 def membership(server, player, ext):
@@ -713,9 +670,10 @@ def membership(server, player, ext):
         if not user.name == player:
             # Redirect to preferred caps
             return redirect(url_for('player_groups.membership', server=server, player=user.name, ext=ext)), 301
-        return jsonify(groups=reduce(lambda groups, group: groups + [group.id], user.groups_member, []))
+        return jsonify(groups=reduce(lambda groups, group: groups + [group.name], user.groups_member, []))
     except NoResultFound:
         abort(404)
+
 
 @apidoc(__name__, player_groups, '/<server>/groups/ownership/<player>.json', defaults=dict(ext='json'))
 def ownership(server, player, ext):
@@ -729,9 +687,10 @@ def ownership(server, player, ext):
         if not user.name == player:
             # Redirect to preferred caps
             return redirect(url_for('player_groups.membership', server=server, player=user.name, ext=ext)), 301
-        return jsonify(groups=reduce(lambda groups, group: groups + [group.id[len(server)+1:]], user.groups_owner, []))
+        return jsonify(groups=reduce(lambda groups, group: groups + [group.name], user.groups_owner, []))
     except NoResultFound:
         abort(404)
+
 
 @apidoc(__name__, player_groups, '/<server>/groups/invitations.json', endpoint='show_invitations', defaults=dict(ext='json'))
 def show_invitations_api(server, group, ext):
@@ -766,6 +725,7 @@ def show_invitations(server, ext):
         return jsonify(invitations=n)
     return render_template('show_invitations.html', endpoint=self)
 
+
 @apidoc(__name__, player_groups, '/<server>/groups/names.json', defaults=dict(ext='json'))
 def show_names_api(server, ext):
     """Returns a map of the names used by ``server`` when referring to groups, members and owners."""
@@ -783,6 +743,7 @@ def show_names_api(server, ext):
         owner=self.owner,
         a_owner=self.a_owner,
         owners=self.owners))
+
 
 @apidoc(__name__, player_groups, '/<server>/groups/register.json', endpoint='register_group', defaults=dict(ext='json'), methods=('POST',))
 def register_group_api(server, group, ext):
@@ -850,7 +811,6 @@ current_app.view_functions = dict(current_app.view_functions.items() + [
         ('player_groups.join_group', join_group),
         ('player_groups.leave_group', leave_group),
         ('player_groups.manage_members', manage_members),
-        ('player_groups.manage_owners', manage_owners)
         ])
 
 def delete_notifications(users, group):
