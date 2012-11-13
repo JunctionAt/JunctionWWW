@@ -40,6 +40,10 @@ BLUEPRINTS = [
                      hide=[
                         'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
                         ]),
+                dict(name='chaos', tablename='chaos_stats',
+                     hide=[
+                        'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
+                        ]),
                 ])),
     
     # Player profiles
@@ -49,6 +53,7 @@ BLUEPRINTS = [
     dict(blueprint=player_groups.player_groups([
                 dict(name='staff'),
                 dict(name='pve', group='city', groups='cities', member='citizen', owner='mayor'),
+                dict(name='chaos', group='clan', owner='leader'),
                 dict(name='survival', group='clan', owner='leader'),
                 ])),
     
@@ -62,5 +67,5 @@ Markdown(flask.current_app)
 # Server name global
 @flask.current_app.context_processor
 def inject_server():
-    return dict(server_display_name=lambda server: dict(pve='PvE', survival='Survival', event='Event', staff='Staff')[server],)
+    return dict(server_display_name=lambda server: dict(pve='PvE', survival='Survival', event='Event', chaos='Chaos', staff='Staff')[server],)
 
