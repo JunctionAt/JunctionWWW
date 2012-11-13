@@ -56,8 +56,8 @@ def switch_user(player, ext):
                 raise PermissionDenied()
             to_user = db.session.query(User).filter(User.name==player).one()
             # User with previous authorization via original_user
-            if request.method == 'DELETE' and player.lower() == current_user.name.lower():
-                target = current_user.name
+            if request.method == 'DELETE' and player.lower() == current_user.get_id().lower():
+                target = current_user.get_id()
             elif request.method == 'PUT' and player.lower() == original_user.name.lower():
                 target = original_user.name
             if target and not player == target:
@@ -68,7 +68,7 @@ def switch_user(player, ext):
                 login_user(original_user)
                 response = make_response(redirect(url_for('player_profiles.show_profile', player=original_user.name, ext=ext)), 303)
             elif request.method == 'DELETE':
-                return redirect(url_for('as_user.switch_user', player=current_user.name, ext=ext)), 307
+                return redirect(url_for('as_user.switch_user', player=current_user.get_id(), ext=ext)), 307
             else:
                 # User attempting a switch while already switched
                 login_user(original_user)
@@ -81,8 +81,8 @@ def switch_user(player, ext):
                 if not player == to_user.name:
                     return redirect(redirect(url_for('as_user', player=to_user.name, ext=ext))), 301
                 response = make_response(redirect(url_for('player_profiles.show_profile', player=player, ext=ext)), 303)
-                response.set_cookie('original_user', current_user.name)
-                session['original_user'] = current_user.name
+                response.set_cookie('original_user', current_user.get_id())
+                session['original_user'] = current_user.get_id()
                 login_user(to_user)
                 return response
     except NoResultFound:
