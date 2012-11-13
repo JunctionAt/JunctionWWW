@@ -107,15 +107,15 @@ def on_identity_changed(sender, identity, **_):
     
     try:
         player = request.headers['X-From']
-        if current_user.name == player: return
+        if current_user.get_id() == player: return
         original_user = identity.user
-        with identity.require(Permission(RoleNeed('as_user'))):
-            user = db.session.query(User).filter(User.name==player).one()
-            login_user(user)
-            @after_this_request
-            def switch_back(response):
-                login_user(original_user)
-                return response
+        if not identity.can(Permission(RoleNeed('as_user'))): abort(403)
+        user = db.session.query(User).filter(User.name==player).one()
+        login_user(user)
+        @after_this_request
+        def switch_back(response):
+            login_user(original_user)
+            return response
     except NoResultFound:
         @after_this_request
         def get_response(response):
