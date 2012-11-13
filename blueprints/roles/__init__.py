@@ -1,11 +1,11 @@
 from flask import Blueprint, current_app, abort, request, render_template, url_for, session, redirect
 from flask.ext.principal import (Principal, Identity, PermissionDenied, Permission,
                                  identity_loaded, identity_changed, RoleNeed, UserNeed, AnonymousIdentity)
-from flask.ext.login import current_user, user_logged_in, user_logged_out, AnonymousUser
+from flask.ext.login import current_user, user_logged_in, user_logged_out
 from sqlalchemy.orm.exc import NoResultFound
 from wtalchemy.orm import model_form
 
-from blueprints.auth import login_required
+from blueprints.auth import login_required, AnonymousUser
 from blueprints.base import db
 from blueprints.auth.user_model import User
 from blueprints.player_groups import Group, player_groups
@@ -50,14 +50,21 @@ def on_identity_loaded(sender, identity):
     identity_roles(identity)
 
 def identity_roles(identity):
-    identity.provides = set(UserNeed(identity.name))
-    if current_user.is_authenticated() and identity.name == current_user.name:
+    if current_user.is_authenticated() and identity.name == current_user.get_id():
         identity.user = current_user
     else:
         try:
             identity.user = db.session.query(User).filter(User.name==identity.name).one()
         except NoResultFound:
             identity.user = AnonymousUser()
+    if current_app.config.get('API', False) and \
+            identity.user.get_id() == None and \
+            identity.user.is_authenticated():
+        # API treats anonymous user as god
+        for role in db.session.query(Role).all():
+            identity.provides.add(RoleNeed(role.name))
+        return identity
+    identity.provides = set(UserNeed(identity.name))
     if hasattr(identity.user, 'roles'):
         for role in identity.user.roles:
             identity.provides.add(RoleNeed(role.name))

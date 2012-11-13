@@ -21,7 +21,7 @@ from flask import (Flask, Blueprint, request, render_template, redirect, url_for
 import flask_login
 from flask_login import (LoginManager, login_required as __login_required__,
                          login_user, logout_user, confirm_login, fresh_login_required)
-from flask.ext.principal import Permission, RoleNeed
+from flask.ext.principal import Permission, RoleNeed, Identity
 from functools import wraps
 from wtforms import Form, TextField, PasswordField, ValidationError
 from wtforms.validators import *
@@ -43,11 +43,16 @@ mailregex = re.compile("[^@]+@[^@]+\.[^@]+")
 blueprint = Blueprint('auth', __name__, template_folder='templates',
                       static_folder='static', static_url_path='/auth/static')
 
-login_manager = LoginManager()
+class AnonymousUser(flask_login.AnonymousUser):
+    def is_authenticated(self): return current_app.config.get('API', False)
+    def is_active(self): return self.is_authenticated()
+    def is_anonymous(self): return not self.is_authenticated()
 
+login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 login_manager.login_message = u"Please log in to access this page."
 login_manager.refresh_view = "auth.reauth"
+login_manager.anonymous_user = AnonymousUser
 
 def login_required(f):
     """
@@ -67,6 +72,9 @@ def login_required(f):
             except:
                 if request.path[-5:] == '.json': abort(403)
                 return __login_required__(f)(*args, **kwargs)
+        elif current_app.config.get('API', False):
+            from blueprints.roles import principals
+            principals.set_identity(Identity(None))
         return f(*args, **kwargs)
     return decorated
 

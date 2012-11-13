@@ -1,5 +1,5 @@
 import flask
-from flask import Blueprint, abort
+from flask import Blueprint, abort, render_template
 from flask.ext.principal import Permission, RoleNeed
 from blueprints.auth import login_required
 

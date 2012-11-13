@@ -4,7 +4,6 @@ import datetime
 
 from blueprints.base import Base, session, db
 
-
 class User(Base, flask_login.UserMixin, object):
 
     __tablename__ = 'users'
@@ -16,12 +15,6 @@ class User(Base, flask_login.UserMixin, object):
     
     def get_id(self):
         return self.name
-
-    def get_name(self):
-        return self.name
-        
-    def is_active(self):
-        return self.verified
 
     def __repr__(self):
         return self.name
