@@ -155,6 +155,7 @@ def show_profile(player, ext):
     abort(404)
     
 @apidoc(__name__, player_profiles, '/profile.json', endpoint='edit_profile', defaults=dict(ext='json'))
+@login_required
 def edit_profile_get_api(ext):
     """Used by the current player to get all editable fields in their profile."""
 

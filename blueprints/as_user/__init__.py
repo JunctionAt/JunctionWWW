@@ -52,7 +52,7 @@ def switch_user(player, ext):
                 raise KeyError()
             if not identity_roles(Identity(original_user.name)).can(Permission(RoleNeed('as_user'))):
                 # Edge case where a switched user's account no longer has as_user role
-                login_user(original_user)
+                login_user(original_user, force=True)
                 raise PermissionDenied()
             to_user = db.session.query(User).filter(User.name==player).one()
             # User with previous authorization via original_user
@@ -65,13 +65,13 @@ def switch_user(player, ext):
             elif target:
                 to_user = db.session.query(User).filter(User.name==player).one()
                 # Returning to normal
-                login_user(original_user)
+                login_user(original_user, force=True)
                 response = make_response(redirect(url_for('player_profiles.show_profile', player=original_user.name, ext=ext)), 303)
             elif request.method == 'DELETE':
                 return redirect(url_for('as_user.switch_user', player=current_user.get_id(), ext=ext)), 307
             else:
                 # User attempting a switch while already switched
-                login_user(original_user)
+                login_user(original_user, force=True)
                 raise KeyError()
         except KeyError:
             with Permission(RoleNeed('as_user')).require(403):
@@ -83,7 +83,7 @@ def switch_user(player, ext):
                 response = make_response(redirect(url_for('player_profiles.show_profile', player=player, ext=ext)), 303)
                 response.set_cookie('original_user', current_user.get_id())
                 session['original_user'] = current_user.get_id()
-                login_user(to_user)
+                login_user(to_user, force=True)
                 return response
     except NoResultFound:
         abort(404)
@@ -109,7 +109,8 @@ def on_identity_changed(sender, identity, **_):
         player = request.headers['X-From']
         if current_user.get_id() == player: return
         original_user = identity.user
-        if not identity.can(Permission(RoleNeed('as_user'))): abort(403)
+        if not identity.can(Permission(RoleNeed('as_user'))):
+            raise PermissionDenied()
         user = db.session.query(User).filter(User.name==player).one()
         login_user(user)
         @after_this_request

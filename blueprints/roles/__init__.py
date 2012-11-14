@@ -1,11 +1,11 @@
 from flask import Blueprint, current_app, abort, request, render_template, url_for, session, redirect
-from flask.ext.principal import (Principal, Identity, PermissionDenied, Permission,
-                                 identity_loaded, identity_changed, RoleNeed, UserNeed, AnonymousIdentity)
-from flask.ext.login import current_user, user_logged_in, user_logged_out
+from flask.ext.principal import (Principal, Identity, PermissionDenied, Permission, identity_loaded,
+                                 identity_changed, RoleNeed, UserNeed, AnonymousIdentity)
+from flask.ext.login import current_user, user_logged_in, user_logged_out, AnonymousUser
 from sqlalchemy.orm.exc import NoResultFound
 from wtalchemy.orm import model_form
 
-from blueprints.auth import login_required, AnonymousUser
+from blueprints.auth import login_required, ApiUser
 from blueprints.base import db
 from blueprints.auth.user_model import User
 from blueprints.player_groups import Group, player_groups
@@ -38,7 +38,7 @@ class GroupRoleRelation(db.Model):
 
 @user_logged_in.connect_via(current_app._get_current_object())
 def on_user_logged_in(sender, user):
-    identity_changed.send(current_app, identity=Identity(user.name))
+    identity_changed.send(current_app, identity=Identity(user.get_id()))
 
 @user_logged_out.connect_via(current_app._get_current_object())
 def on_user_logged_out(sender, user):
@@ -50,16 +50,14 @@ def on_identity_loaded(sender, identity):
     identity_roles(identity)
 
 def identity_roles(identity):
-    if current_user.is_authenticated() and identity.name == current_user.get_id():
+    if identity.name == current_user.get_id():
         identity.user = current_user
     else:
         try:
             identity.user = db.session.query(User).filter(User.name==identity.name).one()
         except NoResultFound:
             identity.user = AnonymousUser()
-    if current_app.config.get('API', False) and \
-            identity.user.get_id() == None and \
-            identity.user.is_authenticated():
+    if current_app.config.get('API', False) and isinstance(identity.user._get_current_object(), ApiUser):
         # API treats anonymous user as god
         for role in db.session.query(Role).all():
             identity.provides.add(RoleNeed(role.name))

@@ -25,6 +25,7 @@ from flask.ext.principal import Permission, RoleNeed, Identity
 from functools import wraps
 from wtforms import Form, TextField, PasswordField, ValidationError
 from wtforms.validators import *
+from werkzeug.datastructures import MultiDict
 from sqlalchemy.sql.operators import ColumnOperators
 from sqlalchemy.orm.exc import *
 import datetime
@@ -43,16 +44,26 @@ mailregex = re.compile("[^@]+@[^@]+\.[^@]+")
 blueprint = Blueprint('auth', __name__, template_folder='templates',
                       static_folder='static', static_url_path='/auth/static')
 
-class AnonymousUser(flask_login.AnonymousUser):
-    def is_authenticated(self): return current_app.config.get('API', False)
-    def is_active(self): return self.is_authenticated()
-    def is_anonymous(self): return not self.is_authenticated()
-
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 login_manager.login_message = u"Please log in to access this page."
 login_manager.refresh_view = "auth.reauth"
-login_manager.anonymous_user = AnonymousUser
+
+@login_manager.user_loader
+def user_loader(id): return load_user(id)
+
+def load_user(id):
+    if id == ApiUser().get_id() and current_app.config.get('API', False):
+        return ApiUser()
+    return db.session.query(User).filter(User.name==id).first()
+
+login_manager.setup_app(current_app, add_context_processor=True)
+
+class ApiUser:
+    def get_id(self): return ""
+    def is_authenticated(self): return True
+    def is_anonymous(self): return True
+    def is_active(self): return True
 
 def login_required(f):
     """
@@ -63,34 +74,21 @@ def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if not flask_login.current_user.is_authenticated():
-            try:
-                auth = request.authorization
-                user = db.session.query(User).filter(User.name==auth.username).first()
-                if not user or not user.hash == bcrypt.hashpw(auth.password, user.hash) or \
-                        not login_user(user, remember=False, force=True):
-                    raise Exception()
-            except:
-                if request.path[-5:] == '.json': abort(403)
-                return __login_required__(f)(*args, **kwargs)
-        elif current_app.config.get('API', False):
-            from blueprints.roles import principals
-            principals.set_identity(Identity(None))
+            if current_app.config.get('API', False):
+                login_user(ApiUser())
+            else:
+                try:
+                    auth = request.authorization
+                    user = db.session.query(User).filter(User.name==auth.username).first()
+                    if not user or not user.hash == bcrypt.hashpw(auth.password, user.hash) or \
+                            not login_user(user, remember=False, force=True):
+                        raise Exception()
+                except:
+                    if request.path[-5:] == '.json': abort(403)
+                    return __login_required__(f)(*args, **kwargs)
         return f(*args, **kwargs)
     return decorated
 
-@login_manager.user_loader
-def load_user(id):
-    return load_user_name(id)
-
-login_manager.setup_app(current_app, add_context_processor=True)
-
-def load_user_field(field, value):
-    #result = db.session.execute("SELECT name, hash, mail, registered, verified FROM users WHERE %s=:value;"%field, dict(value=value)).fetchone()
-    return db.session.query(User).filter(getattr(User,field)==value).first()
-
-def load_user_name(name):
-    return load_user_field("name", name)
-	
 def wpass():
     flash(u"The username or password was incorrect.")
     return redirect(url_for('auth.login', ext='html'))
@@ -108,7 +106,7 @@ def login(ext):
                 flash(u"Please check your mail.")
                 return redirect(url_for('auth.login', ext='html'))
             remember = request.form.get("remember", "no") == "yes"
-            if login_user(load_user_name(username), remember=remember):
+            if login_user(load_user(username), remember=remember):
                 if ext == 'json': return redirect(url_for('player_profiles.show_profile',
                                                           player=username, ext=ext)), 303
                 flash("Logged in!")
@@ -116,8 +114,9 @@ def login(ext):
         if ext == 'html':
             return wpass()
     if ext == 'json':
+        if request.method == 'GET': abort(405)
         return login_required(lambda: (redirect(url_for('player_profiles.show_profile',
-                                                        player=flask_login.current_user.name, ext=ext)), 303))()
+                                                        player=flask_login.current_user.get_id(), ext=ext)), 303))()
     return render_template("login.html")
 
 @apidoc(__name__, blueprint, '/login.json', endpoint='login', defaults=dict(ext='json'), methods=('GET',))
@@ -174,7 +173,7 @@ def register_api(ext):
 
 @blueprint.route("/register", defaults=dict(ext='html'), methods=["GET", "POST"])
 def register(ext):
-    form = RegistrationForm(request.json or request.form)
+    form = RegistrationForm(MultiDict(request.json) or request.form)
     if request.method == "POST" and form.validate():
         token = Token()
         token.name = form.username.data
@@ -227,7 +226,7 @@ def activatetoken_api(ext):
 
 @blueprint.route("/activate", defaults=dict(ext='html'), methods=["GET", "POST"])
 def activatetoken(ext):
-    form = ActivationForm(request.json or request.form)
+    form = ActivationForm(MultiDict(request.json) or request.form)
     if request.method == "POST" and form.validate():
         user = User()
         user.name = form.token.name
@@ -272,7 +271,7 @@ def controlpanel():
     if request.method == "POST":
         if request.form['newpassword']:
             hashed = bcrypt.hashpw(request.form['newpassword'], bcrypt.gensalt())
-            db.session.execute('UPDATE users SET hash=:hash WHERE name=:name;', dict(hash=hashed, name=flask_login.current_user.name))
+            db.session.execute('UPDATE users SET hash=:hash WHERE name=:name;', dict(hash=hashed, name=flask_login.current_user.get_id()))
             try:
                 db.session.commit()
             except:

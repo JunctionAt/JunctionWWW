@@ -68,4 +68,3 @@ Markdown(flask.current_app)
 @flask.current_app.context_processor
 def inject_server():
     return dict(server_display_name=lambda server: dict(pve='PvE', survival='Survival', event='Event', chaos='Chaos', staff='Staff')[server],)
-
