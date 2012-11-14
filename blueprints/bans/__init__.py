@@ -8,12 +8,14 @@ from flask.ext.principal import Permission, RoleNeed
 from blueprints.auth import login_required
 from blueprints.base import db
 from systems import minebans, mcbans, mcbouncer
-from ban_model import Ban
+from ban_model import Ban, Note
 from blueprints.base import db
 
 usernameregex = re.compile('^[a-zA-Z0-9_]+$')
 bansystems = {"minebans" : minebans, "mcbans" : mcbans, "mcbouncer" : mcbouncer}
 bans = Blueprint('bans', __name__, template_folder="templates")
+
+#db.create_all()
 
 def verifyusername(username):
     return len(username)<=16 and usernameregex.match(username)
@@ -122,7 +124,7 @@ def getlocalbans():
         username = args['username']
     else:
         return json.dumps({'error' : 'The username provided was invalid'})
-    bans = db.session.query(Ban).filter(Ban.banned==args['username'])
+    bans = db.session.query(Ban).filter(Ban.username==args['username'])
     count = bans.count()
     response = {'bancount' : count}
     if count > 0:
@@ -140,10 +142,10 @@ def getlocalbans():
 @bans.route('/bans/local/banuser.json')
 def banuser():
     args = request.args
-    if args.has_key('banned') and verifyusername(args['banned']):
-        banned = args['banned']
+    if args.has_key('username') and verifyusername(args['username']):
+        username = args['username']
     else:
-        return json.dumps({'error' : 'The user to ban that was provided is invalid.'})
+        return json.dumps({'error' : 'The username provided was invalid.'})
     if args.has_key('issuer') and (verifyusername(args['issuer']) or (args['issuer'][:1]=='[' and args['issuer'][1:]==']')):
         issuer = args['issuer']
     else:
@@ -155,10 +157,93 @@ def banuser():
     if args.has_key('server') and args['server'].__len__()<=100:
         server = args['server']
     else: 
-        return json.dumps({'error' : 'The reason provided was invalid.'})
-    ban = Ban(issuer, banned, reason, server)
+        return json.dumps({'error' : 'The server provided was invalid.'})
+    ban = Ban(issuer, username, reason, server)
     db.session.add(ban)
     db.session.commit()
+    return json.dumps({'success' : True})
+
+@bans.route('/bans/local/getnotes.json')
+def getlocalnotes():
+    args = request.args
+    if args.has_key('username') and verifyusername(args['username']):
+        username = args['username']
+    else:
+        return json.dumps({'error' : 'The username provided was invalid'})
+    notes = db.session.query(Note).filter(Note.username==args['username'])
+    count = notes.count()
+    response = {'notecount' : count}
+    if count > 0:
+        response['notes'] = []
+        for note in notes:
+            retnote = {}
+            retnote['uid'] = note.id
+            retnote['issuer'] = note.issuer
+            retnote['time'] = note.gettime()
+            retnote['note'] = note.note
+            retnote['server'] = note.server
+            response['notes'].append(retnote)
+    return json.dumps(response)
+
+@bans.route('/bans/local/addnote.json')
+def addnote():
+    args = request.args
+    if args.has_key('username') and verifyusername(args['username']):
+        username = args['username']
+    else:
+        return json.dumps({'error' : 'The username provided was invalid.'})
+    if args.has_key('issuer') and (verifyusername(args['issuer']) or (args['issuer'][:1]=='[' and args['issuer'][1:]==']')):
+        issuer = args['issuer']
+    else:
+        return json.dumps({'error' : 'The issuer provided was invalid.'})
+    if args.has_key('note') and args['note'].__len__()<=500:
+        note = args['note']
+    else:
+        return json.dumps({'error' : 'The note provided was invalid.'})
+    if args.has_key('server') and args['server'].__len__()<=100:
+        server = args['server']
+    else:
+        return json.dumps({'error' : 'The server provided was invalid.'})
+    note = Note(issuer, username, note, server)
+    db.session.add(note)
+    db.session.commit()
+    return json.dumps({'success' : True})
+
+@bans.route('/bans/local/fulllookup.json')
+def fulllocallookup():
+    args = request.args
+    if args.has_key('username') and verifyusername(args['username']):
+                username = args['username']
+    else:
+        return json.dumps({'error' : 'The username provided was invalid'})
+    bans = db.session.query(Ban).filter(Ban.username==args['username'])
+    bancount = bans.count()
+    notes = db.session.query(Note).filter(Note.username==args['username'])
+    notecount = notes.count()
+    response = {'notecount' : notecount, 'bancount' : bancount}
+
+    if notecount > 0:
+        response['notes'] = []
+        for note in notes:
+            retnote = {}
+            retnote['uid'] = note.id
+            retnote['issuer'] = note.issuer
+            retnote['time'] = note.gettime()
+            retnote['note'] = note.note
+            retnote['server'] = note.server
+            response['notes'].append(retnote)
+    if bancount > 0:
+        response['bans'] = []
+        for ban in bans:
+            retban = {}
+            retban['uid'] = ban.id
+            retban['issuer'] = ban.issuer
+            retban['time'] = ban.gettime()
+            retban['reason'] = ban.reason
+            retban['server'] = ban.server
+            response['bans'].append(retban)
+    return json.dumps(response)
+
 
 #methods = {"getbans" : getbans}
 
