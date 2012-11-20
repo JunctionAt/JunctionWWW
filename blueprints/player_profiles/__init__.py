@@ -11,7 +11,9 @@ from flask import Blueprint, jsonify, render_template, request, current_app, abo
 from werkzeug.datastructures import MultiDict
 from sqlalchemy.orm.exc import *
 from wtalchemy.orm import model_form
-from wtforms.validators import Optional, Length, ValidationError
+import wtforms
+from wtforms import TextField
+from wtforms.validators import Optional, Length, ValidationError, Email
 import re
 
 from blueprints.base import Base, session, db
@@ -41,10 +43,10 @@ class Profile(Base, object):
     @property
     def display_link(self):
         if not self.link: return None
-        if self.link.beginswith('http://'):
-            return self.link[7:]
-        elif self.link.beginswith('https://'):
-            return self.link[8:]
+        if self.link.startswith('http://'):
+            return (self.link, self.link[7:])
+        elif self.link.startswith('https://'):
+            return (self.link, self.link[8:])
         return ("http://%s"%self.link, self.link)
 
     @property
@@ -80,7 +82,7 @@ class Profile(Base, object):
         """Return the stats specified in the player's show_stats field and with empty servers removed"""
         stats = self.stats
         if not self.user.is_anonymous():
-            stats = filter(lambda (name, stats): name in self.show_stats, stats.iteritems())
+            stats = filter(lambda (name, stats): name in self.show_stats and len(stats), stats.iteritems())
         if not len(stats): return None
         return dict(stats)
 
@@ -93,6 +95,7 @@ class Profile(Base, object):
         """Return a default profile for unregistered users"""
         profile = Profile(
             name=name,
+            tagline=None,
             show_stats=' '.join(player_stats.endpoints.keys()),
             _user=user
         )
@@ -166,23 +169,18 @@ def edit_profile_post_api(ext):
 @player_profiles.route('/profile', defaults=dict(ext='html'), methods=('GET', 'POST'))
 @login_required
 def edit_profile(ext):
-    profile = flask_login.current_user.profile
+    user = flask_login.current_user._get_current_object()
+    profile = user.profile
     profile.show_stats = ' '.join(filter(lambda stats: stats in player_stats.endpoints.keys(), profile.show_stats.split(' ')))
-    form = ProfileForm(MultiDict(request.json) or request.form, profile, csrf_enabled=False)
+    data = MultiDict(request.json) or request.form
+    form = ProfileForm(user)(data, profile, csrf_enabled=False)
     if request.method == 'POST' and form.validate():
-        profile.tagline = form._fields['tagline'].data or profile.tagline
-        profile.location = form._fields['location'].data or profile.location
-        profile.link = form._fields['link'].data or profile.link
-        profile.reddit_name = form._fields['reddit_name'].data or profile.reddit_name
-        profile.hide_group_invitations = form._fields['hide_group_invitations'].data or profile.hide_group_invitations
-        if form._fields['show_stats']:
-            profile.show_stats = ' '.join(re.split(r'[,\s]+', form._fields['show_stats'].data.lower()))
+        form.populate_obj(profile)
+        user.mail = form.mail.data
+        profile.show_stats = ' '.join(re.split(r'[,\s]+', data.get('show_stats', form.show_stats.data).lower()))
         session.add(profile)
-        try:
-            session.commit()
-        except:
-            session.rollback()
-            abort(500)
+        session.add(user)
+        session.commit()
         if ext == 'html': flash('Profile saved')
         return redirect(url_for('player_profiles.edit_profile', ext=ext)), 303
     if ext == 'json':
@@ -200,7 +198,7 @@ def edit_profile(ext):
                     show_stats=profile.show_stats,
                     reddit_name=profile.reddit_name,
                     hide_group_invitations=profile.hide_group_invitations))
-    return render_template('edit_profile.html', form=form)
+    return render_template('edit_profile.html', form=form, profile=profile)
 
 def validate_show_stats(form, field):
     invalid = list()
@@ -212,12 +210,17 @@ def validate_show_stats(form, field):
     if len(invalid):
         raise ValidationError('Invalid servers: %s'%', '.join(invalid))
 
-ProfileForm = model_form(
-    Profile, session,
-    field_args=dict(
-        show_stats=dict(
-            label='Displayed stats',
-            description="You can remove any or all servers from this list to hide them on your profile.",
-            validators=[ Optional(), validate_show_stats ]),
-        reddit_name=dict(
-            validators=[ Optional(), Length(min=3, max=20) ])))
+def ProfileForm(user):
+    class ProfileFormBase(wtforms.Form):
+        mail = TextField('Mail', [ Optional(), Email() ], description="Optional. Used for avatar.", default=user.mail)
+    form = model_form(
+        Profile, session, base_class=ProfileFormBase,
+        field_args=dict(
+            show_stats=dict(
+                label='Displayed stats',
+                description="You can remove any or all servers from this list to hide them on your profile.",
+                validators=[ Optional(), validate_show_stats ]),
+            reddit_name=dict(
+                description='[Verify subreddit flair](http://www.reddit.com/message/compose?to=JunctionBot&subject=flair&message=%s)'%user.get_id(),
+                validators=[ Optional(), Length(min=3, max=20) ])))
+    return form

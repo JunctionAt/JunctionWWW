@@ -39,7 +39,6 @@ class Endpoint(object):
 
         name -- required name of the new flask blueprint.
         tablename -- name of table in engine to autoload from.
-
         """
 
         self.model = type(tablename, (Base,), dict(

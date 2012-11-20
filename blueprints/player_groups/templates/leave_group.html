@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block content -%}
-
+{% block topleft %}
 <h1>Leave {{ endpoint.group }}</h1>
+{% endblock %}
 
-<form id=group-leave-form method=POST action="{{ url_for('player_groups.leave_group', server=endpoint.server, group=group.name, ext='html') }}">
-  <button class=group-leave type=submit>Leave {{ group.display_name }}</button>
+{% block content -%}
+<form class="grid_4 prefix_4" action="{{ url_for('player_groups.leave_group', server=endpoint.server, group=group.name, ext='html') }}" method=post>
+  <button type=submit>Leave {{ group.display_name }}</button>
 </form>
-
+<div class=clear></div>
 {% include 'render_group.html' %}
-
 {%- endblock %}
 

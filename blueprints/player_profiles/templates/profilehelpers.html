@@ -1,12 +1,25 @@
 {% from 'statshelpers.html' import render_stats %}
 
-{% macro render_profile_small(profile, link=True) -%}
+{% macro render_profile_tiny(profile, link=True) -%}
 {% if link -%}
 <a href="{{ url_for('player_profiles.show_profile', player=profile.name, ext='html') }}">
 {%- endif -%}
-<img src="{{ profile.avatar.small }}">
+<img src="{{ profile.avatar.tiny }}" style=height:1.2em;width:1.2em>
 {{ profile.name }}
 {%- if link: -%}
 </a>
 {%- endif -%}
 {%- endmacro %}
+
+
+{% macro render_profile_small(profile, link=True) -%}
+{% if link -%}
+<a href="{{ url_for('player_profiles.show_profile', player=profile.name, ext='html') }}">
+{%- endif -%}
+<img src="{{ profile.avatar.small }}" style=height:1.2em;width:1.2em>
+{{ profile.name }}
+{%- if link: -%}
+</a>
+{%- endif -%}
+{%- endmacro %}
+

@@ -17,25 +17,19 @@
 {% endblock %}
 
 {% block topleft %}
-	<p style="color: #cccccc;" >Register (Step 1 of 2)</p>
-{% endblock %}
-
-{% block accountnav %}
-	<p><a href="{{ url_for('auth.login', ext='html') }}" data-skip-pjax="true">I already have an account</a></p>
+<h1>Register</h1>
 {% endblock %}
 
 {% from 'formhelpers.html' import render_field %}
 
 {% block content %}
-<form accept-charset="UTF-8" action="{{ url_for('auth.register', ext='html') }}" method="post" name="registerform" >
+<form action="{{ url_for('auth.register', ext='html') }}" method=post>
   {{ render_field(form.username) }}
   {{ render_field(form.mail) }}
   {{ render_field(form.password) }}
   {{ render_field(form.password_match) }}
   <p id="passwordstate"></p>
-  <div class="actions" align="right">
-    <input class="button" name="commit" type="submit" value="Next step" onclick="return verify.canProceed();" />
-  </div>
+  <input type=submit onclick="return verify.canProceed();">
 </form>
 
 <script type="text/javascript">
@@ -48,5 +42,4 @@
 {% endblock %}
 
 {% block footer %}
-<p>Tip: Your password on the Junction does not need to be the same as your minecraft password.</p>
 {% endblock %}

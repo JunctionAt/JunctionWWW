@@ -57,7 +57,10 @@ def identity_roles(identity):
             identity.user = db.session.query(User).filter(User.name==identity.name).one()
         except NoResultFound:
             identity.user = AnonymousUser()
-    if current_app.config.get('API', False) and isinstance(identity.user._get_current_object(), ApiUser):
+    user = identity.user
+    if hasattr(user, '_get_current_object'):
+        user = user._get_current_object()
+    if current_app.config.get('API', False) and isinstance(user, ApiUser):
         # API treats anonymous user as god
         for role in db.session.query(Role).all():
             identity.provides.add(RoleNeed(role.name))
@@ -93,11 +96,7 @@ def edit_player_roles(player):
             if request.method == 'POST':
                 form.populate_obj(user)
                 db.session.add(user)
-                try:
-                    db.session.commit()
-                except:
-                    db.session.rollback()
-                    abort(500)
+                db.session.commit()
                 flash('Saved')
             return render_template('edit_roles.html', form=form, name=user.name, action=url_for('roles.edit_player_roles', player=user.name))
     except NoResultFound:
@@ -120,11 +119,7 @@ def edit_group_roles(server, group):
             if request.method == 'POST' and form.validate():
                 form.populate_obj(group)
                 db.session.add(group)
-                try:
-                    db.session.commit()
-                except:
-                    db.session.rollback()
-                    abort(500)
+                db.session.commit()
                 flash('Saved')
             return render_template('edit_roles.html', form=form, name=group.name, action=url_for('roles.edit_group_roles', server=server, group=group.name))
     except NoResultFound:

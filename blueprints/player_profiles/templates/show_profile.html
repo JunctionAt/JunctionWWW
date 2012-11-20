@@ -1,72 +1,52 @@
+{% extends "base.html" %}
 {% from 'statshelpers.html' import render_stats %}
 {% from 'grouphelpers.html' import render_group_small %}
 
-{% extends "base.html" %}
+{% block topleft %}
+<h1>{{ profile.name }}</h1>
+{% endblock %}
+
 {% block content %}
-<div class="profile">
 
-<img src="{{ profile.avatar.portrait }}">
-
-<h1 class=profile-name>{{ profile.name }}</h1>
-
-{% if profile.tagline: -%}
-<div class=profile-tagline><q>{{ profile.tagline }}</q></div>
-{%- endif %}
-
-{% if profile.realname or profile.location or profile.link: -%}
-<div class=profile-info>
-
+<div class=grid_4>
+  <img src="{{ profile.avatar.portrait }}">
+  {% if profile.tagline: -%}
+  <blockquote>{{ profile.tagline }}</blockquote>
+  {%- endif %}
   {% if profile.realname: -%}
-  <span class=profile-realname>{{ profile.realname }}</span><br>
+  <p>{{ profile.realname }}</p>
   {%- endif %}
-
   {% if profile.location: -%}
-  <span class=profile-location>{{ profile.location }}</span><br>
+  <p>{{ profile.location }}</p>
   {%- endif %}
-
   {% if profile.display_link: -%}
-  <span class=profile-link><a href="{{ profile.display_link[0] }}">{{ profile.display_link[1] }}</a></span><br>
+  <p><a href="{{ profile.display_link[0] }}">{{ profile.display_link[1] }}</a></p>
   {%- endif %}
-
   {% if profile.reddit_name: -%}
-  <span class=profile-reddit-name>Reddit: <a href="http://reddit.com/user/{{ profile.reddit_name }}">{{ profile.reddit_name }}</a></span><br>
+  <p><a href="http://reddit.com/user/{{ profile.reddit_name }}">/u/{{ profile.reddit_name }}</a></p>
   {%- endif %}
-
 </div>
-{%- endif -%}
 
 {% if profile.user.groups_owner: -%}
+<div class=grid_8>
 {% for server, endpoint in player_groups.endpoints.iteritems(): -%}
-{% set groups = endpoint.owner_of(profile.user) -%}
+{% set groups = endpoint.member_or_owner_of(profile.user) -%}
 {% if groups: -%}
-<h2>{{ server_display_name(server) }} {{ endpoint.owner }} of</h2>
 {% for group in groups: -%}
 {{ render_group_small(group) }}
 {%- endfor %}
 {%- endif %}
 {%- endfor %}
-{%- endif %}
-
-{% if profile.user.groups_member: -%}
-{% for server, endpoint in player_groups.endpoints.iteritems(): -%}
-{% set groups = endpoint.member_of(profile.user) -%}
-{% if groups: -%}
-<h2>{{ server_display_name(server) }} {{ endpoint.member  }}</h2>
-{% for group in groups: -%}
-{{ render_group_small(group) }}
-{%- endfor %}
-{%- endif %}
-{%- endfor %}
+</div>
 {%- endif %}
 
 {% if profile.profile_stats: -%}
-<h2>Player stats</h2>
 {% for name, stats in profile.profile_stats.iteritems(): -%}
-<h3>{{ server_display_name(name) }}</h3>
-{{ render_stats(stats) }}
+<div class="grid_2 profile_stats">
+  <h3>{{ server_display_name(name) }}</h3>
+  {{ render_stats(stats) }}
+</div>
 {%- endfor %}
 {%- endif %}
-
-</div>
 
 {%- endblock %}

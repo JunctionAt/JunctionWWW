@@ -1,19 +1,34 @@
 {% extends "base.html" %}
+{% from 'formhelpers.html' import render_field %}
 
-{% block content %}
+{% block head -%}
+<script src="{{ url_for('static_pages.static', filename='chosen.jquery.min.js') }}"></script>
+<link href="{{ url_for('static_pages.static', filename='chosen.css') }}" rel="stylesheet">
+{%- endblock %}
 
+{% block topleft -%}
 {% if register: -%}
 <h1>Register {{ endpoint.group }}</h1>
 {%- else -%}
 <h1>Edit {{ endpoint.group }}</h1>
 {%- endif %}
+{%- endblock %}
 
-{% from 'formhelpers.html' import render_field %}
+{% block content %}
+
 {% if register: -%}
-<form id=group-register-form method=post action={{ url_for('player_groups.register_group', server=endpoint.server, ext='html') }}>
+<form class="grid_5 prefix_3" action="{{ url_for('player_groups.register_group', server=endpoint.server, ext='html') }}" method=post>
 {%- else: -%}
-<form id=group-edit-form method=post action={{ url_for('player_groups.edit_group', server=endpoint.server, group=group.name, ext='html') }}>
-{%- endif %}
+<div class=grid_4>
+  <img src="{{ group.avatar.portrait }}">
+  {% if group.tagline: -%}
+  <blockquote>{{ group.tagline }}</blockquote>
+  {%- endif %}
+  {% if group.link: -%}
+  <p><a href={{ group.link }}>{{ group.link }}</a></p>
+  {%- endif %}
+</div>
+<form class=grid_4 action="{{ url_for('player_groups.edit_group', server=endpoint.server, group=group.name, ext='html') }}" method=post>{%- endif %}
   {% if register: -%}
   {{ render_field(form.display_name) }}
   {%- endif %}
@@ -21,25 +36,19 @@
   {{ render_field(form.tagline) }}
   {{ render_field(form.link) }}
   {{ render_field(form.public) }}
-  {% if register: -%}
-  <p>
-    <small>
-      You will need to have at least one other confirmed {{ endpoint.member }} or {{ endpoint.owner }} to complete registration.
-      If you do not see the player's name in the list, you must wait until the player has created an account
-      before registering your {{ endpoint.group }}.
-    </small>
-  </p>
-  {%- endif %}
   {{ render_field(form.invited_owners) }}
   {{ render_field(form.invited_members) }}
   {% if not register: -%}
   {{ render_field(form.info) }}
   {%- endif %}
   {% if register: -%}
+  {{ render_field(form.recaptcha) }}
   <p class=group-submit><input type=submit value=Register></p>
   {%- else: -%}
   <p class=group-submit><input type=submit value=Save></p>
   {%- endif %}
 </form>
-
+<script>
+  $('select').chosen();
+</script>
 {% endblock %}

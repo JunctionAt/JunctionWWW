@@ -1,39 +1,16 @@
 {% extends "base.html" %}
 
-{% block head %}
-	<script>
-		$(document).ready(function() {
-			$("input[type='text']:first", document.forms[0]).focus();
-		});
-	</script>
-        <link rel="stylsheet" href="{{ url_for('auth.static', filename='login.css') }}">
-{% endblock %}
-
 {% block topleft %}
-	<p style="color: #cccccc;" >Sign in</p>
+<h1>Sign in</h1>
 {% endblock %}
 
-{% block accountnav %}
-	<p><a href="/register" data-skip-pjax="true">Sign up</a></p>
-{% endblock %}
+{% from 'formhelpers.html' import render_field %}
 
 {% block content %}
-	<form accept-charset="UTF-8" action="" method="post">
-	  <div class="field text-field">
-	    <label for="user_session_login">Minecraft Username</label><br />
-	    <input class="text-field" name="username" size="30" type="text" />
-	  </div>
-	  <div class="field text-field">
-	    <label for="user_session_password">Junction Password</label><br />
-	    <input class="text-field" name="password" size="30" type="password" />
-	  </div>
-		<div class="field">
-		<input checked="checked" name="remember" type="checkbox" value="0" /> 
-		<label for="user_session_remember_me">Keep me logged in</label>
-	  </div>
-	  <div class="actions">
-	    <input class="button" name="commit" type="submit" value="Login" />
-		<a href="/resetpass" class="forgotten-password">Forgotten password?</a>
-	  </div>
+<form class="grid_4 prefix_4" action="{{ url_for('auth.login', ext='html') }}" method=post>
+  {{ render_field(form.username) }}
+  {{ render_field(form.password) }}
+  {{ render_field(form.remember) }}
+  <input type=submit>
 </form>
 {% endblock %}

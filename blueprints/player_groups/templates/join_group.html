@@ -1,27 +1,27 @@
 {% extends "base.html" %}
 
-{% block content -%}
-
+{% block topleft -%}
 <h1>Join {{ endpoint.group }}</h1>
+{%- endblock %}
 
-<form id=group-join-form method=POST action="{{ url_for('player_groups.join_group', server=endpoint.server, group=group.name, ext='html') }}">
-  <button class=group-join type=submit>Join {{ group.display_name }}</button>
-</form>
-
-{% if not group.publc: -%}
-<button class=group-decline type=submit onclick="decline()">No, thanks</button>
-<script>
-  function decline() {
+{% block content -%}
+<form class="grid_4 prefix_4" action="{{ url_for('player_groups.join_group', server=endpoint.server, group=group.name, ext='html') }}" method=post>
+  <button type=submit>Join {{ group.display_name }}</button>
+  {% if not group.publc: -%}
+  <button type=submit onclick="decline()">No, thanks</button>
+  <script>
+    function decline() {
     $.ajax({
-      url: '{{ url_for('player_groups.join_group', server=endpoint.server, group=group.name) }}',
-      type: 'delete',
-      complete: function() { window.location = '{{ url_for('player_groups.show_group', server=endpoint.server, group=group.name, ext='json') }}'; }
+    url: '{{ url_for('player_groups.join_group', server=endpoint.server, group=group.name) }}',
+    type: 'delete',
+    complete: function() { window.location = '{{ url_for('player_groups.show_group', server=endpoint.server, group=group.name, ext='json') }}'; }
     });
-  }
-</script>
-{%- endif %}
-
+    return false;
+    }
+  </script>
+  {%- endif %}
+</form>  
+<div class=clear></div>
 {% include 'render_group.html' %}
-
 {%- endblock %}
 

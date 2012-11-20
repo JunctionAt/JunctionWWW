@@ -1,21 +1,41 @@
 {% extends "base.html" %}
+{% from 'formhelpers.html' import render_field %}
+
+{% block topleft %}
+<h1>Edit profile</h1>
+{% endblock %}
 
 {% block content %}
+<div class="grid_4">
+  <a href="{{ profile.avatar.link }}"><img src="{{ profile.avatar.portrait }}"></a>
+  {% if profile.tagline: -%}
+  <blockquote>{{ profile.tagline }}</blockquote>
+  {%- endif %}
+  {% if profile.realname: -%}
+  <p>{{ profile.realname }}</p>
+  {%- endif %}
+  {% if profile.location: -%}
+  <p>{{ profile.location }}</p>
+  {%- endif %}
+  {% if profile.display_link: -%}
+  <p><a href="{{ profile.display_link[0] }}">{{ profile.display_link[1] }}</a></p>
+  {%- endif %}
+  {% if profile.reddit_name: -%}
+  <p><a href="http://reddit.com/user/{{ profile.reddit_name }}">/u/{{ profile.reddit_name }}</a></p>
+  {%- endif %}
+</div>
 
-<h1>Edit profile</h1>
-
-<div><a href="{{ current_user.profile.avatar.link }}"><img src="{{ current_user.profile.avatar.portrait }}"></a></div>
-
-{% from 'formhelpers.html' import render_field %}
-<form id=profile-form method=post action="{{ url_for('player_profiles.edit_profile', ext='html') }}">
-  {{ render_field(form.tagline) }}
-  {{ render_field(form.realname) }}
-  {{ render_field(form.location) }}
-  {{ render_field(form.link) }}
-  {{ render_field(form.reddit_name) }} <a href="http://www.reddit.com/message/compose?to=JunctionBot&subject=flair&message={{ current_user.name }}">Verify subreddit flair</a>
-  {{ render_field(form.show_stats) }}
-  {{ render_field(form.hide_group_invitations) }}
-  <p class=profile-submit><input type=submit value=Save></p>
-</form>
-
+<div class="grid_4">
+  <form id=profile-form method=post action="{{ url_for('player_profiles.edit_profile', ext='html') }}">
+    {{ render_field(form.mail) }}
+    {{ render_field(form.tagline) }}
+    {{ render_field(form.realname) }}
+    {{ render_field(form.location) }}
+    {{ render_field(form.link) }}
+    {{ render_field(form.reddit_name) }}
+    {{ render_field(form.show_stats) }}
+    {{ render_field(form.hide_group_invitations) }}
+    <p class=profile-submit><input type=submit value=Save></p>
+  </form>
+</div>
 {% endblock %}

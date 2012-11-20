@@ -71,3 +71,8 @@ Markdown(flask.current_app)
 @flask.current_app.context_processor
 def inject_server():
     return dict(server_display_name=lambda server: dict(pve='PvE', survival='Survival', event='Event', chaos='Chaos', staff='Staff')[server],)
+
+# Recaptcha
+RECAPTCHA_USE_SSL = True
+RECAPTCHA_PUBLIC_KEY = '6LdkRtkSAAAAAMtMsr3JLyMcNN-2dsMSpeLM5CvB'
+RECAPTCHA_PRIVATE_KEY = '6LdkRtkSAAAAAA8EBjvIX38Z62LIpNmAbFNseNqh'

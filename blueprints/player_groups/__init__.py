@@ -11,6 +11,8 @@ from flask import render_template, jsonify, request, current_app, abort, flash, 
 from werkzeug.datastructures import MultiDict
 from sqlalchemy.orm.exc import *
 from wtforms.validators import Required, Optional, Email, ValidationError
+import wtforms
+from flask.ext.wtf import RecaptchaField
 from wtalchemy.orm import model_form
 from yell import notify
 from yell.decorators import notification
@@ -56,6 +58,7 @@ class Group(Base):
     link = db.Column(db.String(256))
     info = db.Column(db.Text(1024))
     public = db.Column(db.Boolean)
+    member_count = db.Column(db.Integer)
     owners = db.relation(User, secondary=lambda:GroupOwners.__table__, backref="groups_owner")
     members = db.relation(User, secondary=lambda:GroupMembers.__table__, backref="groups_member")
     invited_owners = db.relation(User, secondary=lambda:GroupInvitedOwners.__table__, backref="groups_invited_owner")
@@ -104,6 +107,8 @@ GroupInvitedMembers = GroupUserRelation('player_groups_invited_members')
 def inject_groups():
     return dict(player_groups=player_groups)
 
+class RecaptchaForm(wtforms.Form):
+    recaptcha = RecaptchaField()
 
 class Endpoint(object):
     """Wrapper to distinguish server groups"""
@@ -135,6 +140,10 @@ class Endpoint(object):
             '/%s/%s/invitations'%(self.server, self.groups), 'show_invitations',
             defaults=dict(server=self.server, ext='html'))
         player_groups.add_url_rule(
+            '/%s/%s/register'%(self.server, self.groups), 'register_group',
+            defaults=dict(server=self.server, ext='html'),
+            methods=('GET', 'POST'))
+        player_groups.add_url_rule(
             '/%s/%s/<group>/edit'%(self.server, self.group), 'edit_group',
             defaults=dict(server=self.server, ext='html'),
             methods=('GET','POST'))
@@ -151,9 +160,17 @@ class Endpoint(object):
         """Create a group editing form class"""
 
         exclude = [ 'server', 'name', 'owners', 'members', 'created' ]
-        if not register: exclude.append('display_name')
+        if register:
+            base_class = RecaptchaForm
+            description = """You will need to have at least one other confirmed %s or %s to complete registration.
+                             If you do not see the player's name in the list, you must wait until the player has
+                             created an account before registering your %s."""%(self.member, self.owner, self.group)
+        else:
+            base_class = wtforms.Form
+            description = None
+            exclude.append('display_name')
         return model_form(
-            Group, session, exclude=exclude,
+            Group, session, exclude=exclude, base_class=base_class,
             field_args=dict(
                 display_name=dict(
                     label='%s name'%self.group.capitalize(),
@@ -162,12 +179,14 @@ class Endpoint(object):
                     label='Open registration',
                     description='Check this to allow anyone to join your %s without prior invitation.'%self.group),
                 mail=dict(
-                    description='Optional contact email for your %s. Will allow you a custom avatar.'%self.group,
+                    description='Optional. Used for avatar.',
                     validators=[ Optional(), Email() ]),
                 invited_owners=dict(
-                    label=self.owners.capitalize()),
+                    label=self.owners.capitalize(),
+                    description=description),
                 invited_members=dict(
-                    label=self.members.capitalize())))
+                    label=self.members.capitalize()),
+            ))
 
     def validate_display_name(self, form, field):
         """For registration form"""
@@ -199,6 +218,11 @@ class Endpoint(object):
         
         return filter(lambda group: group.server == self.server, user.groups_member)
 
+    def member_or_owner_of(self, user):
+        """Returns the groups user is a member or owner of"""
+        
+        return filter(lambda group: group.server == self.server, user.groups_member + user.groups_owner)
+
     def invited_owner_of(self, user):
         """Returns the unactioned member invitations of user"""
         
@@ -212,6 +236,13 @@ class Endpoint(object):
         return filter(lambda group: group.server == self.server, \
                           list(set(user.groups_invited_member or list()) -
                                set(user.groups_member or list())))
+
+    def invited_owner_or_member_of(self, user):
+        """Returns the unactioned member or owner invitations of user"""
+        
+        return filter(lambda group: group.server == self.server, \
+                          list(set((user.groups_invited_member or list()) + (user.groups_invited_owner or list())) -
+                               set((user.groups_member or list()) + ((user.groups_owner or list())))))
 
 
 @apidoc(__name__, player_groups, '/<server>/group/<group>.json', endpoint='show_group', defaults=dict(ext='json'))
@@ -363,14 +394,10 @@ def edit_group(server, group, ext):
             return redirect(url_for('player_groups.edit_group', server=server, group=group.name, ext=ext)), 301
         user = flask_login.current_user
         if not user in group.owners: abort(403)
-        form = self.GroupEditForm(MultiDict(request.json) or request.form, group, csrf_enabled=False)
+        data = MultiDict(request.json) or request.form
+        form = self.GroupEditForm(data, group, csrf_enabled=False)
         if request.method == 'POST' and form.validate() & self.validate_members(form, user):
-            group.tagline = form._fields['tagline'].data or group.tagline
-            group.link = form._fields['link'].data or group.link
-            group.info = form._fields['info'].data or group.info
-            group.public = form._fields['public'].data or group.public
-            group.invited_members = form._fields['invited_members'].data or group.invited_members
-            group.invited_owners = form._fields['invited_owners'].data or group.invited_owners
+            form.populate_obj(group)
             # Make ownership and membership mutually exclusive
             group.invited_owners = list(set(group.invited_owners + [user]))
             group.invited_members = list(set(group.invited_members) - set(group.invited_owners))
@@ -379,15 +406,12 @@ def edit_group(server, group, ext):
             demotions = set(group.invited_members) & set(group.owners)
             group.owners = list(promotions | (set(group.owners) & set(group.invited_owners)))
             group.members = list(demotions | (set(group.members) & set(group.invited_members)))
+            group.member_count = len(group.owners) + len(group.members)
             # Send notifications
             manage_notifications(group)
             # Commit
             session.add(group)
-            try:
-                session.commit()
-            except:
-                session.rollback()
-                abort(500)
+            session.commit()
             # Done
             if ext == 'html': flash('%s saved'%self.group.capitalize())
             return redirect(url_for('player_groups.edit_group', server=server, group=group.name, ext=ext)), 303
@@ -444,11 +468,7 @@ def join_group(server, group, ext):
                         abort(403)
                     # Check for confirmation of group registration
                     if group.id == "%s.pending.%s"%(self.server,group.name):
-                        try:
-                            session.delete(group)
-                        except:
-                            session.rollback()
-                            abort(500)
+                        session.delete(group)
                         group = Group.confirm(group)
                     if ext == 'html': flash("You have joined %s."%group.display_name)
                 else:
@@ -460,14 +480,11 @@ def join_group(server, group, ext):
                     else:
                         abort(403)
                     if ext == 'html': flash("Invitation to %s declined."%group.display_name)
+                group.member_count += 1
                 manage_notifications(group)
                 # Commit
                 session.add(group)
-                try:
-                    session.commit()
-                except:
-                    session.rollback()
-                    abort(500)
+                session.commit()
                 return redirect(url_for('player_groups.show_group', server=server, group=group.name, ext=ext)), 303
             return render_template('join_group.html', endpoint=self, group=group)
         abort(403)
@@ -502,12 +519,9 @@ def leave_group(server, group, ext):
                 group.members = list(set(group.members) - set([user]))
                 group.invited_owners = list(set(group.invited_owners) - set([user]))
                 group.invited_members = list(set(group.invited_members) - set([user]))
+                group.member_count -= 1
                 session.add(group)
-                try:
-                    session.commit()
-                except:
-                    session.rollback()
-                    abort(500)
+                session.commit()
                 if ext == 'html': flash("You are no longer %s of %s."%(group.a_member, group.display_name))
                 return redirect(url_for('player_groups.show_group', server=server, group=group.name, ext=ext)), 303
             return render_template('leave_group.html', endpoint=self, group=group)
@@ -631,11 +645,7 @@ def manage_members(server, group, invite, type, player, ext):
                     to(group, list(set(to(group, invite=True) + [member])), invite=True)
                 # Commit
                 session.add(group)
-                try:
-                    session.commit()
-                except:
-                    session.rollback()
-                    abort(500)
+                session.commit()
                 return redirect(url_for('player_groups.manage_members', server=server, group=group.name, type=type, invite=invite, player=member.name, ext=ext)), 303
             elif request.method == 'DELETE' and member in to(group):
                 # Remove membership and ownership
@@ -643,14 +653,11 @@ def manage_members(server, group, invite, type, player, ext):
                 group.owners = list(set(group.owners) - set([member]))
                 group.invited_members = list(set(group.invited_members) - set([member]))
                 group.invited_owners = list(set(group.invited_owners) - set([member]))
+                group.member_count -= 1
                 manage_notifications(group)
                 # Commit
                 session.add(group)
-                try:
-                    session.commit()
-                except:
-                    session.rollback()
-                    abort(500)
+                session.commit()
                 return redirect(url_for('player_groups.manage_members', server=server, group=group.name, type=type, invite=invite, player=member.name, ext=ext)), 303
             abort(404)
         abort(403)
@@ -777,18 +784,10 @@ def register_group(server, ext):
         group.name = re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', group.display_name))
         group.id = "%s.pending.%s"%(self.server, group.name)
         # Delete any pending group registrations of the same id
-        try:
-            session.query(Group).filter(Group.id==group.id).delete()
-        except:
-            session.rollback()
-            abort(500)
+        session.query(Group).filter(Group.id==group.id).delete()
         manage_notifications(group)
         # Commit
-        try:
-            session.add(group)
-        except:
-            session.rollback()
-            abort(500)
+        session.add(group)
         session.commit()
         # Done
         if ext == 'html': flash('%s registration complete pending confirmation by other %s.'%(self.group.capitalize(), self.members))

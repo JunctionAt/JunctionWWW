@@ -16,6 +16,7 @@ class Blueprint(flask.Blueprint):
         img = ("https://www.gravatar.com/avatar/%s.png?r=pg&d="%hash)+default
         return type('Avatar', (object, ), dict(
                 link=link,
+                tiny="%s%d&s=%d"%(img,16,16),
                 small="%s%d&s=%d"%(img,32,32),
                 medium="%s%d&s=%d"%(img,64,64),
                 large="%s%d&s=%d"%(img,128,128),

@@ -23,7 +23,7 @@ from flask_login import (LoginManager, login_required as __login_required__,
                          login_user, logout_user, confirm_login, fresh_login_required)
 from flask.ext.principal import Permission, RoleNeed, Identity
 from functools import wraps
-from wtforms import Form, TextField, PasswordField, ValidationError
+from wtforms import Form, TextField, PasswordField, BooleanField, ValidationError
 from wtforms.validators import *
 from werkzeug.datastructures import MultiDict
 from sqlalchemy.sql.operators import ColumnOperators
@@ -74,50 +74,53 @@ def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if not flask_login.current_user.is_authenticated():
-            if current_app.config.get('API', False):
-                login_user(ApiUser())
-            else:
-                try:
-                    auth = request.authorization
-                    user = db.session.query(User).filter(User.name==auth.username).first()
-                    if not user or not user.hash == bcrypt.hashpw(auth.password, user.hash) or \
-                            not login_user(user, remember=False, force=True):
-                        raise Exception()
-                except:
+            try:
+                auth = request.authorization
+                user = db.session.query(User).filter(User.name==auth.username).first()
+                if not user or not user.hash == bcrypt.hashpw(auth.password, user.hash) or \
+                        not login_user(user, remember=False, force=True):
+                    raise Exception()
+            except:
+                if current_app.config.get('API', False):
+                    login_user(ApiUser())
+                else:
                     if request.path[-5:] == '.json': abort(403)
                     return __login_required__(f)(*args, **kwargs)
         return f(*args, **kwargs)
     return decorated
 
-def wpass():
-    flash(u"The username or password was incorrect.")
-    return redirect(url_for('auth.login', ext='html'))
-	
+class LoginForm(Form):
+    username = TextField('Minecraft Name', [ Required(), Length(min=2, max=16) ])
+    password = PasswordField('Junction Password', validators=[ Required(), Length(min=8) ])
+    remember = BooleanField('Stay logged in', [ Optional() ], default=True)
+    def validate_password(form, field):
+        if reduce(lambda errors, (name, field): errors or len(field.errors), form._fields.iteritems(), False):
+            return
+        try :
+            form.user = db.session.query(User).filter(User.name==form.username.data).first()
+            if form.user.hash == bcrypt.hashpw(form.password.data, form.user.hash):
+                return
+        except KeyError: pass
+        raise ValidationError('Invalid username or password.')
+
 @blueprint.route("/login", defaults=dict(ext='html'), methods=("GET", "POST"))
 def login(ext):
-    if request.method == "POST" and ("username" in request.form or "username" in request.json) and \
-            ("password" in request.form or "password" in request.json):
-	username = (request.json or request.form)["username"]
-	password = (request.json or request.form)["password"]
-        user = db.session.query(User).filter(User.name==username).first()
-        if user and user.hash == bcrypt.hashpw(password, user.hash):
-            if not user.verified:
-                if ext == 'json': abort(403)
-                flash(u"Please check your mail.")
-                return redirect(url_for('auth.login', ext='html'))
-            remember = request.form.get("remember", "no") == "yes"
-            if login_user(load_user(username), remember=remember):
-                if ext == 'json': return redirect(url_for('player_profiles.show_profile',
-                                                          player=username, ext=ext)), 303
-                flash("Logged in!")
-                return redirect(request.args.get("next", url_for('auth.controlpanel')))
-        if ext == 'html':
-            return wpass()
+    form = LoginForm(MultiDict(request.json) or request.form)
+    if request.method == "POST" and form.validate():
+        if not form.user.verified:
+            if ext == 'json': abort(403)
+            flash(u"Please check your mail.")
+            return redirect(url_for('auth.login', ext='html'))
+        if login_user(form.user, remember=form.remember.data):
+            if ext == 'json': return redirect(url_for('player_profiles.show_profile',
+                                                      player=form.user.name, ext=ext)), 303
+            flash("Logged in!")
+            return redirect(request.args.get("next", url_for('auth.controlpanel')))
     if ext == 'json':
         if request.method == 'GET': abort(405)
         return login_required(lambda: (redirect(url_for('player_profiles.show_profile',
                                                         player=flask_login.current_user.get_id(), ext=ext)), 303))()
-    return render_template("login.html")
+    return render_template("login.html", form=form)
 
 @apidoc(__name__, blueprint, '/login.json', endpoint='login', defaults=dict(ext='json'), methods=('GET',))
 def login_get_api(ext):
@@ -158,7 +161,7 @@ def logout_api(ext):
 class RegistrationForm(Form):
     username = TextField('Username', [ Required(), Length(min=2, max=16) ])
     mail = TextField('Email', description='Optional. Use for Gravatars.', validators=[ Optional(), Email() ])
-    password = PasswordField('Password', [ Required(), Length(min=8) ])
+    password = PasswordField('Password', description='Note: Does not need to be the same as your Minecraft password', validators=[ Required(), Length(min=8) ])
     password_match = PasswordField('Verify Password', [ Optional() ])
     def validate_username(form, field):
         if db.session.query(User).filter(User.name==field.data).count():
@@ -183,11 +186,7 @@ def register(ext):
         token.ip = request.remote_addr
         token.expires = datetime.datetime.utcnow() + datetime.timedelta(0, 10 * 60)
         db.session.add(token)
-        try:
-            db.session.commit()
-        except:
-            db.session.rollback()
-            abort(500)
+        db.session.commit()
         return redirect(url_for('auth.activatetoken', ext=ext)), 303
     if ext == 'json':
         return jsonify(
@@ -235,11 +234,7 @@ def activatetoken(ext):
         user.verified = True
         db.session.add(user)
         db.session.delete(form.token)
-        try:
-            db.session.commit()
-        except:
-            db.session.rollback()
-            abort(500)
+        db.session.commit()
         if ext == 'html': flash(u"Registration sucessful! You can now log in with your account.")
         return redirect(url_for('auth.login', ext=ext)), 303
     if ext == 'json':
@@ -272,11 +267,7 @@ def controlpanel():
         if request.form['newpassword']:
             hashed = bcrypt.hashpw(request.form['newpassword'], bcrypt.gensalt())
             db.session.execute('UPDATE users SET hash=:hash WHERE name=:name;', dict(hash=hashed, name=flask_login.current_user.get_id()))
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                abort(500)
+            db.session.commit()
             flash('Updated password')
             return render_template("controlpanel.html")
     return render_template("controlpanel.html")

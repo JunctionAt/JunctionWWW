@@ -1,57 +1,63 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>junction.at</title>
-    <style>
-      body {
-        padding: 0;
-        margin: 0;
-        background: #000;
-      }
-      #body {
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        background: #353535 url({{ url_for('static_pages.static', filename='bg.jpg') }}) 50% 50% no-repeat;
-      }
-      #text {
-        position: relative;
-        left: -50%;
-        color: #999999;
-        font-size: 150%;
-      }
-      #txtcont {
-        position: absolute;
-        left: 50%;
-        bottom: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="body">
-      <div id="logocont" style="text-align:center; margin-top:10em;">
-        <img style="opacity:0.8;" src="{{ url_for('static_pages.static', filename='bg3.png') }}">
-      </div>
-      <div id="" style="text-align:center; bottom: 20px;">
-        <img style="opacity:0.6; height:7em;" src="{{ url_for('static_pages.static', filename='under.png') }}">
-      </div>
-      {% if rules: -%}
-      <div style="position: absolute; width: 1000px; margin-left: -500px; padding: 5px; top: 0; left: 50%; background: #FFF; opacity: 0.95; font-weight: bold; font-size: 16px; line-height: 1.6em;">
-        <table style="width: 100%">
-          <thead>
-            <td>Rule</td>
-            <td>Methods</td>
-            <td>Endpoint</td>
-        {% for rule in rules: -%}
-          <tr>
-            <td style="background: #CCC"><a href="{{rule['rule']}}" style="text-decoration: none">{{rule['rule']}}</a></td>
-            <td style="background: #CCC">{{ tuple(rule.methods - set(('HEAD', 'OPTIONS'))) }}</td>
-            <td style="background: #CCC">{{ rule['endpoint'] }}</td>
-          </tr>
-        {%- endfor %}
-        </table>
-      </div>
-      {%- endif -%}
-    </div>
-  </body>
-</html>
+{% extends "base.html" %}
+{% from 'grouphelpers.html' import render_group_small %}
+
+{% block content %}
+<div class=grid_3>
+  <h2><a href="http://reddit.com/r/junction">Subreddit</a></h2>
+  {% for post in posts[:10]: -%}
+  <p style=font-size:small>
+    {% if post['link_flair_text']: %}[{{ post['link_flair_text'] }}]{% endif %}
+    <a href="{{ post['url'] }}">{{ post['title'] }}</a>
+  </p>
+  <div class=clear></div>
+  {%- endfor %}
+</div>
+<div class=grid_3>
+  <h2><code>p.junction.at</code></h2>
+  <p>PvE. Survival without player-killing.</p>
+  {% if groups['pve']: -%}
+  <h4>Largest cities</h4>
+  <table>
+    <thead>
+      <tr style=font-size:x-small>
+        <td>City</td>
+        <td align=right>Citizens</td>
+      </tr>
+    </thead>
+    {% for group in groups['pve']: -%}
+    <tr>
+      <td width=100%>{{ render_group_small(group) }}</td>
+      <td align=right>{{ group.member_count }}</td>
+    </tr>
+    {%- endfor %}
+  </table>
+  {%- endif %}
+  <p><a href="/pve/cities/register">Register a city</a></p>
+</div>
+<div class=grid_3>
+  <h2><code>s.junction.at</code></h2>
+  <p>Moderated SMP.</p>
+  {% if groups['survival']: -%}
+  <h4>Largest clans</h4>
+  <table>
+    <thead>
+      <tr style=font-size:x-small>
+        <td>Clan</td>
+        <td align=right>Members</td>
+      </tr>
+    </thead>
+    {% for group in groups['survival']: -%}
+    <tr>
+      <td width=100%>{{ render_group_small(group) }}</td>
+      <td align=right>{{ group.member_count }}</td>
+    </tr>
+    {%- endfor %}
+  </table>
+  {%- endif %}
+  <p><a href="/survival/clans/register">Register a clan</a></p>
+</div>
+<div class=grid_3>
+  <h2><code>mumble.junction.at</code></h2>
+  <p>Voice-chat server.</p>
+</div>
+{% endblock %}

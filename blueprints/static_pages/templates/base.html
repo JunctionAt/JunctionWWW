@@ -1,60 +1,60 @@
+{% from 'profilehelpers.html' import render_profile_tiny -%}
+
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Junction.at</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
-  <link href="{{ url_for('static_pages.static', filename='style.css') }}" media="screen" rel="stylesheet" type="text/css" />
-  <script src="{{ url_for('static_pages.static', filename='jquery-1.8.2.min.js') }}"></script>
-  {% block head %}
-  
-  {% endblock %}
-</head>
-<body class="box">
-	<div id="container" style="max-width: 480px">
-		<span id="_top"></span>
-		<div id="header" class="group"> 
-			<h2 id="logo">
-				{% block topleft %}
-		
-				{% endblock %}
-			</h2>  
-			<div id="account-nav"> 
-				{% block accountnav %}
-		
-				{% endblock %}
-			</div>
-                        {% include 'asuserhelpers.html' %}
-		</div> <!-- /header -->
-<!--[if IE]>
-<div id="old-browser">
-	LaterThis has not been optimized for Internet Explorer. You might want to consider upgrading to <b><a href="http://www.google.com/chrome">Google Chrome</a></b> or <b><a href="http://www.mozilla.org/en-US/firefox/new/">Firefox</a></b>.
-</div>
-<![endif]-->
-		
-<div id="content">
-	{% for message in get_flashed_messages() %}
-		<div class=flash>{{ message }}</div>
-		<br/>
-	{% endfor %}
-	{% for notification in get_notifications(): %}
-		<div class=flash>{{ notification.message|markdown }}</div>
-		<br/>
-	{% endfor %}
-	{% block content %}
-	
-	{% endblock %}
-</div>
-
-<!--<div class="addon-content"><span class="agree-to-policies">Your Junction password does not need to be the same as your Minecraft password.</span>
-</div>-->
-
-<div id="footer-container">
-	<div id="footer" class="group">
-		{% block footer %}
-	
-		{% endblock %}
-	</div>
-</div>
-	</div>
-</body>
+  <head>
+    <title>Junction.at</title>
+    <link href="{{ url_for('static_pages.static', filename='fluid_grid.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static_pages.static', filename='style.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static_pages.static', filename='jquery-1.8.2.min.js') }}"></script>
+    {% block head %}
+    {% endblock %}
+  </head>
+  <body>
+    <header>
+      <div class=container_12>
+        <div class="logo grid_2"><a href="/"><img src="{{ url_for('static_pages.static', filename='logo.png') }}" alt="Junction home"></a></div>
+        <div class="accountnav grid_3 prefix_7">
+          {% if current_user.is_authenticated(): -%}
+          <ul>
+            <li class=profile_link>{{ render_profile_tiny(current_user.profile) }}</li>
+            <li><a href="{{ url_for('player_profiles.edit_profile', ext='html') }}">Edit profile</a></li>
+            <li><a href="{{ url_for('auth.logout', ext='html') }}">Logout</a></li>
+          </ul>
+          {% include 'asuserhelpers.html' %}
+          {%- else -%}
+          {% if request.path == url_for('auth.login', ext='html'): -%}
+          <a href="{{ url_for('auth.register', ext='html') }}">Sign up</a>
+          {%- else: -%}
+          <a href="{{ url_for('auth.login', ext='html') }}">Sign in</a>
+          {%- endif %}
+          {% endif %}
+        </div>
+      </div>
+    </header>
+    <div class="content container_12">
+      <div class="topleft grid_8">
+        {% block topleft %}{% endblock %}
+      </div>
+      {% for notification in get_notifications(): %}
+      <div class="notification grid_4">{{ notification.message|markdown }}</div>
+      {% endfor %}
+      {% for message in get_flashed_messages() %}
+      <div class="notification flash grid_4">{{ message }}</div>
+      {% endfor %}
+      <div class=clear></div>
+      {% block content %}{% endblock %}
+      <div class=clear></div>
+    </div>
+    <script>
+      setTimeout(function () { $('.flash').fadeOut(2000); }, 1500);
+      $('.accountnav ul').hover(
+        function () {
+          $(this).children(':not(.profile_link)').stop().slideDown(100);
+        }, 
+        function () {
+          $(this).children(':not(.profile_link)').stop().slideUp(100);          
+        });
+    </script>
+  </body>
 </html>
