@@ -7,8 +7,8 @@
     <link href="{{ url_for('static_pages.static', filename='fluid_grid.css') }}" rel="stylesheet">
     <link href="{{ url_for('static_pages.static', filename='style.css') }}" rel="stylesheet">
     <script src="{{ url_for('static_pages.static', filename='jquery-1.8.2.min.js') }}"></script>
-    {% block head %}
-    {% endblock %}
+    {% block head -%}
+    {%- endblock %}
   </head>
   <body>
     <header>
@@ -21,7 +21,6 @@
             <li><a href="{{ url_for('player_profiles.edit_profile', ext='html') }}">Edit profile</a></li>
             <li><a href="{{ url_for('auth.logout', ext='html') }}">Logout</a></li>
           </ul>
-          {% include 'asuserhelpers.html' %}
           {%- else -%}
           {% if request.path == url_for('auth.login', ext='html'): -%}
           <a href="{{ url_for('auth.register', ext='html') }}">Sign up</a>
@@ -30,18 +29,23 @@
           {%- endif %}
           {% endif %}
         </div>
+        <div class=clear></div>
+        <div class="page_actions grid_12">
+          {% block actions %}{% endblock %}
+          {% include 'asuserhelpers.html' %}
+        </div>
       </div>
     </header>
     <div class="content container_12">
       <div class="topleft grid_8">
         {% block topleft %}{% endblock %}
       </div>
-      {% for notification in get_notifications(): %}
+      {% for notification in get_notifications(): -%}
       <div class="notification grid_4">{{ notification.message|markdown }}</div>
-      {% endfor %}
-      {% for message in get_flashed_messages() %}
+      {%- endfor %}
+      {% for message in get_flashed_messages() -%}
       <div class="notification flash grid_4">{{ message }}</div>
-      {% endfor %}
+      {%- endfor %}
       <div class=clear></div>
       {% block content %}{% endblock %}
       <div class=clear></div>

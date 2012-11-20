@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, abort, request, render_template, url_for, session, redirect
+from flask import Blueprint, current_app, abort, request, render_template, url_for, session, redirect, flash
 from flask.ext.principal import (Principal, Identity, PermissionDenied, Permission, identity_loaded,
                                  identity_changed, RoleNeed, UserNeed, AnonymousIdentity)
 from flask.ext.login import current_user, user_logged_in, user_logged_out, AnonymousUser
@@ -124,3 +124,11 @@ def edit_group_roles(server, group):
             return render_template('edit_roles.html', form=form, name=group.name, action=url_for('roles.edit_group_roles', server=server, group=group.name))
     except NoResultFound:
         abort(404)
+
+@current_app.context_processor
+def inject_identity():
+    return dict(can_edit_roles=can_edit_roles)
+
+def can_edit_roles():
+    return Permission(RoleNeed('edit_roles')).can()
+

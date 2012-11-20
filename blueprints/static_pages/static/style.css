@@ -77,6 +77,14 @@ form dd input[type="checkbox"] {
     background: #DDD;
 }
 
+.page_actions {
+    text-align: right;
+    position: relative;
+    font-size: small;
+    top: -1.2em;
+    margin-bottom: -100%;
+}
+
 .profile_stats {
     font-size: x-small;
 }
@@ -99,10 +107,16 @@ form dd input[type="checkbox"] {
 }
 
 .notification {
+    float: right;
     margin-top: 4px;
     padding: 4px 0;
     color: #000;
     background: #DDD;
     text-align: center;
     font-size: small;
+}
+
+.notification p {
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
