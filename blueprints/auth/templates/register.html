@@ -23,14 +23,16 @@
 {% from 'formhelpers.html' import render_field %}
 
 {% block content %}
-<form action="{{ url_for('auth.register', ext='html') }}" method=post>
-  {{ render_field(form.username) }}
-  {{ render_field(form.mail) }}
-  {{ render_field(form.password) }}
-  {{ render_field(form.password_match) }}
-  <p id="passwordstate"></p>
-  <input type=submit onclick="return verify.canProceed();">
-</form>
+<div class="grid_4 prefix_4">
+  <form name=registerform action="{{ url_for('auth.register', ext='html') }}" method=post>
+    {{ render_field(form.username) }}
+    {{ render_field(form.mail) }}
+    {{ render_field(form.password) }}
+    {{ render_field(form.password_match) }}
+    <p id="passwordstate"></p>
+    <input type=submit onclick="return verify.canProceed();">
+  </form>
+</div>
 
 <script type="text/javascript">
   verify = new verifynotify();
