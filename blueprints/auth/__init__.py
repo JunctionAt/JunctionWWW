@@ -19,7 +19,7 @@ multiple requests.
 from flask import (Flask, Blueprint, request, render_template, redirect, url_for, flash,
                    current_app, session, abort, jsonify)
 import flask_login
-from flask_login import (LoginManager, login_required as __login_required__,
+from flask_login import (LoginManager, login_required as __login_required__, current_user,
                          login_user, logout_user, confirm_login, fresh_login_required)
 from flask.ext.principal import Permission, RoleNeed, Identity
 from functools import wraps
@@ -73,7 +73,7 @@ def login_required(f):
     
     @wraps(f)
     def decorated(*args, **kwargs):
-        if not flask_login.current_user.is_authenticated():
+        if not current_user.is_authenticated():
             try:
                 auth = request.authorization
                 user = db.session.query(User).filter(User.name==auth.username).first()
@@ -115,11 +115,11 @@ def login(ext):
             if ext == 'json': return redirect(url_for('player_profiles.show_profile',
                                                       player=form.user.name, ext=ext)), 303
             flash("Logged in!")
-            return redirect(request.args.get("next", url_for('auth.controlpanel')))
+            return redirect(request.args.get("next", '/'))
     if ext == 'json':
         if request.method == 'GET': abort(405)
         return login_required(lambda: (redirect(url_for('player_profiles.show_profile',
-                                                        player=flask_login.current_user.get_id(), ext=ext)), 303))()
+                                                        player=current_user.get_id(), ext=ext)), 303))()
     return render_template("login.html", form=form)
 
 @apidoc(__name__, blueprint, '/login.json', endpoint='login', defaults=dict(ext='json'), methods=('GET',))
@@ -141,7 +141,7 @@ def reauth():
     if request.method == "POST":
 	confirm_login()
 	flash(u"Reauthenticated.")
-	return redirect(request.args.get("next", url_for('auth.controlpanel')))
+	return redirect(request.args.get("next", '/'))
     return render_template("reauth.html")
 
 
@@ -260,14 +260,18 @@ def get_token(player, ext):
         except NoResultFound:
             abort(404)
 
-@blueprint.route("/control", methods=["GET", "POST"])
+class SetPasswordForm(Form):
+    password = PasswordField('New Password', [ Required(), Length(min=8) ])
+    password_match = PasswordField('Verify Password', [ Optional() ])
+            
+@blueprint.route("/setpassword", methods=["GET", "POST"])
 @fresh_login_required
-def controlpanel():
-    if request.method == "POST":
-        if request.form['newpassword']:
-            hashed = bcrypt.hashpw(request.form['newpassword'], bcrypt.gensalt())
-            db.session.execute('UPDATE users SET hash=:hash WHERE name=:name;', dict(hash=hashed, name=flask_login.current_user.get_id()))
-            db.session.commit()
-            flash('Updated password')
-            return render_template("controlpanel.html")
-    return render_template("controlpanel.html")
+def setpassword():
+    form = SetPasswordForm(MultiDict(request.json) or request.form)
+    if request.method == "POST" and form.validate():
+        current_user.hash = bcrypt.hashpw(form.password.data, bcrypt.gensalt())
+        db.session.add(current_user._get_current_object())
+        db.session.commit()
+        flash('Updated password')
+        return redirect(url_for('player_profiles.edit_profile', ext='html')), 303
+    return render_template("setpassword.html", form=form)

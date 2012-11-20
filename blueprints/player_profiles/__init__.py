@@ -106,6 +106,7 @@ class Profile(Base, object):
     def default_user(name):
         """Return a default user"""
         user = User(name=name)
+        user.is_active = lambda: False
         return user
 
 

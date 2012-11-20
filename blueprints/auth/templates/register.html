@@ -1,26 +1,9 @@
 {% extends "base.html" %}
-
-{% block head %}
-<script src="{{ url_for('auth.static', filename='verifynotify.js') }}"></script>
-<script>
-  $(document).ready(function() {
-    $("input[type='text']:first", document.forms[0]).focus();
-  });
-</script>
-<script>
-  $(function() {
-    $('[name=password_match]').keyup(function() { 
-      verify.check();
-    });
-  });
-</script>
-{% endblock %}
+{% from 'formhelpers.html' import render_field %}
 
 {% block topleft %}
 <h1>Register</h1>
 {% endblock %}
-
-{% from 'formhelpers.html' import render_field %}
 
 {% block content %}
 <div class="grid_4 prefix_4">
@@ -29,19 +12,16 @@
     {{ render_field(form.mail) }}
     {{ render_field(form.password) }}
     {{ render_field(form.password_match) }}
-    <p id="passwordstate"></p>
+    <p id=passwordstate></p>
     <input type=submit onclick="return verify.canProceed();">
   </form>
 </div>
-
-<script type="text/javascript">
+<script src="{{ url_for('auth.static', filename='verifynotify.js') }}"></script>
+<script>
   verify = new verifynotify();
   verify.field1 = document.registerform.password;
   verify.field2 = document.registerform.password_match;
   verify.result_id = "passwordstate";
+  document.registerform.password_match.onkeyup = function() { verify.check() };
 </script>
-
-{% endblock %}
-
-{% block footer %}
 {% endblock %}

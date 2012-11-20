@@ -81,6 +81,7 @@ class Group(Base):
                   'link',
                   'info',
                   'public',
+                  'member_count',
                   'owners',
                   'members',
                   'invited_owners',

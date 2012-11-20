@@ -1,9 +1,9 @@
-{% if can_switch(): -%}
 {% from 'profilehelpers.html' import render_profile_tiny -%}
+{% if can_switch(): -%}
 {% if request.path.startswith('/profile/') and request.path.find('/', 9) == -1 and
       not current_user.name == profile.name and
       not (get_original_user() and get_original_user().name == profile.name)
-      and not profile.default:  -%}
+      and profile.user.is_active():  -%}
 <a id=switchTo href="javascript:false;" onclick="switchTo()">Switch to {{ render_profile_tiny(profile, link=False) }}</a>
 <script>
   function switchTo() {

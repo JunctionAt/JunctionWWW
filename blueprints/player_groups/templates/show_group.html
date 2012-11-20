@@ -4,11 +4,14 @@
 <h1>{{ group.display_name }}</h1>
 {% endblock %}
 
-{% if current_user in group.owners: -%}
 {% block actions %}
+{% if current_user in group.owners: -%}
 <a href="{{ url_for('player_groups.edit_group', server=group.server, group=group.name, ext='html') }}">Edit {{ endpoint.group }}</a>
-{% endblock %}
 {%- endif %}
+{% if can_edit_roles() and group.id != "%s.pending.%s"%(group.server, group.name): -%}
+<a href="{{ url_for('roles.edit_group_roles', server=group.server, group=group.name) }}">Edit roles</a>
+{%- endif %}
+{% endblock %}
 
 {% block content %}
 {% include 'render_group.html' %}

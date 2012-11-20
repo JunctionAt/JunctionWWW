@@ -5,6 +5,10 @@
 <h1>Edit profile</h1>
 {% endblock %}
 
+{% block actions %}
+<a href="{{ url_for('auth.setpassword') }}">Change password</a>
+{% endblock %}
+
 {% block content %}
 <div class="grid_4">
   <a href="{{ profile.avatar.link }}"><img src="{{ profile.avatar.portrait }}"></a>
