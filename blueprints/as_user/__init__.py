@@ -74,7 +74,7 @@ def switch_user(player, ext):
                 login_user(original_user, force=True)
                 raise KeyError()
         except KeyError:
-            with Permission(RoleNeed('as_user')).require(403):
+            with Permission(RoleNeed('as_user')).require():
                 if request.method == 'DELETE': abort(403)
                 # User without original_user, or, user just switched to original_user with an additional switch necessary
                 if not to_user: to_user = db.session.query(User).filter(User.name==player).one()
