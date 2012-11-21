@@ -1,7 +1,7 @@
 """Miscelaneous static pages"""
 
 from datetime import datetime, timedelta
-import threading
+from threading import Thread, Lock
 import requests
 import json
 from flask import Blueprint, Markup, render_template, url_for, current_app, g, request
@@ -24,19 +24,22 @@ client.post('https://ssl.reddit.com/api/login',
             data=dict(user="Junction_Bot",
                       passwd="SuperSecretJunctionBotPassword",
                       api_type='json'))
-posts = type('posts', (object,), dict(data=[], refresh=datetime.utcnow(), fetching=False))
 
-class PostFetchThread(threading.Thread):
+posts = type('posts', (object,), dict(data=[], refresh=datetime.utcnow(), fetching=False))
+lock = Lock()
+
+class PostFetchThread(Thread):
     def run(self):
+        lock.acquire()
+        if posts.fetching: return
+        posts.fetching = True
         posts.data = client.get('http://www.reddit.com/r/junction.json').json['data']['children']
         posts.refresh = datetime.utcnow() + timedelta(0, 10 * 60)
         posts.fetching = False
+        lock.release()
                 
 @static_pages.route('/')
 def landing_page():
-    if not posts.fetching and posts.refresh < datetime.utcnow():
-        posts.fetching = True
-        PostFetchThread().start()
     groups = dict(reduce(lambda groups, (server, _):
                              groups + [(server,
                                         db.session.query(Group) \
@@ -45,4 +48,5 @@ def landing_page():
                                             .limit(25) \
                                             .all())],
                          player_groups.endpoints.iteritems(), []))
+    if not posts.fetching and posts.refresh < datetime.utcnow(): PostFetchThread().start()
     return render_template('index.html', posts=map(lambda post: post['data'], posts.data), groups=groups)
