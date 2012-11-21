@@ -31,11 +31,11 @@ lock = Lock()
 class PostFetchThread(Thread):
     def run(self):
         lock.acquire()
-        if posts.fetching: return
-        posts.fetching = True
-        posts.data = client.get('http://www.reddit.com/r/junction.json').json['data']['children']
-        posts.refresh = datetime.utcnow() + timedelta(0, 10 * 60)
-        posts.fetching = False
+        if posts.refresh < datetime.utcnow():
+            posts.fetching = True
+            posts.data = client.get('http://www.reddit.com/r/junction.json').json['data']['children']
+            posts.refresh = datetime.utcnow() + timedelta(0, 10 * 60)
+            posts.fetching = False
         lock.release()
                 
 @static_pages.route('/')
