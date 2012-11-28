@@ -20,33 +20,37 @@
 <form class="grid_5 prefix_3" action="{{ url_for('player_groups.register_group', server=endpoint.server, ext='html') }}" method=post>
 {%- else: -%}
 <div class=grid_4>
-  <img src="{{ group.avatar.portrait }}">
-  {% if group.tagline: -%}
-  <blockquote>{{ group.tagline }}</blockquote>
-  {%- endif %}
-  {% if group.link: -%}
-  <p><a href={{ group.link }}>{{ group.link }}</a></p>
-  {%- endif %}
+  <img src="{{ group.avatar.portrait }}" width=100%>
+  <div class="pane">
+    {% if group.tagline: -%}
+    <blockquote>{{ group.tagline }}</blockquote>
+    {%- endif %}
+    {% if group.link: -%}
+    <p><a href={{ group.link }}>{{ group.link }}</a></p>
+    {%- endif %}
+  </div>
 </div>
 <form class=grid_4 action="{{ url_for('player_groups.edit_group', server=endpoint.server, group=group.name, ext='html') }}" method=post>{%- endif %}
-  {% if register: -%}
-  {{ render_field(form.display_name) }}
-  {%- endif %}
-  {{ render_field(form.mail) }}
-  {{ render_field(form.tagline) }}
-  {{ render_field(form.link) }}
-  {{ render_field(form.public) }}
-  {{ render_field(form.invited_owners) }}
-  {{ render_field(form.invited_members) }}
-  {% if not register: -%}
-  {{ render_field(form.info) }}
-  {%- endif %}
-  {% if register: -%}
-  {{ render_field(form.recaptcha) }}
-  <p class=group-submit><input type=submit value=Register></p>
-  {%- else: -%}
-  <p class=group-submit><input type=submit value=Save></p>
-  {%- endif %}
+  <div class=pane>
+    {% if register: -%}
+    {{ render_field(form.display_name) }}
+    {%- endif %}
+    {{ render_field(form.mail) }}
+    {{ render_field(form.tagline) }}
+    {{ render_field(form.link) }}
+    {{ render_field(form.public) }}
+    {{ render_field(form.invited_owners) }}
+    {{ render_field(form.invited_members) }}
+    {% if not register: -%}
+    {{ render_field(form.info) }}
+    {%- endif %}
+    {% if register: -%}
+    {{ render_field(form.recaptcha) }}
+    <p class=group-submit><input type=submit value=Register></p>
+    {%- else: -%}
+    <p class=group-submit><input type=submit value=Save></p>
+    {%- endif %}
+  </div>
 </form>
 <script>
   $('select').chosen();

@@ -2,9 +2,9 @@
 
 {% macro render_profile_tiny(profile, link=True) -%}
 {% if link -%}
-<a href="{{ url_for('player_profiles.show_profile', player=profile.name, ext='html') }}">
+<a class=profile_tiny href="{{ url_for('player_profiles.show_profile', player=profile.name, ext='html') }}">
 {%- endif -%}
-<img src="{{ profile.avatar.tiny }}" style=height:1.2em;width:1.2em>
+<img class=profile_avatar src="{{ profile.avatar.tiny }}" style=height:1.2em;width:1.2em>
 {{ profile.name }}
 {%- if link: -%}
 </a>
@@ -14,9 +14,20 @@
 
 {% macro render_profile_small(profile, link=True) -%}
 {% if link -%}
-<a href="{{ url_for('player_profiles.show_profile', player=profile.name, ext='html') }}">
+<a class=profile_small href="{{ url_for('player_profiles.show_profile', player=profile.name, ext='html') }}">
 {%- endif -%}
-<img src="{{ profile.avatar.small }}" style=height:1.2em;width:1.2em>
+<img class=profile_avatar src="{{ profile.avatar.small }}">
+{{ profile.name }}
+{%- if link: -%}
+</a>
+{%- endif -%}
+{%- endmacro %}
+
+{% macro render_profile_medium(profile, link=True) -%}
+{% if link -%}
+<a class=profile_medium href="{{ url_for('player_profiles.show_profile', player=profile.name, ext='html') }}">
+{%- endif -%}
+<img class=profile_avatar src="{{ profile.avatar.medium }}">
 {{ profile.name }}
 {%- if link: -%}
 </a>

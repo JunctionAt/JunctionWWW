@@ -8,9 +8,11 @@
 
 {% block content %}
 <form class="grid_4 prefix_4" action="{{ url_for('auth.login', ext='html') }}" method=post>
-  {{ render_field(form.username) }}
-  {{ render_field(form.password) }}
-  {{ render_field(form.remember) }}
-  <input type=submit>
+  <div class=pane>
+    {{ render_field(form.username) }}
+    {{ render_field(form.password) }}
+    {{ render_field(form.remember) }}
+    <p><input type=submit></p>
+  </div>
 </form>
 {% endblock %}

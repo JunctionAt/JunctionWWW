@@ -6,16 +6,16 @@
 {% endblock %}
 
 {% block content %}
-<div class="grid_4 prefix_4">
-  <form name=registerform action="{{ url_for('auth.register', ext='html') }}" method=post>
+<form class="grid_4 prefix_4" name=registerform action="{{ url_for('auth.register', ext='html') }}" method=post>
+  <div class=pane>
     {{ render_field(form.username) }}
     {{ render_field(form.mail) }}
     {{ render_field(form.password) }}
     {{ render_field(form.password_match) }}
     <p id=passwordstate></p>
-    <input type=submit onclick="return verify.canProceed();">
-  </form>
-</div>
+    <p><input type=submit onclick="return verify.canProceed();"></p>
+  </div>
+</form>
 <script src="{{ url_for('auth.static', filename='verifynotify.js') }}"></script>
 <script>
   verify = new verifynotify();

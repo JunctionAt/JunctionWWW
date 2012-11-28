@@ -5,12 +5,16 @@
 {% endblock %}
 
 {% block content -%}
-{% if player_notifications: -%}
-{% for notification in player_notifications: -%}
-<div class=notification>{{ notification.message|markdown }}</div>
-<br/>
-{%- endfor %}
-{%- else -%}
-<p>You don't have any notifications.</p>
-{%- endif %}
+<div class="grid_4 prefix_4">
+  <div class=pane>
+    {% if player_notifications: -%}
+    {% for notification in player_notifications: -%}
+    <div class=notification>{{ notification.message|markdown }}</div>
+    <br/>
+    {%- endfor %}
+    {%- else -%}
+    <p>You don't have any notifications.</p>
+    {%- endif %}
+  </div>
+</div>
 {%- endblock %}

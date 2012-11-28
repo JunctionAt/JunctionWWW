@@ -21,8 +21,8 @@ static_pages = Blueprint('static_pages', __name__,
 
 client = requests.session()
 client.post('https://ssl.reddit.com/api/login',
-            data=dict(user="Junction_Bot",
-                      passwd="SuperSecretJunctionBotPassword",
+            data=dict(user="JunctionBot",
+                      passwd="^pOd9$qHU&t8J#t8Nd#m",
                       api_type='json'))
 
 posts = type('posts', (object,), dict(data=[], refresh=datetime.utcnow(), fetching=False))
@@ -40,13 +40,31 @@ class PostFetchThread(Thread):
                 
 @static_pages.route('/')
 def landing_page():
-    groups = dict(reduce(lambda groups, (server, _):
-                             groups + [(server,
-                                        db.session.query(Group) \
-                                            .filter(Group.server==server) \
-                                            .order_by(desc(Group.member_count)) \
-                                            .limit(25) \
-                                            .all())],
-                         player_groups.endpoints.iteritems(), []))
+    groups = dict(
+        reduce(
+            lambda groups, (server, _): groups + [
+                (server,
+                 db.session.query(Group) \
+                     .filter(Group.server==server) \
+                     .order_by(desc(Group.member_count)) \
+                     .limit(25) \
+                     .all())],
+            player_groups.endpoints.iteritems(), []))
     if not posts.fetching and posts.refresh < datetime.utcnow(): PostFetchThread().start()
     return render_template('index.html', posts=map(lambda post: post['data'], posts.data), groups=groups)
+
+@static_pages.route('/pve')
+def pve_landing_page():
+    return render_template('pve.html')
+
+@static_pages.route('/survival')
+def survival_landing_page():
+    return render_template('survival.html')
+
+@static_pages.route('/chaos')
+def chaos_landing_page():
+    return render_template('chaos.html')
+
+@static_pages.route('/mumble')
+def mumble_info():
+    return render_template('mumble.html')

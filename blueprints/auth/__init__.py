@@ -199,8 +199,8 @@ def register(ext):
 class ActivationForm(Form):
     """Form to verify user by token."""
     
-    token = TextField('Token', [ Required(), Length(min=6,max=6) ])
-    password = PasswordField('Password', [ Required() ])
+    token = TextField('Token', description='From ' + current_app.config.get('AUTH_SERVER', 'auth.junction.at'), validators=[ Required(), Length(min=6,max=6) ])
+    password = PasswordField('Junction password', description='From step 1', validators=[ Required() ])
     
     def validate_password(form, field):
         try:
@@ -212,7 +212,7 @@ class ActivationForm(Form):
             if not form.token or not bcrypt.hashpw(field.data, form.token.hash):
                 raise ValidationError("Incorrect password.")
         except KeyError: pass
-            
+        
     def validate_token(form, field):
         if not form.token:
             raise ValidationError("Invalid token. Please note that activation tokens are only valid for 10 minutes.")
