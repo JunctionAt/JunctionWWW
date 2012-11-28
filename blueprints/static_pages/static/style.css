@@ -1,31 +1,19 @@
 body {
     padding: 0;
     margin: 0;
-}
-
-.container_12 {
-    min-width: 960px;
-    width: 65%;
-    margin: 0 auto;
-}
-
-header {
-    background: #888;
-    height: 74px;
+    font-family: 'Droid Sans', sans-serif;
+    font-size:12px;
+    color: #333;
+    background: url('back.png');
 }
 
 a {
-    color: #000;
-    background: #DDD;
+    color: #007DC6;
     text-decoration: none;
 }
 
 a img {
     vertical-align: bottom;
-}
-
-a:hover {
-    background: none;
 }
 
 .logo a, h1 a, h2 a, h3 a {
@@ -34,55 +22,124 @@ a:hover {
 
 .logo a {
     display: block;
-    padding: 10px 0;
 }
 
-.accountnav {
-    text-align: right;
+header {
+    font-variant: small-caps;
+    font-weight: bold;
+    border-bottom: 1px #CCC solid;
+    font-size: 12px;
 }
 
-form dd {
-    margin: 0 0 1.2em;
+.account {
+    background: #000;
+    border-bottom: 1px solid #3C3C3C;
+    padding: 8px;
+    height: 14px;
 }
 
-form dd input, form dd select, form dd textarea {
-    width: 100%;
+.account .container_12 {
+    position: relative;
 }
 
-form dd input[type="checkbox"] {
-    width: auto;
-}
-
-.accountnav ul {
+.account ul, .nav ul {
     padding: 0;
     margin: 0;
 }
 
-.accountnav li {
+.account ul, .account > div > * {
+    right: 0;
+    position: absolute;
+    z-index: 2;
+}
+
+.account li {
     padding: 0;
     margin: 0;
     list-style: none;
     display: none;
+    text-align: center;
+    background: #000;
+    margin-left: auto;
 }
 
-.accountnav .profile_link {
+.account .profile_link {
     display: block;
+    padding: 0;
+    width: auto;
+    text-align: right;
 }
 
-.accountnav a {
-    background: transparent;
+.account a, .nav ul a {
+    color: #666;
 }
 
-.accountnav a:hover {
-    background: #DDD;
+.account a:hover {
+    color: #999;
+}
+
+.nav a:hover {
+    color: #FFF;
+}
+
+.nav {
+    background: #322e2b;
+    text-transform: lowercase;
+    font-variant: small-caps;
+    border-bottom: 1px #433F3C solid;
+}
+
+.nav ul {
+    float:right;
+    border-left: 1px #433F3C solid;
+}
+
+.nav li {
+    display: block;
+    float: left;
+    position: relative;
+    margin: -1px 0 -1px 0;
+    padding: 0;
+    z-index: 1;
+    list-style: none;
+}
+
+.nav li a {
+    border-right: 1px #433F3C solid;
+    display: inline-block;
+    padding: 20px 12px;
+    height: 18px;
+}
+
+.nav li a:hover {
+    background-color: #211d1a;
+    border-color: #1e140d;
 }
 
 .page_actions {
+    text-transform: lowercase;
     text-align: right;
-    position: relative;
     font-size: small;
-    top: -1.2em;
-    margin-bottom: -100%;
+    background: #FFF;
+    line-height: 1.8em;
+}
+
+.page_actions a {
+    display: inline-block;
+    margin-left: 1.4em;
+}
+
+.pane {
+    border: 10px solid rgba(80, 90, 85, 0.2);
+    background: #FFF;
+    padding: 0 5px;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    margin: 10px 0;
+}
+
+.content {
+    margin-top: 10px;
 }
 
 .profile_stats {
@@ -106,17 +163,70 @@ form dd input[type="checkbox"] {
     height: 0;
 }
 
-.notification {
-    float: right;
-    margin-top: 4px;
+.field_description p {
+    background: rgba(80, 90, 85, 0.2);
+    margin: 0;
+    padding: .6em;
+}
+
+.notification, .flash {
     padding: 4px 0;
-    color: #000;
-    background: #DDD;
     text-align: center;
     font-size: small;
 }
 
-.notification p {
+.notification {
+    float: right;
+    margin-top: 4px;
+    color: #000;
+    background: rgba(80, 90, 85, 0.2);
+}
+
+.notification p, .flash p {
     margin-top: 0px;
     margin-bottom: 0px;
+}
+
+.flash {
+    position: absolute;
+    top: 47px;
+    left: 50%;
+    margin-left: -150px;
+    z-index: 3;
+    color: #999;
+    text-transform: lowercase;
+    font-variant: small-caps;
+}
+
+form dd {
+    margin: 0 0 1.2em;
+}
+
+form dd input, form dd select, form dd textarea {
+    width: 100%;
+}
+
+form dd input[type="checkbox"] {
+    width: auto;
+}
+
+.profile_avatar, .group_avatar {
+    height: 1.2em;
+    width: 1.2em;
+}
+
+.group_owner {
+    font-size: large;
+}
+
+.profile_small:hover, .profile_medium:hover, .group_tiny:hover, .group_small:hover {
+    background: #DDD;
+}
+
+h2 {
+    font-variant: small-caps;
+}
+
+h2 a {
+    color: #333;
 }

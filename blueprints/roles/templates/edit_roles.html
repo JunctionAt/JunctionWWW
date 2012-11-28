@@ -11,12 +11,12 @@
 {% endblock %}
 
 {% block content %}
-<div class="grid_4 prefix_4">
-  <form method=POST action="{{ action }}">
+<form class="grid_4 prefix_4" action="{{ action }}" method=post>
+  <div class=pane>
     {{ render_field(form.roles) }}
     <input type=submit>
-  </form>
-</div>
+  </div>
+</form>
 <script>
   $('form select').chosen();
 </script>

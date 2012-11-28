@@ -6,7 +6,9 @@
 
 {% block content -%}
 <form class="grid_4 prefix_4" action="{{ url_for('player_groups.leave_group', server=endpoint.server, group=group.name, ext='html') }}" method=post>
-  <button type=submit>Leave {{ group.display_name }}</button>
+  <div class=pane>
+    <button type=submit>Leave {{ group.display_name }}</button>
+  </div>
 </form>
 <div class=clear></div>
 {% include 'render_group.html' %}

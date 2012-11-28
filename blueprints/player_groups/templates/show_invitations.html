@@ -6,13 +6,17 @@
 {% endblock %}
 
 {% block content -%}
-{% if endpoint.invited_member_or_owner_of(user): -%}
-{% for group in endpoint.invited_member_or_owner_of(user): -%}
-<a href="{{ url_for('player_groups.join_group', server=endpoint.server, group=group.name) }}">
-{{ render_group_small(group,link=False) }}
-</a>
-{%- endfor %}
-{%- else -%}
-<p>No invitations.</p>
-{%- endif %}
+<div class="grid_4 prefix_4">
+  <div class=pane>
+    {% if endpoint.invited_member_or_owner_of(user): -%}
+    {% for group in endpoint.invited_member_or_owner_of(user): -%}
+    <a href="{{ url_for('player_groups.join_group', server=endpoint.server, group=group.name) }}">
+      {{ render_group_small(group,link=False) }}
+    </a>
+    {%- endfor %}
+    {%- else -%}
+    <p>No invitations.</p>
+    {%- endif %}
+  </div>
+</div>
 {%- endblock %}

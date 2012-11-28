@@ -1,17 +1,20 @@
 {% extends "base.html" %}
 
 {% block topleft %}
-	<h1>Register (Step 2 of 2)</h1>
+<h1>Register (Step 2 of 2)</h1>
 {% endblock %}
 
 {% from 'formhelpers.html' import render_field %}
 
 {% block content %}
-<form action="{{ url_for('auth.activatetoken', ext='html') }}" method=post>
-  <p>Fire up Minecraft, and connect to the server <span style="white-space: nowrap;">"{{ auth_server }}"</span>.</p>
-  <p>You should be kicked, and given a Validation Token. <br>Please enter it below.</p>
-  {{ render_field(form.password) }}
-  {{ render_field(form.token) }}
-  <input type=submit>
+<form class="grid_4 prefix_4" action="{{ url_for('auth.activatetoken', ext='html') }}" method=post>
+  <div class=pane style=font-size:medium>
+    <p>Fire up Minecraft, and connect to the server:</p>
+    <p style=text-align:center;><strong>{{ auth_server }}</strong></p>
+    <p>You should be kicked, and given a Validation Token.</p>
+    {{ render_field(form.password) }}
+    {{ render_field(form.token) }}
+    <p><input type=submit></p>
+  </div>
 </form>
 {% endblock %}

@@ -97,9 +97,10 @@ class LoginForm(Form):
         if reduce(lambda errors, (name, field): errors or len(field.errors), form._fields.iteritems(), False):
             return
         try :
-            form.user = db.session.query(User).filter(User.name==form.username.data).first()
+            form.user = db.session.query(User).filter(User.name==form.username.data).one()
             if form.user.hash == bcrypt.hashpw(form.password.data, form.user.hash):
                 return
+        except NoResultFound: pass
         except KeyError: pass
         raise ValidationError('Invalid username or password.')
 
@@ -159,7 +160,7 @@ def logout_api(ext):
     """
 
 class RegistrationForm(Form):
-    username = TextField('Username', [ Required(), Length(min=2, max=16) ])
+    username = TextField('Minecraft Username', [ Required(), Length(min=2, max=16) ])
     mail = TextField('Email', description='Optional. Use for Gravatars.', validators=[ Optional(), Email() ])
     password = PasswordField('Password', description='Note: Does not need to be the same as your Minecraft password', validators=[ Required(), Length(min=8) ])
     password_match = PasswordField('Verify Password', [ Optional() ])
@@ -199,8 +200,8 @@ def register(ext):
 class ActivationForm(Form):
     """Form to verify user by token."""
     
-    token = TextField('Token', [ Required(), Length(min=6,max=6) ])
-    password = PasswordField('Password', [ Required() ])
+    token = TextField('Token', description='From ' + current_app.config.get('AUTH_SERVER', 'auth.junction.at'), validators=[ Required(), Length(min=6,max=6) ])
+    password = PasswordField('Junction password', description='From step 1', validators=[ Required() ])
     
     def validate_password(form, field):
         try:
@@ -212,7 +213,7 @@ class ActivationForm(Form):
             if not form.token or not bcrypt.hashpw(field.data, form.token.hash):
                 raise ValidationError("Incorrect password.")
         except KeyError: pass
-            
+        
     def validate_token(form, field):
         if not form.token:
             raise ValidationError("Invalid token. Please note that activation tokens are only valid for 10 minutes.")
