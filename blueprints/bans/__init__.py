@@ -4,11 +4,12 @@ import json
 import Queue
 from threading import Thread
 from flask import Blueprint, abort, request
+from flask_login import current_user
 from flask.ext.principal import Permission, RoleNeed
 from blueprints.auth import login_required
 from blueprints.base import db
 from systems import minebans, mcbans, mcbouncer
-from ban_model import Ban, Note
+from ban_model import Ban, RemovedBan, Note, RemovedNote
 from blueprints.base import db
 
 ###################################################################################################
@@ -52,6 +53,25 @@ def mergedata(dlist):
                     note['system'] = sysname
                 response['notes'].append(note)
                 response['notecount'] += 1
+        if ('errors' in ret and len(ret['errors'])!=0) or ('error' in ret):
+            if 'errors' not in response:
+                response['errors'] = []
+            if 'error' in ret:
+                if(isinstance(ret['error'], str)):
+                    response['errors'].append({"system" : sysname, "error" : ret['error']})
+                elif(isinstance(ret['error'], dict)):
+                    error = ret['error']
+                    if sysname is not None:
+                        error['system'] = sysname
+                    response['errors'].append(error)
+            if 'errors' in ret and len(ret['errors'])!=0:
+                for error in ret['errors']:
+                    if(isinstance(error, str)):
+                        response['errors'].append({"system" : sysname, "error" : error})
+                    elif(isinstance(error, dict)):
+                        if sysname is not None:
+                            error['system'] = sysname
+                        response['errors'].append(error)
     return response
 
 class ReqThread(Thread):
@@ -75,7 +95,7 @@ def getglobalbans(request):
     if args.has_key('username') and verifyusername(args['username']):
         username = args['username']
     else:
-        return json.dumps({'success' : False, 'error' : 'The username provided was invalid'})
+        return {'success' : False, 'error' : 'The username provided was invalid'}
     retqueue = Queue.Queue()
     threads = []
     for key, value in bansystems.items():
@@ -93,7 +113,7 @@ def getglobalnotes(request):
     if args.has_key('username') and verifyusername(args['username']):
         username = args['username']
     else:
-        return json.dumps({'success' : False, 'error' : 'The username provided was invalid'})
+        return {'success' : False, 'error' : 'The username provided was invalid'}
     retqueue = Queue.Queue()
     threads = []
     for key, value in bansystems.items():
@@ -111,7 +131,7 @@ def fullgloballookup(request):
     if args.has_key('username') and verifyusername(args['username']):
         username = args['username']
     else:
-        return json.dumps({'success' : False, 'error' : 'The username provided was invalid'})
+        return {'success' : False, 'error' : 'The username provided was invalid'}
     retqueue = Queue.Queue()
     threads = []
     for key, value in bansystems.items():
@@ -134,7 +154,7 @@ def getlocalbans(request):
     if args.has_key('username') and verifyusername(args['username']):
         username = args['username']
     else:
-        return json.dumps({'success' : False, 'error' : 'The username provided was invalid'})
+        return {'success' : False, 'error' : 'The username provided was invalid'}
     bans = db.session.query(Ban).filter(Ban.username==args['username'])
     count = bans.count()
     response = {'bancount' : count}
@@ -156,21 +176,21 @@ def addban(request):
     if args.has_key('username') and verifyusername(args['username']):
         username = args['username']
     else:
-        return json.dumps({'success' : False, 'error' : 'The username provided was invalid.'})
+        return {'success' : False, 'error' : 'The username provided was invalid.'}
     if args.has_key('issuer') and (verifyusername(args['issuer']) or (args['issuer'][:1]=='[' and args['issuer'][1:]==']')):
         issuer = args['issuer']
     else:
-        return json.dumps({'success' : False, 'error' : 'The issuer provided was invalid.'})
+        return {'success' : False, 'error' : 'The issuer provided was invalid.'}
     if args.has_key('reason') and args['reason'].__len__()<=500:
         reason = args['reason']
     else:
-        return json.dumps({'success' : False, 'error' : 'The reason provided was invalid.'})
+        return {'success' : False, 'error' : 'The reason provided was invalid.'}
     if args.has_key('server') and args['server'].__len__()<=100:
         server = args['server']
     else: 
-        return json.dumps({'success' : False, 'error' : 'The server provided was invalid.'})
+        return {'success' : False, 'error' : 'The server provided was invalid.'}
     if db.session.query(Ban).filter(Ban.username==username).count() > 0:
-        return json.dumps({'success' : False, 'error' : 'The user is already banned.'})
+        return {'success' : False, 'error' : 'The user is already banned.'}
     ban = Ban(issuer, username, reason, server)
     db.session.add(ban)
     db.session.commit()
@@ -182,8 +202,10 @@ def delban(request):
     if args.has_key('username') and verifyusername(args['username']):
         username = args['username']
     else:
-        return json.dumps({'success' : False, 'error' : 'The username provided was invalid'})
-    num = db.sAession.query(Ban).filter(Ban.username==username).delete()
+        return {'success' : False, 'error' : 'The username provided was invalid'}
+    ban = db.session.query(Ban).filter(Ban.username==username).first()
+    db.session.add(RemovedBan(ban, current_user.name))
+    num = db.session.query(Ban).filter(Ban.username==username).delete()
     db.session.commit()
     return {'success' : True, 'num' : num}
 
@@ -193,7 +215,7 @@ def getlocalnotes(request):
     if args.has_key('username') and verifyusername(args['username']):
         username = args['username']
     else:
-        return json.dumps({'success' : False, 'error' : 'The username provided was invalid'})
+        return {'success' : False, 'error' : 'The username provided was invalid'}
     notes = db.session.query(Note).filter(Note.username==args['username'])
     count = notes.count()
     response = {'notecount' : count}
@@ -215,19 +237,19 @@ def addnote(request):
     if args.has_key('username') and verifyusername(args['username']):
         username = args['username']
     else:
-        return json.dumps({'success' : False, 'error' : 'The username provided was invalid.'})
+        return {'success' : False, 'error' : 'The username provided was invalid.'}
     if args.has_key('issuer') and (verifyusername(args['issuer']) or (args['issuer'][:1]=='[' and args['issuer'][1:]==']')):
         issuer = args['issuer']
     else:
-        return json.dumps({'success' : False, 'error' : 'The issuer provided was invalid.'})
+        return {'success' : False, 'error' : 'The issuer provided was invalid.'}
     if args.has_key('note') and args['note'].__len__()<=500:
         note = args['note']
     else:
-        return json.dumps({'success' : False, 'error' : 'The note provided was invalid.'})
+        return {'success' : False, 'error' : 'The note provided was invalid.'}
     if args.has_key('server') and args['server'].__len__()<=100:
         server = args['server']
     else:
-        return json.dumps({'success' : False, 'error' : 'The server provided was invalid.'})
+        return {'success' : False, 'error' : 'The server provided was invalid.'}
     note = Note(issuer, username, note, server)
     db.session.add(note)
     db.session.commit()
@@ -239,7 +261,7 @@ def delnote(request):
     if args.has_key('id') and args['id'].isdigit():
         id = args['id']
     else:
-        return json.dumps({'success' : False, 'error' : 'The provided integer id was invalid.'})
+        return {'success' : False, 'error' : 'The provided integer id was invalid.'}
     num = db.session.query(Note).filter(Note.id==id).delete()
     db.session.commit()
     return {'success' : True, 'num' : num}
@@ -250,7 +272,7 @@ def fulllocallookup(request):
     if args.has_key('username') and verifyusername(args['username']):
                 username = args['username']
     else:
-        return json.dumps({'success' : False, 'error' : 'The username provided was invalid'})
+        return {'success' : False, 'error' : 'The username provided was invalid'}
     bans = db.session.query(Ban).filter(Ban.username==args['username'])
     bancount = bans.count()
     notes = db.session.query(Note).filter(Note.username==args['username'])
@@ -285,7 +307,7 @@ def fullfulllookup(request):
     if args.has_key('username') and verifyusername(args['username']):
                 username = args['username']
     else:
-        return json.dumps({'success' : False, 'error' : 'The username provided was invalid'})
+        return {'success' : False, 'error' : 'The username provided was invalid'}
     return mergedata([fulllocallookup(request), fullgloballookup(request)])
 
 methods = {
@@ -309,4 +331,3 @@ def execute_method(method):
     if method not in methods:
         abort(404)
     return json.dumps(methods[method](request))
-

@@ -20,13 +20,17 @@ def getbans(user):
     response = {"bancount" : 0, "bans" : []}
 
     r = requests.get("http://minebans.com/feed/player_bans.json?player_name=%s" % (user,))
+    if r.status_code != requests.codes.ok:
+      return {"error" : "HTTP ERROR: "+r.status_code}
     j = r.json
     for ban in j:
         convban = {}
         convban['reason'] = "%s: %s" % (ban['reason'], ban['long_reason'])
         convban['server'] = ban['server_name']
+        convban['error'] = "HTTP ERROR: "+404
         response['bans'].append(convban)
         response['bancount'] += 1
+    print response
     return response
 
 def getipbans(ip):
