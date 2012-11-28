@@ -97,9 +97,10 @@ class LoginForm(Form):
         if reduce(lambda errors, (name, field): errors or len(field.errors), form._fields.iteritems(), False):
             return
         try :
-            form.user = db.session.query(User).filter(User.name==form.username.data).first()
+            form.user = db.session.query(User).filter(User.name==form.username.data).one()
             if form.user.hash == bcrypt.hashpw(form.password.data, form.user.hash):
                 return
+        except NoResultFound: pass
         except KeyError: pass
         raise ValidationError('Invalid username or password.')
 
