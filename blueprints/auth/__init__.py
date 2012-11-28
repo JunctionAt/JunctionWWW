@@ -160,7 +160,7 @@ def logout_api(ext):
     """
 
 class RegistrationForm(Form):
-    username = TextField('Username', [ Required(), Length(min=2, max=16) ])
+    username = TextField('Minecraft Username', [ Required(), Length(min=2, max=16) ])
     mail = TextField('Email', description='Optional. Use for Gravatars.', validators=[ Optional(), Email() ])
     password = PasswordField('Password', description='Note: Does not need to be the same as your Minecraft password', validators=[ Required(), Length(min=8) ])
     password_match = PasswordField('Verify Password', [ Optional() ])
