@@ -20,7 +20,7 @@ usernameregex = re.compile('^[a-zA-Z0-9_]+$')
 bansystems = {"minebans" : minebans, "mcbans" : mcbans, "mcbouncer" : mcbouncer}
 bans = Blueprint('bans', __name__, template_folder="templates")
 
-#db.create_all()
+db.create_all()
 
 def verifyusername(username):
     return len(username)<=16 and usernameregex.match(username)
@@ -177,10 +177,11 @@ def addban(request):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid.'}
-    if args.has_key('issuer') and (verifyusername(args['issuer']) or (args['issuer'][:1]=='[' and args['issuer'][1:]==']')):
-        issuer = args['issuer']
-    else:
-        return {'success' : False, 'error' : 'The issuer provided was invalid.'}
+#    if args.has_key('issuer') and (verifyusername(args['issuer']) or (args['issuer'][:1]=='[' and args['issuer'][1:]==']')):
+#        issuer = args['issuer']
+#    else:
+#        return {'success' : False, 'error' : 'The issuer provided was invalid.'}
+    issuer = current_user
     if args.has_key('reason') and args['reason'].__len__()<=500:
         reason = args['reason']
     else:
@@ -203,8 +204,9 @@ def delban(request):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
-    ban = db.session.query(Ban).filter(Ban.username==username).first()
-    db.session.add(RemovedBan(ban, current_user.name))
+#    ban = db.session.query(Ban).filter(Ban.username==username).first()
+#    if ban != None:
+#        db.session.add(RemovedBan(ban, current_user.name))
     num = db.session.query(Ban).filter(Ban.username==username).delete()
     db.session.commit()
     return {'success' : True, 'num' : num}
@@ -325,9 +327,12 @@ methods = {
     }
 
 @bans.route('/bans/<string:method>.json')
-#@login_required
+@login_required
 def execute_method(method):
 #    with Permission(RoleNeed('bans.%s' % method)).require(403):
     if method not in methods:
         abort(404)
-    return json.dumps(methods[method](request))
+    result = methods[method](request)
+    if(not result.has_key('success')):
+    	result['success'] = True
+    return json.dumps(result)
