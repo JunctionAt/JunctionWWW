@@ -1,6 +1,7 @@
 from .. import blueprint
 import time
-from flask.ext.login import current_user, login_required
+from flask_login import current_user
+from blueprints.auth import login_required
 import shortuuid
 from ..database.boards import Board
 from ..database.threads import Thread
@@ -18,12 +19,12 @@ def reply(topic_id):
         body = request.form.get("reply", False)
         if body:
             topic = Thread.objects(topic_uuid=topic_id).first()
-            post = Post(author=current_user.user_in_db,content=body)
+            post = Post(author=current_user.name,content=body)
             post.save()
             topic.posts.append(post)
             topic.save()
-            return redirect(url_for("success", topic_uuid=topic_id))
-        return redirect(url_for("failure", topic_uuid=topic_id))
+            return redirect(url_for("forum.success", topic_uuid=topic_id))
+        return redirect(url_for("forum.failure", topic_uuid=topic_id))
     else:
         # First validate to see its a valid topic_id, if its not then 404 that son of a bitch.
         valid = Thread.objects(topic_uuid=topic_id) != []
@@ -45,7 +46,7 @@ def new_topic(board_name):
 
         uuid = shortuuid.uuid()
         # Get the database reference'd author
-        author = current_user.user_in_db
+        author = current_user.name
 
         date = time.asctime()
 
@@ -62,4 +63,4 @@ def new_topic(board_name):
         board.save()
         thread.save()
 
-        return redirect(url_for("success", topic_uuid=uuid))
+        return redirect(url_for("forum.success", topic_uuid=uuid))

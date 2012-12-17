@@ -1,5 +1,7 @@
-{% extends "forum_base.html" %}
-{% block title %}Python Forum - {{ topic.title }}{% endblock %}
+{% extends "base.html" %}
+{% block head %}
+<title>Junction Forum - {{ topic.title }}</title>
+{% endblock %}
 {% block content %}
 <h3 class="well"> <a href="{{ url_for('forum.index') }}">Python Forum</a> - {{ topic.title }}</h3>
 <ul class="_posts">

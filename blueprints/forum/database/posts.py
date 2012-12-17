@@ -11,6 +11,6 @@ class Post(Document):
     one Thread has many Posts
     one Post has one User
     """
-    author = ReferenceField(User, dbref=False)
+    author = StringField()
     content = StringField()
     date = StringField()
