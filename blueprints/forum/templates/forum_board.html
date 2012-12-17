@@ -1,0 +1,64 @@
+{% extends "forum_base.html" %}
+{% block title %}Python Forum - {{ board.name }}{% endblock %}
+{% block content %}
+<div class="well">
+    <ul class="breadcrumb">
+        <li><a href="/forum/">Board Index</a> <span class="divider">></span></li>
+        <li><a href="#">{{ category.name }}</a> <span class="divider">></span></li>
+        <li class="active">{{ board.name }}</li>
+    </ul>
+    <h2><p class="span10">{{ board.name }}</p>
+        <form name="make_new" action="{{ url_for('forum.new_topic', board_name=board.name) }}" method="get">
+            <input type="submit" value="Post New Topic" name="submit" class="btn btn-primary btn-large"/>
+        </form>
+    </h2>
+
+    <!-- Announcements -->
+    <ul class="_forum">
+        <li class="row">
+            <p class="span7">Announcements</p>
+
+            <p class="span2">Author</p>
+
+            <p class="span3">Last Post</p>
+        </li>
+        {% for topic in topics %}
+        {% if topic.is_announcement %}
+        <li class="row">
+            <p class="span7">
+                <a href="#">{{ topic.title }}</a>
+            </p>
+
+            <p class="span2">{{ topic.author.username }}</p>
+
+            <p class="span3">{{ topic.date }}/p>
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+
+    <!-- Topics -->
+    <ul class="_forum">
+        <li class="row">
+            <p class="span7">Topics</p>
+
+            <p class="span2">Author</p>
+
+            <p class="span3">Last Post</p>
+        </li>
+        {% for topic in topics %}
+        {% if not topic.is_announcement %}
+        <li class="row">
+            <p class="span7">
+                <a href="{{ url_for('forum.topic', topic_uuid=topic.topic_uuid) }}">{{ topic.title }}</a>
+            </p>
+
+            <p class="span2">{{ topic.author.username }}</p>
+
+            <p class="span3">{{ topic.date }}</p>
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

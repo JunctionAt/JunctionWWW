@@ -15,6 +15,13 @@ for blueprint in application.config["BLUEPRINTS"]:
 
 ReverseProxied(application)
     
+if application.config['DEBUG']:
+	from werkzeug import SharedDataMiddleware
+	import os
+	application.wsgi_app = SharedDataMiddleware(application.wsgi_app, {
+	  '/': os.path.join(os.path.dirname(__file__), 'static')
+	})
+
 def run():
     application.run(
         host=application.config.get('HOST', None),

@@ -1,0 +1,19 @@
+{% extends "forum_base.html" %}
+
+{% block title %}Python Forum - You broke it you fool.{% endblock %}
+{% block content %}
+    <script type="text/javascript">
+        <!--
+        function redirect(){
+            window.location = {{ url_for('forum.topic', topic_uuid=topic_uuid) }}
+        }
+        //-->
+    </script>
+    <body onLoad="setTimeout('redirect()', 800)">
+
+    <div class="well" xmlns="http://www.w3.org/1999/html">
+        <h1 style="text-align: center;">Post made successfully!</h1>
+        <p style="text-align: center;">Post submitted successfully! - Click
+            <a href="{{ url_for('forum.topic', topic_uuid=topic_uuid) }}">Here</a> to return<br>
+     </div>
+{% endblock %}

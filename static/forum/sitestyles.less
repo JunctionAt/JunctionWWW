@@ -1,0 +1,115 @@
+/* Styles */
+
+@lightGrey: #cecece;
+
+._siteTitle {
+	padding: 50px 0;
+	text-align: center;
+	
+	p {
+		color: @lightGrey;
+	}
+	
+}
+ul._posts {
+	list-style: none;
+	padding: 0;
+	margin: 0;	
+}
+li {
+	margin: 0;
+	padding: 0;
+}
+._nav .navbar-inner ul.nav li.image a {
+	height: 20px;
+	position: relative;
+	top: -2px;
+	overflow: hidden!important;
+}
+._copyright {
+	text-align: center;
+	color: @lightGrey;
+}
+._post {
+	border-bottom: dashed 1px black;
+	padding-bottom: 24px;
+	margin-bottom: 25px;
+}
+._content ul._forum  {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+
+	h3 {
+		margin:0;
+		padding:0;
+	}
+	
+	p {
+		margin: 0;
+		padding: 0;
+	}
+	
+	li {
+		border-left: @lightGrey solid 1px;
+		border-right: @lightGrey solid 1px;
+		padding: 10px;
+		background: @lightGrey * 1.05;
+	}
+	
+	li:first-child {
+		border-top: @lightGrey solid 1px;
+		border-top-left-radius: 5px;
+		border-top-right-radius: 5px;
+		margin: 20px 0 0 0;
+		background: @lightGrey * 0.5!important;
+		
+		.gradGrey;
+		
+		text-shadow: 0 1px 1px rgba(0,0,0,1);
+		color: white;
+	}
+	
+	li:nth-child(odd)
+	{
+		background: @lightGrey * 1.1;
+	}
+	
+	li:last-child {
+		border-bottom: @lightGrey solid 1px;
+		border-bottom-left-radius: 5px;
+		border-bottom-right-radius: 5px;
+	}
+}
+._wysiwygfix {
+	padding-right: 10px;
+	
+	textarea {
+		width: 100%;
+		height: 200px;
+		/*border: 1px solid #333;*/
+		padding: 4px;
+		background: white;
+		color: #555;
+	}
+	
+}
+
+/*UTILS*/
+/*UTILS*/
+/*UTILS*/
+/*UTILS*/
+/*UTILS*/
+._justify {
+	text-align: justify;
+}
+.gradGrey {
+background: rgb(96,108,136)!important; /* Old browsers */
+background: -moz-linear-gradient(top, rgba(96,108,136,1) 0%, rgba(63,76,107,1) 100%)!important; /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(96,108,136,1)), color-stop(100%,rgba(63,76,107,1)))!important; /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, rgba(96,108,136,1) 0%,rgba(63,76,107,1) 100%)!important; /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, rgba(96,108,136,1) 0%,rgba(63,76,107,1) 100%)!important; /* Opera 11.10+ */
+background: -ms-linear-gradient(top, rgba(96,108,136,1) 0%,rgba(63,76,107,1) 100%)!important; /* IE10+ */
+background: linear-gradient(to bottom, rgba(96,108,136,1) 0%,rgba(63,76,107,1) 100%)!important; /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#606c88', endColorstr='#3f4c6b',GradientType=0 )!important; /* IE6-9 */
+}

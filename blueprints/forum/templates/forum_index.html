@@ -1,0 +1,18 @@
+{% extends "forum_base.html" %}
+{% block title %} Python Forum {% endblock %}
+{% block content %}
+<div class="well">
+    <h2>Forums</h2>
+    {% for category in categories %}
+    <ul class="_forum">
+        <li>
+            <h3>{{ category.name }}</h3>
+            <p>{{ category.description }}</p>
+        </li>
+        {% for board in category.boards %}
+        <li><a href="{{ url_for('forum.forum_category', board_id=board.board_id) }}">{{ board.name }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
+</div>
+{% endblock %}

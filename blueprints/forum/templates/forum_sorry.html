@@ -1,0 +1,14 @@
+{% extends "forum_base.html" %}
+
+{% block title %}Python Forum - You broke it you fool.{% endblock %}
+{% block content %}
+<div class="well" xmlns="http://www.w3.org/1999/html">
+<h1 style="text-align: center;">Page doesn't exist yet!</h1>
+<!-- Fuck you css. I only wanted to center the image... -->
+<img style="display: block; margin-left: auto; margin-right: auto" alt="Sad Snake" src="/static/sorry.jpg">
+<p style="text-align: center;">We just haven't implemented this yet. Sorry!<br>
+
+If you think you can get it done then let us know and file a pull request on github!
+<p style="text-align: center;"><a href="{{ url_for('index') }}">Go somewhere better, like the index.</a>
+</div>
+{% endblock %}
