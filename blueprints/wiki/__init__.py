@@ -66,6 +66,13 @@ def get_wiki_article(wiki_url):
     content = re.sub(REDDIT_LINK_PATTERN, replace_reddit_link, content)
     return wiki_markdown.convert(content)
 
+@cache.cached(timeout=20*60)
+@blueprint.route('/wiki/pages/')
+def display_pages():
+    pages = requests.get('http://api.reddit.com/r/Junction/wiki/pages/').json['data']
+    pages = filter(lambda page: page.find('/')==-1 and not page.startswith('_'), pages)
+    return render_template('wiki_listing.html', links=pages)
+
 @blueprint.route('/wiki/')
 def display_index():
     return render_template('wiki_page.html', article=get_wiki_article('index'), index=True)
