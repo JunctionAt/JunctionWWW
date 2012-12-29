@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="grid_12 pane">
+        {% if not index %}
+        <a href="/wiki"><- Back to the Index</a>
+        {% endif %}
+        {{ article|safe }}
+    </div>
+{% endblock %}
