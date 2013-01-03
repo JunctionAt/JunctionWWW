@@ -3,6 +3,8 @@ from flask import Blueprint, render_template, url_for
 import os
 import time
 
+import base36_filter
+
 blueprint = Blueprint('forum', __name__, template_folder='templates')
 # Secret key can change with each new version this forces all old logins to expire :)
 
@@ -28,11 +30,16 @@ def index():
     """Proper index function."""
     return render_template("index.html")
 
+#@blueprint.route("/forum/success/<string:id>")
+#def success():
+#    return render_template("success.html")
+
 # Import application views here!
 import views.board
 import views.index
 import views.topic
 import views.reply
+import views.edit
 
 # All routes have now been registered.
 

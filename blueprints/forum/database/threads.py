@@ -11,5 +11,6 @@ class Thread(Document):
     author = StringField()
     title = StringField()
     is_announcement = False
-    topic_uuid = StringField()
+    topic_url_id = SequenceField(unique=True)
+    topic_url_name = StringField()
     date = StringField()

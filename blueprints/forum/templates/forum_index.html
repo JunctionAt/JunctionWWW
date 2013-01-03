@@ -1,13 +1,46 @@
 {% extends "base.html" %}
 {% block head %} 
 <title>Junction Forum</title>
+
+<style>
+    .category {
+        padding-left: 4px;
+        padding-right: 4px;
+        padding-bottom: 4px;
+        border: solid;
+        border-color: #dddddd;
+        border-width: 1px;
+        width: auto;
+        background-color: #fafafa;
+    }
+    .category li {
+        list-style-type: none;
+        margin-left: 18px;
+        margin-bottom: 5px;
+    }
+    .category li a {
+        font-size: 1.2em;
+    }
+    .category #category_title {
+        margin-left: 0px;
+    }
+    .category #category_title h3 {
+        margin-top: 8px;
+        margin-left: 6px;
+        margin-bottom: 0;
+    }
+    .category #category_title p {
+        margin-top: 8px;
+        margin-left: 18px;
+    }
+</style>
 {% endblock %}
 {% block content %}
-<div class="well">
-    <h2>Forums</h2>
+<div class="grid_12 pane" style="padding-left: 10px;">
+    <h2 style="margin-top: 10px;">Forums</h2>
     {% for category in categories %}
-    <ul class="_forum">
-        <li>
+    <ul class="category">
+        <li id="category_title">
             <h3>{{ category.name }}</h3>
             <p>{{ category.description }}</p>
         </li>
