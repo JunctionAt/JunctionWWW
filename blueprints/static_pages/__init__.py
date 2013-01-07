@@ -8,7 +8,7 @@ from flask import Blueprint, Markup, render_template, url_for, current_app, g, r
 from sqlalchemy import desc
 
 from blueprints.base import db
-from blueprints.player_groups import player_groups, Group
+#from blueprints.player_groups import player_groups, Group
 
 static_pages = Blueprint('static_pages', __name__,
                          template_folder='templates',
@@ -40,18 +40,18 @@ class PostFetchThread(Thread):
                 
 @static_pages.route('/')
 def landing_page():
-    groups = dict(
-        reduce(
-            lambda groups, (server, _): groups + [
-                (server,
-                 db.session.query(Group) \
-                     .filter(Group.server==server) \
-                     .order_by(desc(Group.member_count)) \
-                     .limit(25) \
-                     .all())],
-            player_groups.endpoints.iteritems(), []))
-    if not posts.fetching and posts.refresh < datetime.utcnow(): PostFetchThread().start()
-    return render_template('index.html', posts=map(lambda post: post['data'], posts.data), groups=groups)
+    #groups = dict(
+    #    reduce(
+    #        lambda groups, (server, _): groups + [
+    #            (server,
+    #             db.session.query(Group) \
+    #                 .filter(Group.server==server) \
+    #                 .order_by(desc(Group.member_count)) \
+    #                 .limit(25) \
+    #                 .all())],
+    #        player_groups.endpoints.iteritems(), []))
+    #if not posts.fetching and posts.refresh < datetime.utcnow(): PostFetchThread().start()
+    return render_template('index.html', posts=map(lambda post: post['data'], posts.data))#, groups=groups)
 
 @static_pages.route('/pve')
 def pve_landing_page():

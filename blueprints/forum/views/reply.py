@@ -6,7 +6,6 @@ import shortuuid
 from ..database.boards import Board
 from ..database.threads import Thread
 from ..database.posts import Post
-from ..database.counters import Counter
 from flask import render_template, request, redirect, url_for, abort
 from .. import base36
 
@@ -17,7 +16,7 @@ def reply(topic_id):
         body = request.form.get("reply", False)
         if body:
             topic = Thread.objects(topic_url_id=base36.decode(topic_id)).first()
-            post = Post(author=current_user.name,content=body)
+            post = Post(author=current_user.to_dbref(), content=body)
             post.save()
             topic.posts.append(post)
             topic.save()
@@ -52,10 +51,11 @@ def new_topic(board_name):
         safe_name = filter(str.isalnum, safe_name)
 
         # Construct and save the thread
-        thread = Thread(title=title, author=author, topic_url_name=safe_name, date=date)
+        print(type(current_user))
+        thread = Thread(title=title, author=current_user.to_dbref(), topic_url_name=safe_name, date=date)
         thread.save()
         # Construct and save the post.
-        first_post = Post(author=author, content=body)
+        first_post = Post(author=current_user.to_dbref(), content=body)
         first_post.save()
 
         thread.posts.append(first_post)

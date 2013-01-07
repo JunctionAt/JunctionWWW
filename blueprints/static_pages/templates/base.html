@@ -1,4 +1,3 @@
-{% from 'profilehelpers.html' import render_profile_tiny -%}
 
 <!DOCTYPE html>
 <html>
@@ -19,8 +18,8 @@
         <div class=container_12>
           {% if current_user.is_authenticated(): -%}
           <ul>
-            <li class=profile_link>{{ render_profile_tiny(current_user.profile) }}</li>
-            <li><a href="{{ url_for('player_profiles.edit_profile', ext='html') }}">Edit profile</a></li>
+            <li class=profile_link></li>
+            <li><a href="">Edit profile</a></li>
             <li><a href="{{ url_for('auth.logout', ext='html') }}">Logout</a></li>
           </ul>
           {%- else -%}
@@ -48,7 +47,7 @@
       <div class=page_actions>
         <div class=container_12>
           {% block actions %}{% endblock %}
-          {% include 'asuserhelpers.html' %}
+
         </div>
       </div>
     </header>
@@ -56,12 +55,6 @@
       <div class="topleft grid_8">
         {% block topleft %}{% endblock %}
       </div>
-      {% for notification in get_notifications(): -%}
-      <div class="notification grid_4">{{ notification.message|markdown }}</div>
-      {%- endfor %}
-      {% for message in get_flashed_messages() -%}
-      <div class="flash grid_4">{{ message }}</div>
-      {%- endfor %}
       <div class=clear></div>
       <div class=content>
         {% block content %}{% endblock %}

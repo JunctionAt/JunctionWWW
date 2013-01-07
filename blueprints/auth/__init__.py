@@ -21,7 +21,7 @@ from flask import (Flask, Blueprint, request, render_template, redirect, url_for
 import flask_login
 from flask_login import (LoginManager, login_required as __login_required__, current_user,
                          login_user, logout_user, confirm_login, fresh_login_required)
-from flask.ext.principal import Permission, RoleNeed, Identity
+from flask.ext.principal import Permission, RoleNeed, Identity, identity_changed
 from functools import wraps
 from wtforms import Form, TextField, PasswordField, BooleanField, ValidationError
 from wtforms.validators import *
@@ -33,7 +33,7 @@ import random
 import bcrypt
 import re
 
-from blueprints.base import db
+from blueprints.base import mongo#db
 from blueprints.auth.user_model import User, Token
 from blueprints.api import apidoc
 
@@ -55,9 +55,9 @@ def user_loader(id): return load_user(id)
 def load_user(id):
     if id == ApiUser().get_id() and current_app.config.get('API', False):
         return ApiUser()
-    return db.session.query(User).filter(User.name==id).first()
+    return User.objects(name=id).first()
 
-login_manager.setup_app(current_app, add_context_processor=True)
+login_manager.init_app(current_app, add_context_processor=True)
 
 class ApiUser:
     def get_id(self): return ""
@@ -76,7 +76,7 @@ def login_required(f):
         if not current_user.is_authenticated():
             try:
                 auth = request.authorization
-                user = db.session.query(User).filter(User.name==auth.username).first()
+                user = User.objects(name=auth.username).first()
                 if not user or not user.hash == bcrypt.hashpw(auth.password, user.hash) or \
                         not login_user(user, remember=False, force=True):
                     raise Exception()
@@ -97,10 +97,11 @@ class LoginForm(Form):
         if reduce(lambda errors, (name, field): errors or len(field.errors), form._fields.iteritems(), False):
             return
         try :
-            form.user = db.session.query(User).filter(User.name==form.username.data).one()
+            form.user = User.objects(name=form.username.data).first()
+            if form.user is None:
+                raise KeyError
             if form.user.hash == bcrypt.hashpw(form.password.data, form.user.hash):
                 return
-        except NoResultFound: pass
         except KeyError: pass
         raise ValidationError('Invalid username or password.')
 
@@ -165,7 +166,7 @@ class RegistrationForm(Form):
     password = PasswordField('Password', description='Note: Does not need to be the same as your Minecraft password', validators=[ Required(), Length(min=8) ])
     password_match = PasswordField('Verify Password', [ Optional() ])
     def validate_username(form, field):
-        if db.session.query(User).filter(User.name==field.data).count():
+        if len(User.objects(name=field.data)):
             raise ValidationError('This username is already registered.')
 
 @apidoc(__name__, blueprint, '/register.json', endpoint='register', defaults=dict(ext='json'), methods=('POST',))
@@ -179,15 +180,14 @@ def register_api(ext):
 def register(ext):
     form = RegistrationForm(MultiDict(request.json) or request.form)
     if request.method == "POST" and form.validate():
-        token = Token()
-        token.name = form.username.data
-        token.token = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(6))
-        token.hash = bcrypt.hashpw(form.password.data, bcrypt.gensalt())
-        token.mail = form.mail.data
-        token.ip = request.remote_addr
-        token.expires = datetime.datetime.utcnow() + datetime.timedelta(0, 10 * 60)
-        db.session.add(token)
-        db.session.commit()
+        token = Token(
+            name=form.username.data,
+            token=''.join(random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(6)),
+            hash=bcrypt.hashpw(form.password.data, bcrypt.gensalt()),
+            mail=form.mail.data,
+            ip=request.remote_addr,
+            expires=datetime.datetime.utcnow() + datetime.timedelta(0, 10 * 60)
+        ).save()
         return redirect(url_for('auth.activatetoken', ext=ext)), 303
     if ext == 'json':
         return jsonify(
@@ -207,9 +207,8 @@ class ActivationForm(Form):
         try:
             setattr(
                 form, 'token',
-                db.session.query(Token) \
-                    .filter(Token.token==form.token.data) \
-                    .filter(Token.expires>=datetime.datetime.utcnow()).order_by(ColumnOperators.desc(Token.expires)).first())
+                Token.objects(token=form.token.data, expires__gte=datetime.datetime.utcnow()).order_by("-expires").first()
+            )
             if not form.token or not bcrypt.hashpw(field.data, form.token.hash):
                 raise ValidationError("Incorrect password.")
         except KeyError: pass
@@ -228,14 +227,13 @@ def activatetoken_api(ext):
 def activatetoken(ext):
     form = ActivationForm(MultiDict(request.json) or request.form)
     if request.method == "POST" and form.validate():
-        user = User()
-        user.name = form.token.name
-        user.hash = form.token.hash
-        user.mail = form.token.mail
-        user.verified = True
-        db.session.add(user)
-        db.session.delete(form.token)
-        db.session.commit()
+        User(
+            name=form.token.name,
+            hash=form.token.hash,
+            mail=form.token.mail,
+            verified=True
+        ).save()
+        del(form.token)
         if ext == 'html': flash(u"Registration sucessful! You can now log in with your account.")
         return redirect(url_for('auth.login', ext=ext)), 303
     if ext == 'json':
@@ -255,9 +253,7 @@ def get_token(player, ext):
 
     with Permission(RoleNeed('get_token')).require(403):
         try:
-            return jsonify(token=db.session.query(Token) \
-                               .filter(Token.name==player) \
-                               .filter(Token.expires>=datetime.datetime.utcnow()).order_by(ColumnOperators.desc(Token.expires)).first().token)
+            return jsonify(token=Token.objects(name=player, expires__gte=datetime.datetime.utcnow()).order_by("-expires").first().token)
         except NoResultFound:
             abort(404)
 
@@ -271,8 +267,7 @@ def setpassword():
     form = SetPasswordForm(MultiDict(request.json) or request.form)
     if request.method == "POST" and form.validate():
         current_user.hash = bcrypt.hashpw(form.password.data, bcrypt.gensalt())
-        db.session.add(current_user._get_current_object())
-        db.session.commit()
+        current_user.save()
         flash('Updated password')
         return redirect(url_for('player_profiles.edit_profile', ext='html')), 303
     return render_template("setpassword.html", form=form)
