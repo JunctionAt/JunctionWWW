@@ -48,7 +48,9 @@ def switch_user(player, ext):
                 # Edge case where a switched user's account no longer has as_user role
                 login_user(original_user, force=True)
                 raise PermissionDenied()
-            to_user = db.session.query(User).filter(User.name==player).one()
+            to_user = db.session.query(User).filter(User.name==player).first()
+            if to_user is None:
+                raise NoResultFound
             # User with previous authorization via original_user
             if request.method == 'DELETE' and player.lower() == current_user.get_id().lower():
                 target = current_user.get_id()

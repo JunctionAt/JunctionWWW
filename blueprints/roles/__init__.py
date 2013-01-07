@@ -31,12 +31,14 @@ def on_identity_loaded(sender, identity):
     provide_roles(identity)
 
 def provide_roles(identity):
+
     if identity.name == current_user.get_id():
         identity.user = current_user
     else:
         temp_user = User.objects(name=identity.name)
         if len(temp_user)==0:
             identity.user = AnonymousUser()
+            return identity
         else:
             identity.user = temp_user.first()
 
