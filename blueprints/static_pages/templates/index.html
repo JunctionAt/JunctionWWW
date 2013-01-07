@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% from 'grouphelpers.html' import render_group_small %}
 
 {% block content %}
 <div class=grid_3>
@@ -21,7 +20,6 @@
         <td valign=top width=33%>
           <h2 style=text-align:center><a href="{{ url_for('static_pages.pve_landing_page') }}">p.junction.at</a></h2>
           <p>PvE. Survival without player-killing.</p>
-          {% if groups['pve']: -%}
           <h4>Largest cities</h4>
           <table>
             <thead>
@@ -30,20 +28,16 @@
                 <td align=right>Citizens</td>
               </tr>
             </thead>
-            {% for group in groups['pve']: -%}
             <tr>
-              <td width=100%>{{ render_group_small(group) }}</td>
-              <td align=right>{{ group.member_count }}</td>
+              <td width=100%></td>
+              <td align=right></td>
             </tr>
-            {%- endfor %}
           </table>
-          {%- endif %}
           <p><a href="/pve/cities/register">Register a city</a></p>
         </td>
         <td valign=top width=33%>
           <h2 style=text-align:center><a href="{{ url_for('static_pages.survival_landing_page') }}">s.junction.at</a></h2>
           <p>Moderated SMP.</p>
-          {% if groups['survival']: -%}
           <h4>Largest clans</h4>
           <table>
             <thead>
@@ -52,14 +46,11 @@
                 <td align=right>Members</td>
               </tr>
             </thead>
-            {% for group in groups['survival']: -%}
             <tr>
-              <td width=100%>{{ render_group_small(group) }}</td>
-              <td align=right>{{ group.member_count }}</td>
+              <td width=100%></td>
+              <td align=right></td>
             </tr>
-            {%- endfor %}
           </table>
-          {%- endif %}
           <p><a href="/survival/clans/register">Register a clan</a></p>
         </td>
         <td valign=top width=33%>

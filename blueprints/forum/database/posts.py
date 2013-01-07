@@ -1,6 +1,5 @@
 from mongoengine import *
-
-from login import User
+from blueprints.auth.user_model import User
 
 class Post(Document):
     """
@@ -11,6 +10,6 @@ class Post(Document):
     one Thread has many Posts
     one Post has one User
     """
-    author = StringField()
+    author = ReferenceField(User, dbref=False)
     content = StringField()
     date = StringField()

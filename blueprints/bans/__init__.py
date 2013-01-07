@@ -7,40 +7,38 @@ from flask import Blueprint, abort, request
 from flask_login import current_user
 from flask.ext.principal import Permission, RoleNeed
 from blueprints.auth import login_required
-from blueprints.base import db
+from blueprints.base import mongo
 from systems import minebans, mcbans, mcbouncer
-from ban_model import Ban, RemovedBan, Note, RemovedNote
-from blueprints.base import db
+from ban_model import Ban, Note
 
-###################################################################################################
-################################# Todo: Add authentication! #######################################
-###################################################################################################
+#Todo: Add authentication!
 
-usernameregex = re.compile('^[a-zA-Z0-9_]+$')
-bansystems = {"minebans" : minebans, "mcbans" : mcbans, "mcbouncer" : mcbouncer}
+username_regex = re.compile('^[a-zA-Z0-9_]+$')
+ban_systems = {"minebans" : minebans, "mcbans" : mcbans, "mcbouncer" : mcbouncer}
 bans = Blueprint('bans', __name__, template_folder="templates")
 
-db.create_all()
+#db.create_all()
 
-def verifyusername(username):
-    return len(username)<=16 and usernameregex.match(username)
+def verify_username(username):
+    return len(username)<=16 and username_regex.match(username)
 
-def mergedata(dlist):
+#This method takes care of merging responses in a proper way
+def merge_data(ret_list):
     response = {}
-    for ret in dlist:
+    for ret in ret_list:
         if ret == None:
             continue
-        sysname = ''
+        system_name = ''
         if '_sysname' in ret:
-            sysname = ret['_sysname']
+            system_name = ret['_sysname']
         if 'bans' in ret and len(ret['bans'])!=0:
             if 'bans' not in response:
                 response['bans'] = []
             if 'bancount' not in response:
                 response['bancount'] = 0
             for ban in ret['bans']:
-                if sysname is not None:
-                    ban['system'] = sysname
+                if system_name is not None:
+                    ban['system'] = system_name
                 response['bans'].append(ban)
                 response['bancount'] += 1
         if 'notes' in ret and len(ret['notes'])!=0:
@@ -49,8 +47,8 @@ def mergedata(dlist):
             if 'notecount' not in response:
                 response['notecount'] = 0
             for note in ret['notes']:
-                if sysname is not None:
-                    note['system'] = sysname
+                if system_name is not None:
+                    note['system'] = system_name
                 response['notes'].append(note)
                 response['notecount'] += 1
         if ('errors' in ret and len(ret['errors'])!=0) or ('error' in ret):
@@ -58,122 +56,123 @@ def mergedata(dlist):
                 response['errors'] = []
             if 'error' in ret:
                 if(isinstance(ret['error'], str)):
-                    response['errors'].append({"system" : sysname, "error" : ret['error']})
+                    response['errors'].append({"system" : system_name, "error" : ret['error']})
                 elif(isinstance(ret['error'], dict)):
                     error = ret['error']
-                    if sysname is not None:
-                        error['system'] = sysname
+                    if system_name is not None:
+                        error['system'] = system_name
                     response['errors'].append(error)
             if 'errors' in ret and len(ret['errors'])!=0:
                 for error in ret['errors']:
                     if(isinstance(error, str)):
-                        response['errors'].append({"system" : sysname, "error" : error})
+                        response['errors'].append({"system" : system_name, "error" : error})
                     elif(isinstance(error, dict)):
-                        if sysname is not None:
-                            error['system'] = sysname
+                        if system_name is not None:
+                            error['system'] = system_name
                         response['errors'].append(error)
     return response
 
 class ReqThread(Thread):
-    def __init__(self, func, queue, sysname):
+    def __init__(self, func, queue, system_name):
         Thread.__init__(self)
         self.func = func
-        self.retqueue = queue
-        self.sysname = sysname
+        self.return_queue = queue
+        self.system_name = system_name
 
     def run(self):
         ret = self.func()
         if ret != None:
-            ret['_sysname'] = self.sysname
-        self.retqueue.put(ret)
+            ret['_sysname'] = self.system_name
+        self.return_queue.put(ret)
 
 #GLOBAL
 
 #@bans.route('/bans/global/getbans.json')
-def getglobalbans(request):
+def get_global_bans(request):
     args = request.args
-    if args.has_key('username') and verifyusername(args['username']):
+    if args.has_key('username') and verify_username(args['username']):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
-    retqueue = Queue.Queue()
+    return_queue = Queue.Queue()
     threads = []
-    for key, value in bansystems.items():
-        t = ReqThread(lambda: value.getbans(username), retqueue, key)
+    for key, value in ban_systems.items():
+        t = ReqThread(lambda: value.getbans(username), return_queue, key)
         t.start()
         threads.append(t)
     for t in threads:
         t.join()
 
-    return mergedata(list(retqueue.queue))
+    return merge_data(list(return_queue.queue))
 
 #@bans.route('/bans/global/getnotes.json')
-def getglobalnotes(request):
+def get_global_notes(request):
     args = request.args
-    if args.has_key('username') and verifyusername(args['username']):
+    if args.has_key('username') and verify_username(args['username']):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
-    retqueue = Queue.Queue()
+    return_queue = Queue.Queue()
     threads = []
-    for key, value in bansystems.items():
-        t = ReqThread(lambda: value.getnotes(username), retqueue, key)
+    for key, value in ban_systems.items():
+        t = ReqThread(lambda: value.getnotes(username), return_queue, key)
         t.start()
         threads.append(t)
     for t in threads:
         t.join()
 
-    return mergedata(list(retqueue.queue))
+    return merge_data(list(return_queue.queue))
 
 #@bans.route('/bans/global/fulllookup.json')
-def fullgloballookup(request):
+def full_global_lookup(request):
     args = request.args
-    if args.has_key('username') and verifyusername(args['username']):
+    if args.has_key('username') and verify_username(args['username']):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
-    retqueue = Queue.Queue()
+    return_queue = Queue.Queue()
     threads = []
-    for key, value in bansystems.items():
-        t = ReqThread(lambda: value.getnotes(username), retqueue, key)
+    for key, value in ban_systems.items():
+        t = ReqThread(lambda: value.getnotes(username), return_queue, key)
         t.start()
         threads.append(t)
-        t = ReqThread(lambda: value.getbans(username), retqueue, key)
+        t = ReqThread(lambda: value.getbans(username), return_queue, key)
         t.start()
         threads.append(t)
     for t in threads:
         t.join()
 
-    return mergedata(list(retqueue.queue))
+    return merge_data(list(return_queue.queue))
 
 #LOCAL
 
 #@bans.route('/bans/local/getbans.json')
-def getlocalbans(request):
+def get_local_bans(request):
     args = request.args
-    if args.has_key('username') and verifyusername(args['username']):
+    if args.has_key('username') and verify_username(args['username']):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
-    bans = db.session.query(Ban).filter(Ban.username==args['username'])
-    count = bans.count()
+    bans = Ban.objects(username=args['username'], active=True)
+    count = len(bans)
     response = {'bancount' : count}
     if count > 0:
         response['bans'] = []
         for ban in bans:
             retban = {}
-            retban['uid'] = ban.id
-            retban['issuer'] = ban.issuer
-            retban['time'] = ban.gettime()
+            retban['uid'] = ban.uid
+            retban['issuer'] = ban.issuer.name
+            retban['time'] = ban.get_time()
             retban['reason'] = ban.reason
             retban['server'] = ban.server
             response['bans'].append(retban)
+    print response
     return response
 
 #@bans.route('/bans/local/banuser.json')
-def addban(request):
+def add_ban(request):
     args = request.args
-    if args.has_key('username') and verifyusername(args['username']):
+    if args.has_key('username') and verify_username(args['username']):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid.'}
@@ -181,7 +180,6 @@ def addban(request):
 #        issuer = args['issuer']
 #    else:
 #        return {'success' : False, 'error' : 'The issuer provided was invalid.'}
-    issuer = current_user
     if args.has_key('reason') and args['reason'].__len__()<=500:
         reason = args['reason']
     else:
@@ -190,60 +188,56 @@ def addban(request):
         server = args['server']
     else: 
         return {'success' : False, 'error' : 'The server provided was invalid.'}
-    if db.session.query(Ban).filter(Ban.username==username).count() > 0:
+    if len(Ban.objects(username=username, active=True)) > 0:
         return {'success' : False, 'error' : 'The user is already banned.'}
-    ban = Ban(issuer, username, reason, server)
-    db.session.add(ban)
-    db.session.commit()
+    Ban(issuer=current_user.to_dbref(), username=username, reason=reason, server=server).save()
     return {'success' : True}
 
 #@bans.route('/bans/local/delban.json')
-def delban(request):
+def del_ban(request):
     args = request.args
-    if args.has_key('username') and verifyusername(args['username']):
+    if args.has_key('username') and verify_username(args['username']):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
 #    ban = db.session.query(Ban).filter(Ban.username==username).first()
 #    if ban != None:
 #        db.session.add(RemovedBan(ban, current_user.name))
-    num = db.session.query(Ban).filter(Ban.username==username).delete()
-    db.session.commit()
-    return {'success' : True, 'num' : num}
+    banmatch = Ban.objects(username=username, active=True)
+    if len(banmatch)==0:
+        return {'success' : False}
+    banmatch.first().update(set__active=False)
+    return {'success' : True, 'num' : 1}
 
 #@bans.route('/bans/local/getnotes.json')
-def getlocalnotes(request):
+def get_local_notes(request):
     args = request.args
-    if args.has_key('username') and verifyusername(args['username']):
+    if args.has_key('username') and verify_username(args['username']):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
-    notes = db.session.query(Note).filter(Note.username==args['username'])
-    count = notes.count()
+    notes = Note.objects(username=args['username'], active=True)
+    count = len(notes)
     response = {'notecount' : count}
     if count > 0:
         response['notes'] = []
         for note in notes:
-            retnote = {}
-            retnote['uid'] = note.id
-            retnote['issuer'] = note.issuer
-            retnote['time'] = note.gettime()
-            retnote['note'] = note.note
-            retnote['server'] = note.server
-            response['notes'].append(retnote)
+            return_note = {}
+            return_note['uid'] = note.uid
+            return_note['issuer'] = note.issuer.name
+            return_note['time'] = note.get_time()
+            return_note['note'] = note.note
+            return_note['server'] = note.server
+            response['notes'].append(return_note)
     return response
 
 #@bans.route('/bans/local/addnote.json')
-def addnote(request):
+def add_note(request):
     args = request.args
-    if args.has_key('username') and verifyusername(args['username']):
+    if args.has_key('username') and verify_username(args['username']):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid.'}
-    if args.has_key('issuer') and (verifyusername(args['issuer']) or (args['issuer'][:1]=='[' and args['issuer'][1:]==']')):
-        issuer = args['issuer']
-    else:
-        return {'success' : False, 'error' : 'The issuer provided was invalid.'}
     if args.has_key('note') and args['note'].__len__()<=500:
         note = args['note']
     else:
@@ -252,78 +246,76 @@ def addnote(request):
         server = args['server']
     else:
         return {'success' : False, 'error' : 'The server provided was invalid.'}
-    note = Note(issuer, username, note, server)
-    db.session.add(note)
-    db.session.commit()
+
+    Note(issuer=current_user.to_dbref(), username=username, note=note, server=server).save()
     return {'success' : True}
 
 #@bans.route('/bans/local/delnote.json')
-def delnote(request):
+def del_note(request):
     args = request.args
     if args.has_key('id') and args['id'].isdigit():
         id = args['id']
     else:
         return {'success' : False, 'error' : 'The provided integer id was invalid.'}
-    num = db.session.query(Note).filter(Note.id==id).delete()
-    db.session.commit()
-    return {'success' : True, 'num' : num}
+    note = Note.objects(id=id, active=True).first().update(active=False)
+    return {'success' : True, 'num' : 1}
 
 #@bans.route('/bans/local/fulllookup.json')
-def fulllocallookup(request):
+def full_local_lookup(request):
     args = request.args
-    if args.has_key('username') and verifyusername(args['username']):
+    if args.has_key('username') and verify_username(args['username']):
                 username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
-    bans = db.session.query(Ban).filter(Ban.username==args['username'])
-    bancount = bans.count()
-    notes = db.session.query(Note).filter(Note.username==args['username'])
+    bans = Ban.objects(username=args['username'], active=True)
+    ban_count = len(bans)
+    notes = Note.objects(username=args['username'], active=True)
     notecount = notes.count()
-    response = {'notecount' : notecount, 'bancount' : bancount}
+    response = {'notecount' : notecount, 'bancount' : ban_count}
 
     if notecount > 0:
         response['notes'] = []
         for note in notes:
-            retnote = {}
-            retnote['uid'] = note.id
-            retnote['issuer'] = note.issuer
-            retnote['time'] = note.gettime()
-            retnote['note'] = note.note
-            retnote['server'] = note.server
-            response['notes'].append(retnote)
-    if bancount > 0:
+            return_note = {}
+            return_note['uid'] = note.uid
+            return_note['issuer'] = note.issuer.name
+            return_note['time'] = note.get_time()
+            return_note['note'] = note.note
+            return_note['server'] = note.server
+            response['notes'].append(return_note)
+    if ban_count > 0:
         response['bans'] = []
         for ban in bans:
-            retban = {}
-            retban['uid'] = ban.id
-            retban['issuer'] = ban.issuer
-            retban['time'] = ban.gettime()
-            retban['reason'] = ban.reason
-            retban['server'] = ban.server
-            response['bans'].append(retban)
+            return_ban = {}
+            return_ban['uid'] = ban.uid
+            return_ban['issuer'] = ban.issuer.name
+            return_ban['time'] = ban.get_time()
+            return_ban['reason'] = ban.reason
+            return_ban['server'] = ban.server
+            response['bans'].append(return_ban)
     return response
 
 #@bans.route('/bans/fulllookup.json')
-def fullfulllookup(request):
+def full_full_lookup(request):
     args = request.args
-    if args.has_key('username') and verifyusername(args['username']):
+    if args.has_key('username') and verify_username(args['username']):
                 username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
-    return mergedata([fulllocallookup(request), fullgloballookup(request)])
+    return merge_data([full_local_lookup(request), full_global_lookup(request)])
 
 methods = {
-    "local_getbans" : getlocalbans, 
-    "local_getnotes" : getlocalnotes, 
-    "local_lookup" : fulllocallookup, 
-    "local_addnote" : addnote, 
-    "local_addban" : addban,
-    "local_delnote" : delnote, 
-    "local_delban" : delban, 
-    "global_getbans" : getglobalbans, 
-    "global_getnotes" : getglobalnotes, 
-    "global_lookup" : fullgloballookup, 
-    "full_lookup" : fullfulllookup, 
+    "local_getbans" : get_local_bans, 
+    "local_getnotes" : get_local_notes, 
+    "local_lookup" : full_local_lookup,
+    "local_addnote" : add_note,
+    "local_addban" : add_ban,
+    "local_delnote" : del_note,
+    "local_delban" : del_ban, 
+    "global_getbans" : get_global_bans, 
+    "global_getnotes" : get_global_notes, 
+    "global_lookup" : full_global_lookup, 
+    "full_lookup" : full_full_lookup,
     }
 
 @bans.route('/bans/<string:method>.json')

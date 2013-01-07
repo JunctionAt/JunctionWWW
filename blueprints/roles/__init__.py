@@ -1,134 +1,75 @@
+__author__ = 'HansiHE'
+#Code originally by wiggitywhack with some major changes
+
+from flask.ext.login import current_user
 from flask import Blueprint, current_app, abort, request, render_template, url_for, session, redirect, flash
 from flask.ext.principal import (Principal, Identity, PermissionDenied, Permission, identity_loaded,
                                  identity_changed, RoleNeed, UserNeed, AnonymousIdentity)
-from flask.ext.login import current_user, user_logged_in, user_logged_out, AnonymousUser
-from sqlalchemy.orm.exc import NoResultFound
-from wtalchemy.orm import model_form
-
-from blueprints.auth import login_required, ApiUser
-from blueprints.base import db
+from flask.ext.login import current_user, user_logged_in, user_logged_out, AnonymousUser, login_required
 from blueprints.auth.user_model import User
-from blueprints.player_groups import Group, player_groups
+from role_model import Role_Group
+from blueprints.base import mongo
 
-principals = Principal(current_app)
+roles = static_pages = Blueprint('roles', __name__,
+        template_folder='templates')
 
-class Role(db.Model):
-
-    __tablename__ = 'roles'
-    name = db.Column(db.String(16), primary_key=True)
-    display_name = db.Column(db.String(100))
-    users = db.relation(User, secondary=lambda: UserRoleRelation.__table__, backref='roles')
-    groups = db.relation(Group, secondary=lambda: GroupRoleRelation.__table__, backref='roles')
-
-    def __repr__(self):
-        return self.display_name or self.name
-
-class UserRoleRelation(db.Model):
-
-    __tablename__ = 'users_roles'
-    user_name = db.Column(db.String(16), db.ForeignKey(User.name), primary_key=True)
-    role_name = db.Column(db.String(16), db.ForeignKey(Role.name, ondelete='CASCADE'), primary_key=True)
-
-class GroupRoleRelation(db.Model):
-
-    __tablename__ = 'player_groups_roles'
-    group_id = db.Column(db.String(64), db.ForeignKey(Group.id, ondelete='CASCADE'), primary_key=True)
-    role_name = db.Column(db.String(16), db.ForeignKey(Role.name, ondelete='CASCADE'), primary_key=True)
-
+Principal(current_app)
 
 @user_logged_in.connect_via(current_app._get_current_object())
 def on_user_logged_in(sender, user):
+    print 'login'
     identity_changed.send(current_app, identity=Identity(user.get_id()))
 
 @user_logged_out.connect_via(current_app._get_current_object())
 def on_user_logged_out(sender, user):
+    print 'logout'
     for key in ('identity.name', 'identity.auth_type'): session.pop(key, None)
     identity_changed.send(current_app, identity=AnonymousIdentity())
 
 @identity_loaded.connect_via(current_app._get_current_object())
 def on_identity_loaded(sender, identity):
-    identity_roles(identity)
+    provide_roles(identity)
 
-def identity_roles(identity):
+def provide_roles(identity):
     if identity.name == current_user.get_id():
         identity.user = current_user
     else:
-        try:
-            identity.user = db.session.query(User).filter(User.name==identity.name).one()
-        except NoResultFound:
+        temp_user = User.objects(name=identity.name)
+        if len(temp_user)==0:
             identity.user = AnonymousUser()
+        else:
+            identity.user = temp_user.first()
+
+    #TODO: potential issues, look here first
     user = identity.user
-    if hasattr(user, '_get_current_object'):
-        user = user._get_current_object()
-    if current_app.config.get('API', False) and isinstance(user, ApiUser):
-        # API treats anonymous user as god
-        for role in db.session.query(Role).all():
-            identity.provides.add(RoleNeed(role.name))
-        return identity
     identity.provides = set(UserNeed(identity.name))
-    if hasattr(identity.user, 'roles'):
-        for role in identity.user.roles:
-            identity.provides.add(RoleNeed(role.name))
-    if hasattr(identity.user, 'groups_owner'):
-        for group in identity.user.groups_owner:
-            for role in group.roles:
-                identity.provides.add(RoleNeed(role.name))
-    if hasattr(identity.user, 'groups_member'):
-        for group in identity.user.groups_member:
-            for role in group.roles:
-                identity.provides.add(RoleNeed(role.name))
+    for role in user.roles:
+        identity.provides.add(RoleNeed(role))
+    for group in user.role_groups:
+        for role in group.roles:
+            identity.provides.add(RoleNeed(role))
+
     return identity
 
-roles = Blueprint('roles', __name__, template_folder='templates')
 
-UserRolesForm = model_form(User, db.session, only=['roles'])
-GroupRolesForm = model_form(Group, db.session, only=['roles'])
 
-@roles.route('/profile/<player>/roles', methods=('GET','POST'))
+@roles.route('/roles/add_test')
 @login_required
-def edit_player_roles(player):
-    try:
-        with Permission(RoleNeed('edit_roles')).require(403):
-            user = db.session.query(User).filter(User.name==player).one()
-            if not user.name == player:
-                redirect(url_for('roles.edit_player_roles', player=user.name)), 301
-            form = UserRolesForm(request.form, user, only=['roles'])
-            if request.method == 'POST':
-                form.populate_obj(user)
-                db.session.add(user)
-                db.session.commit()
-                flash('Saved')
-            return render_template('edit_roles.html', form=form, name=user.name, action=url_for('roles.edit_player_roles', player=user.name))
-    except NoResultFound:
-        abort(404)
+def add_test_node():
+    current_user.roles.append('testnode')
+    current_user.save()
+    return 'y'
 
-@roles.route('/<server>/group/<group>/roles', methods=('GET','POST'))
+@roles.route('/roles/remove_test')
 @login_required
-def edit_group_roles(server, group):
-    name = group
-    try:
-        self = player_groups[server]
-    except KeyError:
-        abort(404)
-    try:
-        with Permission(RoleNeed('edit_roles')).require(403):
-            group = db.session.query(Group).filter(Group.id=="%s.%s"%(self.server, name)).one()
-            if not group.name == name:
-                redirect(url_for('roles.edit_group_roles', server=server, group=group.name)), 301
-            form = GroupRolesForm(request.form, group)
-            if request.method == 'POST' and form.validate():
-                form.populate_obj(group)
-                db.session.add(group)
-                db.session.commit()
-                flash('Saved')
-            return render_template('edit_roles.html', form=form, name=group.name, action=url_for('roles.edit_group_roles', server=server, group=group.name))
-    except NoResultFound:
-        abort(404)
+def remove_test_node():
+    if 'testnode' in current_user.roles:
+        current_user.roles.remove('testnode')
+        current_user.save()
+    return 'y'
 
-@current_app.context_processor
-def inject_identity():
-    return dict(can_edit_roles=can_edit_roles)
-
-def can_edit_roles():
-    return Permission(RoleNeed('edit_roles')).can()
-
+@roles.route('/roles/test_test')
+@login_required
+def test_test_node():
+    with Permission(RoleNeed('testnode')).require(403):
+        return 'yay!'

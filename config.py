@@ -1,7 +1,6 @@
 import flask
-from blueprints import (auth, roles, static_pages, api, avatar,
-                        player_notifications, player_stats, player_profiles, player_groups,
-                        logs, as_user, bans, forum, wiki)
+from blueprints import (auth, roles, static_pages, api, avatar, as_user,
+                        logs, bans, forum, wiki)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
@@ -25,36 +24,36 @@ BLUEPRINTS = [
     dict(blueprint=logs.logs),
 
     # Notifications
-    dict(blueprint=player_notifications.player_notifications),
+    #dict(blueprint=player_notifications.player_notifications),
 
     # Avatars
-    dict(blueprint=avatar.avatar),
+    #dict(blueprint=avatar.avatar),
     
     # Player stats
-    dict(blueprint=player_stats.player_stats([
-                dict(name='pve', tablename='pve_stats',
-                     hide=[
-                        'comp.pk', 'kills.player', 'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
-                        ]),
-                dict(name='event', tablename='event_stats',
-                     hide=[
-                        'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
-                        ]),
-                dict(name='chaos', tablename='chaos_stats',
-                     hide=[
-                        'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
-                        ]),
-                ])),
+    #dict(blueprint=player_stats.player_stats([
+    #            dict(name='pve', tablename='pve_stats',
+    #                 hide=[
+    #                    'comp.pk', 'kills.player', 'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
+    #                    ]),
+    #            dict(name='event', tablename='event_stats',
+    #                 hide=[
+    #                    'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
+    #                    ]),
+    #            dict(name='chaos', tablename='chaos_stats',
+    #                 hide=[
+    #                    'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
+    #                    ]),
+   #             ])),
     
     # Player profiles
-    dict(blueprint=player_profiles.player_profiles),
+    #dict(blueprint=player_profiles.player_profiles),
 
     # Player groups (Clans & Cities)
-    dict(blueprint=player_groups.player_groups([
-                dict(name='staff'),
-                dict(name='pve', group='city', groups='cities', member='citizen', owner='mayor'),
-                dict(name='survival', group='clan', owner='leader'),
-                ])),
+    #dict(blueprint=player_groups.player_groups([
+    #            dict(name='staff'),
+    #            dict(name='pve', group='city', groups='cities', member='citizen', owner='mayor'),
+    #            dict(name='survival', group='clan', owner='leader'),
+    #            ])),
 
     # Bans
     dict(blueprint=bans.bans),
