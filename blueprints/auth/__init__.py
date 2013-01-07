@@ -120,8 +120,7 @@ def login(ext):
             return redirect(request.args.get("next", '/'))
     if ext == 'json':
         if request.method == 'GET': abort(405)
-        return login_required(lambda: (redirect(url_for('player_profiles.show_profile',
-                                                        player=current_user.get_id(), ext=ext)), 303))()
+        return login_required(lambda: (redirect("/"), 303))()
     return render_template("login.html", form=form)
 
 @apidoc(__name__, blueprint, '/login.json', endpoint='login', defaults=dict(ext='json'), methods=('GET',))
