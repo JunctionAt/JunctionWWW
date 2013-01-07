@@ -114,8 +114,7 @@ def login(ext):
             flash(u"Please check your mail.")
             return redirect(url_for('auth.login', ext='html'))
         if login_user(form.user, remember=form.remember.data):
-            if ext == 'json': return redirect(url_for('player_profiles.show_profile',
-                                                      player=form.user.name, ext=ext)), 303
+            if ext == 'json': return redirect("/"), 303
             flash("Logged in!")
             return redirect(request.args.get("next", '/'))
     if ext == 'json':

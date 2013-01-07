@@ -153,19 +153,20 @@ def get_local_bans(request):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
-    bans = Ban.objects(username=args['username'])
+    bans = Ban.objects(username=args['username'], active=True)
     count = len(bans)
     response = {'bancount' : count}
     if count > 0:
         response['bans'] = []
         for ban in bans:
             retban = {}
-            retban['uid'] = ban.id
-            retban['issuer'] = ban.issuer
+            retban['uid'] = ban.uid
+            retban['issuer'] = ban.issuer.name
             retban['time'] = ban.get_time()
             retban['reason'] = ban.reason
             retban['server'] = ban.server
             response['bans'].append(retban)
+    print response
     return response
 
 #@bans.route('/bans/local/banuser.json')
@@ -179,7 +180,6 @@ def add_ban(request):
 #        issuer = args['issuer']
 #    else:
 #        return {'success' : False, 'error' : 'The issuer provided was invalid.'}
-    issuer = current_user
     if args.has_key('reason') and args['reason'].__len__()<=500:
         reason = args['reason']
     else:
@@ -188,9 +188,9 @@ def add_ban(request):
         server = args['server']
     else: 
         return {'success' : False, 'error' : 'The server provided was invalid.'}
-    if len(Ban.objects(username=username)) > 0:
+    if len(Ban.objects(username=username, active=True)) > 0:
         return {'success' : False, 'error' : 'The user is already banned.'}
-    Ban(issuer=issuer, username=username, reason=reason, server=server).save()
+    Ban(issuer=current_user.to_dbref(), username=username, reason=reason, server=server).save()
     return {'success' : True}
 
 #@bans.route('/bans/local/delban.json')
@@ -203,10 +203,11 @@ def del_ban(request):
 #    ban = db.session.query(Ban).filter(Ban.username==username).first()
 #    if ban != None:
 #        db.session.add(RemovedBan(ban, current_user.name))
-    del_ban = Ban.objects(username=username)
-    num_ban = len(del_ban)
-    del(del_ban)
-    return {'success' : True, 'num' : num_ban}
+    banmatch = Ban.objects(username=username, active=True)
+    if len(banmatch)==0:
+        return {'success' : False}
+    banmatch.first().update(set__active=False)
+    return {'success' : True, 'num' : 1}
 
 #@bans.route('/bans/local/getnotes.json')
 def get_local_notes(request):
@@ -215,15 +216,15 @@ def get_local_notes(request):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
-    notes = Note.objects(username=args['username'])
+    notes = Note.objects(username=args['username'], active=True)
     count = len(notes)
     response = {'notecount' : count}
     if count > 0:
         response['notes'] = []
         for note in notes:
             return_note = {}
-            return_note['uid'] = note.id
-            return_note['issuer'] = note.issuer
+            return_note['uid'] = note.uid
+            return_note['issuer'] = note.issuer.name
             return_note['time'] = note.get_time()
             return_note['note'] = note.note
             return_note['server'] = note.server
@@ -237,10 +238,6 @@ def add_note(request):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid.'}
-    if args.has_key('issuer') and (verify_username(args['issuer']) or (args['issuer'][:1]=='[' and args['issuer'][1:]==']')):
-        issuer = args['issuer']
-    else:
-        return {'success' : False, 'error' : 'The issuer provided was invalid.'}
     if args.has_key('note') and args['note'].__len__()<=500:
         note = args['note']
     else:
@@ -249,7 +246,8 @@ def add_note(request):
         server = args['server']
     else:
         return {'success' : False, 'error' : 'The server provided was invalid.'}
-    Note(issuer=issuer, username=username, note=note, server=server).save()
+
+    Note(issuer=current_user.to_dbref(), username=username, note=note, server=server).save()
     return {'success' : True}
 
 #@bans.route('/bans/local/delnote.json')
@@ -259,10 +257,8 @@ def del_note(request):
         id = args['id']
     else:
         return {'success' : False, 'error' : 'The provided integer id was invalid.'}
-    note = Note.objects(id=id)
-    note_num = len(note)
-    del(note)
-    return {'success' : True, 'num' : note_num}
+    note = Note.objects(id=id, active=True).first().update(active=False)
+    return {'success' : True, 'num' : 1}
 
 #@bans.route('/bans/local/fulllookup.json')
 def full_local_lookup(request):
@@ -271,9 +267,9 @@ def full_local_lookup(request):
                 username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
-    bans = Ban.objects(username=args['username'])
+    bans = Ban.objects(username=args['username'], active=True)
     ban_count = len(bans)
-    notes = Note.objects(username=args['username'])
+    notes = Note.objects(username=args['username'], active=True)
     notecount = notes.count()
     response = {'notecount' : notecount, 'bancount' : ban_count}
 
@@ -281,8 +277,8 @@ def full_local_lookup(request):
         response['notes'] = []
         for note in notes:
             return_note = {}
-            return_note['uid'] = note.id
-            return_note['issuer'] = note.issuer
+            return_note['uid'] = note.uid
+            return_note['issuer'] = note.issuer.name
             return_note['time'] = note.get_time()
             return_note['note'] = note.note
             return_note['server'] = note.server
@@ -291,8 +287,8 @@ def full_local_lookup(request):
         response['bans'] = []
         for ban in bans:
             return_ban = {}
-            return_ban['uid'] = ban.id
-            return_ban['issuer'] = ban.issuer
+            return_ban['uid'] = ban.uid
+            return_ban['issuer'] = ban.issuer.name
             return_ban['time'] = ban.get_time()
             return_ban['reason'] = ban.reason
             return_ban['server'] = ban.server

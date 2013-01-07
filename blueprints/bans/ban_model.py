@@ -1,16 +1,18 @@
 #from flask import Flask
 #from blueprints.base import Base, session, db
+from blueprints.auth import User
 from mongoengine import *
 import datetime
 
 class Ban(Document):
 
-    id = SequenceField(unique=True)
-    issuer = StringField(required=True)
+    uid = SequenceField(unique=True)
+    issuer = ReferenceField(User, dbref=False, required=True)
     username = StringField(required=True)
     reason = StringField(required=True)
     server = StringField(required=True)
     time = DateTimeField(default=datetime.datetime.utcnow)
+    active = BooleanField(default=True)
 
     def get_time(self):
         return self.time.strftime("%s")
@@ -24,12 +26,13 @@ class Ban(Document):
 
 class Note(Document):
 
-    id = SequenceField(unique=True)
-    issuer = StringField(required=True)
+    uid = SequenceField(unique=True)
+    issuer = ReferenceField(User, dbref=False, required=True)
     username = StringField(required=True)
     note = StringField(required=True)
     server = StringField(required=True)
     time = DateTimeField(default=datetime.datetime.utcnow)
+    active = BooleanField(default=True)
 
     def get_time (self):
         return self.time.strftime("%s")
