@@ -329,7 +329,7 @@ methods = {
 @bans.route('/bans/<string:method>.json')
 @login_required
 def execute_method(method):
-    with Permission(RoleNeed('bans.%s' % method)).require(403):
+    with Permission(RoleNeed('bans')).require(403):
         if method not in methods:
             abort(404)
         result = methods[method](request)
