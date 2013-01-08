@@ -153,7 +153,7 @@ def get_local_bans(request):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
-    bans = Ban.objects(username=args['username'], active=True)
+    bans = Ban.objects(username=re.compile(args['username'], re.IGNORECASE), active=True)
     count = len(bans)
     response = {'bancount' : count}
     if count > 0:
@@ -220,7 +220,7 @@ def get_local_notes(request):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
-    notes = Note.objects(username=args['username'], active=True)
+    notes = Note.objects(username=re.compile(args['username'], re.IGNORECASE), active=True)
     count = len(notes)
     response = {'notecount' : count}
     if count > 0:
@@ -275,9 +275,10 @@ def full_local_lookup(request):
                 username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
-    bans = Ban.objects(username=args['username'], active=True)
+    username_regexified = re.compile(args['username'], re.IGNORECASE)
+    bans = Ban.objects(username=username_regexified, active=True)
     ban_count = len(bans)
-    notes = Note.objects(username=args['username'], active=True)
+    notes = Note.objects(username=username_regexified, active=True)
     notecount = notes.count()
     response = {'notecount' : notecount, 'bancount' : ban_count}
 
