@@ -225,15 +225,17 @@ def activatetoken_api(ext):
 def activatetoken(ext):
     form = ActivationForm(MultiDict(request.json) or request.form)
     if request.method == "POST" and form.validate():
-        User(
+        user = User(
             name=form.token.name,
             hash=form.token.hash,
             mail=form.token.mail,
             verified=True
-        ).save()
+        )
+        user.save*()
+        login_user(user, remember=False)
         del(form.token)
-        if ext == 'html': flash(u"Registration sucessful! You can now log in with your account.")
-        return redirect(url_for('auth.login', ext=ext)), 303
+        if ext == 'html': flash(u"Registration sucessful!")
+        return redirect("/"), 303
     if ext == 'json':
         return jsonify(
             fields=reduce(lambda errors, (name, field):

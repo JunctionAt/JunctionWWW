@@ -161,7 +161,7 @@ def get_local_bans(request):
         for ban in bans:
             retban = {}
             retban['uid'] = ban.uid
-            retban['issuer'] = ban.issuer.name
+            retban['issuer'] = ban.issuer
             retban['time'] = ban.get_time()
             retban['reason'] = ban.reason
             retban['server'] = ban.server
@@ -180,6 +180,10 @@ def add_ban(request):
 #        issuer = args['issuer']
 #    else:
 #        return {'success' : False, 'error' : 'The issuer provided was invalid.'}
+    if args.has_key('issuer') and verify_username(args['issuer']):
+        issuer = args['issuer']
+    else:
+        return {'success' : False, 'error' : 'The issuer provided was invalid.'}
     if args.has_key('reason') and args['reason'].__len__()<=500:
         reason = args['reason']
     else:
@@ -190,7 +194,7 @@ def add_ban(request):
         return {'success' : False, 'error' : 'The server provided was invalid.'}
     if len(Ban.objects(username=username, active=True)) > 0:
         return {'success' : False, 'error' : 'The user is already banned.'}
-    Ban(issuer=current_user.to_dbref(), username=username, reason=reason, server=server).save()
+    Ban(issuer=issuer, username=username, reason=reason, server=server).save()
     return {'success' : True}
 
 #@bans.route('/bans/local/delban.json')
@@ -224,7 +228,7 @@ def get_local_notes(request):
         for note in notes:
             return_note = {}
             return_note['uid'] = note.uid
-            return_note['issuer'] = note.issuer.name
+            return_note['issuer'] = note.issuer
             return_note['time'] = note.get_time()
             return_note['note'] = note.note
             return_note['server'] = note.server
@@ -238,6 +242,10 @@ def add_note(request):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid.'}
+    if args.has_key('issuer') and verify_username(args['issuer']):
+        issuer = args['issuer']
+    else:
+        return {'success' : False, 'error' : 'The issuer provided was invalid.'}
     if args.has_key('note') and args['note'].__len__()<=500:
         note = args['note']
     else:
@@ -247,7 +255,7 @@ def add_note(request):
     else:
         return {'success' : False, 'error' : 'The server provided was invalid.'}
 
-    Note(issuer=current_user.to_dbref(), username=username, note=note, server=server).save()
+    Note(issuer=issuer, username=username, note=note, server=server).save()
     return {'success' : True}
 
 #@bans.route('/bans/local/delnote.json')
@@ -278,7 +286,7 @@ def full_local_lookup(request):
         for note in notes:
             return_note = {}
             return_note['uid'] = note.uid
-            return_note['issuer'] = note.issuer.name
+            return_note['issuer'] = note.issuer
             return_note['time'] = note.get_time()
             return_note['note'] = note.note
             return_note['server'] = note.server
@@ -288,7 +296,7 @@ def full_local_lookup(request):
         for ban in bans:
             return_ban = {}
             return_ban['uid'] = ban.uid
-            return_ban['issuer'] = ban.issuer.name
+            return_ban['issuer'] = ban.issuer
             return_ban['time'] = ban.get_time()
             return_ban['reason'] = ban.reason
             return_ban['server'] = ban.server
@@ -321,10 +329,10 @@ methods = {
 @bans.route('/bans/<string:method>.json')
 @login_required
 def execute_method(method):
-#    with Permission(RoleNeed('bans.%s' % method)).require(403):
-    if method not in methods:
-        abort(404)
-    result = methods[method](request)
-    if(not result.has_key('success')):
-    	result['success'] = True
-    return json.dumps(result)
+    with Permission(RoleNeed('bans.%s' % method)).require(403):
+        if method not in methods:
+            abort(404)
+        result = methods[method](request)
+        if(not result.has_key('success')):
+            result['success'] = True
+        return json.dumps(result)
