@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table style="border: solid; border-width: 1px;">
+        <tr>
+            <td>Ban</td>
+            <td>Reason</td>
+            <td>By</td>
+            <td>Banner</td>
+            <td>Created</td>
+            <td>Last Post</td>
+        </tr>
+        {% for appeal in appeals %}
+            <tr>
+                <td>{{ appeal.ban.uid }}</td>
+                <td>{{ appeal.ban.reason }}</td>
+                <td>{{ appeal.ban.username }}</td>
+                <td>{{ appeal.ban.issuer }}</td>
+                <td>{{ appeal.created }}</td>
+                <td>{{ last_post }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+        {% if previous_button %}
+            <a href="/a/appeals/list/{{ current_page-1 }}">Previous</a>
+        {% endif %}
+        {% if next_button %}
+            <a href="/a/appeals/list/{{ current_page+1 }}">Next</a>
+        {% endif %}
+        <p>{{ location_info }}</p>
+{% endblock %}

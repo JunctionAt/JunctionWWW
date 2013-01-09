@@ -13,6 +13,8 @@ class Ban(Document):
     time = DateTimeField(default=datetime.datetime.utcnow)
     active = BooleanField(default=True)
 
+    appeal = ReferenceField('Appeal', dbref=False)
+
     def get_time(self):
         return self.time.strftime("%s")
 

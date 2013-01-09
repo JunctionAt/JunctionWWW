@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="grid_12 pane">
+    <div style="background-color: #f5f5f5; padding: 10px; margin-top: 10px; margin-bottom: 15px;">
+        Banned by {{ ban.issuer }} with the reason:
+        <i>{{ ban.reason }}</i>
+    </div>
+    {% for reply in replies %}
+    <div style="background-color: #eeeeee; margin-top: 10px; margin-bottom: 10px; padding: 10px; border-radius: 3px; border: solid; border-width: 1px; border-color: #eaeaea;">
+        <div style="float: left; width: 100px;">
+            {{ reply.creator.name }}
+        </div>
+        <div style="float: left;">
+            {{ reply.text }}
+        </div>
+        <div style="display: block; clear: both;"></div>
+    </div>
+    {% endfor %}
+    <form method="post">
+        {{ reply_form.text }}
+        <input type="submit" value="Submit" />
+    </form>
+</div>
+{% endblock %}

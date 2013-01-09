@@ -231,7 +231,7 @@ def activatetoken(ext):
             mail=form.token.mail,
             verified=True
         )
-        user.save*()
+        user.save()
         login_user(user, remember=False)
         del(form.token)
         if ext == 'html': flash(u"Registration sucessful!")

@@ -27,7 +27,7 @@ BLUEPRINTS = [
     #dict(blueprint=player_notifications.player_notifications),
 
     # Avatars
-    #dict(blueprint=avatar.avatar),
+    dict(blueprint=avatar.avatar),
     
     # Player stats
     #dict(blueprint=player_stats.player_stats([

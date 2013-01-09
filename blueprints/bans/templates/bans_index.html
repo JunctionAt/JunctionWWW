@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table style="border: solid; border-width: 1px;">
+        <tr>
+            <td>Id</td>
+            <td>User</td>
+            <td>Reason</td>
+            <td>Issuer</td>
+            <td>Date</td>
+            <td>Appeal</td>
+        </tr>
+        {% for ban in bans %}
+            <tr{% if not ban.active %} style="background-color: #dddddd"{% endif %}>
+                <td>{{ ban.uid }}</td>
+                <td>{{ ban.username }}</td>
+                <td>{{ ban.reason }}</td>
+                <td>{{ ban.issuer }}</td>
+                <td>{{ ban.time }}</td>
+                <td>{% if ban.appeal is not none %}
+                appeal
+                {% endif %}</td>
+            </tr>
+        {% endfor %}
+    </table>
+        {% if previous_button %}
+            <a href="/a/bans/list/{{ current_page-1 }}">Previous</a>
+        {% endif %}
+        {% if next_button %}
+            <a href="/a/bans/list/{{ current_page+1 }}">Next</a>
+        {% endif %}
+        <p>{{ location_info }}</p>
+{% endblock %}

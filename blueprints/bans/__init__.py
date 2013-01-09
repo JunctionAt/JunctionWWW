@@ -17,6 +17,11 @@ username_regex = re.compile('^[a-zA-Z0-9_]+$')
 ban_systems = {"minebans" : minebans, "mcbans" : mcbans, "mcbouncer" : mcbouncer}
 bans = Blueprint('bans', __name__, template_folder="templates")
 
+import views.public_indexes
+import views.private_indexes
+import views.restricted_indexes
+import views.appeal_post
+
 #db.create_all()
 
 def verify_username(username):
@@ -207,7 +212,7 @@ def del_ban(request):
 #    ban = db.session.query(Ban).filter(Ban.username==username).first()
 #    if ban != None:
 #        db.session.add(RemovedBan(ban, current_user.name))
-    banmatch = Ban.objects(username=username, active=True)
+    banmatch = Ban.objects(username=re.compile(username, re.IGNORECASE), active=True)
     if len(banmatch)==0:
         return {'success' : False}
     banmatch.first().update(set__active=False)
