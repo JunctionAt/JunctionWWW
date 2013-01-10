@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+    {{ avatar_form.image }}
+    {{ avatar_form.upload_button }}
+    {{ avatar_form.mc_skin_button }}
+    <img src="{{ url_for('avatar.get_avatar', name=name) }}">
+</form>
+{% endblock %}

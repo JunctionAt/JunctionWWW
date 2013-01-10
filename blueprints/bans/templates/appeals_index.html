@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <table style="border: solid; border-width: 1px;">
+<div class="grid_12 pane">
+    <table style="">
         <tr>
             <td>Ban</td>
             <td>Reason</td>
@@ -11,14 +12,14 @@
             <td>Last Post</td>
         </tr>
         {% for appeal in appeals %}
-            <tr>
-                <td>{{ appeal.ban.uid }}</td>
+        <tr>
+                <td><a href="{{ url_for('bans.view_appeal', uid=appeal.ban.uid) }}">{{ appeal.ban.uid }}</a></td>
                 <td>{{ appeal.ban.reason }}</td>
                 <td>{{ appeal.ban.username }}</td>
                 <td>{{ appeal.ban.issuer }}</td>
                 <td>{{ appeal.created }}</td>
-                <td>{{ last_post }}</td>
-            </tr>
+                <td>{{ appeal.last }}</td>
+        </tr>
         {% endfor %}
     </table>
         {% if previous_button %}
@@ -28,4 +29,5 @@
             <a href="/a/appeals/list/{{ current_page+1 }}">Next</a>
         {% endif %}
         <p>{{ location_info }}</p>
+</div>
 {% endblock %}

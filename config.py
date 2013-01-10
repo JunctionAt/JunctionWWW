@@ -1,5 +1,5 @@
 import flask
-from blueprints import (auth, roles, static_pages, api, avatar, as_user,
+from blueprints import (auth, static_pages, api, avatar,
                         logs, bans, forum, wiki)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
@@ -13,12 +13,6 @@ BLUEPRINTS = [
 
     # API Doc
     dict(blueprint=api.api),
-
-    # User roles
-    dict(blueprint=roles.roles),
-
-    # User switching
-    dict(blueprint=as_user.as_user),
 
     # Logs
     dict(blueprint=logs.logs),
@@ -75,6 +69,8 @@ Markdown(flask.current_app)
 @flask.current_app.context_processor
 def inject_server():
     return dict(server_display_name=lambda server: dict(pve='PvE', survival='Survival', event='Event', chaos='Chaos', staff='Staff')[server],)
+
+UPLOAD_FOLDER = "/tmp/www/uploads"
 
 # Recaptcha
 RECAPTCHA_USE_SSL = True

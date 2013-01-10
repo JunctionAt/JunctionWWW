@@ -23,6 +23,8 @@ def bans_index(page):
 
     num_pages = math.ceil(ban_num/float(BANS_PER_PAGE))
     if num_pages < page:
+        if page==1:
+            return render_template('no_result_bans.html', message='No bans found.')
         abort(404)
 
     display_bans = bans.skip((page-1)*BANS_PER_PAGE).limit(BANS_PER_PAGE)
@@ -39,8 +41,8 @@ def bans_index(page):
         current_page=page
     )
 
-@bans.route('/a/appeals/list/', defaults={'page': 1})
-@bans.route('/a/appeals/list/<int:page>')
+@bans.route('/a/appeal/list/', defaults={'page': 1})
+@bans.route('/a/appeal/list/<int:page>')
 def appeals_index(page):
 
     appeals = Appeal.objects().order_by('-created')
@@ -48,6 +50,8 @@ def appeals_index(page):
 
     num_pages = math.ceil(appeal_num/float(APPEALS_PER_PAGE))
     if num_pages < page:
+        if page==1:
+            return render_template('no_result_bans.html', message='No appeals found.')
         abort(404)
 
     display_appeals = appeals.skip((page-1)*APPEALS_PER_PAGE)

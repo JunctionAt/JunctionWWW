@@ -1,0 +1,7 @@
+{% macro render_badge(user) -%}
+    {% if user.has_permission("badge.moderator") %}
+        Moderator
+    {% else %}
+        Player
+    {% endif %}
+{%- endmacro %}

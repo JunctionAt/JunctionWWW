@@ -20,8 +20,7 @@ from flask import (Flask, Blueprint, request, render_template, redirect, url_for
                    current_app, session, abort, jsonify)
 import flask_login
 from flask_login import (LoginManager, login_required as __login_required__, current_user,
-                         login_user, logout_user, confirm_login, fresh_login_required)
-from flask.ext.principal import Permission, RoleNeed, Identity, identity_changed
+                         login_user, logout_user, confirm_login, fresh_login_required, AnonymousUser)
 from functools import wraps
 from wtforms import Form, TextField, PasswordField, BooleanField, ValidationError
 from wtforms.validators import *
@@ -55,9 +54,18 @@ def user_loader(id): return load_user(id)
 def load_user(id):
     if id == ApiUser().get_id() and current_app.config.get('API', False):
         return ApiUser()
-    return User.objects(name=id).first()
+    user = User.objects(name=re.compile(id, re.IGNORECASE)).first()
+    user.load_perms()
+    return user
 
 login_manager.init_app(current_app, add_context_processor=True)
+
+class Anon(AnonymousUser):
+
+    def has_permission(self, perm_node):
+        return False
+
+login_manager.anonymous_user = Anon
 
 class ApiUser:
     def get_id(self): return ""
@@ -76,7 +84,7 @@ def login_required(f):
         if not current_user.is_authenticated():
             try:
                 auth = request.authorization
-                user = User.objects(name=auth.username).first()
+                user = User.objects(name=re.compile(auth.username, re.IGNORECASE)).first()
                 if not user or not user.hash == bcrypt.hashpw(auth.password, user.hash) or \
                         not login_user(user, remember=False, force=True):
                     raise Exception()
@@ -97,7 +105,7 @@ class LoginForm(Form):
         if reduce(lambda errors, (name, field): errors or len(field.errors), form._fields.iteritems(), False):
             return
         try :
-            form.user = User.objects(name=form.username.data).first()
+            form.user = User.objects(name=re.compile(form.username.data, re.IGNORECASE)).first()
             if form.user is None:
                 raise KeyError
             if form.user.hash == bcrypt.hashpw(form.password.data, form.user.hash):
@@ -164,7 +172,7 @@ class RegistrationForm(Form):
     password = PasswordField('Password', description='Note: Does not need to be the same as your Minecraft password', validators=[ Required(), Length(min=8) ])
     password_match = PasswordField('Verify Password', [ Optional() ])
     def validate_username(form, field):
-        if len(User.objects(name=field.data)):
+        if len(User.objects(name=re.compile(field.data, re.IGNORECASE))):
             raise ValidationError('This username is already registered.')
 
 @apidoc(__name__, blueprint, '/register.json', endpoint='register', defaults=dict(ext='json'), methods=('POST',))
@@ -251,11 +259,13 @@ def get_token(player, ext):
     Used by staff to get the activation token for ``player``.
     """
 
-    with Permission(RoleNeed('get_token')).require(403):
-        try:
-            return jsonify(token=Token.objects(name=player, expires__gte=datetime.datetime.utcnow()).order_by("-expires").first().token)
-        except NoResultFound:
-            abort(404)
+    if not current_user.has_permission("auth.get_token"):
+        abort(403)
+
+    try:
+        return jsonify(token=Token.objects(name=player, expires__gte=datetime.datetime.utcnow()).order_by("-expires").first().token)
+    except NoResultFound:
+        abort(404)
 
 class SetPasswordForm(Form):
     password = PasswordField('New Password', [ Required(), Length(min=8) ])

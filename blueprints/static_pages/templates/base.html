@@ -18,8 +18,8 @@
         <div class=container_12>
           {% if current_user.is_authenticated(): -%}
           <ul>
-            <li class=profile_link></li>
-            <li><a href="">Edit profile</a></li>
+            <li class=profile_link><a class=profile_small href="">{{ current_user.name }}</a></li>
+            <li><a href="{{ url_for('bans.your_bans') }}">Your bans</a></li>
             <li><a href="{{ url_for('auth.logout', ext='html') }}">Logout</a></li>
           </ul>
           {%- else -%}

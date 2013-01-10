@@ -3,6 +3,15 @@ import datetime
 
 from mongoengine import *
 
+class Role_Group(Document):
+
+    name = StringField(required=True)
+    roles = ListField(StringField())
+
+    meta = {
+        'collection': 'role_groups'
+    }
+
 class User(Document, flask_login.UserMixin, object):
 
     name = StringField(primary_key=True, required=True)
@@ -11,11 +20,11 @@ class User(Document, flask_login.UserMixin, object):
     registered = DateTimeField(default=datetime.datetime.utcnow())
     verified = BooleanField(default=False)
 
-    avatar_type = IntField()
+    badge = StringField(default="", required=True)
 
     #Note for whoever: Most permissions should be added through groups, not adding nodes directly to users.
     #The permissions list should ONLY be used in very specific cases.
-    role_groups = ListField(ReferenceField('Role_Group', dbref=False))
+    role_groups = ListField(ReferenceField(Role_Group, dbref=False))
     roles = ListField(StringField())
 
     meta = {
@@ -27,6 +36,39 @@ class User(Document, flask_login.UserMixin, object):
 
     def __repr__(self):
         return self.name
+
+    permissions = []
+
+    def load_perms(self):
+        self.permissions = []
+        for role in self.roles:
+            self.permissions.append(role)
+        for group in self.role_groups:
+            for role in group.roles:
+                self.permissions.append(role)
+
+    def has_permission(self, perm_node):
+        node = unicode(perm_node)
+        print node
+        for permission in self.permissions:
+            if permission.startswith(u"-"):
+                if permission.endswith(u"*"):
+                    if node.startswith(permission[1:-1]):
+                        return False
+                else:
+                    if permission[1:] == node:
+                        return False
+
+        for permission in self.permissions:
+            if permission.endswith(u"*"):
+                print permission[:-1]
+                if node.startswith(permission[:-1]):
+                    return True
+                else:
+                    if permission == node:
+                        return True
+
+        return False
 
 class Token(Document):
 

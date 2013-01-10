@@ -5,9 +5,7 @@ import Queue
 from threading import Thread
 from flask import Blueprint, abort, request
 from flask_login import current_user
-from flask.ext.principal import Permission, RoleNeed
 from blueprints.auth import login_required
-from blueprints.base import mongo
 from systems import minebans, mcbans, mcbouncer
 from ban_model import Ban, Note
 
@@ -335,10 +333,11 @@ methods = {
 @bans.route('/bans/<string:method>.json')
 @login_required
 def execute_method(method):
-    with Permission(RoleNeed('bans')).require(403):
-        if method not in methods:
-            abort(404)
-        result = methods[method](request)
-        if(not result.has_key('success')):
-            result['success'] = True
-        return json.dumps(result)
+    if method not in methods:
+        abort(404)
+    if not current_user.has_permission("bans.api.%s" % method):
+        abort(403)
+    result = methods[method](request)
+    if(not result.has_key('success')):
+        result['success'] = True
+    return json.dumps(result)
