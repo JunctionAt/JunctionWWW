@@ -8,4 +8,4 @@ session = db.session
 Base = db.Model
 cache = Cache(current_app, config={'CACHE_TYPE': 'simple'})
 
-mongo = connect("test")
+mongo = connect("pf")
