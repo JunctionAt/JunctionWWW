@@ -2,12 +2,12 @@
 
 {% block content %}
 <div class="grid_12 pane">
-    <table style="">
+    <table style="width: 97;">
         <tr>
-            <td>Ban</td>
-            <td>Reason</td>
-            <td>By</td>
-            <td>Banner</td>
+            <td style="width: 8%;">Ban</td>
+            <td style="width: 50%;">Reason</td>
+            <td style="width: 15%;">Appealer</td>
+            <td style="width: 15%;">Banner</td>
             <td>Created</td>
             <td>Last Post</td>
         </tr>
@@ -17,8 +17,8 @@
                 <td>{{ appeal.ban.reason }}</td>
                 <td>{{ appeal.ban.username }}</td>
                 <td>{{ appeal.ban.issuer }}</td>
-                <td>{{ appeal.created }}</td>
-                <td>{{ appeal.last }}</td>
+                <td>{{ appeal.created.strftime("%H:%M %d %b %y") }}</td>
+                <td>{{ appeal.last.strftime("%H:%M %d %b %y") }}</td>
         </tr>
         {% endfor %}
     </table>

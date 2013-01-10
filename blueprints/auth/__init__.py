@@ -55,6 +55,8 @@ def load_user(id):
     if id == ApiUser().get_id() and current_app.config.get('API', False):
         return ApiUser()
     user = User.objects(name=re.compile(id, re.IGNORECASE)).first()
+    if user is None:
+        return None
     user.load_perms()
     return user
 

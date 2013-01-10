@@ -6,14 +6,26 @@ from ban_model import Ban
 from blueprints.auth.user_model import User
 import shortuuid
 
+class AppealEdit(EmbeddedDocument):
+
+    text = StringField(required=True)
+    user = ReferenceField(User, dbref=False, required=True)
+    time = DateTimeField(default=datetime.datetime.utcnow, required=True)
+
 class AppealReply(Document):
 
     appeal = ReferenceField('Appeal', dbref=False, required=True)
     uid = SequenceField(unique=True)
 
     created = DateTimeField(default=datetime.datetime.utcnow, required=True)
+    edited = DateTimeField()
+
     creator = ReferenceField(User, dbref=False, required=True)
+    editor = ReferenceField(User, dbref=False)
+
     text = StringField(required=True)
+
+    edits = ListField(EmbeddedDocumentField(AppealEdit))
 
     meta = {
         'collection': 'appeal_responses'

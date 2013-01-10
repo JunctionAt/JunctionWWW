@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid_12 pane">
+    <form method="post">
+        {{ form.text(style="width: 100%;") }}
+        {{ form.submit }}
+    </form>
+</div>
+{% endblock %}

@@ -49,7 +49,7 @@ class User(Document, flask_login.UserMixin, object):
 
     def has_permission(self, perm_node):
         node = unicode(perm_node)
-        print node
+        #print node
         for permission in self.permissions:
             if permission.startswith(u"-"):
                 if permission.endswith(u"*"):
@@ -61,12 +61,11 @@ class User(Document, flask_login.UserMixin, object):
 
         for permission in self.permissions:
             if permission.endswith(u"*"):
-                print permission[:-1]
                 if node.startswith(permission[:-1]):
                     return True
-                else:
-                    if permission == node:
-                        return True
+            else:
+                if permission == node:
+                    return True
 
         return False
 

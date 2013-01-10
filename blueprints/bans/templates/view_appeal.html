@@ -13,17 +13,31 @@
         Ban has been removed.
         <br>
         {% endif %}
+        {% if locked %}
+        Appeal is locked.
+        <br>
+        {% endif %}
         Banned by {{ ban.issuer }} with the reason:
         <i>{{ ban.reason }}</i>
         <br>
-        {% if current_user.has_permission("bans.appeal.manage") %}
-        {{ admin_form.unban }}
-        {{ admin_form.lock_time }}
-        {{ admin_form.lock }}
+        {% if is_mod %}
+            <form method="post">
+            {% if locked %}
+                {{ admin_form.unlock }}
+            {% else %}
+                {{ admin_form.lock_time }}
+                {{ admin_form.lock }}
+            {% endif %}
+            {{ admin_form.unban }}
+            </form>
         {% endif %}
     </div>
     {% for reply in replies %}
-    <div style="background-color: #eeeeee; margin-top: 10px; margin-bottom: 10px; padding: 10px; border-radius: 3px; border: solid; border-width: 1px; border-color: #eaeaea;">
+    <div id="{{ reply.uid }}" style="position: relative; background-color: #eeeeee; margin-top: 10px; margin-bottom: 10px; padding: 10px; border-radius: 3px; border: solid; border-width: 1px; border-color: #eaeaea;">
+        <a href="#{{ reply.uid }}" style="position: absolute; top: 5px; left: auto; right: 5px; color: #5897fb;">#{{ reply.uid }}</a>
+        {% if is_mod %}
+        <a href="{{ url_for('bans.edit_reply', uid=reply.uid) }}" style="position: absolute; bottom: 5px; left: auto; right: 5px; color: #5897fb;">Edit</a>
+        {% endif %}
         <div style="float: left; width: 100px;">
             <img src="{{ url_for('avatar.get_avatar', name=reply.creator.name) }}" style="width: 100px; height: 100px;">
             {{ reply.creator.name }} <br>
@@ -32,17 +46,26 @@
             {% elif reply.creator.name|lower == ban.username|lower %}
             Ban Appealer
             {% endif %}
-            {{ reply.creator.badge }}
+            {% if current_user.has_permission("badge.moderator") %}
+            <br>Moderator
+            {% endif %}
         </div>
         <div style="float: left; margin-left: 10px;">
             {{ reply.text }}
         </div>
+        {% if reply.edited is not none %}
+        <div style="position: absolute; bottom: 3px; left: 120px; color: #aa6655;">
+            Last edit by: {{ reply.editor.name }} - {{ reply.edited.strftime("%H:%M %d %b %Y") }}
+        </div>
+        {% endif %}
         <div style="display: block; clear: both;"></div>
     </div>
     {% endfor %}
+    {% if is_mod or (current_user.name|lower == ban.username|lower and not locked) %}
     <form method="post">
-        {{ reply_form.text }}
-        <input type="submit" value="Submit" />
+        {{ reply_form.text(style="width: 99%; height: 100px;") }}
+        {{ reply_form.submit }}
     </form>
+    {% endif %}
 </div>
 {% endblock %}
