@@ -4,10 +4,10 @@
 <div class="grid_12 pane">
     <table style="border: solid; border-width: 1px;">
         <tr>
-            <td>Id</td>
-            <td>User</td>
-            <td>Reason</td>
-            <td>Issuer</td>
+            <td style="width: 8%;">Id</td>
+            <td style="width: 12%;">User</td>
+            <td style="width: 50%;">Reason</td>
+            <td style="width: 12%;">Issuer</td>
             <td>Date</td>
             <td>Appeal</td>
         </tr>
@@ -17,7 +17,7 @@
                 <td>{{ ban.username }}</td>
                 <td>{{ ban.reason }}</td>
                 <td>{{ ban.issuer }}</td>
-                <td>{{ ban.time }}</td>
+                <td>{{ ban.time.strftime("%H:%M %d %b %y") }}</td>
                 <td>
                 {% if ban.appeal is not none %}
                     <a href="{{ url_for('bans.view_appeal', uid=ban.uid) }}">View Appeal</a>
