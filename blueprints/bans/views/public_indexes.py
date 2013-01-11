@@ -59,6 +59,8 @@ def appeals_index(page):
     next_button = page < num_pages
     previous_button = page >= num_pages and not num_pages == 1
 
+    print display_appeals[0].ban
+
     return render_template(
         'appeals_index.html',
         appeals=display_appeals,

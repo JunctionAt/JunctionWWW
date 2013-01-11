@@ -21,7 +21,7 @@
                 <td>
                 {% if ban.appeal is not none %}
                     <a href="{{ url_for('bans.view_appeal', uid=ban.uid) }}">View Appeal</a>
-                {% elif ban.username|lower == current_user.name|lower and ban.appeal is none %}
+                {% elif ban.username|lower == current_user.name|lower and ban.appeal is none and ban.active %}
                     <a href="{{ url_for('bans.post_new_appeal', uid=ban.uid) }}">Appeal Ban</a>
                 {% endif %}
                 </td>

@@ -53,9 +53,9 @@ def avatar_control():
 @avatar.route('/avatar/<string:name>.png')
 def get_avatar(name):
     avatar = Avatar.objects(username=re.compile(name, re.IGNORECASE)).first()
-    if avatar is not None:
-        return send_file(avatar.image, mimetype='image/png')
-    return ""
+    if avatar is None:
+        return ""
+    return send_file(avatar.image, mimetype='image/png')
 
 def set_avatar(name, image):
     query = Avatar.objects(username=name)
