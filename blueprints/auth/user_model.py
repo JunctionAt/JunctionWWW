@@ -20,12 +20,12 @@ class User(Document, flask_login.UserMixin, object):
     registered = DateTimeField(default=datetime.datetime.utcnow())
     verified = BooleanField(default=False)
 
-    badge = StringField(default="", required=True)
-
     #Note for whoever: Most permissions should be added through groups, not adding nodes directly to users.
-    #The permissions list should ONLY be used in very specific cases.
+    #The permissions list should ONLY be used in very specific cases. (Api accounts?)
     role_groups = ListField(ReferenceField(Role_Group, dbref=False))
     roles = ListField(StringField())
+
+    api_account = BooleanField(default=False)
 
     meta = {
         'collection': 'users'

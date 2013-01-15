@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from threading import Thread, Lock
 import requests
 import json
-from flask import Blueprint, Markup, render_template, url_for, current_app, g, request
+from flask import Blueprint, Markup, render_template, url_for, current_app, g, request, redirect
 from sqlalchemy import desc
 
 from blueprints.base import db
@@ -68,3 +68,7 @@ def chaos_landing_page():
 @static_pages.route('/mumble')
 def mumble_info():
     return render_template('mumble.html')
+
+@static_pages.route('/appeal')
+def appeal_info():
+    return redirect(url_for('wiki.display_wiki_article', wiki_url='appeal'))

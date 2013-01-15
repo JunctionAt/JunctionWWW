@@ -203,6 +203,8 @@ def register(ext):
                               errors if not len(field.errors) else errors + [dict(name=name, errors=field.errors)],
                           form._fields.iteritems(),
                           list())), 400
+    if current_user.is_authenticated():
+        return redirect(url_for('static_pages.landing_page'))
     return render_template("register.html", form=form)
 
 class ActivationForm(Form):
