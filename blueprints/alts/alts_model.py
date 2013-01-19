@@ -12,3 +12,4 @@ class PlayerAlt(Document):
         'collection' : 'alts',
         'indexed' : [ 'username', 'ips' ]
     }
+
