@@ -28,7 +28,7 @@ class WebNotification(yell.Notification):
 
         notification = notification_model.Notification(
             user=user,
-            from_user=from_user,
+            sender=from_user,
             message=message,
             type=type
         )
@@ -65,12 +65,12 @@ def show_notifications(ext):
         "notifications": map(lambda notification: {
             'user': notification.user,
             'type': notification.type,
-            'from': notification.from_user,
+            'from': notification.sender,
             'message': markdown.markdown(notification.message)
         }, get_notifications())})
     return render_template('show_notifications.html', player_notifications=get_notifications())
 
-@current_app.current_app.context_processor
+@current_app.context_processor
 def inject_notifications():
     return dict(get_notifications=get_notifications)
 

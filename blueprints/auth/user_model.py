@@ -14,13 +14,13 @@ class Role_Group(Document):
 
 class User(Document, flask_login.UserMixin, object):
 
-    name = StringField(primary_key=True, required=True)
+    name = StringField(required=True)
     hash = StringField(required=True)
     mail = StringField()
     registered = DateTimeField(default=datetime.datetime.utcnow())
     verified = BooleanField(default=False)
 
-    notifications = ListField(ReferenceField("Notification", dbref=False))
+    notifications = ListField(ReferenceField('Notification', dbref=False))
 
     #Note for whoever: Most permissions should be added through groups, not adding nodes directly to users.
     #The permissions list should ONLY be used in very specific cases. (Api accounts?)

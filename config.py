@@ -1,5 +1,5 @@
 import flask
-from blueprints import (auth, static_pages, api, avatar,
+from blueprints import (auth, notifications, static_pages, api, avatar,
                         logs, bans, forum, wiki, admin)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
@@ -7,6 +7,9 @@ BLUEPRINTS = [
 
     # Authentication
     dict(blueprint=auth.blueprint),
+
+    # Notifications
+    dict(blueprint=notifications.blueprint),
     
     # Static pages
     dict(blueprint=static_pages.static_pages),
@@ -16,9 +19,6 @@ BLUEPRINTS = [
 
     # Logs
     dict(blueprint=logs.logs),
-
-    # Notifications
-    #dict(blueprint=player_notifications.player_notifications),
 
     # Avatars
     dict(blueprint=avatar.avatar),
@@ -59,7 +59,7 @@ BLUEPRINTS = [
     dict(blueprint=wiki.blueprint),
 
     #Administration stuffs
-    dict(blueprint=admin.admin)
+    #dict(blueprint=admin.blueprint)
 
     ]
 

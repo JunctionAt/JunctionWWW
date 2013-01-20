@@ -1,5 +1,6 @@
 from flask import Flask
 from reverse_proxied import ReverseProxied
+from flask.ext.admin import Admin
 
 application = Flask(__name__)
 
