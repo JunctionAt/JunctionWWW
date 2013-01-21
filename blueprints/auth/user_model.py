@@ -9,12 +9,19 @@ class Role_Group(Document):
     roles = ListField(StringField())
 
     meta = {
-        'collection': 'role_groups'
+        'collection': 'role_groups',
+        'indexes': ['roles']
     }
+
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
 
 class User(Document, flask_login.UserMixin, object):
 
-    name = StringField(required=True)
+    name = StringField(required=True, unique=True)
     hash = StringField(required=True)
     mail = StringField()
     registered = DateTimeField(default=datetime.datetime.utcnow())
@@ -30,7 +37,8 @@ class User(Document, flask_login.UserMixin, object):
     api_account = BooleanField(default=False)
 
     meta = {
-        'collection': 'users'
+        'collection': 'users',
+        'indexes': ['name']
     }
 
     def get_id(self):
