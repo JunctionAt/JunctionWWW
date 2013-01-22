@@ -59,9 +59,9 @@ def get_avatar(name):
     if avatar is None or avatar.image is None:
         return ""
     image = avatar.image
-    return hashlib.md5(image.read()).hexdigest()
-    image.seek(0)
-    ret = send_file(image, mimetype='image/png')
+    imag = StringIO.StringIO(image.read())
+    imag.seek(0)
+    ret = send_file(imag, mimetype='image/png')
     return ret
 
 def set_avatar(name, image):
