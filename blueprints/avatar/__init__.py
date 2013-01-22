@@ -86,3 +86,6 @@ def get_mc_face(name):
     out_img.seek(0)
 
     return out_img
+
+def get_avatar_url(name):
+    return url_for('avatar.get_avatar', name=name)

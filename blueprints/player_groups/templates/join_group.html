@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block topleft -%}
+<h1>Join {{ endpoint.group }}</h1>
+{%- endblock %}
+
+{% block content -%}
+<form class="grid_4 prefix_4" action="{{ url_for('player_groups.join_group', server=endpoint.server, group=group.name, ext='html') }}" method=post>
+    <button type=submit>Join {{ group.display_name }}</button>
+    {% if not group.publc: -%}
+    <button type=submit onclick="decline()">No, thanks</button>
+    <script>
+        function decline() {
+            $.ajax({
+                url: '{{ url_for('player_groups.join_group', server=endpoint.server, group=group.name) }}',
+                    type: 'delete',
+                    complete: function() { window.location = '{{ url_for('player_groups.show_group', server=endpoint.server, group=group.name, ext='json') }}'; }
+        });
+        return false;
+        }
+    </script>
+    {%- endif %}
+</form>
+<div class=clear></div>
+{% include 'render_group.html' %}
+{%- endblock %}

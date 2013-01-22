@@ -1,0 +1,31 @@
+{% from 'profilehelpers.html' import render_profile_small %}
+
+<div class="grid_4">
+    <img src="{{ group.avatar.portrait }}">
+    {% if group.tagline: -%}
+    <blockquote>{{ group.tagline }}</blockquote>
+    {%- endif %}
+    {% if group.link: -%}
+    <p><a href={{ group.link }}>{{ group.link }}</a></p>
+    {%- endif %}
+</div>
+
+<div class="grid_8">
+    <h2>{{ endpoint.owners.capitalize() }}</h2>
+    {% for owner in group.owners: -%}
+    {{ render_profile_small(owner.profile) }}
+    {%- endfor %}
+</div>
+
+{% if group.info: -%}
+<div class="grid_4">{{ group.info|markdown }}</div>
+{%- endif %}
+
+{% if group.members: -%}
+<div class="grid_4">
+    <h2 class=group-members-heading>{{ endpoint.members.capitalize() }}</h2>
+    {% for member in group.members: -%}
+    {{ render_profile_small(member.profile) }}
+    {%- endfor %}
+</div>
+{%- endif %}

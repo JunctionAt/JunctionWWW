@@ -1,6 +1,6 @@
 import flask
 from blueprints import (auth, notifications, static_pages, api, avatar,
-                        logs, bans, forum, wiki, admin)
+                        logs, bans, forum, wiki, player_groups, admin)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
@@ -74,6 +74,7 @@ def inject_server():
     return dict(server_display_name=lambda server: dict(pve='PvE', survival='Survival', event='Event', chaos='Chaos', staff='Staff')[server],)
 
 UPLOAD_FOLDER = "/tmp/www/uploads"
+USE_X_SENDFILE = True
 
 # Recaptcha
 RECAPTCHA_USE_SSL = True

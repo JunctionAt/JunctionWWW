@@ -13,6 +13,8 @@ blueprint = Blueprint('notifications', __name__,
 
 accept_hooks = {}
 deny_hooks = {}
+render_hooks = {}
+notification_providers = []
 
 class WebNotification(yell.Notification):
     name = "website"

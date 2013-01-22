@@ -47,6 +47,9 @@ class User(Document, flask_login.UserMixin, object):
     def __repr__(self):
         return self.name
 
+    def __str__(self):
+        return self.name
+
     permissions = []
 
     def load_perms(self):
