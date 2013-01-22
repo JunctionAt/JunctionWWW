@@ -58,9 +58,6 @@ def get_avatar(name):
         return ""
     image = avatar.image
     ret = send_file(image, mimetype='image/png')
-    image.seek(0, os.SEEK_END)
-    ret.headers['Content-Length'] = image.tell()
-    image.seek(0)
     return ret
 
 def set_avatar(name, image):
