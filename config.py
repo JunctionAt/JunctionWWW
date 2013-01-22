@@ -74,7 +74,6 @@ def inject_server():
     return dict(server_display_name=lambda server: dict(pve='PvE', survival='Survival', event='Event', chaos='Chaos', staff='Staff')[server],)
 
 UPLOAD_FOLDER = "/tmp/www/uploads"
-USE_X_SENDFILE = True
 
 # Recaptcha
 RECAPTCHA_USE_SSL = True

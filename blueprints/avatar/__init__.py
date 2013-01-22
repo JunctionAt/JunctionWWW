@@ -55,7 +55,10 @@ def get_avatar(name):
     avatar = Avatar.objects(username=re.compile(name, re.IGNORECASE)).first()
     if avatar is None or avatar.image is None:
         return ""
-    return send_file(avatar.image, mimetype='image/png')
+    image = avatar.image
+    ret = send_file(image, mimetype='image/png')
+    ret.headers['Content-Length'] = len(image)
+    return ret
 
 def set_avatar(name, image):
     query = Avatar.objects(username=name)
