@@ -9,6 +9,7 @@ import StringIO
 import requests
 from PIL import Image
 import re
+import os
 
 avatar = Blueprint('avatar', __name__, template_folder='templates')
 
@@ -57,7 +58,9 @@ def get_avatar(name):
         return ""
     image = avatar.image
     ret = send_file(image, mimetype='image/png')
-    ret.headers['Content-Length'] = len(image)
+    image.seek(0, os.SEEK_END)
+    ret.headers['Content-Length'] = image.tell()
+    image.seek(0)
     return ret
 
 def set_avatar(name, image):
