@@ -22,7 +22,7 @@ def leave_group(server, group, ext):
     except KeyError:
         abort(404)
     name = group
-    group = Group.objects(id__in=[
+    group = Group.objects(gid__in=[
         "%s.%s"%(self.server,name),
         "%s.pending.%s"%(self.server,name)
     ]).first()
@@ -71,7 +71,7 @@ def join_group(server, group, ext):
     #    "%s.%s"%(self.server,name),
     #    "%s.pending.%s"%(self.server,name)
     #])).one()
-    group = Group.objects(id__in=[
+    group = Group.objects(gid__in=[
         "%s.%s"%(self.server,name),
         "%s.pending.%s"%(self.server,name)
     ]).first()
@@ -94,7 +94,7 @@ def join_group(server, group, ext):
                 else:
                     abort(403)
                     # Check for confirmation of group registration
-                if group.id == "%s.pending.%s"%(self.server,group.name):
+                if group.gid == "%s.pending.%s"%(self.server,group.name):
                     group = Group.confirm(group)
                     del(group)
                 if ext == 'html': flash("You have joined %s."%group.display_name)

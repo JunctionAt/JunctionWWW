@@ -1,6 +1,6 @@
 __author__ = 'HansiHE'
 
-import flask_login
+from flask_login import current_user
 from flask import render_template, jsonify, request, current_app, abort, flash, redirect, url_for
 from werkzeug.datastructures import MultiDict
 from mongoengine import *
@@ -30,7 +30,8 @@ def register_group(server, ext):
     except KeyError:
         abort(404)
     group = Group()
-    user = flask_login.current_user
+    user = current_user
+    print current_user.id
     form = self.GroupRegisterForm(MultiDict(request.json) or request.form, group, csrf_enabled=False)
     if request.method == 'POST' and form.validate() & self.validate_members(form, user):
         form.populate_obj(group)
@@ -42,9 +43,9 @@ def register_group(server, ext):
         group.display_name = re.sub(r'\s+', ' ', group.display_name.strip())
         group.server = self.server
         group.name = re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', group.display_name))
-        group.id = "%s.pending.%s"%(self.server, group.name)
+        group.gid = "%s.pending.%s"%(self.server, group.name)
         # Delete any pending group registrations of the same id
-        Group.objects(id=group.id).remove()
+        Group.objects(gid=group.gid).remove()
         #manage_notifications(group) #TODO: Notifications!!
         # Commit
         group.save()

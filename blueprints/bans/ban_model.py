@@ -22,7 +22,8 @@ class Ban(Document):
         return self.id
 
     meta = {
-        'collection': 'bans'
+        'collection': 'bans',
+        'indexed': [ 'uid', 'issuer', 'username', 'appeal' ]
     }
 
 class Note(Document):
@@ -42,5 +43,6 @@ class Note(Document):
         return self.id
 
     meta = {
-        'collection': 'notes'
+        'collection': 'notes',
+        'indexed': [ 'uid', 'issuer', 'username' ]
     }

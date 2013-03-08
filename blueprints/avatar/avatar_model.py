@@ -11,5 +11,6 @@ class Avatar(Document):
     #source = IntField(default=0)
 
     meta = {
-        'collection': 'avatars'
+        'collection': 'avatars',
+        'indexed' : [ 'username' ]
     }

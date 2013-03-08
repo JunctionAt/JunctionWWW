@@ -236,7 +236,11 @@ def activatetoken_api(ext):
 @blueprint.route("/activate", defaults=dict(ext='html'), methods=["GET", "POST"])
 def activatetoken(ext):
     form = ActivationForm(MultiDict(request.json) or request.form)
-    if request.method == "POST" and form.validate():
+    if not form.validate():
+        flash("Invalid token and/or password. Make sure its less then 10 minutes since you registered.")
+        form = ActivationForm()
+        return render_template("verify.html", form=form, auth_server=current_app.config.get('AUTH_SERVER', 'auth.junction.at'))
+    if request.method == "POST":
         user = User(
             name=form.token.name,
             hash=form.token.hash,

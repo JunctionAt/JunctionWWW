@@ -1,0 +1,64 @@
+{% extends 'new_base.html' %}
+
+{% block head %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="/static/js/slides.jquery.js"></script>
+{% endblock %}
+
+{% block content %}
+<script>
+    $(function(){
+        $(".slides").slides({
+            preload: true,
+            preloadImage: '/static/img/loading.gif',
+            play: 5000,
+            pause: 3000,
+            hoverPause: true,
+            generatePagination: false,
+            next: 'next',
+            prev: 'prev'
+        });
+    });
+</script>
+
+<main id='main' class='content'>
+    <section id='news' class='twothird'>
+        <div id='newsimg'>
+            <div class="slides" style="position: absolute; z-index: -1;">
+                <div class="slides_container" style="width: 652px; height: 330px;">
+                    <div>
+                        <img src="http://lorempixel.com/652/330/nature/1">
+                    </div>
+                    <div>
+                        <img src="http://lorempixel.com/652/330/nature/2">
+                    </div>
+                    <div>
+                        <img src="http://lorempixel.com/652/330/nature/3">
+                    </div>
+                    <div>
+                        <img src="http://lorempixel.com/652/330/nature/4">
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h2 id='newshead' class='meta'>News</h2>
+                <!--<div id="newsnav">
+                    <div id="news-left" class="prev"></div>
+                    <div id="news-right" class="next"></div>
+                </div>-->
+            </div>
+        </div>
+    </section>
+    <section id='redditfeed' class='third'>
+        <h2 class='meta blockhead'>Reddit Feed</h2>
+    </section>
+    <section id='pvestats' class='third'>
+        <h2 class='pve blockhead'>PvE Server Stats</h2>
+        <div id='cityreg'><h2>Register a City</h2></div>
+    </section>
+    <section id='survivalstats' class='third right'>
+        <h2 class='survival blockhead'>Survival Server Stats</h2>
+        <div id='clanreg'><h2>Register a Clan</h2></div>
+    </section>
+</main>
+{% endblock %}

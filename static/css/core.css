@@ -1,0 +1,202 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin: 0 0 80px;
+    font: 14px/150% 'PT Sans';
+    background: #D7D7D7;
+}
+
+h2 {
+    color: #FFF;
+}
+
+header {
+    margin-top: 15px;
+    height: 168px;
+}
+
+#logo {
+    float: left;
+    width: 168px;
+    height: 168px;
+    background: url('/static/img/logo.png') center no-repeat;
+    text-indent: -9999px;
+}
+
+nav {
+    float: right;
+    width: 805px;
+    height: 68px;
+    background: #404040;
+    text-align: right;
+}
+
+nav a {
+    display: inline-block;
+    width: 100px;
+    text-align: center;
+    height: 68px;
+    line-height: 68px;
+    border-left: 5px solid #D7D7D7;
+    color: #FFF;
+    text-decoration: none;
+}
+
+.pve {
+    background: #F9AE40;
+}
+
+.survival {
+    background: #F06421;
+}
+
+.event {
+    background: #EB1C23;
+}
+
+.mumble {
+    background: #7E3E96;
+}
+
+.meta {
+    background: #404040;
+}
+
+.serverblock {
+    position: relative;
+    float: left;
+    width: 147px;
+    padding: 5px;
+    height: 85px;
+    margin: 5px 0 0 5px;
+    color: #404040;
+}
+
+.serverblock.meta {
+    text-align: center;
+    line-height: 95px;
+}
+
+.serverblock.meta h2 {
+    color: #707070;
+}
+
+.addr {
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    color: #FFF;
+}
+
+.blockhead {
+    height: 64px;
+    margin: -5px;
+    line-height: 64px;
+    text-align: center;
+}
+
+.third {
+    position: relative;
+    display: inline-block;
+    width: 310px;
+    margin-top: 5px;
+    min-height: 320px;
+    padding: 5px;
+    background: #7D7D7D;
+}
+
+.third.right {
+    float: right;
+}
+
+.twothird {
+    display: inline-block;
+    margin-right: 5px;
+    width: 649px;
+}
+
+main {
+    display: block;
+}
+
+.content {
+    width: 978px;
+    margin: 0 auto;
+}
+
+#newshead {
+    position: relative;
+    display: inline-block;
+    width: 120px;
+    height: 64px;
+    line-height: 64px;
+    text-align: center;
+    border-right: 5px solid #D7D7D7;
+    border-bottom: 5px solid #D7D7D7;
+    border-bottom-right-radius: 5px;
+}
+
+#newsimg {
+    width: 652px;
+    height: 330px;
+}
+
+#newsnav {
+    position: relative;
+    left: 8px;
+    top: 6px;
+    display: inline-block;
+}
+
+#newsnav div {
+    display: inline-block;
+    width: 12px;
+    height: 17px;
+    margin: 3px;
+    cursor: pointer;
+}
+
+#newsnav #news-left {
+    background: url('/static/img/arrow2.png') 0 0;
+}
+
+#newsnav #news-right {
+    background: url('/static/img/arrow2.png') 12px 0;
+}
+
+#cityreg, #clanreg {
+    display: inline-block;
+    position: absolute;
+    bottom: -5px;
+    background: #404040;
+    padding: 0 10px;
+    color: #FFF;
+    line-height: 32px;
+    border: 5px solid #D7D7D7;
+}
+
+#cityreg {
+    right: -5px;
+    text-align: right;
+}
+
+#clanreg {
+    left: -5px;
+}
+
+footer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 80px;
+    line-height: 80px;
+}

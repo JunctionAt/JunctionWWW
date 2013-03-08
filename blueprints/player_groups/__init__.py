@@ -17,6 +17,7 @@ import re
 from blueprints.auth import login_required
 from blueprints.api import apidoc
 from blueprints.player_groups.group_model import Group
+from blueprints.notifications.notification_model import Notification
 
 class Blueprint(flask.Blueprint):
 
@@ -127,10 +128,10 @@ class Endpoint(object):
         if not re.match('[a-zA-Z0-9]', field.data):
             raise ValidationError("Your %s name must include at least letter or number."%self.group)
         display_name = re.sub(r'\s+', ' ', field.data.strip())
-        id = "%s.%s"%(self.server, re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', display_name)))
+        gid = "%s.%s"%(self.server, re.sub(r'\s+', '_', re.sub(r'[^a-zA-Z0-9]+', '', display_name)))
         #if session.query(Group).filter(Group.id==id).count() > 0:
         #    raise ValidationError("%s name not available."%self.group.capitalize())
-        if len(Group.objects(id=id)) > 0:
+        if len(Group.objects(gid=gid)) > 0:
             raise ValidationError("%s name not available."%self.group.capitalize())
 
     def validate_members(self, form, user):
@@ -230,7 +231,7 @@ current_app.view_functions = dict(current_app.view_functions.items() + [
 #        abort(500)
 #
 
-def manage_notifications(group):
+def manage_notifications_p(group):
     """Save and manage invitation notifications"""
 
     # People who have been invited but not confirmed

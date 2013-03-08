@@ -5,78 +5,36 @@ from blueprints.auth import login_required
 from flask_login import current_user
 import json
 import markdown
-import yell
 import notification_model
 
 blueprint = Blueprint('notifications', __name__,
     template_folder='templates')
 
-accept_hooks = {}
-deny_hooks = {}
-render_hooks = {}
-notification_providers = []
+notification_renderers = {}
 
-class WebNotification(yell.Notification):
-    name = "website"
+class notification_renderer(object):
+    def __init__(self, module):
+        self.module = module
+    def __call__(self, func):
+        notification_renderers[self.module] = func
 
-    def notify(self, *args, **kwargs):
-        user = kwargs.get("user")
-        from_user = kwargs.get("from_user")
-        type = kwargs.get("type")
-        message = kwargs.get("message")
+def get_notifications(user):
+    return notification_model.Notification.objects(receiver=user)
 
-        if message is None or user is None:
-            raise KeyError("One of the required arguments wasn't supplied.")
-
-        notification = notification_model.Notification(
-            user=user,
-            sender=from_user,
-            message=message,
-            type=type
-        )
-        notification.save()
-
-class MailNotification(yell.Notification):
-    name = "mail"
-
-    def notify(self, *args, **kwargs):
-        pass
-
-#When hooking onto any of these, you should accept one argument, the database entry.
-
-class on_accept(object):
-    def __init__(self, name):
-        self.name = name
-
-    def __call__(self, f):
-        accept_hooks.append(self.name)
-        return f
-
-class on_deny(object):
-    def __init__(self, name):
-        self.name = name
-
-    def __call__(self, f):
-        deny_hooks.append(self.name)
-        return f
-
-@blueprint.route('/notifications', defaults=dict(ext='html'), endpoint='show_notifications')
-@login_required
-def show_notifications(ext):
-    if ext == 'json': return json.dumps({
-        "notifications": map(lambda notification: {
-            'user': notification.user,
-            'type': notification.type,
-            'from': notification.sender,
-            'message': markdown.markdown(notification.message)
-        }, get_notifications())})
-    return render_template('show_notifications.html', player_notifications=get_notifications())
+def get_previews(user):
+    notification_model.Notification.objects(receiver=user).only("uid", "preview")
 
 @current_app.context_processor
 def inject_notifications():
-    return dict(get_notifications=get_notifications)
 
-def get_notifications():
-    if current_user.is_authenticated():
-        return current_user.notifications
-    return []
+    def get_current_notifications():
+        return get_notifications(current_user.name)
+
+    return dict(
+        get_notifications=get_current_notifications,
+        get_notifications_previews=get_previews
+    )
+
+@blueprint.route('/notifications')
+def get_notifications_view():
+    return render_template('notifications_view.html')

@@ -28,7 +28,8 @@ class AppealReply(Document):
     edits = ListField(EmbeddedDocumentField(AppealEdit))
 
     meta = {
-        'collection': 'appeal_responses'
+        'collection': 'appeal_responses',
+        'indexed': [ 'appeal', 'uid' ]
     }
 
 class Appeal(Document):
@@ -44,5 +45,6 @@ class Appeal(Document):
     locked_until = DateTimeField()
 
     meta = {
-        'collection': 'appeals'
+        'collection': 'appeals',
+        'indexed': [ 'ban' ]
     }

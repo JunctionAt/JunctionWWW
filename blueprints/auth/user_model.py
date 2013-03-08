@@ -10,7 +10,7 @@ class Role_Group(Document):
 
     meta = {
         'collection': 'role_groups',
-        'indexes': ['roles']
+        'indexed' : [ 'name', 'roles' ]
     }
 
     def __repr__(self):
@@ -38,7 +38,7 @@ class User(Document, flask_login.UserMixin, object):
 
     meta = {
         'collection': 'users',
-        'indexes': ['name']
+        'indexed': ['name']
     }
 
     def get_id(self):

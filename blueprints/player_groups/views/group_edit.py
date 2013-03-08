@@ -33,7 +33,7 @@ def edit_group(server, group, ext):
     #    "%s.%s"%(self.server,name),
     #    "%s.pending.%s"%(self.server,name)
     #])).one()
-    group = Group.objects(id__in=[
+    group = Group.objects(gid__in=[
         "%s.%s"%(self.server,name),
         "%s.pending.%s"%(self.server,name)
     ]).first()
