@@ -24,7 +24,7 @@ if application.config['DEBUG']:
 else:
     import logging
     from logging.handlers import TimedRotatingFileHandler
-    handler = TimedRotatingFileHandler('log/log_', when='D', interval=1, utc=True)
+    handler = TimedRotatingFileHandler('log/%Y-%m-%d_%H-%M-%S.log', when='D', interval=1, utc=True)
     handler.setLevel(logging.WARNING)
     application.logger.addHandler(handler)
 
