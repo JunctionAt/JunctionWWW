@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid_12 pane">
+    <table style="border: solid; border-width: 1px;">
+        <tr>
+            <td style="width: 8%;">Id</td>
+            <td style="width: 12%;">User</td>
+            <td style="width: 50%;">Note</td>
+            <td style="width: 12%;">Issuer</td>
+            <td>Date</td>
+        </tr>
+        {% for note in notes %}
+        <tr{% if not note.active %} style="background-color: #dddddd"{% endif %}>
+        <td>{{ note.uid }}</td>
+        <td>{{ note.username }}</td>
+        <td>{{ note.note }}</td>
+        <td>{{ note.issuer }}</td>
+        <td>{{ note.time.strftime("%H:%M %d %b %y") }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% if previous_button %}
+    <a href="{{ url_for(view, page=current_page-1) }}">Previous</a>
+    {% endif %}
+    {% if next_button %}
+    <a href="{{ url_for(view, page=current_page+1) }}">Next</a>
+    {% endif %}
+    <p>{{ location_info }}</p>
+</div>
+{% endblock %}

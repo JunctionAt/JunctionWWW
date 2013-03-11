@@ -21,12 +21,12 @@ if application.config['DEBUG']:
     application.wsgi_app = SharedDataMiddleware(application.wsgi_app, {
         '/': os.path.join(os.path.dirname(__file__), 'static')
     })
-else:
-    import logging
-    from logging.handlers import TimedRotatingFileHandler
-    handler = TimedRotatingFileHandler('log/%Y-%m-%d_%H-%M-%S.log', when='D', interval=1, utc=True)
-    handler.setLevel(logging.WARNING)
-    application.logger.addHandler(handler)
+#else:
+#    import logging
+#    from logging.handlers import TimedRotatingFileHandler
+#    handler = TimedRotatingFileHandler('log/log', when='D', interval=1, utc=True)
+#    handler.setLevel(logging.WARNING)
+#    application.logger.addHandler(handler)
 
 def run():
     application.run(
