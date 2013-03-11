@@ -5,7 +5,6 @@ from flask.ext.admin import Admin
 application = Flask(__name__)
 
 application.secret_key = "WeAOcOqFruPTsb6bXKNU"
-
 application.config.from_object("local_config")
 
 with application.app_context():
@@ -17,11 +16,17 @@ for blueprint in application.config["BLUEPRINTS"]:
 ReverseProxied(application)
     
 if application.config['DEBUG']:
-	from werkzeug import SharedDataMiddleware
-	import os
-	application.wsgi_app = SharedDataMiddleware(application.wsgi_app, {
-	  '/': os.path.join(os.path.dirname(__file__), 'static')
-	})
+    from werkzeug import SharedDataMiddleware
+    import os
+    application.wsgi_app = SharedDataMiddleware(application.wsgi_app, {
+        '/': os.path.join(os.path.dirname(__file__), 'static')
+    })
+else:
+    import logging
+    from logging.handlers import TimedRotatingFileHandler
+    handler = TimedRotatingFileHandler('log/log_', when='D', interval=1, utc=True)
+    handler.setLevel(logging.WARNING)
+    application.logger.addHandler(handler)
 
 def run():
     application.run(
