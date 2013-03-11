@@ -15,6 +15,7 @@ username_regex = re.compile('^[a-zA-Z0-9_]+$')
 ban_systems = {"minebans" : minebans, "mcbans" : mcbans, "mcbouncer" : mcbouncer}
 bans = Blueprint('bans', __name__, template_folder="templates")
 
+import views.note_indexes
 import views.ban_indexes
 import views.appeal_indexes
 import views.appeal_post

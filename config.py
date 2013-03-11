@@ -1,6 +1,7 @@
 import flask
 from blueprints import (auth, notifications, static_pages, api, avatar,
-                        logs, bans, forum, wiki, player_groups, admin)
+                        logs, bans, forum, wiki, player_groups, admin,
+                        donations)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
@@ -59,7 +60,9 @@ BLUEPRINTS = [
     dict(blueprint=wiki.blueprint),
 
     #Administration stuffs
-    #dict(blueprint=admin.blueprint)
+    #dict(blueprint=admin.blueprint),
+
+    dict(blueprint=donations.blueprint)
 
     ]
 

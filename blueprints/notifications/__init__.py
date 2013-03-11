@@ -22,12 +22,14 @@ def get_notifications(user):
     return notification_model.Notification.objects(receiver=user)
 
 def get_previews(user):
-    notification_model.Notification.objects(receiver=user).only("uid", "preview")
+        notification_model.Notification.objects(receiver=user).only("uid", "preview")
 
 @current_app.context_processor
 def inject_notifications():
 
     def get_current_notifications():
+        if not current_user.is_authenticated():
+            return []
         return get_notifications(current_user.name)
 
     return dict(

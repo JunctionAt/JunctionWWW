@@ -51,7 +51,11 @@ def landing_page():
     #                 .all())],
     #        player_groups.endpoints.iteritems(), []))
     #if not posts.fetching and posts.refresh < datetime.utcnow(): PostFetchThread().start()
-    return render_template('new_index.html')#, posts=map(lambda post: post['data'], posts.data))#, groups=groups)
+    return render_template('index.html')#, posts=map(lambda post: post['data'], posts.data))#, groups=groups)
+
+@static_pages.route('/new')
+def new1():
+    return render_template('index_new2.html')
 
 @static_pages.route('/pve')
 def pve_landing_page():
