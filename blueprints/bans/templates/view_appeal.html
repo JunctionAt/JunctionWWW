@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "content_base.html" %}
 {% include "badge.html" %}
 {% block head %}
 <style>
@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="grid_12 pane">
+<div style="margin: 10px; font-family: 'Droid Sans', sans-serif; font-size: 12px;">
     <div style="background-color: #f5f5f5; padding: 10px; margin-top: 10px; margin-bottom: 15px;">
         {% if not ban.active %}
         Ban has been removed.
@@ -50,7 +50,7 @@
             <br>Moderator
             {% endif %}
         </div>
-        <div style="float: left; margin-left: 10px;">
+        <div style="float: left; margin-left: 10px; max-width: 750px;">
             {{ reply.text }}
         </div>
         {% if reply.edited is not none %}

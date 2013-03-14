@@ -70,6 +70,11 @@ class Group(Document):
     invited_owners = ListField(ReferenceField(user_model.User, dbref=False, reverse_delete_rule=PULL))
     invited_members = ListField(ReferenceField(user_model.User, dbref=False, reverse_delete_rule=PULL))
 
+    #owners = ListField(StringField())
+    #members = ListField(StringField())
+    #invited_owners = ListField(StringField())
+    #invited_members = ListField(StringField())
+
     meta = {
         'collection': 'player_groups'
     }

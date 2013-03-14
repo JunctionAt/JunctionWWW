@@ -31,7 +31,6 @@ def register_group(server, ext):
         abort(404)
     group = Group()
     user = current_user
-    print current_user.id
     form = self.GroupRegisterForm(MultiDict(request.json) or request.form, group, csrf_enabled=False)
     if request.method == 'POST' and form.validate() & self.validate_members(form, user):
         form.populate_obj(group)

@@ -5,6 +5,8 @@ from flask import Blueprint, render_template, send_file
 blueprint = Blueprint('donations', __name__,
                          template_folder='templates')
 
+import ipn
+
 @blueprint.route('/donate')
 def donate():
     funds_current = 80

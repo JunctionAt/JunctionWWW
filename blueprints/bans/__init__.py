@@ -19,6 +19,7 @@ import views.note_indexes
 import views.ban_indexes
 import views.appeal_indexes
 import views.appeal_post
+import views.general
 
 #db.create_all()
 

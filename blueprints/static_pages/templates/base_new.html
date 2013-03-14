@@ -1,0 +1,75 @@
+
+{#
+  header_top: Overrides the top margin for the header.
+  location_name: This variable will be printed in the header as the current location.
+  location_link: The link for the above text.
+#}
+
+<html>
+<head>
+    <link rel="stylesheet" href="/static/css/new2.css" />
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <script type="text/javascript" src="/static/js/jquery-1.9.1-min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.revolver.min.js"></script>
+
+    <!--<script>
+        $('#front-hero').revolver(
+                {
+                    transition:
+                    {
+                        type: 'fade'
+                    }
+                }
+        );
+
+        var slider = $('#front-hero').data('revolver');
+    </script>-->
+
+    {% block head %}
+
+    {% endblock %}
+</head>
+<body>
+<!-- <div class="bg-image-container">
+    <div class="bg-image"></div>
+</div> -->
+<header class="header" style="margin-top: {{ header_top or 50 }}px;">
+    <div class="login-bar">
+        <div class="avatar-container">
+            <div class="avatar" style="background-image: url('{% if current_user.is_authenticated() %}{{ url_for('avatar.get_avatar', name=current_user.name) }}{% else %}{{ url_for('avatar.get_avatar', name='Player.png') }}{% endif %}');"></div>
+        </div>
+        <div class="user-container">
+            <div class="user-username">Welcome, {% if current_user.is_authenticated() %}{{ current_user.name }}{% else %}Guest{% endif %}!</div>
+            <div class="user-divider"></div> <!-- I know, <hr> -->
+            <div class="user-actions">
+                {% if current_user.is_authenticated() %}
+                <a class="user-action-item" href="{{ url_for('auth.logout') }}">Log Out</a>
+                {% else %}
+                <a class="user-action-item" href="{{ url_for('auth.login') }}">Log In</a>
+                <div class="user-action-item">|</div>
+                <a class="user-action-item" href="{{ url_for('auth.register') }}">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="top-header">
+        <div class="top-header-center">
+            <a class="logo-container" href="/"><img src="/static/img/junction-new.png" class="logo"></a>
+            <a class="logo-location" href="{{ location_link or '' }}">{{ location_name or "" }}</a>
+        </div>
+    </div>
+    <div class="lower-header">
+        <a class="lower-header-link lower-header-link-left" href="{{ url_for('bans.a_front') }}">Bans</a>
+        <a class="lower-header-link lower-header-link-right" href="http://reddit.com/r/Junction">Subreddit</a>
+        <a class="lower-header-link lower-header-link-right" href="{{ url_for('forum.index') }}">Forum</a>
+        <a class="lower-header-link lower-header-link-right" href="{{ url_for('wiki.display_index') }}">Wiki</a>
+    </div>
+</header>
+<!--<div id="front-hero" class="front-hero">
+    <div class="front-hero-image" style="background-image: url('/static/img/testscreenshot.png')"></div>
+</div>-->
+{% block body %}
+
+{% endblock %}
+</body>
+</html>

@@ -1,15 +1,17 @@
 __author__ = 'HansiHE'
 
-from flask import Blueprint, request, render_template, abort, send_file, flash, redirect, url_for
+from flask import Blueprint, request, render_template, abort, send_file, flash, redirect, url_for, current_app
 from blueprints.auth import login_required
 from avatar_model import Avatar
 from flask_login import current_user
-from flask_wtf import Form, FileField, SubmitField, ValidationError
+from flask_wtf import Form, FileField, SubmitField
 import StringIO
 import requests
 from PIL import Image
 import re
 import os
+import mongoengine
+from datetime import datetime
 
 from base64 import decodestring
 
@@ -17,10 +19,12 @@ avatar = Blueprint('avatar', __name__, template_folder='templates')
 
 mc_skin_url = 'http://s3.amazonaws.com/MinecraftSkins/%s.png'
 
+
 class AvatarForm(Form):
     image = FileField('New avatar', validators=[ ])
     upload_button = SubmitField('Upload')
     mc_skin_button = SubmitField('Get skin face')
+
 
 @avatar.route('/profile/avatar/', methods=["GET", "POST"])
 @login_required
@@ -52,33 +56,63 @@ def avatar_control():
         avatar_form=form,
         name=current_user.name
     )
-import hashlib
+
+
+def set_mc_face_as_avatar(user):
+    return set_avatar(user, get_mc_face(user))
+
+
+def get_avatar_url(name):
+    return url_for('avatar.get_avatar', name=name)
+
+
 @avatar.route('/avatar/<string:name>.png')
 def get_avatar(name):
     avatar = Avatar.objects(username=re.compile(name, re.IGNORECASE)).first()
     if avatar is None or avatar.image is None:
-        return ""
-    image = StringIO.StringIO(avatar.image.read())
-    image.seek(0)
-    ret = send_file(image, mimetype='image/png')
-    return ret
+        return send_file(open('blueprints/avatar/char_face.png', 'r'), mimetype='image/png', cache_timeout=3600)
+    else:
+        image = StringIO.StringIO(avatar.image.read())
+        image.seek(0)
+        return send_file(image, mimetype='image/png', cache_timeout=3600)
+
+@avatar.route('/avatar/reset/<username>')
+@login_required
+def set_mc_face_as_avatar_request(username):
+    if not current_user.has_permission("avatar.reset"):
+        abort(401)
+    return str(set_mc_face_as_avatar(username))
+
 
 def set_avatar(name, image):
+    if not image:
+        return False
+
     query = Avatar.objects(username=name)
-    if len(query):
-        entry = query.first()
-        entry.image.replace(image)
-        entry.save()
-    else:
-        entry = Avatar(username=name)
-        entry.image.put(image)
-        entry.save()
+    try:
+        if len(query):
+            entry = query.first()
+            entry.image.replace(image)
+            entry.last_modified = datetime.utcnow()
+            entry.save()
+        else:
+            entry = Avatar(username=name)
+            entry.image.put(image)
+            entry.save()
+    except mongoengine.ValidationError:
+        return False
+
+    return True
+
 
 def get_mc_face(name):
 
     response = requests.get(mc_skin_url % name)
 
     if response.headers['content-type'] != 'application/octet-stream':
+        return
+
+    if response.status_code != 200:
         return
 
     input = StringIO.StringIO(response.content)
@@ -92,6 +126,3 @@ def get_mc_face(name):
     out_img.seek(0)
 
     return out_img
-
-def get_avatar_url(name):
-    return url_for('avatar.get_avatar', name=name)

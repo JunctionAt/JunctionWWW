@@ -1,15 +1,24 @@
-{% extends "base.html" %}
+{% set location_name = "Anathema" %}
+{% set location_link = url_for('bans.a_front') %}
+
+{% extends "content_base.html" %}
 
 {% block content %}
-<div class="grid_12 pane">
-    <table style="width: 97;">
+<style>
+    .content-list tr td {
+        font-family: 'Droid Sans', sans-serif;
+        font-size: 0.9em;
+    }
+</style>
+<div style="margin: 10px; font-family: 'Droid Sans', sans-serif; font-size: 12px;">
+    <table class="content-list" style="width: inherit;">
         <tr>
-            <td style="width: 8%;">Ban</td>
-            <td style="width: 50%;">Reason</td>
-            <td style="width: 12%;">Appealer</td>
-            <td style="width: 12%;">Banner</td>
-            <td>Created</td>
-            <td>Last Post</td>
+            <td style="width: 50px;">Ban</td>
+            <td style="width: 460px;">Reason</td>
+            <td style="width: 110px;">Appealer</td>
+            <td style="width: 110px;">Banner</td>
+            <td style="width: 110px;">Created</td>
+            <td style="width: 110px;">Last Post</td>
         </tr>
         {% for appeal in appeals %}
         <tr>

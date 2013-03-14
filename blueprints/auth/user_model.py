@@ -85,7 +85,7 @@ class User(Document, flask_login.UserMixin, object):
 class Token(Document):
 
     token = StringField(required=True)
-    name = StringField(primary_key=True, required=True)
+    name = StringField(required=True)
     hash = StringField(required=True)
     mail = StringField()
     ip = StringField(required=True)

@@ -250,7 +250,9 @@ def activatetoken(ext):
         user.save()
         login_user(user, remember=False)
         del(form.token)
-        if ext == 'html': flash(u"Registration sucessful!")
+        if ext == 'html': flash(u"Registration successful!")
+        from blueprints.avatar import set_mc_face_as_avatar
+        set_mc_face_as_avatar(user.name)
         return redirect("/"), 303
     if ext == 'json':
         return jsonify(

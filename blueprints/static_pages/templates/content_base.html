@@ -1,0 +1,23 @@
+{% set header_top = 20 %}
+
+{% extends "base_new.html" %}
+
+{% block head %}
+<link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Sans:400,700">
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <div class="">
+
+    </div>
+    <div class="breadcrumb">
+        <a>test1</a>
+        <a>test2</a>
+        <a>test3</a>
+    </div>
+    {% block content %}
+
+    {% endblock %}
+</div>
+{% endblock %}
