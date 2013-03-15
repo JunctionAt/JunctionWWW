@@ -227,24 +227,30 @@ body {
 
 }
 
+.navbar {
+    height: 32px;
+    background-color: #f8f7fa;
+    border-bottom: 1px #dddddd solid;
+}
+
 /* BREADCRUMB MEGA-VAN */
 .breadcrumb {
     margin-bottom: 20px;
     line-height: 30px;
-    color: #aaa;
     padding: 1px;
-    border: 1px solid #f0f0f0;
 }
 .breadcrumb a {
     display: block;
     float: left;
-    background: #f0f0f0;
+    background: #ebeaed;
     padding-right: 10px;
     height: 30px;
-    margin-right: 31px;
+    margin-right: 32px;
     position: relative;
     text-decoration: none;
-    color: #aaa;
+    color: #5d5d5d;
+    font-family: 'Droid Sans', sans-serif;
+    font-size: 0.9em;
 }
 .breadcrumb a:last-of-type { margin-right: 25px }
 .breadcrumb a:before {
@@ -256,7 +262,7 @@ body {
     top: 0;
     left: -30px;
     border: 15px solid transparent;
-    border-color: #f0f0f0;
+    border-color: #ebeaed;
     border-left-color: transparent;
 }
 .breadcrumb a:after {
@@ -268,17 +274,16 @@ body {
     top: 0;
     right: -30px;
     border: 15px solid transparent;
-    border-left-color: #f0f0f0;
+    border-left-color: #ebeaed;
 }
 .breadcrumb a:first-of-type { padding-left: 15px }
 .breadcrumb a:first-of-type:before { display: none }
 .breadcrumb a:hover {
-    background: #00b0ec;
-    color: #fff;
+    background: #e7e6e9;
     text-decoration: none;
 }
 .breadcrumb a:hover:before {
-    border-color: #00b0ec;
+    border-color: #e7e6e9;
     border-left-color: transparent;
 }
-.breadcrumb a:hover:after { border-left-color: #00b0ec }
+.breadcrumb a:hover:after { border-left-color: #e7e6e9 }

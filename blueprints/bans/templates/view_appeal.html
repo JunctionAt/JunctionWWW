@@ -1,3 +1,9 @@
+{% set page_title = "Junction - Appeal #" + ban.uid|string %}
+{% set breadcrumb_tree = [
+    ("Anathema", url_for('bans.a_front')),
+    ("Appeal", url_for('bans.appeals_index')),
+    ("View", url_for('bans.view_appeal', uid=ban.uid))
+] %}
 {% extends "content_base.html" %}
 {% include "badge.html" %}
 {% block head %}

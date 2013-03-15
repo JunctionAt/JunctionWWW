@@ -8,7 +8,7 @@ from blueprints.bans.appeal_model import Appeal
 from blueprints.auth import login_required
 import math
 
-NOTES_PER_PAGE = 10
+NOTES_PER_PAGE = 20
 
 @bans.route('/a/notes/list/', defaults={'page': 1})
 @bans.route('/a/notes/list/<int:page>')

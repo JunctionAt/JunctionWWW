@@ -1,10 +1,16 @@
-{% extends "base.html" %}
+{% set page_title = "Junction - Wiki" %}
+{% set breadcrumb_tree = [
+("Home", url_for('static_pages.landing_page')),
+("Wiki", url_for('wiki.display_index')),
+] %}
+{% if not index %}
+{% do breadcrumb_tree.append((wiki_url, url_for('wiki.display_wiki_article', wiki_url=wiki_url))) %}
+{% endif %}
+
+{% extends "content_base.html" %}
 
 {% block content %}
-    <div class="grid_12 pane">
-        {% if not index %}
-        <a href="/wiki"><- Back to the Index</a>
-        {% endif %}
-        {{ article|safe }}
-    </div>
+<div style="margin: 8px;">
+    {{ article['content']|safe }}
+</div>
 {% endblock %}

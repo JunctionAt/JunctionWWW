@@ -64,7 +64,7 @@ def get_wiki_article(wiki_url):
     #print re.match(LINK_PATTERN, content)
     content = re.sub(INTERNAL_LINK_PATTERN, replace_internal_link, content)
     content = re.sub(REDDIT_LINK_PATTERN, replace_reddit_link, content)
-    return wiki_markdown.convert(content)
+    return {'content': wiki_markdown.convert(content), 'title': ""}
 
 @cache.cached(timeout=20*60)
 @blueprint.route('/wiki/pages/')
@@ -79,4 +79,4 @@ def display_index():
 
 @blueprint.route('/wiki/<string:wiki_url>')
 def display_wiki_article(wiki_url):
-    return render_template('wiki_page.html', article=get_wiki_article(wiki_url), index=False)
+    return render_template('wiki_page.html', article=get_wiki_article(wiki_url), index=False, wiki_url=wiki_url)

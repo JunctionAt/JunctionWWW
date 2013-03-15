@@ -8,7 +8,7 @@ from blueprints.bans.appeal_model import Appeal
 from blueprints.auth import login_required
 import math
 
-APPEALS_PER_PAGE = 10
+APPEALS_PER_PAGE = 20
 
 @bans.route('/a/appeal/list/', defaults={'page': 1})
 @bans.route('/a/appeal/list/<int:page>')

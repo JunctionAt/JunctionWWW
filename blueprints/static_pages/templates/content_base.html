@@ -8,14 +8,15 @@
 
 {% block body %}
 <div class="content">
-    <div class="">
-
+    {% if breadcrumb_tree %}
+    <div class="navbar">
+        <div class="breadcrumb">
+            {% for name, url in breadcrumb_tree %}
+            <a href="{{ url }}">{{ name }}</a>
+            {% endfor %}
+        </div>
     </div>
-    <div class="breadcrumb">
-        <a>test1</a>
-        <a>test2</a>
-        <a>test3</a>
-    </div>
+    {% endif %}
     {% block content %}
 
     {% endblock %}

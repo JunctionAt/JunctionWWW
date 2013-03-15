@@ -7,6 +7,8 @@ application = Flask(__name__)
 application.secret_key = "WeAOcOqFruPTsb6bXKNU"
 application.config.from_object("local_config")
 
+application.jinja_env.add_extension('jinja2.ext.do')
+
 with application.app_context():
     application.config.from_object("config")
 

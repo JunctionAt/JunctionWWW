@@ -1,10 +1,16 @@
-{% extends "base.html" %}
+{% set page_title = "Junction - Wiki" %}
+{% set breadcrumb_tree = [
+("Home", url_for('static_pages.landing_page')),
+("Wiki", url_for('wiki.display_index')),
+("pages", url_for('wiki.display_pages'))
+] %}
+
+{% extends "content_base.html" %}
 
 {% block content %}
-<div class="grid_12 pane">
-    <a href="/wiki"><- Back to the Index</a>
+<div style="margin: 8px;">
     {% for link in links %}
-        <p><a href="/wiki/{{ link }}">{{ link }}</a></p>
+    <p><a href="/wiki/{{ link }}">{{ link }}</a></p>
     {% endfor %}
 </div>
 {% endblock %}

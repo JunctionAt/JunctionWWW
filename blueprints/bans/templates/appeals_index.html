@@ -1,5 +1,8 @@
-{% set location_name = "Anathema" %}
-{% set location_link = url_for('bans.a_front') %}
+{% set page_title = "Junction - Appeals Index" %}
+{% set breadcrumb_tree = [
+    ("Anathema", url_for('bans.a_front')),
+    ("Appeals", url_for('bans.appeals_index'))
+] %}
 
 {% extends "content_base.html" %}
 
@@ -21,7 +24,7 @@
             <td style="width: 110px;">Last Post</td>
         </tr>
         {% for appeal in appeals %}
-        <tr>
+        <tr style="{{ loop.cycle('background-color: #f5f5f5;', 'background-color: #ffffff;') }}">
                 <td><a href="{{ url_for('bans.view_appeal', uid=appeal.ban.uid) }}">{{ appeal.ban.uid }}</a></td>
                 <td>{{ appeal.ban.reason }}</td>
                 <td>{{ appeal.ban.username }}</td>
@@ -32,10 +35,10 @@
         {% endfor %}
     </table>
         {% if previous_button %}
-            <a href="/a/appeals/list/{{ current_page-1 }}">Previous</a>
+            <a href="{{ url_for('bans.appeals_index', page=current_page-1) }}">Previous</a>
         {% endif %}
         {% if next_button %}
-            <a href="/a/appeals/list/{{ current_page+1 }}">Next</a>
+            <a href="{{ url_for('bans.appeals_index', page=current_page+1) }}">Next</a>
         {% endif %}
         <p>{{ location_info }}</p>
 </div>

@@ -1,39 +1,52 @@
-{% extends "base.html" %}
+{% set page_title = "Junction - Bans Index" %}
+
+{% set breadcrumb_tree = [
+("Anathema", url_for('bans.a_front')),
+("Bans", url_for('bans.bans_index'))
+] %}
+
+{% extends "content_base.html" %}
 
 {% block content %}
-<div class="grid_12 pane">
-    <table style="border: solid; border-width: 1px;">
+<style>
+    .content-list tr td {
+        font-family: 'Droid Sans', sans-serif;
+        font-size: 0.9em;
+    }
+</style>
+<div style="margin: 10px; font-family: 'Droid Sans', sans-serif; font-size: 12px;">
+    <table class="content-list" style="width: inherit;">
         <tr>
-            <td style="width: 8%;">Id</td>
-            <td style="width: 12%;">User</td>
-            <td style="width: 50%;">Reason</td>
-            <td style="width: 12%;">Issuer</td>
-            <td>Date</td>
-            <td>Appeal</td>
+            <td style="width: 50px;">Ban</td>
+            <td style="width: 460px;">Reason</td>
+            <td style="width: 110px;">Username</td>
+            <td style="width: 110px;">Issuer</td>
+            <td style="width: 110px;">Created</td>
+            <td style="width: 110px;">Appeal</td>
         </tr>
         {% for ban in bans %}
-            <tr{% if not ban.active %} style="background-color: #dddddd"{% endif %}>
-                <td>{{ ban.uid }}</td>
-                <td>{{ ban.username }}</td>
-                <td>{{ ban.reason }}</td>
-                <td>{{ ban.issuer }}</td>
-                <td>{{ ban.time.strftime("%H:%M %d %b %y") }}</td>
-                <td>
+        <tr style="{{ loop.cycle('background-color: #f5f5f5;', 'background-color: #ffffff;') }}">
+            <td>{{ ban.uid }}</td>
+            <td>{{ ban.reason }}</td>
+            <td>{{ ban.username }}</td>
+            <td>{{ ban.issuer }}</td>
+            <td>{{ ban.time.strftime("%H:%M %d %b %y") }}</td>
+            <td>
                 {% if ban.appeal is not none %}
-                    <a href="{{ url_for('bans.view_appeal', uid=ban.uid) }}">View Appeal</a>
+                <a href="{{ url_for('bans.view_appeal', uid=ban.uid) }}">View Appeal</a>
                 {% elif ban.username|lower == current_user.name|lower and ban.appeal is none and ban.active %}
-                    <a href="{{ url_for('bans.post_new_appeal', uid=ban.uid) }}">Appeal Ban</a>
+                <a href="{{ url_for('bans.post_new_appeal', uid=ban.uid) }}">Appeal Ban</a>
                 {% endif %}
-                </td>
-            </tr>
+            </td>
+        </tr>
         {% endfor %}
     </table>
-        {% if previous_button %}
-            <a href="{{ url_for(view, page=current_page-1) }}">Previous</a>
-        {% endif %}
-        {% if next_button %}
-            <a href="{{ url_for(view, page=current_page+1) }}">Next</a>
-        {% endif %}
-        <p>{{ location_info }}</p>
+    {% if previous_button %}
+    <a href="{{ url_for('bans.bans_index', page=current_page-1) }}">Previous</a>
+    {% endif %}
+    {% if next_button %}
+    <a href="{{ url_for('bans.bans_index', page=current_page+1) }}">Next</a>
+    {% endif %}
+    <p>{{ location_info }}</p>
 </div>
 {% endblock %}

@@ -1,12 +1,12 @@
 
 {#
   header_top: Overrides the top margin for the header.
-  location_name: This variable will be printed in the header as the current location.
-  location_link: The link for the above text.
+  page_title: Self explainatory.
 #}
 
 <html>
 <head>
+    <title>{{ page_title or "Junction" }}</title>
     <link rel="stylesheet" href="/static/css/new2.css" />
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <script type="text/javascript" src="/static/js/jquery-1.9.1-min.js"></script>
@@ -71,5 +71,10 @@
 {% block body %}
 
 {% endblock %}
+
+<!--
+Copyright 2013 HansiHE
+Copyright 2013 Junction
+-->
 </body>
 </html>
