@@ -8,6 +8,7 @@ from flask_login import current_user
 from blueprints.auth import login_required
 from systems import minebans, mcbans, mcbouncer
 from ban_model import Ban, Note
+from datetime import datetime
 
 #Todo: Add authentication!
 
@@ -208,13 +209,20 @@ def del_ban(request):
         username = args['username']
     else:
         return {'success' : False, 'error' : 'The username provided was invalid'}
+    if args.has_key('remover') and verify_username(args['remover']):
+        remover = args['username']
+    else:
+        return {'success' : False, 'error' : 'The remover provided was invalid'}
 #    ban = db.session.query(Ban).filter(Ban.username==username).first()
 #    if ban != None:
 #        db.session.add(RemovedBan(ban, current_user.name))
-    banmatch = Ban.objects(username=re.compile(username, re.IGNORECASE), active=True)
-    if len(banmatch)==0:
+    banmatch = Ban.objects(username=re.compile(username, re.IGNORECASE), active=True).first()
+    if banmatch is None:
         return {'success' : False}
-    banmatch.first().update(set__active=False)
+    banmatch.active = False
+    banmatch.removal_time = datetime.utcnow()
+    banmatch.remover = remover
+    banmatch.save()
     return {'success' : True, 'num' : 1}
 
 #@bans.route('/bans/local/getnotes.json')

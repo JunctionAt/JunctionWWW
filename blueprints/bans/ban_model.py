@@ -13,6 +13,9 @@ class Ban(Document):
     time = DateTimeField(default=datetime.datetime.utcnow)
     active = BooleanField(default=True)
 
+    removal_time = DateTimeField()
+    remover = StringField()
+
     appeal = ReferenceField('Appeal', dbref=False)
 
     def get_time(self):

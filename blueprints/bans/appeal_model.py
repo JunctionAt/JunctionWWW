@@ -27,6 +27,8 @@ class AppealReply(Document):
 
     edits = ListField(EmbeddedDocumentField(AppealEdit))
 
+    hidden = BooleanField(default=False)
+
     meta = {
         'collection': 'appeal_responses',
         'indexed': [ 'appeal', 'uid' ]
