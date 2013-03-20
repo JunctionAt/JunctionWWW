@@ -7,34 +7,37 @@ import requests
 
 @blueprint.route('/donate/ipn_callback', methods=['POST'])
 def ipn_listener():
-    arg = ''
-    #: We use an ImmutableOrderedMultiDict item because it retains the order.
-    request.parameter_storage_class = ImmutableOrderedMultiDict
-    values = request.form
-    for x, y in values.iteritems():
-        if len(arg) is not 0:
-            arg += "&"
-        arg += "{x}={y}".format(x=x,y=y)
-    arg += ""
+    #arg = ''
+    values = request.form.to_dict()
+    #for x, y in values.iteritems():
+    #    if len(arg) is not 0:
+    #        arg += "&"
+    #    arg += "%s=%s"% (x, y,)
+    #arg += ""
 
-    validate_url = 'https://www.paypal.com/cgi-bin/webscr?cmd=_notify-validate&'
+    values['cmd'] = "_notify-validate"
 
-    print 'Validating IPN using {url}'.format(url=validate_url)
+    validate_url = 'https://www.sandbox.paypal.com/cgi-bin/webscr'
 
-    r = requests.get(validate_url, data=arg, headers={
+    print values
+
+    print 'Validating IPN using %s' % validate_url
+
+    r = requests.post(validate_url, data=values, headers={
         "Content-Type": "application/x-www-form-urlencoded",
-        "Content-Length": str(len(arg)),
         "Host": "www.paypal.com",
         "Connection": "Close"
     })
 
+    print r.text
     if r.text == 'VERIFIED':
         print "PayPal transaction was verified successfully."
         # Do something with the verified transaction details.
         payer_email =  request.form.get('payer_email')
         print "Pulled {email} from transaction".format(email=payer_email)
     else:
-        print 'Paypal IPN string {arg} did not validate'.format(arg=arg)
+        pass
+        #print 'Paypal IPN string {arg} did not validate'.format(arg=arg)
 
     print r.status_code
 
