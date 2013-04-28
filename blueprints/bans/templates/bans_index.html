@@ -1,8 +1,9 @@
 {% set page_title = "Junction - Bans Index" %}
 
 {% set breadcrumb_tree = [
-("Anathema", url_for('bans.a_front')),
-("Bans", url_for('bans.bans_index'))
+    ("Home", url_for('static_pages.landing_page')),
+    ("Anathema", url_for('bans.a_front')),
+    ("Bans", url_for('bans.bans_index'))
 ] %}
 
 {% extends "content_base.html" %}

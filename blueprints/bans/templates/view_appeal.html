@@ -1,7 +1,8 @@
 {% set page_title = "Junction - Appeal #" + ban.uid|string %}
 {% set breadcrumb_tree = [
+    ("Home", url_for('static_pages.landing_page')),
     ("Anathema", url_for('bans.a_front')),
-    ("Appeal", url_for('bans.appeals_index')),
+    ("Appeals", url_for('bans.appeals_index')),
     ("View", url_for('bans.view_appeal', uid=ban.uid))
 ] %}
 {% extends "content_base.html" %}
@@ -11,33 +12,34 @@
     <script type="text/javascript" src="/static/js/jquery-1.9.1-min.js"></script>
     <script type="text/javascript" src="/static/js/jquery-ui.js"></script>
     <link type="text/css" rel="stylesheet" href="/static/css/jquery-ui.css">
+    <link type="text/css" rel="stylesheet" href="/static/css/view_appeal.css">
 {% endblock %}
 
 {% block content %}
-<div style="margin: 10px; font-family: 'Droid Sans', sans-serif; font-size: 12px; position: relative;">
+<div class="appeal-content-container">
     <div>
         {% if not ban.active %}
             <div class="data-floater">
-                <a>Ban was removed {{ ban.removal_time }} by {{ ban.remover }}</a>
+                <a>Ban was removed {{ ban.removed_time or 'Unknown' }} by {{ ban.removed_by or 'Unknown' }}</a>
             </div>
         {% endif %}
     </div>
-    <div style="background-color: #f5f5f5; margin-top: 10px; margin-bottom: 15px; height: auto !important; overflow: auto;">
-        {% if is_mod %}
-        <div style="font-family: 'Droid Sans', sans-serif; font-size: 12px; border: 1px #c3c3c3 dotted; margin: 5px; display: block; float: right; background-color: rgba(255, 255, 255, 0.2);">
+    <div class="ban-header">
+        {% if is_mod and ban.active %}
+        <div id="admin-form">
             <table>
                 <tr>
                     <td>
                         Unlock:
                     </td>
                     <td>
-                        <input class="datepicker" id="unlock_date" type="text">
+                        <input class="datepicker" id="unlock-date" type="text" value="{% if appeal.unlock_time %}{{ appeal.unlock_time.strftime('%m/%d/%Y') }}{% endif %}">
                     </td>
                     <td>
-                        <input id="unlock_date_set" type="submit" value="Set">
+                        <input id="unlock-date-set" type="submit" value="Set">
                     </td>
                     <td>
-                        <input id="unlock_date_remove" type="submit" value="Remove">
+                        <input id="unlock-date-remove" type="submit" value="Remove">
                     </td>
                 </tr>
                 <tr>
@@ -45,19 +47,20 @@
                         Remove ban:
                     </td>
                     <td>
-                        <input class="datepicker" id="unban_date" type="text">
+                        <input class="datepicker" id="unban-date" type="text" value="{% if ban.removed_time %}{{ ban.removed_time.strftime('%m/%d/%Y') }}{% endif %}">
                     </td>
                     <td>
-                        <input id="unban_date_set" type="submit" value="Set">
+                        <input id="unban-date-set" type="submit" value="Set">
                     </td>
                     <td>
-                        <input id="unban_date_remove" type="submit" value="Remove">
+                        <input id="unban-date-remove" type="submit" value="Remove">
                     </td>
                 </tr>
             </table>
-            <input id="unban" type="submit" value="Unban Now">
+            <a href="{{ url_for('bans.unban_ban_id', uid=ban.uid) }}"><input id="unban" type="submit" value="Unban Now"></a>
         </div>
-        <div style="width: 650px;">
+        {% endif %}
+        <div id="ban-info">
             {% if locked %}
             <a>Appeal is locked.</a>
             <br>
@@ -66,39 +69,41 @@
             <i>{{ ban.reason }}</i>
             <br>
         </div>
-        {% endif %}
     </div>
     {% for reply in replies %}
         {% if not reply.hidden or current_user.has_permission('bans.appeal.show_hidden') %}
-            <div id="{{ reply.uid }}" style="position: relative; background-color: #eeeeee; margin-top: 10px; margin-bottom: 10px; padding: 10px; border-radius: 3px; border: solid; border-width: 1px; border-color: #eaeaea;">
-                {% if reply.hidden %}
-                    ((HIDDEN))
-                {% endif %}
-                <a href="#{{ reply.uid }}" style="position: absolute; top: 5px; left: auto; right: 5px; color: #5897fb;">#{{ reply.uid }}</a>
-                {% if is_mod %}
-                <a href="{{ url_for('bans.edit_reply', uid=reply.uid) }}" style="position: absolute; bottom: 5px; left: auto; right: 5px; color: #5897fb;">Edit</a>
-                {% endif %}
-                <div style="float: left; width: 100px;">
-                    <img src="{{ url_for('avatar.get_avatar', name=reply.creator.name) }}" style="width: 100px; height: 100px;">
-                    {{ reply.creator.name }} <br>
-                    {% if reply.creator.name|lower == ban.issuer|lower %}
-                    Ban Issuer
-                    {% elif reply.creator.name|lower == ban.username|lower %}
-                    Ban Appealer
+            <div id="{{ reply.uid }}" class="appeal-post-container" {% if reply.hidden %}style="background-color: #dddddd;"{% endif %}>
+                <div class="hide-element appeal-post{% if reply.hidden %} hid{% endif %}">
+                    <a href="#{{ reply.uid }}" class="post-uid-ref">#{{ reply.uid }}</a>
+                    <div class="post-manage-links">
+                        {% if is_mod %}
+                        <a href="{{ url_for('bans.edit_reply', uid=reply.uid) }}" class="post-manage-link">Edit</a>
+                        <a href="{{ url_for('bans.hide_reply', uid=reply.uid, hide=(not reply.hidden)) }}" class="post-manage-link">{% if reply.hidden %}Unhide{% else %}Hide{% endif %}</a>
+                        {% endif %}
+                    </div>
+                    <div class="post-meta-container">
+                        <img src="{{ url_for('avatar.get_avatar', name=reply.creator.name) }}" class="post-meta-avatar">
+                        {{ reply.creator.name }} <br>
+                        {% if reply.creator.name|lower == ban.issuer|lower %}
+                        Ban Issuer
+                        {% elif reply.creator.name|lower == ban.username|lower %}
+                        Ban Appealer
+                        {% endif %}
+                        {% if current_user.has_permission("badge.moderator") %}
+                        <br>Moderator
+                        {% endif %}
+                    </div>
+                    <div class="post-text">
+                        {{ reply.text }}
+                    </div>
+                    {% if reply.edited is not none %}
+                    <div class="post-meta-edited">
+                        Last edit by: {{ reply.editor.name }} - {{ reply.edited.strftime("%H:%M %d %b %Y") }}
+                    </div>
                     {% endif %}
-                    {% if current_user.has_permission("badge.moderator") %}
-                    <br>Moderator
-                    {% endif %}
+                    <div style="display: block; clear: both;"></div>
                 </div>
-                <div style="float: left; margin-left: 10px; max-width: 750px;">
-                    {{ reply.text }}
-                </div>
-                {% if reply.edited is not none %}
-                <div style="position: absolute; bottom: 3px; left: 120px; color: #aa6655;">
-                    Last edit by: {{ reply.editor.name }} - {{ reply.edited.strftime("%H:%M %d %b %Y") }}
-                </div>
-                {% endif %}
-                <div style="display: block; clear: both;"></div>
+                <a class="post-hide-button">[+]</a>
             </div>
         {% endif %}
     {% endfor %}
@@ -112,6 +117,107 @@
 <script>
     $(function() {
         $('.datepicker').datepicker({'minDate' : 0});
+    });
+</script>
+<script>
+    $(function() {
+        function animate_flick(element, color) {
+            element.css('background-color', color);
+            element.animate({
+                backgroundColor: '#eeeeee'
+            }, 1000, null);
+        };
+        function animate_error_flick(element) {
+            animate_flick(element, '#cc5533')
+        };
+        function animate_success_flick(element) {
+            animate_flick(element, '#55cc33');
+        };
+        $('#unban-date-set').click(function(event) {
+            $.ajax({
+                type: 'POST',
+                url: "{{ url_for('bans.set_unban_date', uid=ban.uid) }}",
+                data: {set: true, date: $('#unban-date').val()},
+                dataType: "text",
+                success: function(result) {
+                    if(result == 'SUCCESS') {
+                        animate_success_flick($('#admin-form'));
+                    } else {
+                        animate_error_flick($('#admin-form'));
+                        alert(result);
+                    }
+                },
+                error: function(result) {
+                    animate_error_flick($('#admin-form'));
+                }
+            });
+        });
+        $('#unban-date-remove').click(function(event) {
+            $.ajax({
+                type: 'POST',
+                url: "{{ url_for('bans.set_unban_date', uid=ban.uid) }}",
+                data: {remove: true},
+                dataType: "text",
+                success: function(result) {
+                    if(result == 'SUCCESS') {
+                        animate_success_flick($('#admin-form'));
+                        $('#unban-date').val('');
+                    } else {
+                        animate_error_flick($('#admin-form'));
+                        alert(result);
+                    }
+                },
+                error: function(result) {
+                    animate_error_flick($('#admin-form'));
+                }
+            });
+        });
+        $('#unlock-date-set').click(function(event) {
+            $.ajax({
+                type: 'POST',
+                url: "{{ url_for('bans.set_unlock_date', uid=ban.uid) }}",
+                data: {set: true, date: $('#unlock-date').val()},
+                dataType: "text",
+                success: function(result) {
+                    if(result == 'SUCCESS') {
+                        animate_success_flick($('#admin-form'));
+                    } else {
+                        animate_error_flick($('#admin-form'));
+                        alert(result);
+                    }
+                },
+                error: function(result) {
+                    animate_error_flick($('#admin-form'));
+                }
+            });
+        });
+        $('#unlock-date-remove').click(function(event) {
+            $.ajax({
+                type: 'POST',
+                url: "{{ url_for('bans.set_unlock_date', uid=ban.uid) }}",
+                data: {remove: true},
+                dataType: "text",
+                success: function(result) {
+                    if(result == 'SUCCESS') {
+                        animate_success_flick($('#admin-form'));
+                        $('#unlock-date').val('');
+                    } else {
+                        animate_error_flick($('#admin-form'));
+                        alert(result);
+                    }
+                },
+                error: function(result) {
+                    animate_error_flick($('#admin-form'));
+                }
+            });
+        });
+    });
+</script>
+<script>
+    $(function() {
+        $('.post-hide-button').click(function(e) {
+            $(e.target).prev('.hide-element').fadeToggle();
+        });
     });
 </script>
 {% endblock %}

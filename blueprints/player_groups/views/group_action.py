@@ -34,10 +34,10 @@ def leave_group(server, group, ext):
         return redirect(url_for('player_groups.leave_group', server=server, group=group.name, ext=ext)), 301
     if user in group.members or user in group.owners:
         if request.method == 'POST':
-            group.owners = list(set(group.owners) - set([user]))
-            group.members = list(set(group.members) - set([user]))
-            group.invited_owners = list(set(group.invited_owners) - set([user]))
-            group.invited_members = list(set(group.invited_members) - set([user]))
+            group.owners = list(set(group.owners) - {user})
+            group.members = list(set(group.members) - {user})
+            group.invited_owners = list(set(group.invited_owners) - {user})
+            group.invited_members = list(set(group.invited_members) - {user})
             group.member_count -= 1
             group.save()
             if ext == 'html': flash("You are no longer %s of %s."%(group.a_member, group.display_name))
@@ -96,14 +96,14 @@ def join_group(server, group, ext):
                     # Check for confirmation of group registration
                 if group.gid == "%s.pending.%s"%(self.server,group.name):
                     group = Group.confirm(group)
-                    del(group)
+                    del group
                 if ext == 'html': flash("You have joined %s."%group.display_name)
             else:
                 # Pass action
                 if user in group.invited_owners:
-                    group.invited_owners = list(set(group.invited_owners) - set([user]))
+                    group.invited_owners = list(set(group.invited_owners) - {user})
                 elif user in group.invited_members:
-                    group.invited_members = list(set(group.invited_members) - set([user]))
+                    group.invited_members = list(set(group.invited_members) - {user})
                 else:
                     abort(403)
                 if ext == 'html': flash("Invitation to %s declined."%group.display_name)

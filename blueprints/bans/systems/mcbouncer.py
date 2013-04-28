@@ -24,10 +24,7 @@ def getbans(user):
     r = requests.get("http://www.mcbouncer.com/api/getBans/%s/%s/0/-1" % (apikey, user,))
     j = r.json
     for ban in j['data']:
-        convban = {}
-        convban['reason'] = ban['reason']
-        convban['server'] = ban['server']
-        convban['issuer'] = ban['issuer']
+        convban = {'reason': ban['reason'], 'server': ban['server'], 'issuer': ban['issuer']}
         response['bans'].append(convban)
         response['bancount'] += 1
     return response
@@ -68,11 +65,7 @@ def getnotes(user):
     r = requests.get("http://www.mcbouncer.com/api/getNotes/%s/%s/0/-1" % (apikey, user,))
     j = r.json
     for note in j['data']:
-        convnote = {}
-        convnote['uid'] = note['noteid']
-        convnote['note'] = note['note']
-        convnote['server'] = note['server']
-        convnote['issuer'] = note['issuer']
+        convnote = {'uid': note['noteid'], 'note': note['note'], 'server': note['server'], 'issuer': note['issuer']}
         response['notes'].append(convnote)
         response['notecount'] += 1
     return response

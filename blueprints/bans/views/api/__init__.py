@@ -19,7 +19,7 @@ def verify_username(username):
 def merge_data(ret_list):
     response = {}
     for ret in ret_list:
-        if ret == None:
+        if ret is None:
             continue
         system_name = ''
         if '_sysname' in ret:
@@ -48,18 +48,18 @@ def merge_data(ret_list):
             if 'errors' not in response:
                 response['errors'] = []
             if 'error' in ret:
-                if(isinstance(ret['error'], str)):
+                if isinstance(ret['error'], str):
                     response['errors'].append({"system" : system_name, "error" : ret['error']})
-                elif(isinstance(ret['error'], dict)):
+                elif isinstance(ret['error'], dict):
                     error = ret['error']
                     if system_name is not None:
                         error['system'] = system_name
                     response['errors'].append(error)
             if 'errors' in ret and len(ret['errors'])!=0:
                 for error in ret['errors']:
-                    if(isinstance(error, str)):
+                    if isinstance(error, str):
                         response['errors'].append({"system" : system_name, "error" : error})
-                    elif(isinstance(error, dict)):
+                    elif isinstance(error, dict):
                         if system_name is not None:
                             error['system'] = system_name
                         response['errors'].append(error)
@@ -74,7 +74,7 @@ class ReqThread(Thread):
 
     def run(self):
         ret = self.func()
-        if ret != None:
+        if ret is not None:
             ret['_sysname'] = self.system_name
         self.return_queue.put(ret)
 
@@ -109,6 +109,6 @@ def execute_method(method):
     if not current_user.has_permission("bans.api.%s" % method):
         abort(403)
     result = methods[method](request)
-    if(not result.has_key('success')):
+    if not result.has_key('success'):
         result['success'] = True
     return json.dumps(result)

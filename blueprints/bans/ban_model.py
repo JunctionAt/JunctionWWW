@@ -13,8 +13,8 @@ class Ban(Document):
     time = DateTimeField(default=datetime.datetime.utcnow)
     active = BooleanField(default=True)
 
-    removal_time = DateTimeField()
-    remover = StringField()
+    removed_time = DateTimeField()
+    removed_by = StringField()
 
     appeal = ReferenceField('Appeal', dbref=False)
 

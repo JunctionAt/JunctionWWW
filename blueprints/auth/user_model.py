@@ -22,6 +22,7 @@ class Role_Group(Document):
 class User(Document, flask_login.UserMixin, object):
 
     name = StringField(required=True, unique=True)
+    # noinspection PyShadowingBuiltins
     hash = StringField(required=True)
     mail = StringField()
     registered = DateTimeField(default=datetime.datetime.utcnow())
@@ -86,6 +87,7 @@ class Token(Document):
 
     token = StringField(required=True)
     name = StringField(required=True)
+    # noinspection PyShadowingBuiltins
     hash = StringField(required=True)
     mail = StringField()
     ip = StringField(required=True)

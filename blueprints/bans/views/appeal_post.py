@@ -10,6 +10,7 @@ from blueprints.bans.appeal_model import Appeal, AppealReply, AppealEdit
 from blueprints.auth import login_required
 import math
 import datetime
+from .. import process_ban
 
 """
 This file should contain everything related to viewing, editing and posting to appeals.
@@ -52,6 +53,8 @@ def view_appeal(uid):
     if ban is None:
         abort(404)
 
+    process_ban(ban)
+
     appeal = ban.appeal
     if appeal is None:
         #TODO: Should redirect to the ban
@@ -86,7 +89,7 @@ def view_appeal(uid):
     if appeal.state == 1:
         if appeal.locked_until < datetime.datetime.utcnow():
             appeal.state = 0
-            del(appeal.locked_until)
+            del appeal.locked_until
             appeal.save()
 
     replies = sorted(appeal.replies, lambda key, reply: int(reply.created.strftime("%s")))
@@ -96,6 +99,7 @@ def view_appeal(uid):
 #        admin_form=admin_form,
         ban=ban,
         replies=replies,
+        appeal=appeal,
         locked=appeal.state!=0,
         is_mod = current_user.has_permission("bans.appeal.manage")
     )
@@ -176,7 +180,7 @@ def post_new_appeal(uid):
     if ban is None:
         abort(404)
 
-    if (hasattr(ban, 'appeal') and ban.appeal != None and ban.username != current_user.name):
+    if hasattr(ban, 'appeal') and ban.appeal is not None and ban.username != current_user.name:
         abort(404)
 
     if request.method == 'GET':

@@ -48,9 +48,12 @@ login_manager.login_view = "auth.login"
 login_manager.login_message = u"Please log in to access this page."
 login_manager.refresh_view = "auth.reauth"
 
+# noinspection PyShadowingBuiltins
 @login_manager.user_loader
-def user_loader(id): return load_user(id)
+def user_loader(id):
+    return load_user(id)
 
+# noinspection PyShadowingBuiltins
 def load_user(id):
     if id == ApiUser().get_id() and current_app.config.get('API', False):
         return ApiUser()
@@ -80,7 +83,7 @@ def login_required(f):
     This is a custom version of the flask_login decorator that will accept HTTP Basic Auth or
     fall back on the regular login_required provided by flask_login.
     """
-    
+
     @wraps(f)
     def decorated(*args, **kwargs):
         if not current_user.is_authenticated():
@@ -103,14 +106,14 @@ class LoginForm(Form):
     username = TextField('Minecraft Name', [ Required(), Length(min=2, max=16) ])
     password = PasswordField('Junction Password', validators=[ Required(), Length(min=8) ])
     remember = BooleanField('Stay logged in', [ Optional() ], default=True)
-    def validate_password(form, field):
-        if reduce(lambda errors, (name, field): errors or len(field.errors), form._fields.iteritems(), False):
+    def validate_password(self, field):
+        if reduce(lambda errors, (name, field): errors or len(field.errors), self._fields.iteritems(), False):
             return
-        try :
-            form.user = User.objects(name=re.compile(form.username.data, re.IGNORECASE)).first()
-            if form.user is None:
+        try:
+            self.user = User.objects(name=re.compile(self.username.data, re.IGNORECASE)).first()
+            if self.user is None:
                 raise KeyError
-            if form.user.hash == bcrypt.hashpw(form.password.data, form.user.hash):
+            if self.user.hash == bcrypt.hashpw(self.password.data, self.user.hash):
                 return
         except KeyError: pass
         raise ValidationError('Invalid username or password.')
@@ -149,9 +152,9 @@ def login_post_api(ext):
 @login_required
 def reauth():
     if request.method == "POST":
-	confirm_login()
-	flash(u"Reauthenticated.")
-	return redirect(request.args.get("next", '/'))
+        confirm_login()
+        flash(u"Reauthenticated.")
+        return redirect(request.args.get("next", '/'))
     return render_template("reauth.html")
 
 
@@ -173,7 +176,7 @@ class RegistrationForm(Form):
     mail = TextField('Email', description='Optional. Use for Gravatars.', validators=[ Optional(), Email() ])
     password = PasswordField('Password', description='Note: Does not need to be the same as your Minecraft password', validators=[ Required(), Length(min=8) ])
     password_match = PasswordField('Verify Password', [ Optional() ])
-    def validate_username(form, field):
+    def validate_username(self, field):
         if len(User.objects(name=re.compile(field.data, re.IGNORECASE))):
             raise ValidationError('This username is already registered.')
 
@@ -209,22 +212,22 @@ def register(ext):
 
 class ActivationForm(Form):
     """Form to verify user by token."""
-    
+
     token = TextField('Token', description='From ' + current_app.config.get('AUTH_SERVER', 'auth.junction.at'), validators=[ Required(), Length(min=6,max=6) ])
     password = PasswordField('Junction password', description='From step 1', validators=[ Required() ])
-    
-    def validate_password(form, field):
+
+    def validate_password(self, field):
         try:
             setattr(
-                form, 'token',
-                Token.objects(token=form.token.data, expires__gte=datetime.datetime.utcnow()).order_by("-expires").first()
+                self, 'token',
+                Token.objects(token=self.token.data, expires__gte=datetime.datetime.utcnow()).order_by("-expires").first()
             )
-            if not form.token or not bcrypt.hashpw(field.data, form.token.hash):
+            if not self.token or not bcrypt.hashpw(field.data, self.token.hash):
                 raise ValidationError("Incorrect password.")
         except KeyError: pass
-        
-    def validate_token(form, field):
-        if not form.token:
+
+    def validate_token(self, field):
+        if not self.token:
             raise ValidationError("Invalid token. Please note that activation tokens are only valid for 10 minutes.")
 
 @apidoc(__name__, blueprint, '/activate.json', endpoint='activatetoken', defaults=dict(ext='json'), methods=('POST',))
@@ -241,6 +244,7 @@ def activatetoken(ext):
         form = ActivationForm()
         return render_template("verify.html", form=form, auth_server=current_app.config.get('AUTH_SERVER', 'auth.junction.at'))
     if request.method == "POST":
+        # noinspection PyArgumentList
         user = User(
             name=form.token.name,
             hash=form.token.hash,
@@ -249,7 +253,7 @@ def activatetoken(ext):
         )
         user.save()
         login_user(user, remember=False)
-        del(form.token)
+        del form.token
         if ext == 'html': flash(u"Registration successful!")
         from blueprints.avatar import set_mc_face_as_avatar
         set_mc_face_as_avatar(user.name)
@@ -280,7 +284,7 @@ def get_token(player, ext):
 class SetPasswordForm(Form):
     password = PasswordField('New Password', [ Required(), Length(min=8) ])
     password_match = PasswordField('Verify Password', [ Optional() ])
-            
+
 @blueprint.route("/setpassword", methods=["GET", "POST"])
 @fresh_login_required
 def setpassword():

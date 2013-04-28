@@ -20,6 +20,7 @@ class Notification(Document):
     deletable = BooleanField(default=False) #Specifies if the notification should be deletable through the standard delete button. You can hook onto this event.
 
     module = StringField(required=True) #Required, defines where it came from.
+    # noinspection PyShadowingBuiltins
     type = StringField() #May be used for future sorting/hiding of certain types.
     data = DictField() #When creating the notification, the creator may supply custom data.
 

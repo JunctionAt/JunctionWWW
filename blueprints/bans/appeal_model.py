@@ -44,7 +44,8 @@ class Appeal(Document):
 
     #0:open - 1:hard closed for timeframe - 2:hard closed forever
     state = IntField(default=0)
-    locked_until = DateTimeField()
+    unlock_time = DateTimeField()
+    unlock_by = StringField()
 
     meta = {
         'collection': 'appeals',

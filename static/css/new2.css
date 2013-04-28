@@ -308,6 +308,6 @@ body {
     border-radius: 1px;
 }
 
-.wat {
-    background-color: #000000;
+.hid {
+    display: none;;
 }

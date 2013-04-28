@@ -4,6 +4,7 @@ import re
 from ...ban_model import Ban
 from . import verify_username
 from datetime import datetime
+from ... import process_ban
 
 #@bans.route('/bans/local/getbans.json')
 def get_local_bans(request):
@@ -18,12 +19,10 @@ def get_local_bans(request):
     if count > 0:
         response['bans'] = []
         for ban in bans:
-            retban = {}
-            retban['uid'] = ban.uid
-            retban['issuer'] = ban.issuer
-            retban['time'] = ban.get_time()
-            retban['reason'] = ban.reason
-            retban['server'] = ban.server
+            if not process_ban(ban):
+                continue
+            retban = {'uid': ban.uid, 'issuer': ban.issuer, 'time': ban.get_time(), 'reason': ban.reason,
+                      'server': ban.server}
             response['bans'].append(retban)
     print response
     return response
@@ -74,7 +73,7 @@ def del_ban(request):
     if banmatch is None:
         return {'success' : False}
     banmatch.active = False
-    banmatch.removal_time = datetime.utcnow()
-    banmatch.remover = remover
+    banmatch.removed_time = datetime.utcnow()
+    banmatch.removed_by = remover
     banmatch.save()
     return {'success' : True, 'num' : 1}

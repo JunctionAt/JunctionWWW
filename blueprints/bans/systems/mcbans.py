@@ -27,7 +27,7 @@ def getbans(user):
     r = requests.post("http://api.mcbans.com/v2/%s" % (apikey,), data=payload)
     #print(r.text)
     j = r.json
-    if j == None or not j.has_key('global'):
+    if j is None or not j.has_key('global'):
         #print(":(")
         return response
     for ban in j['global']:

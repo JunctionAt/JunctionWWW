@@ -9,7 +9,7 @@ from blueprints.bans.ban_model import Ban
 from blueprints.bans.appeal_model import Appeal, AppealReply, AppealEdit
 from blueprints.auth import login_required
 import math
-import datetime
+from datetime import datetime
 
 class RequiredIf(Required):
     # a validator which makes a field required if
@@ -26,12 +26,9 @@ class RequiredIf(Required):
         if bool(other_field.data):
             super(RequiredIf, self).__call__(form, field)
 
-class HideReplyForm(Form):
-    hide = BooleanField('Hide/show the reply', validators=[Required])
-
-@bans.route('/a/appeal/action/hide_reply/<int:uid>/', methods=["POST"])
+@bans.route('/a/appeal/action/hide_reply/<int:uid>/<hide>/', methods=["POST", "GET"])
 @login_required
-def hide_reply(uid):
+def hide_reply(uid, hide):
 
     if not current_user.has_permission("bans.appeal.hide"):
         abort(403)
@@ -40,19 +37,18 @@ def hide_reply(uid):
     if reply is None:
         abort(404)
 
-    hide_form = HideReplyForm(request.form)
-
-    reply.hidden = hide_form.hide.data
+    reply.hidden = ( hide.lower() == 'true' )
     reply.save()
 
-    return 'SUCCESS'
+    return redirect(url_for('bans.view_appeal', uid=reply.appeal.ban.uid))
 
 class UnbanDateForm(Form):
     remove = SubmitField('Remove the set date')
+    # noinspection PyShadowingBuiltins
     set = SubmitField('Set the unban date')
     date = DateField('The date you want the ban removed', validators=[RequiredIf('set')], format='%m/%d/%Y')
 
-@bans.route('/a/appeal/action/set_unban_date/<int:uid>/')
+@bans.route('/a/appeal/action/set_unban_date/<int:uid>/', methods=['POST'])
 @login_required
 def set_unban_date(uid):
 
@@ -63,20 +59,64 @@ def set_unban_date(uid):
     if ban is None:
         abort(404)
 
+    if not ban.active:
+        abort(404)
+
+    #if not ban.active:
+    #    abort(404)
+
     unban_date_form = UnbanDateForm(request.form)
 
     if unban_date_form.remove.data:
-        ban.removal_time = None
-        ban.remover = None
+        ban.removed_time = None
+        ban.removed_by = None
     elif unban_date_form.set.data:
-        ban.removal_time = unban_date_form.date.data
-        ban.remover = current_user.name
+        ban.removed_time = unban_date_form.date.data
+        ban.removed_by = current_user.name
 
     ban.save()
 
     return 'SUCCESS'
 
-@bans.route('/a/appeal/action/remove_ban_id/<int:uid>/')
+class UnlockDateForm(Form):
+    remove = SubmitField('Remove the set date')
+    # noinspection PyShadowingBuiltins
+    set = SubmitField('Set the unlock date')
+    date = DateField('The date you want the lock removed', validators=[RequiredIf('set')], format='%m/%d/%Y')
+
+@bans.route('/a/appeal/action/set_unlock_date/<int:uid>/', methods=['POST'])
+@login_required
+def set_unlock_date(uid):
+
+    if not current_user.has_permission("bans.appeal.lock"):
+        abort(403)
+
+    ban = Ban.objects(uid=uid).first()
+    if ban is None:
+        abort(404)
+
+    if not ban.active:
+        abort(404)
+
+    #if not ban.active:
+    #    abort(404)
+
+    unlock_date_form = UnlockDateForm(request.form)
+
+    appeal = ban.appeal
+
+    if unlock_date_form.remove.data:
+        appeal.unlock_time = None
+        appeal.unlock_by = None
+    elif unlock_date_form.set.data:
+        appeal.unlock_time = unlock_date_form.date.data
+        appeal.unlock_by = current_user.name
+
+    appeal.save()
+
+    return 'SUCCESS'
+
+@bans.route('/a/appeal/action/remove_ban_id/<int:uid>/', methods=['POST', 'GET'])
 @login_required
 def unban_ban_id(uid):
 
@@ -87,8 +127,12 @@ def unban_ban_id(uid):
     if ban is None:
         abort(404)
 
+    if not ban.active:
+        abort(404)
+
     ban.active = False
-    ban.remover = current_user.name
+    ban.removed_time = datetime.utcnow()
+    ban.removed_by = current_user.name
 
     ban.save()
 

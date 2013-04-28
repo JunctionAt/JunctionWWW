@@ -21,21 +21,13 @@ def full_local_lookup(request):
     if notecount > 0:
         response['notes'] = []
         for note in notes:
-            return_note = {}
-            return_note['uid'] = note.uid
-            return_note['issuer'] = note.issuer
-            return_note['time'] = note.get_time()
-            return_note['note'] = note.note
-            return_note['server'] = note.server
+            return_note = {'uid': note.uid, 'issuer': note.issuer, 'time': note.get_time(), 'note': note.note,
+                           'server': note.server}
             response['notes'].append(return_note)
     if ban_count > 0:
         response['bans'] = []
         for ban in bans:
-            return_ban = {}
-            return_ban['uid'] = ban.uid
-            return_ban['issuer'] = ban.issuer
-            return_ban['time'] = ban.get_time()
-            return_ban['reason'] = ban.reason
-            return_ban['server'] = ban.server
+            return_ban = {'uid': ban.uid, 'issuer': ban.issuer, 'time': ban.get_time(), 'reason': ban.reason,
+                          'server': ban.server}
             response['bans'].append(return_ban)
     return response

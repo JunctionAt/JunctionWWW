@@ -129,6 +129,7 @@ def ownership(server, player, ext):
     return jsonify(groups=reduce(lambda groups, group: groups + [group.name], groupsR, []))
 
 
+# noinspection PyShadowingBuiltins
 @apidoc(__name__, player_groups, '/<server>/group/<group>/<any(all,member,owner):type>/<player>.json', endpoint='manage_members', defaults=dict(ext='json', invite=None), methods=('GET',))
 def manage_members_get_api(server, group, invite, type, player, ext):
     """
@@ -142,6 +143,7 @@ def manage_members_get_api(server, group, invite, type, player, ext):
         Succeeds if player ``qux`` is an owner of group ``foo`` and *not* an member.
     """
 
+# noinspection PyShadowingBuiltins
 @apidoc(__name__, player_groups, '/<server>/group/<group>/<any(member,owner):type>/<player>.json', endpoint='manage_members', defaults=dict(ext='json', invite=None), methods=('PUT',))
 def manage_members_put_api(server, group, invite, type, player, ext):
     """
@@ -156,6 +158,7 @@ def manage_members_put_api(server, group, invite, type, player, ext):
     sending an invitation for ``player`` to accept the new role.
     """
 
+# noinspection PyShadowingBuiltins
 @apidoc(__name__, player_groups, '/<server>/group/<group>/invited/all/<player>.json', endpoint='manage_members', defaults=dict(ext='json', type='all', invite=True), methods=('DELETE',))
 def manage_invited_members_delete_api(server, group, invite, type, ext):
     """
@@ -164,6 +167,7 @@ def manage_invited_members_delete_api(server, group, invite, type, ext):
     This resource remains valid after ``player`` has accepted an invitation to ``group`` and is the only way to revoke a player's membership or invitation to join.
     """
 
+# noinspection PyShadowingBuiltins
 @apidoc(__name__, player_groups, '/<server>/group/<group>/invited/<any(all,member,owner):type>/<player>.json', endpoint='manage_members', defaults=dict(ext='json', invite=True), methods=('GET',))
 def manage_invited_members_get_api(server, group, invite, type, player, ext):
     """
@@ -172,6 +176,7 @@ def manage_invited_members_get_api(server, group, invite, type, player, ext):
     This resource may be valid after ``player`` has accepted an invitation to join ``group`` with regards to ``player``'s membership status being ``type``.
     """
 
+# noinspection PyShadowingBuiltins
 @apidoc(__name__, player_groups, '/<server>/group/<group>/invited/<any(member,owner):type>/<player>.json', endpoint='manage_members', defaults=dict(ext='json', invite=True), methods=('PUT',))
 def manage_invited_members_put_api(server, group, invite, type, player, ext):
     """
@@ -180,6 +185,7 @@ def manage_invited_members_put_api(server, group, invite, type, player, ext):
     This resource is no longer valid after ``player`` has accepted an invitation to join ``group``.
     """
 
+# noinspection PyShadowingBuiltins
 def manage_members(server, group, invite, type, player, ext):
     """World's largest function"""
 
@@ -189,12 +195,12 @@ def manage_members(server, group, invite, type, player, ext):
         abort(404)
     def members(group, val=None, invite=invite):
         f = 'invited_members' if invite else 'members'
-        if val == None:
+        if val is None:
             return getattr(group, f)
         setattr(group, f, val)
     def owners(group, val=None, invite=invite):
         f = 'invited_owners' if invite else 'owners'
-        if val == None:
+        if val is None:
             return getattr(group, f)
         setattr(group, f, val)
     def to(group, val=None, t=type, invite=invite):
@@ -237,24 +243,24 @@ def manage_members(server, group, invite, type, player, ext):
             if invite and (member in group.owners or member in group.members):
                 # This is no longer a valid resource once the member has joined
                 abort(403)
-            from_(group, list(set(from_(group)) - set([member])))
+            from_(group, list(set(from_(group)) - {member}))
             to(group, list(set(to(group) + [member])))
             if invite:
                 #manage_notifications(group) #TODO: Notifications!!
                 pass
             else:
                 # mirror invited status with membership status
-                from_(group, list(set(from_(group, invite=True)) - set([member])), invite=True)
+                from_(group, list(set(from_(group, invite=True)) - {member}), invite=True)
                 to(group, list(set(to(group, invite=True) + [member])), invite=True)
                 # Commit
             group.save()
             return redirect(url_for('player_groups.manage_members', server=server, group=group.name, type=type, invite=invite, player=member.name, ext=ext)), 303
         elif request.method == 'DELETE' and member in to(group):
             # Remove membership and ownership
-            group.members = list(set(group.members) - set([member]))
-            group.owners = list(set(group.owners) - set([member]))
-            group.invited_members = list(set(group.invited_members) - set([member]))
-            group.invited_owners = list(set(group.invited_owners) - set([member]))
+            group.members = list(set(group.members) - {member})
+            group.owners = list(set(group.owners) - {member})
+            group.invited_members = list(set(group.invited_members) - {member})
+            group.invited_owners = list(set(group.invited_owners) - {member})
             group.member_count -= 1
             #manage_notifications(group) #TODO: Notifications!!
             # Commit

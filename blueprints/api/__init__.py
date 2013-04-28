@@ -98,7 +98,7 @@ def apidocs():
                 sorted(__endpoints__.items(),  key=lambda pair: __order__.index(pair[0]))))
 
 def to_html(docstring, indent=4):
-    if not indent == None:
+    if not indent is None:
         docstring = '\n'.join(map(lambda line: re.sub('^\s{%d}'%indent, '', line), docstring.split('\n')))
     return Markup(re.sub(r'^<div.*>|</div>$', '',publish_parts(
                 docstring, writer_name='html',

@@ -7,9 +7,6 @@ from alts_model import PlayerAlt
 
 alts = admin = Blueprint('alts', __name__, template_folder='templates')
 
-def verify_arg(list, arg):
-    pass
-
 def construct_error(error):
     return json.dumps({
         'success': False,
@@ -43,7 +40,7 @@ def link_user_ip():
         return construct_success()
 
     user.ips.append(ip)
-    user.save
+    user.save()
 
 
 def get_alts_user():

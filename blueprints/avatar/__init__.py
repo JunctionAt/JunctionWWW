@@ -115,6 +115,7 @@ def get_mc_face(name):
     if response.status_code != 200:
         return
 
+    # noinspection PyShadowingBuiltins
     input = StringIO.StringIO(response.content)
     image = Image.open(input)
 

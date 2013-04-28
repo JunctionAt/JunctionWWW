@@ -58,10 +58,10 @@ class Endpoint(object):
         self.a_group = a_group if a_group else "a %s"%self.group
         self.groups = groups if groups else "%ss"%self.group
         self.member = member
-        self.a_member = a_member if a_member else ("a %s"%self.member if not self.member[0] in ('aeiou') else "an %s"%self.member)
+        self.a_member = a_member if a_member else ("a %s"%self.member if not self.member[0] in 'aeiou' else "an %s"%self.member)
         self.members = members if members else "%ss"%self.member
         self.owner = owner
-        self.a_owner = a_owner if a_owner else ("a %s"%self.owner if not self.owner[0] in ('aeiou') else "an %s"%self.owner)
+        self.a_owner = a_owner if a_owner else ("a %s"%self.owner if not self.owner[0] in 'aeiou' else "an %s"%self.owner)
         self.owners = owners if owners else "%ss"%self.owner
 
         self.GroupEditForm = self.group_form()
@@ -169,15 +169,15 @@ class Endpoint(object):
     def invited_member_of(self, user):
         """Returns the unactioned owner invitations of user"""
 
-        return filter(lambda group: group.server == self.server,\
-            list(set(user.groups_invited_member or list()) -
+        return filter(lambda group: group.server == self.server,
+                      list(set(user.groups_invited_member or list()) -
                  set(user.groups_member or list())))
 
     def invited_owner_or_member_of(self, user):
         """Returns the unactioned member or owner invitations of user"""
 
-        return filter(lambda group: group.server == self.server,\
-            list(set((user.groups_invited_member or list()) + (user.groups_invited_owner or list())) -
+        return filter(lambda group: group.server == self.server,
+                      list(set((user.groups_invited_member or list()) + (user.groups_invited_owner or list())) -
                  set((user.groups_member or list()) + ((user.groups_owner or list())))))
 
 
@@ -239,12 +239,12 @@ def manage_notifications_p(group):
     (set(group.invited_owners) - set(group.owners)) |\
     (set(group.invited_members) - set(group.members))
     # People who have been notified
-    notified = set(map(lambda notification: notification.user,\
-        session.query(Notification)\
-        .filter(Notification.module=='player_groups')\
-        .filter(Notification.type=='invitation')\
-        .filter(Notification.from_=="%s.%s"%(group.server,group.name))\
-        .all()))
+    notified = set(map(lambda notification: notification.user,
+                       session.query(Notification)
+                       .filter(Notification.module=='player_groups')
+                       .filter(Notification.type=='invitation')
+                       .filter(Notification.from_=="%s.%s"%(group.server,group.name))
+                       .all()))
     # Delete notifications for players that are no longer invited
     delete_notifications(map(lambda user: user.name, notified - invited), group)
     # Add notifications for people who haven't been sent one

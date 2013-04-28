@@ -24,10 +24,8 @@ def getbans(user):
       return {"error" : "HTTP ERROR: "+r.status_code}
     j = r.json
     for ban in j:
-        convban = {}
-        convban['reason'] = "%s: %s" % (ban['reason'], ban['long_reason'])
-        convban['server'] = ban['server_name']
-        convban['error'] = "HTTP ERROR: "+404
+        convban = {'reason': "%s: %s" % (ban['reason'], ban['long_reason']), 'server': ban['server_name'],
+                   'error': "HTTP ERROR: " + str(404)}
         response['bans'].append(convban)
         response['bancount'] += 1
     print response

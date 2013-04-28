@@ -17,12 +17,8 @@ def get_local_notes(request):
     if count > 0:
         response['notes'] = []
         for note in notes:
-            return_note = {}
-            return_note['uid'] = note.uid
-            return_note['issuer'] = note.issuer
-            return_note['time'] = note.get_time()
-            return_note['note'] = note.note
-            return_note['server'] = note.server
+            return_note = {'uid': note.uid, 'issuer': note.issuer, 'time': note.get_time(), 'note': note.note,
+                           'server': note.server}
             response['notes'].append(return_note)
     return response
 
@@ -53,6 +49,7 @@ def add_note(request):
 def del_note(request):
     args = request.args
     if args.has_key('id') and args['id'].isdigit():
+        # noinspection PyShadowingBuiltins
         id = args['id']
     else:
         return {'success' : False, 'error' : 'The provided integer id was invalid.'}
