@@ -3,6 +3,7 @@ import datetime
 
 from mongoengine import *
 
+
 class Role_Group(Document):
 
     name = StringField(required=True)
@@ -10,7 +11,7 @@ class Role_Group(Document):
 
     meta = {
         'collection': 'role_groups',
-        'indexed' : [ 'name', 'roles' ]
+        'indexed': ['name', 'roles']
     }
 
     def __repr__(self):
@@ -18,6 +19,7 @@ class Role_Group(Document):
 
     def __str__(self):
         return self.name
+
 
 class User(Document, flask_login.UserMixin, object):
 
@@ -82,6 +84,7 @@ class User(Document, flask_login.UserMixin, object):
                     return True
 
         return False
+
 
 class Token(Document):
 

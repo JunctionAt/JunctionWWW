@@ -4,7 +4,7 @@ from flask import Blueprint, request, render_template, abort, send_file, flash, 
 from blueprints.auth import login_required
 from blueprints.admin.view import ModelView
 from blueprints.base import admin
-from blueprints.forum.database import forum, categories, boards
+from blueprints.forum.database.forum import Forum, Category, Board
 from flask.ext.admin.model import typefmt
 import mongoengine
 
@@ -30,16 +30,16 @@ admin.add_view(User_View(User, endpoint='mongo_user', category='Mongo General'))
 class Forum_Forum_View(ModelView):
     pass
 
-admin.add_view(Forum_Forum_View(forum.Forum, endpoint='forum_forum', category='Mongo Forum'))
+admin.add_view(Forum_Forum_View(Forum, endpoint='forum_forum', category='Mongo Forum'))
 
 #Forum categories
 class Forum_Category_View(ModelView):
     pass
 
-admin.add_view(Forum_Category_View(categories.Category, endpoint='forum_categories', category='Mongo Forum'))
+admin.add_view(Forum_Category_View(Category, endpoint='forum_categories', category='Mongo Forum'))
 
 #Forum boards
 class Forum_Board_View(ModelView):
     pass
 
-admin.add_view(Forum_Board_View(boards.Board, endpoint='forum_boards', category='Mongo Forum'))
+admin.add_view(Forum_Board_View(Board, endpoint='forum_boards', category='Mongo Forum'))

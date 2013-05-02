@@ -1,108 +1,39 @@
-{% extends "base.html" %}
-{% block head %}
-<title>Junction Forum - {{ board.name }}</title>
+{% extends "base_newer.html" %}
 
-<style>
-    #forum_breadcrumb {
-        padding-left: 10px;
-    }
-    #forum_breadcrumb li {
-        list-style-type: none;
-        display: inline;
-        padding-right: 4px;
-    }
+{% set breadcrumb_items = [
+    {'title': 'Forums'},
+    {'title': forum.name, 'url': forum.get_url()},
+    {'title': board.name, 'url': board.get_url()}]
+%}
 
-    .forum_container {
-        padding-left: 4px;
-        padding-right: 4px;
-        border: solid;
-        border-color: #dddddd;
-        border-width: 1px;
-    }
-    .forum_container .top {
-        border-top: none;
-    }
-
-    .forum_row {
-        padding-left: 6px;
-        padding-top: 6px;
-        padding-bottom: 6px;
-        list-style-type: none;
-        border-top: solid;
-        border-top-width: 1px;
-        border-color: #aaaaaa;
-        width: auto;
-    }
-    .forum_row p {
-        display: inline;
-        padding-right: 4px;
-    }
-    .forum_row #text {
-
-    }
-    .forum_row #author {
-
-    }
-    .forum_row #last {
-
-    }
-</style>
-{% endblock %}
 {% block content %}
-<div class="grid_12 pane">
-    <ul id="forum_breadcrumb">
-        <li><a href="/forum/">Board Index</a> <span class="divider">></span></li>
-        <li><a href="/forum/#{{ category.name }}">{{ category.name }}</a> <span class="divider">></span></li>
-        <li>{{ board.name }}</li>
-    </ul>
-    <h2><p class="span10">{{ board.name }}</p>
-        <form name="make_new" action="{{ url_for('forum.new_topic', board_name=board.name) }}" method="get">
-            <input type="submit" value="Post New Topic" name="submit" class="btn btn-primary btn-large"/>
-        </form>
-    </h2>
-
-    <!-- Announcements -->
-    <ul class="forum_container">
-        <li class="forum_row top">
-            <p id="text">Announcements</p>
-            <p id="author">Author</p>
-            <p id="last">Last Post</p>
-        </li>
-        {% for topic in topics %}
-        {% if topic.is_announcement %}
-        <li class="forum_row">
-            <p class="span7">
-                <a href="#">{{ topic.title }}</a>
-            </p>
-
-            <p class="span2">{{ topic.author.name }}</p>
-
-            <p class="span3">{{ topic.date }}/p>
-        </li>
-        {% endif %}
-        {% endfor %}
-    </ul>
-
-    <!-- Topics -->
-    <ul class="forum_container">
-        <li class="forum_row top">
-            <p>Topics</p>
-            <p>Author</p>
-            <p>Last Post</p>
-        </li>
-        {% for topic in topics %}
-        {% if not topic.is_announcement %}
-        <li class="forum_row">
-            <p class="span7">
-                <a href="{{ url_for('forum.topic', topic_id=topic.topic_url_id|b36encode, topic_name=topic.topic_url_name) }}">{{ topic.title }}</a>
-            </p>
-
-            <p class="span2">{{ topic.author.username }}</p>
-
-            <p class="span3">{{ topic.date }}</p>
-        </li>
-        {% endif %}
-        {% endfor %}
-    </ul>
+<div class="container">
+    <div class="row">
+        <div class="span12">
+            {% if current_user.is_authenticated() %}
+            <a class="btn btn-theme" type="submit" href="{{ board.get_post_url() }}">Post New Topic</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="span12">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Latest</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for topic in topics %}
+                    <tr>
+                        <th><a href="{{ topic.get_url() }}">{{ topic.title }}</a></th>
+                        <th>Latest</th>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 {% endblock %}

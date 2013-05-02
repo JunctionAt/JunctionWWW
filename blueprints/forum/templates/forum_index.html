@@ -1,53 +1,80 @@
-{% extends "base.html" %}
-{% block head %} 
-<title>Junction Forum</title>
+{% extends "base_newer.html" %}
 
-<style>
-    .category {
-        padding-left: 4px;
-        padding-right: 4px;
-        padding-bottom: 4px;
-        border: solid;
-        border-color: #dddddd;
-        border-width: 1px;
-        width: auto;
-        background-color: #fafafa;
-    }
-    .category li {
-        list-style-type: none;
-        margin-left: 18px;
-        margin-bottom: 5px;
-    }
-    .category li a {
-        font-size: 1.2em;
-    }
-    .category #category_title {
-        margin-left: 0px;
-    }
-    .category #category_title h3 {
-        margin-top: 8px;
-        margin-left: 6px;
-        margin-bottom: 0;
-    }
-    .category #category_title p {
-        margin-top: 8px;
-        margin-left: 18px;
-    }
-</style>
-{% endblock %}
+{% set breadcrumb_items = [{'title': 'Forums'}, {'title': forum.name, 'url': forum.get_url()}] %}
+
 {% block content %}
-<div class="grid_12 pane" style="padding-left: 10px;">
-    <h2 style="margin-top: 10px;">Forums</h2>
-    {% for category in categories %}
-    <ul class="category">
-        <li id="category_title">
-            <h3>{{ category.name }}</h3>
-            <p>{{ category.description }}</p>
-        </li>
-        {% for board in category.boards %}
-        <li><a href="{{ url_for('forum.forum_category', board_id=board.board_id) }}">{{ board.name }}</a></li>
-        {% endfor %}
-    </ul>
-    {% endfor %}
+<div class="container">
+    <div class="row">
+        <div class="span8">
+            {% for category in categories %}
+            <aside>
+                <div class="widget">
+                    <h5 class="">{{ category.name }}</h5>
+                    <span>{{ category.description }}</span>
+                    <br />
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Board</th>
+                                <th>Last</th>
+                                <th>Topics</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for board in category.get_boards() %}
+                            <tr>
+                                <th><a href="{{ board.get_url() }}">{{ board.name }}</a></th>
+                                <th>blahblah</th>
+                                <th>{{ board.get_topic_count() }} Topics</th>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- <ul class="group-boards">
+                        {% for board in category.boards %}
+                        <li><a href="{{ url_for('forum.forum_category', board_id=board.board_id) }}">{{ board.name }}</a></li>
+                        {% endfor %}
+                    </ul> -->
+                </div>
+            </aside>
+            {% endfor %}
+        </div>
+        <div class="span4">
+            <aside>
+                <div class="widget">
+                    <h4 class="rheading">
+                        Recent Topics
+                        <span></span>
+                    </h4>
+                    <ul class="recent-posts">
+                        <li><a href="#">Lorem ipsum dolor sit amet munere commodo ut nam</a>
+                            <div class="clear">
+                            </div>
+                            <span class="date"><i class="icon-calendar"></i> 6 March, 2013</span>
+                            <span class="comment"><i class="icon-comment"></i> 4 Replies</span>
+                        </li>
+                        <li><a href="#">Sea nostrum omittantur ne mea malis nominavi insolens</a>
+                            <div class="clear">
+                            </div>
+                            <span class="date"><i class="icon-calendar"></i> 6 March, 2013</span>
+                            <span class="comment"><i class="icon-comment"></i> 2 Replies</span>
+                        </li>
+                        <li><a href="#">Eius graece recusabo no pri odio tale quo id, mea at saepe</a>
+                            <div class="clear">
+                            </div>
+                            <span class="date"><i class="icon-calendar"></i> 4 March, 2013</span>
+                            <span class="comment"><i class="icon-comment"></i> 12 Replies</span>
+                        </li>
+                        <li><a href="#">Malorum deserunt at nec usu ad graeco elaboraret at rebum</a>
+                            <div class="clear">
+                            </div>
+                            <span class="date"><i class="icon-calendar"></i> 3 March, 2013</span>
+                            <span class="comment"><i class="icon-comment"></i> 3 Replies</span>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </div>
 </div>
 {% endblock %}

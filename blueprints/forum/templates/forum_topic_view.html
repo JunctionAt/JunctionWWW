@@ -1,0 +1,33 @@
+{% extends "base_newer.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Forums'},
+{'title': forum.name, 'url': forum.get_url()},
+{'title': board.name, 'url': board.get_url()},
+{'title': "View Topic"}]
+%}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <h3>{{ topic.title }}</h3>
+    </div>
+{% for post in posts %}
+    <div class="row">
+        <aside>
+            <div class="widget container">
+                <div class="span2">
+                    <a>{{ post.author.name }}</a>
+                    <img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}">
+                </div>
+                <div class="span9">
+                    {{ post.content }}
+                    <br/>
+                    <br/>
+                </div>
+            </div>
+        </aside>
+    </div>
+{% endfor %}
+</div>
+{% endblock %}
