@@ -1,18 +1,22 @@
-{% set page_title = "Junction - Login" %}
-{% set breadcrumb_tree = [
-("Home", url_for('static_pages.landing_page')),
-("Login", url_for('auth.login'))
-] %}
-
-{% extends "content_base.html" %}
+{% extends "base_newer.html" %}
 
 {% from 'formhelpers.html' import render_field %}
 
+{% set breadcrumb_items = [
+{'title': 'Login', 'url': url_for('auth.login')}]
+%}
+
 {% block content %}
-<form class="grid_4 prefix_4" action="{{ url_for('auth.login', ext='html') }}" method=post>
-        {{ render_field(form.username) }}
-        {{ render_field(form.password) }}
-        {{ render_field(form.remember) }}
-        <p><input type="submit"></p>
-</form>
+<div class="container">
+    <div class="row">
+        <div class="span12">
+            <form class="grid_4 prefix_4" action="{{ url_for('auth.login', ext='html') }}" method=post>
+                {{ render_field(form.username) }}
+                {{ render_field(form.password) }}
+                {{ render_field(form.remember) }}
+                <p><input type="submit"></p>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
