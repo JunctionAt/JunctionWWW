@@ -8,7 +8,7 @@ from blueprints.bans.appeal_model import Appeal
 from blueprints.auth import login_required
 import math
 
-APPEALS_PER_PAGE = 20
+APPEALS_PER_PAGE = 15
 
 @bans.route('/a/appeal/list/', defaults={'page': 1})
 @bans.route('/a/appeal/list/<int:page>')
@@ -20,13 +20,13 @@ def appeals_index(page):
     appeals = Appeal.objects().order_by('-created')
     appeal_num = len(appeals)
 
-    num_pages = math.ceil(appeal_num/float(APPEALS_PER_PAGE))
+    num_pages = math.ceil(appeal_num / float(APPEALS_PER_PAGE))
     if num_pages < page:
         if page==1:
             return render_template('no_result_bans.html', message='No appeals found.')
         abort(404)
 
-    display_appeals = appeals.skip((page-1)*APPEALS_PER_PAGE)
+    display_appeals = appeals.skip((page - 1) * APPEALS_PER_PAGE)
     location_info = "Page %i/%i, %i results with %i results per page" % (page, num_pages, appeal_num, APPEALS_PER_PAGE)
     next_button = page < num_pages
     previous_button = page > 1 and not num_pages == 1

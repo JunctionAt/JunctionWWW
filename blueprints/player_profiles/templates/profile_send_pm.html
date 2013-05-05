@@ -1,0 +1,38 @@
+{% extends "base_newer.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Profile'},
+{'title': user.name, 'url': user.get_profile_url()},
+{'title': 'Send PM'}]
+%}
+
+{% block content %}
+<form class="container" method="post" action=".">
+    {% if form.errors %}
+    <div class="row">
+        <div class="span12">
+            {% for error_field in form.errors.values() %}
+            {% for error in error_field %}
+            <div class="alert alert-error">
+                <button type="button" class="close" data-dismiss="alert">×</button>
+                {{ error }}
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    <div class="row">
+        <div class="span12">
+            <h4>Composing message for {{ user.name }}</h4>
+            <label>Message body <span>*</span></label>
+            {{ form.text(class="input-block-level", placeholder="Text", rows="12", style="resize: horizontal;") }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="span12">
+            <button class="btn btn-theme" type="submit">Submit</button>
+        </div>
+    </div>
+</form>
+{% endblock %}

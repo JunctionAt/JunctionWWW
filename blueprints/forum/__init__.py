@@ -20,3 +20,4 @@ import views.forum_views
 import views.board_views
 import views.post_topic
 import views.topic_view
+import views.post_reply

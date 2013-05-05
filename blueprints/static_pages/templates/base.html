@@ -41,7 +41,7 @@
             <li><a href="{{ url_for('static_pages.pve_landing_page') }}">PvE</a></li>
             <li><a href="{{ url_for('static_pages.survival_landing_page') }}">Survival</a></li>
             <li><a href="{{ url_for('static_pages.chaos_landing_page') }}">Chaos</a></li>
-            <li><a href="{{ url_for('forum.index') }}">Forum</a></li>
+            <li><a href="{{ url_for('forum.forum_landing') }}">Forum</a></li>
               <li><a href="{{ url_for('wiki.display_index') }}">Wiki</a></li>
             <li><a href="{{ url_for('static_pages.mumble_info') }}">Mumble</a></li>
           </ul>
@@ -60,9 +60,6 @@
       </div>
       <div class=clear></div>
       <div class=content>
-          {% for notification in get_notifications(): -%}
-          <div class="notification grid_4">{{ notification.message|markdown }}</div>
-          {%- endfor %}
           {% for message in get_flashed_messages() -%}
           <div class="notification flash grid_4">{{ message }}</div>
           {%- endfor %}

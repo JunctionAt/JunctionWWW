@@ -26,9 +26,11 @@ class AvatarForm(Form):
     mc_skin_button = SubmitField('Get skin face')
 
 
-@avatar.route('/profile/avatar/', methods=["GET", "POST"])
+@avatar.route('/profile/<string:name>/avatar/', methods=["GET", "POST"])
 @login_required
-def avatar_control():
+def avatar_control(name):
+    if name != current_user.name:
+        abort(404)
 
     form = AvatarForm()
 
@@ -54,7 +56,8 @@ def avatar_control():
     return render_template(
         'avatar_settings.html',
         avatar_form=form,
-        name=current_user.name
+        name=current_user.name,
+        user=current_user
     )
 
 

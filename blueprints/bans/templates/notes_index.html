@@ -1,44 +1,42 @@
-{% set page_title = "Junction - Notes Index" %}
-{% set breadcrumb_tree = [
-    ("Home", url_for('static_pages.landing_page')),
-    ("Anathema", url_for('bans.a_front')),
-    ("Notes", url_for('bans.notes_index'))
-] %}
+{% extends "base_newer.html" %}
 
-{% extends "content_base.html" %}
+{% set breadcrumb_items = [
+{'title': 'Anathema', 'url': url_for('bans.a_front')},
+{'title': 'Notes', 'url': url_for('bans.notes_index')}]
+%}
 
 {% block content %}
-<style>
-    .content-list tr td {
-        font-family: 'Droid Sans', sans-serif;
-        font-size: 0.9em;
-    }
-</style>
-<div style="margin: 10px; font-family: 'Droid Sans', sans-serif; font-size: 12px;">
-    <table class="content-list" style="width: inherit;">
-        <tr>
-            <td style="width: 50px;">Note</td>
-            <td style="width: 460px;">Text</td>
-            <td style="width: 110px;">Username</td>
-            <td style="width: 110px;">Issuer</td>
-            <td style="width: 110px;">Created</td>
-        </tr>
-        {% for note in notes %}
-        <tr style="{{ loop.cycle('background-color: #f5f5f5;', 'background-color: #ffffff;') }}">
-            <td>{{ note.uid }}</td>
-            <td>{{ note.note }}</td>
-            <td>{{ note.username }}</td>
-            <td>{{ note.issuer }}</td>
-            <td>{{ note.time.strftime("%H:%M %d %b %y") }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% if previous_button %}
-    <a href="{{ url_for('bans.notes_index', page=current_page-1) }}">Previous</a>
-    {% endif %}
-    {% if next_button %}
-    <a href="{{ url_for('bans.notes_index', page=current_page+1) }}">Next</a>
-    {% endif %}
-    <p>{{ location_info }}</p>
+<div class="container">
+    <div class="row">
+        <div class="span12">
+            <div class="widget">
+                <table class="table">
+                    <tr>
+                        <td>Note</td>
+                        <td>Text</td>
+                        <td>Username</td>
+                        <td>Issuer</td>
+                        <td>Created</td>
+                    </tr>
+                    {% for note in notes %}
+                    <tr style="{{ loop.cycle('background-color: #f5f5f5;', 'background-color: #ffffff;') }}">
+                        <td>{{ note.uid }}</td>
+                        <td>{{ note.note }}</td>
+                        <td>{{ note.username }}</td>
+                        <td>{{ note.issuer }}</td>
+                        <td>{{ note.time.strftime("%H:%M %d %b %y") }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% if previous_button %}
+                <a href="{{ url_for('bans.notes_index', page=current_page-1) }}">Previous</a>
+                {% endif %}
+                {% if next_button %}
+                <a href="{{ url_for('bans.notes_index', page=current_page+1) }}">Next</a>
+                {% endif %}
+                <p>{{ location_info }}</p>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

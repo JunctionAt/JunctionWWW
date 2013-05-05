@@ -2,6 +2,7 @@ import flask_login
 import datetime
 
 from mongoengine import *
+from flask import url_for
 
 
 class Role_Group(Document):
@@ -84,6 +85,12 @@ class User(Document, flask_login.UserMixin, object):
                     return True
 
         return False
+
+    def get_profile_url(self):
+        return url_for('player_profiles.profile_view', name=self.name)
+
+    def get_avatar_url(self):
+        return url_for('avatar.get_avatar', name=self.name)
 
 
 class Token(Document):

@@ -49,7 +49,7 @@ class Board(Document):
     }
 
     def get_topic_count(self):
-        return len(Topic.objects(forum=self))
+        return Topic.objects(board=self).count()
 
     def get_url_name(self):
         return self.name.replace(' ', '_')
@@ -62,6 +62,10 @@ class Board(Document):
 
     def get_post_url(self):
         return url_for('forum.post_topic', **self.get_url_info())
+
+    def get_last(self):
+        return Topic.objects(board=self).order_by('-date').first()
+
 
 
 class TopicEdit(EmbeddedDocument):
@@ -80,6 +84,8 @@ class Topic(Document):
     announcement = BooleanField(default=False)
 
     topic_url_id = SequenceField(unique=True)
+
+    op = ReferenceField('Post', dbref=False)
 
     last_editor = ReferenceField(User, dbref=False)
     edits = ListField(EmbeddedDocumentField(TopicEdit))
@@ -101,6 +107,18 @@ class Topic(Document):
     def get_url(self):
         return url_for('forum.view_topic', **self.get_url_info())
 
+    def get_post_url(self):
+        return url_for('forum.post_reply', **self.get_url_info())
+
+    def get_replies(self):
+        return Post.objects(topic=self).count()
+
+    def get_last_post(self):
+        return Post.objects(topic=self).order_by('+date').first()
+
+    def get_pretty_date(self):
+        return pretty_date(self.date)
+
 
 class PostEdit(EmbeddedDocument):
     author = ReferenceField(User, dbref=False)
@@ -118,12 +136,20 @@ class Post(Document):
     topic = ReferenceField(Topic, dbref=False)
     forum = ReferenceField(Forum, dbref=False)
 
+    is_op = BooleanField(default=False)
+
     meta = {
         'collection': 'forum_posts',
         'indexes': ['topic', 'author']
     }
 
+    def get_pretty_date(self):
+        return pretty_date(self.date)
+
 
 def pretty_url_escape(string):
     chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 "
     return ''.join([s for s in string if s in chars]).replace(" ", "_")
+
+def pretty_date(date):
+    return date.strftime("%d %B, %Y")

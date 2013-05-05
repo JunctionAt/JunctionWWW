@@ -1,16 +1,20 @@
-{% set page_title = "Junction - Wiki" %}
-{% set breadcrumb_tree = [
-("Home", url_for('static_pages.landing_page')),
-("Wiki", url_for('wiki.display_index')),
-] %}
-{% if not index %}
-{% do breadcrumb_tree.append((wiki_url, url_for('wiki.display_wiki_article', wiki_url=wiki_url))) %}
-{% endif %}
+{% extends "base_newer.html" %}
 
-{% extends "content_base.html" %}
+{% set breadcrumb_items = [
+{'title': 'Wiki', 'url': url_for('wiki.display_index')}]
+%}
+{% if wiki_url %}{% do breadcrumb_items.append({'title': wiki_url, 'url': url_for('wiki.display_wiki_article', wiki_url=wiki_url)}) %}{% endif %}
 
 {% block content %}
-<div style="margin: 8px;">
-    {{ article['content']|safe }}
+<div class="container">
+    <div class="row">
+        <div class="span12">
+            <aside>
+                <div class="widget">
+                    {{ article['content']|markdown }}
+                </div>
+            </aside>
+        </div>
+    </div>
 </div>
 {% endblock %}

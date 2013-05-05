@@ -1,16 +1,22 @@
-{% set page_title = "Junction - Wiki" %}
-{% set breadcrumb_tree = [
-("Home", url_for('static_pages.landing_page')),
-("Wiki", url_for('wiki.display_index')),
-("pages", url_for('wiki.display_pages'))
-] %}
+{% extends "base_newer.html" %}
 
-{% extends "content_base.html" %}
+{% set breadcrumb_items = [
+{'title': 'Wiki', 'url': url_for('wiki.display_index')},
+{'title': 'pages', 'url': url_for('wiki.display_pages')}]
+%}
 
 {% block content %}
-<div style="margin: 8px;">
-    {% for link in links %}
-    <p><a href="/wiki/{{ link }}">{{ link }}</a></p>
-    {% endfor %}
+<div class="container">
+    <div class="row">
+        <div class="span12">
+            <aside>
+                <div class="widget">
+                    {% for link in links %}
+                    <p><a href="/wiki/{{ link }}">{{ link }}</a></p>
+                    {% endfor %}
+                </div>
+            </aside>
+        </div>
+    </div>
 </div>
 {% endblock %}

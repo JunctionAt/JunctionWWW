@@ -2,7 +2,7 @@ __author__ = 'HansiHE'
 
 from .. import blueprint
 from flask import render_template, request, redirect, url_for, abort
-from ..database.forum import Forum, Category, Board
+from ..database.forum import Forum, Category, Board, Topic
 
 @blueprint.route('/forum/')
 def forum_landing():
@@ -14,7 +14,9 @@ def view_forum(forum):
     if forum is None:
         abort(404)
     categories = Category.objects(forum=forum)
-    return render_template("forum_index.html", categories=categories, forum=forum)
+    recent_topics = Topic.objects(forum=forum).order_by('-date').limit(5)
+
+    return render_template("forum_index.html", categories=categories, forum=forum, recent_topics=recent_topics)
 
 #@blueprint.route('/f/a/s/')
 #def setup():

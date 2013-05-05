@@ -1,13 +1,64 @@
-{% set page_title = "Junction - Anathema Front" %}
-{% set breadcrumb_tree = [
-    ("Home", url_for('static_pages.landing_page')),
-    ("Anathema", url_for('bans.a_front')),
-] %}
+{% extends "base_newer.html" %}
 
-{% extends "content_base.html" %}
+{% set breadcrumb_items = [
+{'title': 'Anathema', 'url': url_for('bans.a_front')}]
+%}
 
 {% block content %}
-<a href="{{ url_for('bans.bans_index') }}">Bans</a>
-<a href="{{ url_for('bans.appeals_index') }}">Appeals</a>
-<a href="{{ url_for('bans.notes_index') }}">Notes</a>
+<div class="container">
+    <div class="row">
+        <div class="span3">
+            <aside>
+                <div class="widget">
+                    <div class="divcenter">
+                        <a href="{{ url_for('bans.bans_index') }}">
+                            <i class="icon-circled icon-128 icon-ban-circle" style="margin-left: 16px;"></i>
+                        </a>
+                        <br>
+                        <a href="{{ url_for('bans.bans_index') }}">Bans</a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+        <div class="span3">
+            <aside>
+                <div class="widget">
+                    <div class="divcenter">
+                        <a href="{{ url_for('bans.appeals_index') }}" style="margin-left: 16px;">
+                            <i class="icon-circled icon-128 icon-share-alt"></i>
+                        </a>
+                        <br>
+                        <a href="{{ url_for('bans.appeals_index') }}">Appeals</a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+        <div class="span3">
+            <aside>
+                <div class="widget">
+                    <div class="divcenter">
+                        <a href="{{ url_for('bans.notes_index') }}" style="margin-left: 16px;">
+                            <i class="icon-circled icon-128 icon-tag"></i>
+                        </a>
+                        <br>
+                        <a href="{{ url_for('bans.notes_index') }}">Notes</a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+        <div class="span3">
+            <aside>
+                <div class="widget">
+                    <div class="divcenter">
+                        <a href="{{ url_for('bans.your_bans') }}" style="margin-left: 16px;">
+                            <i class="icon-circled icon-128 icon-edit"></i>
+                        </a>
+                        <br>
+                        <a href="{{ url_for('bans.your_bans') }}">Appeal Ban</a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
 {% endblock %}

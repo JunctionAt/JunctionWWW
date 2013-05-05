@@ -5,12 +5,13 @@ from blueprints.auth import login_required
 from flask_login import current_user
 import json
 import markdown
-import notification_model
+from notification_model import Notification
 
-blueprint = Blueprint('notifications', __name__,
-    template_folder='templates')
+
+blueprint = Blueprint('notifications', __name__, template_folder='templates')
 
 notification_renderers = {}
+
 
 class notification_renderer(object):
     def __init__(self, module):
@@ -18,25 +19,51 @@ class notification_renderer(object):
     def __call__(self, func):
         notification_renderers[self.module] = func
 
-def get_notifications(user):
-    return notification_model.Notification.objects(receiver=user)
 
-def get_previews(user):
-        notification_model.Notification.objects(receiver=user).only("uid", "preview")
+def get_notifications(user):
+    return Notification.objects(receiver=user)
+
+
+def get_previews(user, num):
+    return Notification.objects(receiver=user).order_by('-id').limit(num).only("id", "preview")
+
+
+def get_num(user):
+    return len(Notification.objects(receiver=user))
+
 
 @current_app.context_processor
 def inject_notifications():
 
-    def get_current_notifications():
-        if not current_user.is_authenticated():
-            return []
-        return get_notifications(current_user.name)
-
     return dict(
-        get_notifications=get_current_notifications,
-        get_notifications_previews=get_previews
+        get_notifications=get_notifications,
+        get_notifications_previews=get_previews,
+        get_notifications_num=get_num
     )
 
+
+@login_required
 @blueprint.route('/notifications')
-def get_notifications_view():
-    return render_template('notifications_view.html')
+def notifications_view():
+    return render_template('notifications_view.html', notifications=get_notifications(current_user.to_dbref()))
+
+@login_required
+@blueprint.route('/notifications/delete/<string:id>/')
+def notification_delete(id):
+    notification = Notification.objects(id=id).first()
+    if notification is None:
+        abort(404)
+    if not notification.receiver.id == current_user.id:
+        abort(404)
+    if not notification.deletable:
+        abort(404)
+
+    notification.delete()
+
+    return redirect(url_for('notifications.notifications_view'))
+
+@blueprint.route('/nsendtest')
+def test_send_notification():
+    curr = Notification(receiver=current_user.to_dbref(), sender_type=1, sender_user=current_user.to_dbref(), preview="A testable notification :D", deletable=True, type="test", module="test")
+    curr.save()
+    return 'yep'

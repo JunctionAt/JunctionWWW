@@ -1,0 +1,37 @@
+{% extends "base_newer.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Profile'},
+{'title': user.name, 'url': user.get_profile_url()},
+{'title': 'Edit profile overview', 'url': profile.get_edit_text_url()}]
+%}
+
+{% block content %}
+<form class="container" method="post" action=".">
+    {% if form.errors %}
+    <div class="row">
+        <div class="span12">
+            {% for error_field in form.errors.values() %}
+            {% for error in error_field %}
+            <div class="alert alert-error">
+                <button type="button" class="close" data-dismiss="alert">×</button>
+                {{ error }}
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    <div class="row">
+        <div class="span12">
+            <label>Profile Overview <span>*</span></label>
+            {{ form.text(class="input-block-level", placeholder="Overview text", rows="12", style="resize: horizontal;") }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="span12">
+            <button class="btn btn-theme" type="submit">Submit</button>
+        </div>
+    </div>
+</form>
+{% endblock %}

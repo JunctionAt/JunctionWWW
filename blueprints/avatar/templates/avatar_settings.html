@@ -1,10 +1,36 @@
-{% extends "base.html" %}
+{% extends "base_newer.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Profile'},
+{'title': user.name, 'url': user.get_profile_url()},
+{'title': 'Avatar settings'}]
+%}
 
 {% block content %}
-<form method="post" enctype="multipart/form-data">
-    {{ avatar_form.image }}
-    {{ avatar_form.upload_button }}
-    {{ avatar_form.mc_skin_button }}
-    <img src="{{ url_for('avatar.get_avatar', name=name) }}">
-</form>
+<div class="container">
+    <div class="row">
+        <div class="offset5 span2">
+            <aside>
+                <div class="widget" style="margin-bottom: 20px;">
+                    <img src="{{ url_for('avatar.get_avatar', name=name) }}">
+                </div>
+            </aside>
+        </div>
+    </div>
+    <form method="post" enctype="multipart/form-data">
+        <aside>
+            <div class="widget">
+                <h4 class="rheading">Upload image</h4>
+                {{ avatar_form.image }}
+                {{ avatar_form.upload_button(class="btn btn-theme") }}
+            </div>
+        </aside>
+        <aside>
+            <div class="widget">
+                <h4 class="rheading">Use skin face</h4>
+                {{ avatar_form.mc_skin_button(class="btn btn-theme") }}
+            </div>
+        </aside>
+    </form>
+</div>
 {% endblock %}

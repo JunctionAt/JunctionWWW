@@ -53,22 +53,6 @@ def landing_page():
     #if not posts.fetching and posts.refresh < datetime.utcnow(): PostFetchThread().start()
     return render_template('index_newer.html')#, posts=map(lambda post: post['data'], posts.data))#, groups=groups)
 
-@static_pages.route('/pve')
-def pve_landing_page():
-    return render_template('pve.html')
-
-@static_pages.route('/survival')
-def survival_landing_page():
-    return render_template('survival.html')
-
-@static_pages.route('/chaos')
-def chaos_landing_page():
-    return render_template('chaos.html')
-
-@static_pages.route('/mumble')
-def mumble_info():
-    return render_template('mumble.html')
-
-@static_pages.route('/appeal')
-def appeal_info():
-    return redirect(url_for('wiki.display_wiki_article', wiki_url='appeal'))
+@static_pages.route('/servers')
+def view_servers():
+    return render_template('servers.html')

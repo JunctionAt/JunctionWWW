@@ -42,9 +42,12 @@ def post_topic(board_id, board_name):
         topic.save()
 
         post = Post(author=current_user.to_dbref(), content=form.content.data, topic=topic,
-                    forum=forum, date=topic.date)
+                    forum=forum, date=topic.date, is_op=True)
         post_edit = PostEdit(author=post.author, content=post.content, date=post.date)
         post.edits.append(post_edit)
         post.save()
+
+        topic.op = post
+        topic.save()
 
         return redirect(topic.get_url())

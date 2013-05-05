@@ -64,7 +64,7 @@ def get_wiki_article(wiki_url):
     #print re.match(LINK_PATTERN, content)
     content = re.sub(INTERNAL_LINK_PATTERN, replace_internal_link, content)
     content = re.sub(REDDIT_LINK_PATTERN, replace_reddit_link, content)
-    return {'content': wiki_markdown.convert(content), 'title': ""}
+    return {'content': content, 'title': ""}
 
 @cache.cached(timeout=20*60)
 @blueprint.route('/wiki/pages/')

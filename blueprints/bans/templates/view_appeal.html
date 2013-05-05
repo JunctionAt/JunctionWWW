@@ -5,107 +5,114 @@
     ("Appeals", url_for('bans.appeals_index')),
     ("View", url_for('bans.view_appeal', uid=ban.uid))
 ] %}
-{% extends "content_base.html" %}
+{% extends "base_newer.html" %}
 {% include "badge.html" %}
-{% block head %}
-    {{ super() }}
-    <script type="text/javascript" src="/static/js/jquery-1.9.1-min.js"></script>
-    <script type="text/javascript" src="/static/js/jquery-ui.js"></script>
-    <link type="text/css" rel="stylesheet" href="/static/css/jquery-ui.css">
-    <link type="text/css" rel="stylesheet" href="/static/css/view_appeal.css">
-{% endblock %}
+
+{% set breadcrumb_items = [
+{'title': 'Anathema', 'url': url_for('bans.a_front')},
+{'title': 'Appeals', 'url': url_for('bans.appeals_index')},
+{'title': 'Appeal #' ~ ban.uid, 'url': url_for('bans.view_appeal', uid=ban.uid)}]
+%}
 
 {% block content %}
-<div class="appeal-content-container">
-    <div>
-        {% if not ban.active %}
-            <div class="data-floater">
-                <a>Ban was removed {{ ban.removed_time or 'Unknown' }} by {{ ban.removed_by or 'Unknown' }}</a>
+<div class="container">
+    <div class="row">
+        <div class="span12">
+            {% if not ban.active %}
+            <div class="alert alert-info">
+                <span>Ban was removed {{ ban.removed_time or 'Unknown' }} by {{ ban.removed_by or 'Unknown' }}</span>
             </div>
-        {% endif %}
-    </div>
-    <div class="ban-header">
-        {% if is_mod and ban.active %}
-        <div id="admin-form">
-            <table>
-                <tr>
-                    <td>
-                        Unlock:
-                    </td>
-                    <td>
-                        <input class="datepicker" id="unlock-date" type="text" value="{% if appeal.unlock_time %}{{ appeal.unlock_time.strftime('%m/%d/%Y') }}{% endif %}">
-                    </td>
-                    <td>
-                        <input id="unlock-date-set" type="submit" value="Set">
-                    </td>
-                    <td>
-                        <input id="unlock-date-remove" type="submit" value="Remove">
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Remove ban:
-                    </td>
-                    <td>
-                        <input class="datepicker" id="unban-date" type="text" value="{% if ban.removed_time %}{{ ban.removed_time.strftime('%m/%d/%Y') }}{% endif %}">
-                    </td>
-                    <td>
-                        <input id="unban-date-set" type="submit" value="Set">
-                    </td>
-                    <td>
-                        <input id="unban-date-remove" type="submit" value="Remove">
-                    </td>
-                </tr>
-            </table>
-            <a href="{{ url_for('bans.unban_ban_id', uid=ban.uid) }}"><input id="unban" type="submit" value="Unban Now"></a>
-        </div>
-        {% endif %}
-        <div id="ban-info">
-            {% if locked %}
-            <a>Appeal is locked.</a>
-            <br>
             {% endif %}
-            <a>Banned by {{ ban.issuer }} with the reason:</a>
-            <i>{{ ban.reason }}</i>
-            <br>
+        </div>
+    </div>
+    <div class="row">
+        <div class="span12">
+            <div class="box">
+                {% if is_mod and ban.active %}
+                <div id="admin-form">
+                    <table>
+                        <tr>
+                            <td>
+                                Unlock:
+                            </td>
+                            <td>
+                                <input class="datepicker" id="unlock-date" type="text" value="{% if appeal.unlock_time %}{{ appeal.unlock_time.strftime('%m/%d/%Y') }}{% endif %}">
+                            </td>
+                            <td>
+                                <input id="unlock-date-set" type="submit" value="Set">
+                            </td>
+                            <td>
+                                <input id="unlock-date-remove" type="submit" value="Remove">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Remove ban:
+                            </td>
+                            <td>
+                                <input class="datepicker" id="unban-date" type="text" value="{% if ban.removed_time %}{{ ban.removed_time.strftime('%m/%d/%Y') }}{% endif %}">
+                            </td>
+                            <td>
+                                <input id="unban-date-set" type="submit" value="Set">
+                            </td>
+                            <td>
+                                <input id="unban-date-remove" type="submit" value="Remove">
+                            </td>
+                        </tr>
+                    </table>
+                    <a href="{{ url_for('bans.unban_ban_id', uid=ban.uid) }}"><input id="unban" type="submit" value="Unban Now"></a>
+                </div>
+                {% endif %}
+                <div id="ban-info">
+                    {% if locked %}
+                    <p>Appeal is locked.</p>
+                    <br>
+                    {% endif %}
+                    <p>Banned by {{ ban.issuer }} with the reason:</p>
+                    <i>{{ ban.reason }}</i>
+                    <br>
+                </div>
+            </div>
         </div>
     </div>
     {% for reply in replies %}
-        {% if not reply.hidden or current_user.has_permission('bans.appeal.show_hidden') %}
-            <div id="{{ reply.uid }}" class="appeal-post-container" {% if reply.hidden %}style="background-color: #dddddd;"{% endif %}>
-                <div class="hide-element appeal-post{% if reply.hidden %} hid{% endif %}">
+    {% if not reply.hidden or current_user.has_permission('bans.appeal.show_hidden') %}
+    <div class="row" id="{{ reply.uid }}">
+        <aside class="span12" style="{% if reply.hidden %}background-color: #dddddd;{% endif %}">
+            <div class="widget container">
+                <div>
                     <a href="#{{ reply.uid }}" class="post-uid-ref">#{{ reply.uid }}</a>
-                    <div class="post-manage-links">
-                        {% if is_mod %}
-                        <a href="{{ url_for('bans.edit_reply', uid=reply.uid) }}" class="post-manage-link">Edit</a>
-                        <a href="{{ url_for('bans.hide_reply', uid=reply.uid, hide=(not reply.hidden)) }}" class="post-manage-link">{% if reply.hidden %}Unhide{% else %}Hide{% endif %}</a>
-                        {% endif %}
-                    </div>
-                    <div class="post-meta-container">
-                        <img src="{{ url_for('avatar.get_avatar', name=reply.creator.name) }}" class="post-meta-avatar">
-                        {{ reply.creator.name }} <br>
-                        {% if reply.creator.name|lower == ban.issuer|lower %}
-                        Ban Issuer
-                        {% elif reply.creator.name|lower == ban.username|lower %}
-                        Ban Appealer
-                        {% endif %}
-                        {% if current_user.has_permission("badge.moderator") %}
-                        <br>Moderator
-                        {% endif %}
-                    </div>
-                    <div class="post-text">
-                        {{ reply.text }}
-                    </div>
+                    {% if is_mod %}
+                    <a href="{{ url_for('bans.edit_reply', uid=reply.uid) }}" class="post-manage-link">Edit</a>
+                    <a href="{{ url_for('bans.hide_reply', uid=reply.uid, hide=(not reply.hidden)) }}" class="post-manage-link">{% if reply.hidden %}Unhide{% else %}Hide{% endif %}</a>
+                    {% endif %}
                     {% if reply.edited is not none %}
                     <div class="post-meta-edited">
                         Last edit by: {{ reply.editor.name }} - {{ reply.edited.strftime("%H:%M %d %b %Y") }}
                     </div>
                     {% endif %}
-                    <div style="display: block; clear: both;"></div>
                 </div>
-                <a class="post-hide-button">[+]</a>
+                <div class="span2">
+                    <a href="{{ reply.creator.get_profile_url() }}">{{ reply.creator.name }}</a>
+                    <img src="{{ url_for('avatar.get_avatar', name=reply.creator.name) }}" class="post-meta-avatar">
+                    {% if reply.creator.name|lower == ban.issuer|lower %}
+                    Ban Issuer
+                    {% elif reply.creator.name|lower == ban.username|lower %}
+                    Ban Appealer
+                    {% endif %}
+                    {% if current_user.has_permission("badge.moderator") %}
+                    <br>Moderator
+                    {% endif %}
+                </div>
+                <div class="span9">
+                    <div class="widget">
+                        {{ reply.text }}
+                    </div>
+                </div>
             </div>
-        {% endif %}
+        </aside>
+    </div>
+    {% endif %}
     {% endfor %}
     {% if is_mod or (current_user.name|lower == ban.username|lower and not locked) %}
     <form method="post" action="{{ url_for('bans.post_appeal_reply', uid=ban.uid) }}">

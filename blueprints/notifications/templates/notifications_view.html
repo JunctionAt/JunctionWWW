@@ -1,5 +1,46 @@
-{% extends "base.html" %}
+{% extends "base_newer.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Notifications'}]
+%}
+
+{% macro render_body(notification) %}
+    {% if notification.render_type == 0 %}
+        {{ notification.data['text']|escape }}
+    {% elif notification.render_type == 1 %}
+        {{ notification.data['text']|escape|markdown|safe }}
+    {% elif notification.render_type == 2 %}
+        {{ notification.data['text']|safe }}
+    {% elif notification.render_type == 3 %}
+
+    {% endif %}
+{% endmacro %}
 
 {% block content %}
-{{ get_notifications() }}
+<div class="container">
+    {% for notification in notifications %}
+    <div class="row">
+        <div class="span12">
+            <aside>
+                <div class="widget">
+                    {{ notification.preview }}
+                    {% if notification.sender_type == 0 %} <!-- No sender -->
+
+                    {% elif notification.sender_type == 1 %} <!-- User as sender -->
+                    <div class="post-meta">
+                        {{ render_body(notification) }}
+                    </div>
+                    {% elif notification.sender_type == 2 %} <!-- Custom sender -->
+
+                    {% endif %}
+                    <div class="clear"></div>
+                    <div class="btn-group">
+                        <a class="btn btn-danger" href="{{ url_for('notifications.notification_delete', id=notification.get_string_id()) }}">Delete</a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

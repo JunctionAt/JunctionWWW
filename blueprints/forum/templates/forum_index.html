@@ -1,5 +1,7 @@
 {% extends "base_newer.html" %}
 
+{% set current_page = 'forum' %}
+
 {% set breadcrumb_items = [{'title': 'Forums'}, {'title': forum.name, 'url': forum.get_url()}] %}
 
 {% block content %}
@@ -22,9 +24,14 @@
                         </thead>
                         <tbody>
                             {% for board in category.get_boards() %}
+                            {% set last_topic = board.get_last() %}
                             <tr>
                                 <th><a href="{{ board.get_url() }}">{{ board.name }}</a></th>
-                                <th>blahblah</th>
+                                {% if last_topic %}
+                                <th><a href="{{ last_topic.get_url() }}">{{ last_topic.title }}</a> by <a href="{{ last_topic.author.get_profile_url() }}">{{ last_topic.author.name }}</a></th>
+                                {% else %}
+                                <th>No topics :(</th>
+                                {% endif %}
                                 <th>{{ board.get_topic_count() }} Topics</th>
                             </tr>
                             {% endfor %}
@@ -47,30 +54,15 @@
                         <span></span>
                     </h4>
                     <ul class="recent-posts">
-                        <li><a href="#">Lorem ipsum dolor sit amet munere commodo ut nam</a>
+                        {% for topic in recent_topics %}
+                        <li>
+                            <a href="{{ topic.get_url() }}">{{ topic.title }}</a>
                             <div class="clear">
                             </div>
-                            <span class="date"><i class="icon-calendar"></i> 6 March, 2013</span>
-                            <span class="comment"><i class="icon-comment"></i> 4 Replies</span>
+                            <span class="date"><i class="icon-calendar"></i> {{ topic.get_pretty_date() }}</span>
+                            <span class="comment"><i class="icon-comment"></i> {{ topic.get_replies() }} Replies</span>
                         </li>
-                        <li><a href="#">Sea nostrum omittantur ne mea malis nominavi insolens</a>
-                            <div class="clear">
-                            </div>
-                            <span class="date"><i class="icon-calendar"></i> 6 March, 2013</span>
-                            <span class="comment"><i class="icon-comment"></i> 2 Replies</span>
-                        </li>
-                        <li><a href="#">Eius graece recusabo no pri odio tale quo id, mea at saepe</a>
-                            <div class="clear">
-                            </div>
-                            <span class="date"><i class="icon-calendar"></i> 4 March, 2013</span>
-                            <span class="comment"><i class="icon-comment"></i> 12 Replies</span>
-                        </li>
-                        <li><a href="#">Malorum deserunt at nec usu ad graeco elaboraret at rebum</a>
-                            <div class="clear">
-                            </div>
-                            <span class="date"><i class="icon-calendar"></i> 3 March, 2013</span>
-                            <span class="comment"><i class="icon-comment"></i> 3 Replies</span>
-                        </li>
+                        {% endfor %}
                     </ul>
                 </div>
             </aside>

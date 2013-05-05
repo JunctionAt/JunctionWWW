@@ -6,7 +6,8 @@
 {'title': 'Forums'},
 {'title': forum.name, 'url': forum.get_url()},
 {'title': board.name, 'url': board.get_url()},
-{'title': "Post Topic", 'url': board.get_post_url()}]
+{'title': topic.title, 'url': topic.get_url()},
+{'title': "Post Reply", 'url': topic.get_post_url()}]
 %}
 
 {% block content %}
@@ -15,22 +16,16 @@
     <div class="row">
         <div class="span12">
             {% for error_field in form.errors.values() %}
-                {% for error in error_field %}
-                <div class="alert alert-error">
-                    <button type="button" class="close" data-dismiss="alert">×</button>
-                    {{ error }}
-                </div>
-                {% endfor %}
+            {% for error in error_field %}
+            <div class="alert alert-error">
+                <button type="button" class="close" data-dismiss="alert">×</button>
+                {{ error }}
+            </div>
+            {% endfor %}
             {% endfor %}
         </div>
     </div>
     {% endif %}
-    <div class="row">
-        <div class="span12">
-            <label>Title <span>*</span></label>
-            {{ form.title(class="input-block-level", placeholder="Post title") }}
-        </div>
-    </div>
     <div class="row">
         <div class="span12">
             <label>Content <span>*</span></label>

@@ -1,13 +1,16 @@
 {% extends "base_newer.html" %}
 
+{% set current_page = 'servers' %}
+
+{% set breadcrumb_items = [
+{'title': 'Servers'}]
+%}
+
 {% block content %}
 <div class="container">
     <div class="row">
         <div class="span12">
-            <form method="post">
-                {{ form.text }}
-                <input class="btn btn-theme" type="submit" value="Submit" />
-            </form>
+            <h3 class="rheading">Servers</h3>
         </div>
     </div>
 </div>
