@@ -1,5 +1,7 @@
 {% extends "base_newer.html" %}
 
+{% set title = 'Forum' %}
+
 {% set current_page = 'forum' %}
 
 {% set breadcrumb_items = [{'title': 'Forums'}, {'title': forum.name, 'url': forum.get_url()}] %}

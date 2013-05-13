@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from threading import Thread, Lock
 import requests
 import json
-from flask import Blueprint, Markup, render_template, url_for, current_app, g, request, redirect
+from flask import Blueprint, Markup, render_template, url_for, current_app, g, request, redirect, send_file
 from sqlalchemy import desc
 
 from blueprints.base import db
