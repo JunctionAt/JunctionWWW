@@ -29,7 +29,7 @@ def view_board(board_id, board_name, page):
     forum = board.forum
 
     # Get our sorted topics and the number of topics.
-    topics = Topic.objects(board=board).order_by('-date')
+    topics = Topic.objects(board=board).order_by('+date')
     topic_num = len(topics)
 
     # Calculate the total number of pages and make sure the request is a valid page.

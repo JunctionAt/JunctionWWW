@@ -28,7 +28,7 @@
                     <img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}">
                 </div>
                 <div class="span9">
-                    {{ post.content }}
+                    {{ post.content|escape|markdown|safe }}
                     <br/>
                     <br/>
                 </div>
