@@ -30,9 +30,9 @@ if application.config['DEBUG']:
 #    handler.setLevel(logging.WARNING)
 #    application.logger.addHandler(handler)
 
-if app.config["EXCEPTIONAL_API_KEY"]:
+if application.config.has_key("EXCEPTIONAL_API_KEY"):
     from flask.ext.exceptional import Exceptional
-    exceptional = Exceptional(app)
+    exceptional = Exceptional(application)
 
 def run():
     application.run(
