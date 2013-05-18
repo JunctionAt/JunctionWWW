@@ -56,3 +56,7 @@ def landing_page():
 @static_pages.route('/servers')
 def view_servers():
     return render_template('servers.html')
+
+@static_pages.route('/favicon.ico')
+def favicon():
+    return send_file('static/favicon.ico')

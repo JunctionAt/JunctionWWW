@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_newer.html" %}
 {% from 'formhelpers.html' import render_field %}
 
 {% block topleft %}
@@ -6,8 +6,8 @@
 {% endblock %}
 
 {% block content %}
-<form class="grid_4 prefix_4" name=registerform action="{{ url_for('auth.register', ext='html') }}" method=post>
-  <div class=pane>
+<form class="container" name=registerform action="{{ url_for('auth.register', ext='html') }}" method=post>
+  <div class=widget>
     {{ render_field(form.username) }}
     {{ render_field(form.mail) }}
     {{ render_field(form.password) }}

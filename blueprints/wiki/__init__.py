@@ -55,11 +55,11 @@ def get_wiki_article(wiki_url):
     def replace_reddit_link(match):
         return 'http://reddit.com'+match.group(0)
     api_request = requests.get('http://api.reddit.com/r/Junction/wiki/%s' % wiki_url)
-    json = api_request.json
-    if json.has_key('reason'):
-        return json['reason']
+    json_data = api_request.json()
+    #if json_data.has_key('reason'):
+    #    return json_data['reason']
     #get_pic_bindings()
-    content = json['data']['content_md']
+    content = json_data['data']['content_md']
     #Hackish, for now
     #print re.match(LINK_PATTERN, content)
     content = re.sub(INTERNAL_LINK_PATTERN, replace_internal_link, content)
@@ -69,7 +69,7 @@ def get_wiki_article(wiki_url):
 @cache.cached(timeout=20*60)
 @blueprint.route('/wiki/pages/')
 def display_pages():
-    pages = requests.get('http://api.reddit.com/r/Junction/wiki/pages/').json['data']
+    pages = requests.get('http://api.reddit.com/r/Junction/wiki/pages/').json()['data']
     pages = filter(lambda page: page.find('/')==-1 and not page.startswith('_'), pages)
     return render_template('wiki_listing.html', links=pages)
 
