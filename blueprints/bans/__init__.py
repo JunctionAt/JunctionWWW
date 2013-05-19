@@ -4,6 +4,7 @@ from datetime import datetime
 
 bans = Blueprint('bans', __name__, template_folder="templates")
 
+
 def process_ban(ban):
     if not ban.active:
         return False

@@ -3,6 +3,7 @@
 from mongoengine import *
 import datetime
 
+
 class Ban(Document):
 
     uid = SequenceField(unique=True)
@@ -28,6 +29,7 @@ class Ban(Document):
         'collection': 'bans',
         'indexed': [ 'uid', 'issuer', 'username', 'appeal' ]
     }
+
 
 class Note(Document):
 

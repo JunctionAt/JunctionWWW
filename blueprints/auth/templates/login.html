@@ -9,8 +9,9 @@
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="span12">
-            <form class="grid_4 prefix_4" action="{{ url_for('auth.login', ext='html') }}" method=post>
+        <div class="offset4 span4 box">
+            <h3 class="rheading">Log in to Junction <span></span></h3>
+            <form class="login_form" action="{{ url_for('auth.login', ext='html') }}" method=post>
                 {{ render_field(form.username) }}
                 {{ render_field(form.password) }}
                 {{ render_field(form.remember) }}

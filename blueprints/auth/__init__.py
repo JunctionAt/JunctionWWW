@@ -239,11 +239,15 @@ def activatetoken_api(ext):
 @blueprint.route("/activate", defaults=dict(ext='html'), methods=["GET", "POST"])
 def activatetoken(ext):
     form = ActivationForm(MultiDict(request.json) or request.form)
-    if not form.validate():
-        flash("Invalid token and/or password. Make sure its less then 10 minutes since you registered.")
-        form = ActivationForm()
-        return render_template("verify.html", form=form, auth_server=current_app.config.get('AUTH_SERVER', 'auth.junction.at'))
+
     if request.method == "POST":
+
+        if not form.validate():
+            flash("Invalid token and/or password. Make sure its less then 10 minutes since you registered.")
+            form = ActivationForm()
+            #return render_template("verify.html", form=form, auth_server=current_app.config.get('AUTH_SERVER', 'auth.junction.at'))
+            return redirect(url_for("auth.activatetoken", ext='html'))
+
         # noinspection PyArgumentList
         user = User(
             name=form.token.name,
@@ -276,9 +280,10 @@ def get_token(player, ext):
     if not current_user.has_permission("auth.get_token"):
         abort(403)
 
-    try:
-        return jsonify(token=Token.objects(name=player, expires__gte=datetime.datetime.utcnow()).order_by("-expires").first().token)
-    except NoResultFound:
+    token = Token.objects(name=player, expires__gte=datetime.datetime.utcnow()).order_by("-expires").first()
+    if token:
+        return jsonify(token=token.token)
+    else:
         abort(404)
 
 class SetPasswordForm(Form):

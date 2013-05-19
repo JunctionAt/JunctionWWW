@@ -11,6 +11,6 @@ class Donation(Document):
     transaction_id = StringField()
 
     meta = {
-        'collection': 'donations',
-        'indexed': [ 'username' ]
+        'collection': 'financial_transactions',
+        'indexed': [ 'username', 'amount' ]
     }

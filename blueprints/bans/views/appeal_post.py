@@ -16,38 +16,16 @@ from .. import process_ban
 This file should contain everything related to viewing, editing and posting to appeals.
 """
 
+
 class AppealReplyForm(Form):
     text = TextAreaField('Text')
     submit = SubmitField('Submit')
 
-#class AppealAdminForm(Form):
-#    unban = SubmitField('Unban Now')
-#    lock_time = SelectField('Lock length', choices=[
-#        ('-1', 'Forever'), ('1','(1) One day'),
-#        ('2', '(2) Two days'), ('3', '(3) Three days'),
-#        ('4', '(4) Four days'), ('5', '(5) Five days'),
-#        ('6', '(6) Six days'), ('7', '(1) One week'),
-#        ('14', '(2) Two weeks'), ('21', '(3) Three weeks'),
-#        ('28', '(1) One month'), ('56', '(2) Two months'),
-#        ('84', '(3) Three months'), ('112', '(4) Four months'),
-#
-#    ])
-#    lock = SubmitField('Lock Appeal')
-#    unlock = SubmitField('Unlock Appeal')
-#
-#    unban_time = TextField('Unban date:')
-#    unban_time_submit = SubmitField('Set')
-#    unban_time_remove = SubmitField('Remove')
-#
-#    unlock_time = TextField('Unlock date:')
-#    unlock_time_submit = SubmitField('Set')
-#    unlock_time_remove = SubmitField('Remove')
 
 @bans.route('/a/appeal/view/<int:uid>', methods=['GET'])
 def view_appeal(uid):
 
     reply_form = AppealReplyForm(request.form)
-#    admin_form = AppealAdminForm(request.form)
 
     ban = Ban.objects(uid=uid).first()
     if ban is None:
@@ -60,39 +38,16 @@ def view_appeal(uid):
         #TODO: Should redirect to the ban
         abort(404)
 
-#    if request.method == "POST" and current_user.is_authenticated():
-#        if (current_user.has_permission("bans.appeal.manage") or (current_user.name.lower() == ban.username.lower() and appeal.state==0)) and reply_form.submit.data:
-#            reply = AppealReply(creator=current_user.to_dbref(), text=reply_form.text.data, appeal=appeal)
-#            reply.edits.append(AppealEdit(text=reply_form.text.data, user=current_user.to_dbref()))
-#            reply.save()
-#            appeal.replies.append(reply)
-#            appeal.last = datetime.datetime.utcnow()
-#            appeal.save()
-#        elif current_user.has_permission("bans.appeal.manage"):
-#            if admin_form.unban.data:
-#                ban.active=False
-#                ban.save()
-#            elif admin_form.lock.data:
-#                time = int(admin_form.lock_time.data)
-#                if time == -1:
-#                    appeal.state = 2
-#                    appeal.save()
-#                else:
-#                    appeal.state = 1
-#                    delta = datetime.timedelta(days=time)
-#                    appeal.locked_until = datetime.datetime.utcnow() + delta
-#                    appeal.save()
-#            elif admin_form.unlock.data:
-#                appeal.state = 0
-#                appeal.save()
-
     if appeal.state == 1:
-        if appeal.locked_until < datetime.datetime.utcnow():
+        if appeal.unlock_time and appeal.unlock_time < datetime.datetime.utcnow():
             appeal.state = 0
-            del appeal.locked_until
             appeal.save()
 
+    for reply in appeal.replies:
+        print reply
+
     replies = sorted(appeal.replies, lambda key, reply: int(reply.created.strftime("%s")))
+
     return render_template(
         'view_appeal.html',
         reply_form=reply_form,
@@ -100,11 +55,12 @@ def view_appeal(uid):
         ban=ban,
         replies=replies,
         appeal=appeal,
-        locked=appeal.state!=0,
+        locked=appeal.state != 0,
         is_mod = current_user.has_permission("bans.appeal.manage")
     )
 
     #abort(404)
+
 
 @bans.route('/a/appeal/action/reply/<int:uid>', methods=['POST'])
 @login_required
@@ -130,44 +86,10 @@ def post_appeal_reply(uid):
 
     return redirect(url_for('bans.view_appeal', uid=uid))
 
-#@bans.route('/a/appeal/action/manage/<int:uid>', methods=['POST'])
-#@login_required
-#def post_manage_appeal(uid):
-#
-#    admin_form = AppealAdminForm(request.form)
-#
-#    ban = Ban.objects(uid=uid).first()
-#    if ban is None:
-#        abort(404)
-#
-#    appeal = ban.appeal
-#    if appeal is None:
-#        abort(404)
-#
-#    if current_user.has_permission("bans.appeal.manage"):
-#        if admin_form.unban.data:
-#            ban.active=False
-#            ban.save()
-#        elif admin_form.lock.data:
-#            time = int(admin_form.lock_time.data)
-#            if time == -1:
-#                appeal.state = 2
-#                appeal.save()
-#            else:
-#                appeal.state = 1
-#                delta = datetime.timedelta(days=time)
-#                appeal.locked_until = datetime.datetime.utcnow() + delta
-#                appeal.save()
-#        elif admin_form.unlock.data:
-#            appeal.state = 0
-#            appeal.save()
-#    else:
-#        flash('Unauthorized')
-#
-#    return redirect(url_for('bans.view_appeal', uid=uid))
 
 class NewAppealForm(Form):
     text = TextAreaField('Appeal Text', [ Required(), Length(min=8) ])
+
 
 @bans.route('/a/appeal/new/<int:uid>', methods=("GET", "POST"))
 @login_required

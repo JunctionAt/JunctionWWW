@@ -1,9 +1,11 @@
 __author__ = 'HansiHE'
 
 from . import blueprint
-from flask import request
+from flask import request, current_app
 from werkzeug.datastructures import ImmutableOrderedMultiDict
 import requests
+
+is_debug = current_app.config['PAYPAL_IPN_DEBUG_MODE']
 
 @blueprint.route('/donate/ipn_callback', methods=['POST'])
 def ipn_listener():
@@ -17,7 +19,7 @@ def ipn_listener():
 
     values['cmd'] = "_notify-validate"
 
-    validate_url = 'https://www.sandbox.paypal.com/cgi-bin/webscr'
+    validate_url = "https://www.sandbox.paypal.com/cgi-bin/webscr" if not is_debug else "https://www.sandbox.paypal.com/cgi-bin/webscr"
 
     print values
 
@@ -33,7 +35,7 @@ def ipn_listener():
     if r.text == 'VERIFIED':
         print "PayPal transaction was verified successfully."
         # Do something with the verified transaction details.
-        payer_email =  request.form.get('payer_email')
+        payer_email = request.form.get('payer_email')
         print "Pulled {email} from transaction".format(email=payer_email)
     else:
         pass

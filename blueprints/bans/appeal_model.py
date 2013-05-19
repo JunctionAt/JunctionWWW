@@ -6,11 +6,13 @@ from ban_model import Ban
 from blueprints.auth.user_model import User
 import shortuuid
 
+
 class AppealEdit(EmbeddedDocument):
 
     text = StringField(required=True)
     user = ReferenceField(User, dbref=False, required=True)
     time = DateTimeField(default=datetime.datetime.utcnow, required=True)
+
 
 class AppealReply(Document):
 
@@ -33,6 +35,7 @@ class AppealReply(Document):
         'collection': 'appeal_responses',
         'indexed': [ 'appeal', 'uid' ]
     }
+
 
 class Appeal(Document):
 
