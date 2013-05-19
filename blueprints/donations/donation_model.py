@@ -18,6 +18,9 @@ class TransactionStatus(EmbeddedDocument):
     reason = StringField()  # = pending_reason if exists or reason_code if exists
     valid = BooleanField(required=True)
 
+    gross = FloatField(default=0)
+    fee = FloatField(default=0)
+
     complete_data = DictField()
 
 

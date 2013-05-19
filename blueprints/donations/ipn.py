@@ -70,25 +70,29 @@ def process_transaction(data):
     # Check if the transaction already exists in db.
     transaction = Transaction.objects(transaction_id=txn_id).first()
     if transaction:
-        transaction.valid = validate_transaction(data)
+        pass
     else:
         transaction = Transaction()
 
         transaction.username = username
         transaction.email = data["payer_email"]
 
-        transaction.gross = float(data["mc_gross"])
-        transaction.fee = float(data["mc_fee"])
+        transaction.gross = float(data.get("mc_gross", 0))
+        transaction.fee = float(data.get("mc_fee", 0))
         transaction.amount = transaction.gross - transaction.fee
-        transaction.payment_type = data["payment_type"]
+        transaction.payment_type = data.get("payment_type", "")
         transaction.transaction_id = txn_id
-        transaction.valid = validate_transaction(data)
 
     transaction_status = TransactionStatus()
     transaction_status.status = data["payment_status"]
     transaction_status.reason = data.get("pending_reason", None) or data.get("reason_code", None)
     transaction_status.valid = validate_transaction(data)
+    transaction_status.gross = float(data.get("mc_gross", 0))
+    transaction_status.fee = float(data.get("mc_fee", 0))
+    transaction_status.complete_data = data
     transaction.payment_status_events.append(transaction_status)
+
+    transaction.valid = validate_transaction(data)
 
     transaction.save()
 
