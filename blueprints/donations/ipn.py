@@ -4,6 +4,9 @@ from . import blueprint
 from flask import request, current_app
 from werkzeug.datastructures import ImmutableOrderedMultiDict
 import requests
+from donation_model import Transaction, TransactionStatus, TransactionLog
+from . import username_signer
+from itsdangerous import BadData, BadPayload, BadSignature
 
 is_debug = current_app.config['PAYPAL_IPN_DEBUG_MODE']
 
@@ -19,7 +22,7 @@ def ipn_listener():
 
     values['cmd'] = "_notify-validate"
 
-    validate_url = "https://www.sandbox.paypal.com/cgi-bin/webscr" if not is_debug else "https://www.sandbox.paypal.com/cgi-bin/webscr"
+    validate_url = "https://www.paypal.com/cgi-bin/webscr" if not is_debug else "https://www.sandbox.paypal.com/cgi-bin/webscr"
 
     print values
 
@@ -34,7 +37,10 @@ def ipn_listener():
     print r.text
     if r.text == 'VERIFIED':
         print "PayPal transaction was verified successfully."
-        # Do something with the verified transaction details.
+        if is_debug:
+            print values
+        else:
+            process_transaction(values)
         payer_email = request.form.get('payer_email')
         print "Pulled {email} from transaction".format(email=payer_email)
     else:
@@ -44,3 +50,47 @@ def ipn_listener():
     print r.status_code
 
     return r.text
+
+
+def process_transaction(data):
+
+    # Get the username
+    if not data.get("custom", None) or data.get("custom", None) == "None":
+        username = None
+    else:
+        try:
+            username = username_signer.loads(data["custom"])
+        except (BadPayload, BadData, BadSignature):
+            username = None
+
+    TransactionLog(data=data, username=username).save()
+
+    txn_id = data.get("parent_txn_id") or data.get("txn_id")
+
+    # Check if the transaction already exists in db.
+    transaction = Transaction.objects(transaction_id=txn_id).first()
+    if transaction:
+        transaction.valid = validate_transaction(data)
+    else:
+        transaction = Transaction()
+
+        transaction.username = username
+        transaction.email = data["payer_email"]
+
+        transaction.gross = float(data["mc_gross"])
+        transaction.fee = float(data["mc_fee"])
+        transaction.amount = transaction.gross - transaction.fee
+        transaction.payment_type = data["payment_type"]
+        transaction.transaction_id = txn_id
+        transaction.valid = validate_transaction(data)
+
+    transaction_status = TransactionStatus()
+    transaction_status.status = data["payment_status"]
+    transaction_status.reason = data.get("pending_reason", None) or data.get("reason_code", None)
+    transaction_status.valid = validate_transaction(data)
+
+    transaction.save()
+
+
+def validate_transaction(data):
+    return data["payment_status"] in ["Canceled_Reversal", "Completed", "Pending", "Processed"]
