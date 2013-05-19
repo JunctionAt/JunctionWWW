@@ -11,11 +11,19 @@
             <div class="alert alert-error">
                 Not all features on here are finished just yet. Donations are working just fine though.
             </div>
-            {% if current_user.is_authenticated() %}
+            {% if not current_user.is_authenticated() %}
             <div class="alert alert-info">
                 Please log in to your account before donating to claim any possible swag.
             </div>
             {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="span12 widget box">
+            <div class="progress">
+                <div class="bar progress-striped" style="width: {{ funds_current / funds_target * 100 }}%;"></div>
+            </div>
+            <div>{{ funds_current }}$ raised of {{ funds_target }}$</div>
         </div>
     </div>
     <div class="row">
