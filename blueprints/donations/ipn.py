@@ -88,6 +88,7 @@ def process_transaction(data):
     transaction_status.status = data["payment_status"]
     transaction_status.reason = data.get("pending_reason", None) or data.get("reason_code", None)
     transaction_status.valid = validate_transaction(data)
+    transaction.payment_status_events.append(transaction_status)
 
     transaction.save()
 
