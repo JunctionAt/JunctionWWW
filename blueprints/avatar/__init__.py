@@ -12,6 +12,7 @@ import re
 import os
 import mongoengine
 from datetime import datetime
+import flask
 
 from base64 import decodestring
 
@@ -39,9 +40,13 @@ def avatar_control(name):
             set_avatar(current_user.name, get_mc_face(current_user.name))
         elif form.upload_button.data and form.image.has_file():
             try:
-                image = Image.open(StringIO.StringIO(form.image.data.read()))
-                read_img = image.copy()
+                data = StringIO.StringIO(form.image.data.read())
+                image = Image.open(data)
                 image.verify()
+
+                data.seek(0)
+                read_img = Image.open(data)
+                #image.verify()
             except IOError:
                 return 'invalid image'
 
@@ -52,6 +57,8 @@ def avatar_control(name):
             #ret_data = out_image.getvalue()
 
             set_avatar(current_user.name, out_image)
+
+        return redirect(request.path)
 
     return render_template(
         'avatar_settings.html',
@@ -73,11 +80,19 @@ def get_avatar_url(name):
 def get_avatar(name):
     avatar = Avatar.objects(username=re.compile(name, re.IGNORECASE)).first()
     if avatar is None or avatar.image is None:
-        return send_file(open('blueprints/avatar/char_face.png', 'r'), mimetype='image/png', cache_timeout=3600)
+        return send_file(open('blueprints/avatar/char_face.png', 'r'), mimetype='image/png',
+                         cache_timeout=3600 * 24 * 30, add_etags=False)
     else:
-        image = StringIO.StringIO(avatar.image.read())
-        image.seek(0)
-        return send_file(image, mimetype='image/png', cache_timeout=3600)
+        if not avatar.last_modified or not request.if_modified_since or avatar.last_modified > request.if_modified_since:
+            image = StringIO.StringIO(avatar.image.read())
+            image.seek(0)
+            response = send_file(image, mimetype='image/png')
+            response.last_modified = avatar.last_modified
+            response.expires = None
+            return response
+        else:
+            return flask.Response(status=304)
+
 
 @avatar.route('/avatar/reset/<username>')
 @login_required
@@ -91,12 +106,11 @@ def set_avatar(name, image):
     if not image:
         return False
 
-    query = Avatar.objects(username=name)
+    entry = Avatar.objects(username=name).first()
     try:
-        if len(query):
-            entry = query.first()
+        if entry:
             entry.image.replace(image)
-            entry.last_modified = datetime.utcnow()
+            entry.last_modified = datetime.utcnow().replace(microsecond=0)
             entry.save()
         else:
             entry = Avatar(username=name)

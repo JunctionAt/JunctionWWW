@@ -15,9 +15,9 @@ from .. import blueprint
 
 
 class LoginForm(Form):
-    username = TextField('Minecraft Name', [ Required(), Length(min=2, max=16) ])
-    password = PasswordField('Junction Password', validators=[ Required(), Length(min=8) ])
-    remember = BooleanField('Stay logged in', [ Optional() ], default=True)
+    username = TextField('Minecraft Name', [Required("A username is required."), Length(min=2, max=16)])
+    password = PasswordField('Junction Password', validators=[Required(), Length(min=8)])
+    remember = BooleanField('Stay logged in', [Optional()], default=True)
     def validate_password(self, field):
         if reduce(lambda errors, (name, field): errors or len(field.errors), self._fields.iteritems(), False):
             return

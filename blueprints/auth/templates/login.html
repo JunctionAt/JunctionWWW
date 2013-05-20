@@ -9,14 +9,31 @@
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="offset4 span4 box">
-            <h3 class="rheading">Log in to Junction <span></span></h3>
-            <form class="login_form" action="{{ url_for('auth.login', ext='html') }}" method=post>
-                {{ render_field(form.username) }}
-                {{ render_field(form.password) }}
-                {{ render_field(form.remember) }}
-                <p><input type="submit"></p>
-            </form>
+        <div class="offset4 span4">
+            <div class="box">
+                <h3 class="rheading">Log in to Junction <span></span></h3>
+                <form class="login_form" action="{{ url_for('auth.login', ext='html') }}" method=post>
+                    {% for error_field in form.errors.values() %}
+                        {% for error in error_field %}
+                            <div class="alert alert-error">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                    <div class="widget">
+                        {{ form.username(placeholder="Minecraft Name") }}
+                    </div>
+                    <div class="widget">
+                        {{ form.password(placeholder="Junction Password", style="border: 1px solid #ffaaaa;") }}
+                    </div>
+                    <div class="widget">
+                        <label class="checkbox">
+                            {{ form.remember() }} Remember Me
+                        </label>
+                    </div>
+                    <button class="btn btn-theme" type="submit">Log in</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

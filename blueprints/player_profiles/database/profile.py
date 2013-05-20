@@ -11,6 +11,8 @@ class PlayerProfile(Document):
 
     profile_text = StringField(default="I play minecraft :D")
 
+    badges = ListField()
+
     def get_edit_text_url(self):
         return url_for('player_profiles.profile_text_edit', name=self.user.name)
 
