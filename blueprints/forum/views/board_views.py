@@ -1,9 +1,12 @@
 __author__ = 'HansiHE'
 
-from .. import blueprint
-from flask import render_template, request, redirect, url_for, abort
-from ..database.forum import Forum, Category, Board, Topic
 import math
+
+from flask import render_template, redirect, url_for, abort
+
+from .. import blueprint
+from ..database.forum import Board, Topic
+
 
 TOPICS_PER_PAGE = 10
 PAGINATION_VALUE_RANGE = 3

@@ -1,8 +1,10 @@
 __author__ = 'HansiHE'
 
+from flask import render_template, redirect, url_for, abort
+
 from .. import blueprint
-from flask import render_template, request, redirect, url_for, abort
-from ..database.forum import Forum, Category, Board, Topic
+from ..database.forum import Forum, Category, Topic
+
 
 @blueprint.route('/forum/')
 def forum_landing():

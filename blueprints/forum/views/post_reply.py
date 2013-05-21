@@ -1,11 +1,12 @@
 __author__ = 'HansiHE'
 
-from .. import blueprint
-from blueprints.auth import current_user, login_required
-from flask import render_template, request, redirect, url_for, abort
-from ..database.forum import Forum, Category, Board, Topic, Post, PostEdit
+from flask import render_template, request, redirect, abort
 from wtforms import Form, TextAreaField, SubmitField
 from wtforms.validators import Required, Length
+
+from .. import blueprint
+from blueprints.auth import current_user, login_required
+from ..database.forum import Topic, Post, PostEdit
 
 
 class TopicReplyForm(Form):

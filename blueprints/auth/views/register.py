@@ -19,7 +19,7 @@ class RegistrationForm(Form):
     username = TextField('Minecraft Username', [ Required(), Length(min=2, max=16) ])
     mail = TextField('Email', description='Optional. Use for Gravatars.', validators=[ Optional(), Email() ])
     password = PasswordField('Password', description='Note: Does not need to be the same as your Minecraft password', validators=[ Required(), Length(min=8) ])
-    password_match = PasswordField('Verify Password', [ Optional() ])
+    password_match = PasswordField('Verify Password', [EqualTo('password', message="The passwords need to match.")])
     def validate_username(self, field):
         if len(User.objects(name=re.compile(field.data, re.IGNORECASE))):
             raise ValidationError('This username is already registered.')

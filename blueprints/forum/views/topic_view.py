@@ -1,11 +1,10 @@
 __author__ = 'HansiHE'
 
+from flask import render_template, redirect, abort
+
 from .. import blueprint
-from flask import render_template, request, redirect, url_for, abort
-from blueprints.auth import login_required, current_user
-from ..database.forum import Forum, Category, Board, Topic, TopicEdit, Post, PostEdit
-from wtforms import Form, TextField, TextAreaField, SubmitField
-from wtforms.validators import Required, Length
+from ..database.forum import Topic, Post
+
 
 @blueprint.route('/forum/t/<int:topic_id>/<string:topic_name>/', defaults={'page': 1})
 @blueprint.route('/forum/t/<int:topic_id>/<string:topic_name>/page/<int:page>/')

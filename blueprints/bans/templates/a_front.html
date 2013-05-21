@@ -36,6 +36,7 @@
         <div class="span3">
             <aside>
                 <div class="widget">
+                    {% if current_user.has_permission('bans.note.view') %}
                     <div class="divcenter">
                         <a href="{{ url_for('bans.notes_index') }}" style="margin-left: 16px;">
                             <i class="icon-circled icon-128 icon-tag"></i>
@@ -43,6 +44,15 @@
                         <br>
                         <a href="{{ url_for('bans.notes_index') }}">Notes</a>
                     </div>
+                    {% else %}
+                    <div class="divcenter">
+                        <a style="margin-left: 16px;">
+                            <i class="icon-circled icon-128 icon-tag" style="background-color: #888;"></i>
+                        </a>
+                        <br>
+                        <a style="color: #888;">Notes</a>
+                    </div>
+                    {% endif %}
                 </div>
             </aside>
         </div>

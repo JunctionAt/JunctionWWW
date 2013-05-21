@@ -1,9 +1,24 @@
 {% extends "base_newer.html" %}
 
 {% block content %}
-<form class="grid_4 prefix_4" accept-charset="UTF-8" action="" method="post">
-  <div class=pane>
-    <input class="button" name="commit" type="submit" value="Click to Authenticate" />
-  </div>
-</form>
+<div class="container">
+    <div class="row">
+        <div class="offset4 span4">
+            <div class="box">
+                <h3 class="rheading">Refresh Login <span></span></h3>
+                <p class="widget">
+                    We need to verify your password before you can do this.
+                </p>
+                <form style="margin: 0;" accept-charset="UTF-8" action="" method="post">
+                    <div class="widget">
+                        {{ form.password(placeholder=form.password.label.text) }}
+                    </div>
+                    <div class="widget">
+                        <button class="btn btn-theme">Refresh Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

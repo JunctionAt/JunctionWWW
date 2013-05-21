@@ -21,3 +21,6 @@ class PlayerProfile(Document):
 
     def get_send_pm_url(self):
         return url_for('player_profiles.send_pm', name=self.user.name)
+
+    def get_set_password_url(self):
+        return url_for('auth.setpassword', name=self.user.name)

@@ -49,7 +49,6 @@ def profile_text_edit(name):
     return render_template('profile_edit_text.html', profile=profile, form=form, user=current_user)
 
 
-
 class ForumInfo(object):
 
     def __init__(self, user):

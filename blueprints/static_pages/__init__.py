@@ -19,24 +19,24 @@ static_pages = Blueprint('static_pages', __name__,
                          # https://github.com/mitsuhiko/flask/issues/348
                          static_url_path='/static_pages/static')
 
-client = requests.session()
-client.post('https://ssl.reddit.com/api/login',
-            data=dict(user="JunctionBot",
-                      passwd="^pOd9$qHU&t8J#t8Nd#m",
-                      api_type='json'))
+#client = requests.session()
+#client.post('https://ssl.reddit.com/api/login',
+#            data=dict(user="JunctionBot",
+#                      passwd="^pOd9$qHU&t8J#t8Nd#m",
+#                      api_type='json'))
 
-posts = type('posts', (object,), dict(data=[], refresh=datetime.utcnow(), fetching=False))
-lock = Lock()
+#posts = type('posts', (object,), dict(data=[], refresh=datetime.utcnow(), fetching=False))
+#lock = Lock()
 
-class PostFetchThread(Thread):
-    def run(self):
-        lock.acquire()
-        if posts.refresh < datetime.utcnow():
-            posts.fetching = True
-            posts.data = client.get('http://www.reddit.com/r/junction.json').json['data']['children']
-            posts.refresh = datetime.utcnow() + timedelta(0, 10 * 60)
-            posts.fetching = False
-        lock.release()
+#class PostFetchThread(Thread):
+#    def run(self):
+#        lock.acquire()
+#        if posts.refresh < datetime.utcnow():
+#            posts.fetching = True
+#            posts.data = client.get('http://www.reddit.com/r/junction.json').json['data']['children']
+#            posts.refresh = datetime.utcnow() + timedelta(0, 10 * 60)
+#            posts.fetching = False
+#        lock.release()
                 
 @static_pages.route('/')
 def landing_page():
@@ -53,7 +53,7 @@ def landing_page():
     #if not posts.fetching and posts.refresh < datetime.utcnow(): PostFetchThread().start()
     return render_template('index_newer.html')#, posts=map(lambda post: post['data'], posts.data))#, groups=groups)
 
-@static_pages.route('/servers')
+@static_pages.route('/servers/')
 def view_servers():
     return render_template('servers.html')
 

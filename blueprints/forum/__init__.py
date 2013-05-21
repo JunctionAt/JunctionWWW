@@ -1,6 +1,4 @@
-from flask import Blueprint, render_template, url_for
-import os
-import time
+from flask import Blueprint
 
 import base36_filter
 
@@ -16,8 +14,4 @@ blueprint = Blueprint('forum', __name__, template_folder='templates')
 
 import database.forum
 
-import views.forum_views
-import views.board_views
-import views.post_topic
-import views.topic_view
-import views.post_reply
+from views import board_views, forum_views, post_reply, post_topic, topic_edit, topic_view
