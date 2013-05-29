@@ -4,7 +4,7 @@ from flask.ext.admin import Admin
 
 application = Flask(__name__)
 
-application.secret_key = "WeAOcOqFruPTsb6bXKNU"
+application.secret_key = "3750vIhza0IdTjPlI2H612cI8vQvfxIP7B4lsE5L"
 application.config.from_object("local_config")
 
 application.jinja_env.add_extension('jinja2.ext.do')
@@ -32,13 +32,13 @@ if application.config['DEBUG']:
         'flask_debugtoolbar.panels.timer.TimerDebugPanel',
         'flask_debugtoolbar.panels.profiler.ProfilerDebugPanel',
         'flask_debugtoolbar.panels.request_vars.RequestVarsDebugPanel',
-        'flask_debugtoolbar.panels.template.TemplateDebugPanel',
-        'flask_debugtoolbar.panels.versions.VersionDebugPanel',
+        #'flask_debugtoolbar.panels.template.TemplateDebugPanel',
+        #'flask_debugtoolbar.panels.versions.VersionDebugPanel',
         'flask_debugtoolbar_mongo.panel.MongoDebugPanel',
     )
 
     from flask_debugtoolbar import DebugToolbarExtension
-    toolbar = DebugToolbarExtension(application)
+    #toolbar = DebugToolbarExtension(application)
 #else:
 #    import logging
 #    from logging.handlers import TimedRotatingFileHandler
