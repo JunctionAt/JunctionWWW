@@ -1,0 +1,29 @@
+{% extends "base_newer.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Sign up'}]
+%}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="offset4 span4">
+            <div class="box">
+                <h3 class="rheading">Sign up <span></span></h3>
+                <form method="post" action=".">
+                    <p>Thanks, <strong>{{ username }}</strong>! Please complete your sign-up below.</p>
+                    {% if form.errors.values() %}
+                    <div class="alert alert-error">
+                        {{ form.errors.values()[0][0] }}
+                    </div>
+                    {% endif %}
+                    {{ form.mail(placeholder=form.mail.label.text) }}
+                    {{ form.password(placeholder=form.password.label.text) }}
+                    {{ form.password_repeat(placeholder=form.password_repeat.label.text) }}
+                    {{ form.submit(class="btn btn-theme") }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

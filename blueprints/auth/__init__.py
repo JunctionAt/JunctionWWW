@@ -107,4 +107,4 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated
 
-from views import login, logout, register, activate, reauth, setpassword, administrative
+from views import login, logout, register, activate, reauth, setpassword, administrative, register_new

@@ -50,6 +50,7 @@ if application.config.has_key("EXCEPTIONAL_API_KEY"):
     from flask.ext.exceptional import Exceptional
     exceptional = Exceptional(application)
 
+
 def run():
     application.run(
         host=application.config.get('HOST', None),
