@@ -7,6 +7,7 @@ import requests
 from donation_model import Transaction, TransactionStatus, TransactionLog
 from . import username_signer
 from itsdangerous import BadData, BadPayload, BadSignature
+from blueprints.base import cache
 
 is_debug = current_app.config['PAYPAL_IPN_DEBUG_MODE']
 
@@ -95,6 +96,8 @@ def process_transaction(data):
     transaction.valid = validate_transaction(data)
 
     transaction.save()
+
+    cache.delete_memoized('donation_stats_data')
 
 
 def validate_transaction(data):

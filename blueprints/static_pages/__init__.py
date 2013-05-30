@@ -5,9 +5,8 @@ from threading import Thread, Lock
 import requests
 import json
 from flask import Blueprint, Markup, render_template, url_for, current_app, g, request, redirect, send_file
-from sqlalchemy import desc
+#from sqlalchemy import desc
 
-from blueprints.base import db
 #from blueprints.player_groups import player_groups, Group
 
 static_pages = Blueprint('static_pages', __name__,
