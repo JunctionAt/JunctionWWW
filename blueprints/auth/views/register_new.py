@@ -11,7 +11,7 @@ import re
 import bcrypt
 
 
-@blueprint.route('/n/register/')
+@blueprint.route('/register/')
 def register_start():
     if current_user.is_authenticated():
         flash("You are already logged in. Log out to register another account.")
@@ -29,7 +29,7 @@ class RegistrationForm(Form):
     submit = SubmitField("Register")
 
 
-@blueprint.route('/n/register/<string:username>/', methods=['GET', 'POST'])
+@blueprint.route('/register/<string:username>/', methods=['GET', 'POST'])
 def register_pool(username):
     if current_user.is_authenticated():
         flash("You are already logged in. Log out to register another account.")
