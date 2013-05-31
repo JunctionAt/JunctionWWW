@@ -56,10 +56,14 @@ jQuery(document).ready(function($) {
 	// Populate dropdown with menu items
 	$("nav a").each(function() {
 		var el = $(this);
-		$("<option />", {
-		"value"   : el.attr("href"),
-		"text"    : el.text()
-		}).appendTo("nav select");
+        if(el.hasClass("hide-in-dropdown")) {
+
+        } else {
+            $("<option />", {
+                "value"   : el.attr("href"),
+                "text"    : el.attr("data-dropdown-text") != undefined ? el.attr("data-dropdown-text") : el.text()
+            }).appendTo("nav select");
+        }
 	});
 
 	// To make dropdown actually work
@@ -101,7 +105,7 @@ jQuery(document).ready(function($) {
 
   
 	// twitter feed
-	$(".twitter").tweet({
+	/*$(".twitter").tweet({
 		join_text: "auto",
 		username: "wrapbootstrap",
 		avatar_size: 20,
@@ -112,7 +116,7 @@ jQuery(document).ready(function($) {
 		auto_join_text_reply: "we replied",
 		auto_join_text_url: "we were checking out",
 		loading_text: "loading tweets..."
-	});
+	});*/
 
 		
 	//iview slider
