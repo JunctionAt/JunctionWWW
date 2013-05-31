@@ -68,7 +68,7 @@
                                 <a href="/forum/"><i class="icon-comments"></i> Forum </a>
                             </li>
                             <li class="dropdown{% if current_page == 'bans' %} active{% endif %}">
-                                <a href="/a/"><i class="icon-ban-circle"></i> Appeals <i class="icon-angle-down"></i></a>
+                                <a href="/a/" class="hide-in-dropdown"><i class="icon-ban-circle"></i> Appeals <i class="icon-angle-down"></i></a>
                                 <ul class="dropdown-menu" style="display: none;">
                                     <li><a href="/a/bans/list/">Bans</a></li>
                                     <li><a href="/a/appeal/list/">Appeals</a></li>
@@ -82,7 +82,7 @@
                                     <li><a href="{{ url_for('auth.logout') }}">Log out</a></li>
                                 </ul>
                                 {% else %}
-                                <a href="/login"><i class="icon-user"></i> Log In <i class="icon-angle-down"></i></a>
+                                <a href="/login" class="hide-in-dropdown"><i class="icon-user"></i> Log In <i class="icon-angle-down"></i></a>
                                 <ul class="dropdown-menu" style="display: none;">
                                     <li><a href="{{ url_for('auth.login') }}">Log in</a></li>
                                     <li><a href="{{ url_for('auth.register_start') }}">Register</a></li>
@@ -93,7 +93,7 @@
                             {% set notification_previews = get_notifications_previews(current_user, 5) %}
                             {% set num_notifications = get_notifications_num(current_user) %}
                             <li class="dropdown">
-                                <a href="{{ url_for('notifications.notifications_view') }}"><i class="icon-envelope{% if not num_notifications == 0 %}-alt{% endif %}"></i>{{ num_notifications }}</a>
+                                <a href="{{ url_for('notifications.notifications_view') }}" data-dropdown-text="Notifications: {{ num_notifications }}"><i class="icon-envelope{% if not num_notifications == 0 %}-alt{% endif %}"></i>{{ num_notifications }}</a>
                                 <ul class="dropdown-menu" style="display: none;">
                                     {% for notification in notification_previews %}
                                     <li>{{ notification.preview }}</li>

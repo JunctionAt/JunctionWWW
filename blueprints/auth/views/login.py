@@ -55,7 +55,8 @@ def login(ext):
             return render_template("login.html", form=form)
 
         if not user.verified:
-            if ext == 'json': abort(403)
+            if ext == 'json':
+                abort(403)
             flash(u"Please check your mail.")
             return redirect(url_for('auth.login', ext='html'))
 

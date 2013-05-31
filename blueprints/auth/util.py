@@ -34,7 +34,7 @@ class LoginException(Exception):
 
 
 def authenticate_user(username, password, message="Invalid username or password."):
-    user = User.objects(name=re.compile(username, re.IGNORECASE)).first()
+    user = User.objects(name__iexact=username).first()
     if user is None:
         raise LoginException(message)
     if user.hash == bcrypt.hashpw(password, user.hash):
