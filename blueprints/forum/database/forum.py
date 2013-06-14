@@ -147,7 +147,7 @@ class Post(Document):
         return pretty_date(self.date)
 
     def can_edit(self, user):
-        return self.author.name == user.name or user.has_permission('forum.edit_posts')
+        return user.is_authenticated() and (self.author.name == user.name or user.has_permission('forum.edit_posts'))
 
 
 def pretty_url_escape(string):
