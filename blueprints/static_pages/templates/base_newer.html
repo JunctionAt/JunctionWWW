@@ -16,6 +16,9 @@
     <link href="/static/assets/css/iview.css" rel="stylesheet" />
     <link href="/static/assets/css/style.css" rel="stylesheet">
     <link href="/static/assets/color/default.css" rel="stylesheet">
+    {% block css %}
+
+    {% endblock %}
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
     <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -30,18 +33,6 @@
 <body>
 <div id="wrapper">
 <header>
-    <div class="container">
-        <div class="row" style="margin-bottom: 0;">
-            <div class="span12">
-                {% for message in get_flashed_messages() %}
-                <div class="alert">
-                    <button type="button" class="close" data-dismiss="alert">×</button>
-                    {{ message }}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
     <!-- Navbar
     ================================================== -->
     <div class="navbar navbar-static-top">
@@ -130,6 +121,19 @@
     </div>
 </section>
 {% endif %}
+
+<div class="container">
+    <div class="row" style="margin-bottom: 0;">
+        <div class="span12">
+            {% for message in get_flashed_messages() %}
+            <div class="alert">
+                <button type="button" class="close" data-dismiss="alert">×</button>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 
 <div class="content">
 {% block content %}

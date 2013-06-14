@@ -10,10 +10,10 @@
         <div class="offset4 span4">
             <div class="box">
                 <h3 class="rheading">Sign up <span></span></h3>
-                <div class="form-inline">
+                <form class="form-inline" onsubmit="window.location.href='/register/'+$('#username-field').val(); return false;">
                     <input type="text" class="input-medium" id="username-field" placeholder="In-Game Username">
-                    <button class="btn btn-theme" onclick="window.location.href='/register/'+$('#username-field').val();">Go</button>
-                </div>
+                    <button class="btn btn-theme">Go</button>
+                </form>
             </div>
         </div>
     </div>

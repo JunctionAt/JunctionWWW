@@ -1,10 +1,11 @@
 __author__ = 'HansiHE'
 
-from flask import Blueprint, render_template, send_file
+from flask import Blueprint, render_template, send_file, abort, redirect, request
 from itsdangerous import URLSafeSerializer
-from blueprints.auth import current_user
+from blueprints.auth import current_user, login_required
 from donation_model import Transaction
 from blueprints.base import cache
+from wtforms import Form, DateField
 
 blueprint = Blueprint('donations', __name__,
                          template_folder='templates')
@@ -32,3 +33,20 @@ def donate():
 @cache.memoize(make_name=lambda: "donation_stats_data")
 def get_donations_stats_data():
     pass
+
+
+class RenewDateForm(Form):
+    date = DateField('Renew Date', format='%Y-%m-%d')
+
+@blueprint.route('/donate/set_renew_date')
+@login_required
+def set_renew_date():
+    if not current_user.has_permission('financial.set_renew'):
+        return redirect('/')
+
+    form = RenewDateForm(request.form)
+
+    if request.method == "POST" and form.validate():
+        return 'ya'
+
+    return render_template('set_renew_date.html', form=form)

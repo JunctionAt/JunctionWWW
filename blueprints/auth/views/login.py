@@ -54,11 +54,10 @@ def login(ext):
             form.errors["login"] = [e.message]
             return render_template("login.html", form=form)
 
-        if not user.verified:
-            if ext == 'json':
-                abort(403)
-            flash(u"Please check your mail.")
-            return redirect(url_for('auth.login', ext='html'))
+        #if not user.verified:
+        #    if ext == 'json': abort(403)
+        #    flash(u"Please check your mail.")
+        #    return redirect(url_for('auth.login', ext='html'))
 
         if login_user(user, remember=form.remember.data):
             if ext == 'json':

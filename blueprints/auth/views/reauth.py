@@ -22,7 +22,7 @@ def reauth():
             user = authenticate_user(current_user.name, form.password.data)
         except LoginException, e:
             form.errors["login"] = [e.message]
-            return render_template("login.html", form=form)
+            return render_template("reauth.html", form=form)
 
         confirm_login()  # Note: Cookies are a bit glitchy with the dev domains it seems, don't panic
 

@@ -34,7 +34,7 @@ def register_api(ext):
     """
 
 
-@blueprint.route("/register", defaults=dict(ext='html'), methods=["GET", "POST"])
+#@blueprint.route("/register", defaults=dict(ext='html'), methods=["GET", "POST"])
 def register(ext):
     form = RegistrationForm(MultiDict(request.json) or request.form)
     if request.method == "POST" and form.validate():
