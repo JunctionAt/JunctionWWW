@@ -8,6 +8,7 @@ from wtforms.validators import Required, Length
 from blueprints.auth import current_user
 from datetime import datetime
 from bson.objectid import ObjectId
+from blueprints.auth import login_required
 
 
 class PostEditForm(Form):
@@ -16,6 +17,7 @@ class PostEditForm(Form):
         Length(min=1, max=5000, message="Content must be between 1 and 5000 characters long.")])
 
 
+@login_required
 @blueprint.route('/forum/e/<string:post_id>/', methods=['GET', 'POST'])
 def edit_post(post_id):
     form = PostEditForm(request.form)
@@ -26,6 +28,9 @@ def edit_post(post_id):
     post = Post.objects(id=post_id).first()
     if post is None:
         abort(404)
+
+    if not post.can_edit(current_user):
+        abort(403)
 
     topic = post.topic
     board = topic.board

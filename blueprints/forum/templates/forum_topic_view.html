@@ -23,21 +23,62 @@
     </div>
 {% for post in posts %}
     <div class="row">
-        <aside style="margin: 0;">
+        <aside style="margin: 0; padding: 0;">
             <div class="widget container">
-                <div class="span2">
-                    <a href="{{ post.author.get_profile_url() }}">{{ post.author.name }}</a>
-                    <img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}">
+                <div class="row" style="margin-bottom: 0;">
+                    <div class="span12" style="border-bottom: 1px solid #dddddd; padding-left: 2px; padding-top: 5px; padding-bottom: 5px;">
+                        <div class="pull-left">
+                            <span>by <a href="{{ post.author.get_profile_url() }}">{{ post.author.name }}</a> {{ post.date|pretty_date }}</span>
+                        </div>
+                        <div class="pull-right">
+                            {% if post.can_edit(current_user) %}
+                            <a href="{{ url_for('forum.edit_post', post_id=post.id) }}">edit</a>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-                <div class="span9">
-                    {{ post.content|escape|markdown|safe }}
-                    {{ post.id }}
-                    <br/>
-                    <br/>
+                <div class="row" style="margin-bottom: 0;">
+                    <div class="span2">
+                        <img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}" style="margin-left: 12px; margin-top: 12px;">
+                    </div>
+                    <div class="span9">
+                        <span>{{ post.content|escape|markdown|safe }}</span>
+                        <!-- {{ post.id }} -->
+                    </div>
                 </div>
             </div>
         </aside>
     </div>
 {% endfor %}
+    <div class="row">
+        <h3>Post reply</h3>
+        <form class="container" method="post" action="{{ topic.get_post_url() }}">
+            {% if post_edit_form.errors %}
+            <div class="row">
+                <div class="span12">
+                    {% for error_field in post_edit_form.errors.values() %}
+                    {% for error in error_field %}
+                    <div class="alert alert-error">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            <div class="row">
+                <div class="span12">
+                    <label>Content <span>*</span></label>
+                    {{ post_edit_form.content(class="input-block-level", placeholder="Post body", rows="12", style="resize: horizontal;") }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="span12">
+                    <button class="btn btn-theme" type="submit">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

@@ -51,6 +51,10 @@ if application.config.has_key("EXCEPTIONAL_API_KEY"):
     exceptional = Exceptional(application)
 
 
+from util import pretty_date
+application.jinja_env.filters['pretty_date'] = pretty_date
+
+
 def run():
     application.run(
         host=application.config.get('HOST', None),
