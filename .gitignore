@@ -1,2 +1,3 @@
 *.pyc
 local_config.py
+version_hash
