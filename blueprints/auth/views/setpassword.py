@@ -5,6 +5,8 @@ from wtforms.validators import Required, Length, EqualTo
 from flask_login import fresh_login_required, current_user, abort
 from flask import request, flash, redirect, url_for, render_template
 from werkzeug.datastructures import MultiDict
+from blueprints.auth.user_model import User
+import random
 
 from .. import blueprint
 import bcrypt
@@ -25,9 +27,22 @@ def setpassword(name):
 
     form = SetPasswordForm(request.form)
     if request.method == "POST" and form.validate():
-        print "wat"
         current_user.hash = bcrypt.hashpw(form.password.data, bcrypt.gensalt())
         current_user.save()
         flash('Your password has been changed.')
         return redirect(current_user.get_profile_url()), 303
     return render_template("setpassword.html", form=form, user=current_user)
+
+
+@blueprint.route("/profile/<string:name>/resetpassword")
+def reset_password(name):
+    if not current_user.has_permission('auth.reset_password'):
+        abort(403)
+
+    password = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') for i in range(16))
+
+    user = User.objects(name=name).first()
+    user.hash = bcrypt.hashpw(password, bcrypt.gensalt())
+    user.save()
+
+    return password
