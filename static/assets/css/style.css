@@ -180,7 +180,8 @@ header .topnav .dropdown-submenu > .dropdown-menu {
 }
 
 header ul.topnav li ul.dropdown-menu  {
-	margin-top:35px;
+	/* margin-top:35px; */
+    margin-top: 0;
 }
 
 header ul.topnav li ul.dropdown-menu ul  {
@@ -429,9 +430,9 @@ section#intro{
 	background:#f5f5f5;
 	padding:0;
 	margin:0;
-	/*border-bottom:1px solid #e9e9e9;*/
+	border-bottom:1px solid #e9e9e9;
 	border-top:1px solid #e9e9e9;
-	/*margin-bottom:30px;*/
+	margin-bottom:30px;
 }
 
 .line {
