@@ -4,6 +4,12 @@ from flask.ext.admin import Admin
 
 application = Flask(__name__)
 
+try:
+    with open('version_hash', 'r') as version_file:
+        application.config['version_hash'] = version_file.readline()
+except IOError:
+    application.config['version_hash'] = "DEVELOP"
+
 application.secret_key = "3750vIhza0IdTjPlI2H612cI8vQvfxIP7B4lsE5L"
 application.config.from_object("local_config")
 
