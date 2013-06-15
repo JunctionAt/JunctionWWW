@@ -114,7 +114,7 @@ class Topic(Document):
         return Post.objects(topic=self).count()
 
     def get_last_post(self):
-        return Post.objects(topic=self).order_by('+date').first()
+        return Post.objects(topic=self).order_by('-date').first()
 
     def get_pretty_date(self):
         return pretty_date(self.date)
