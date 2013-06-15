@@ -4,6 +4,12 @@ div.forum-post-raw {
 div.forum-post-edit {
     display:none;
 }
+div.forum-post-edit form {
+    margin:0;
+}
+form div.widget {
+    margin:0;
+}
 div.forum-post-edit textarea {
     resize:both;
     width:700px;

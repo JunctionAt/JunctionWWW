@@ -62,29 +62,23 @@
         <h3>Post reply</h3>
         <form class="container" method="post" action="{{ topic.get_post_url() }}">
             {% if topic_reply_form.errors %}
-            <div class="row">
-                <div class="span12">
-                    {% for error_field in topic_reply_form.errors.values() %}
-                    {% for error in error_field %}
-                    <div class="alert alert-error">
-                        <button type="button" class="close" data-dismiss="alert">×</button>
-                        {{ error }}
-                    </div>
-                    {% endfor %}
-                    {% endfor %}
+            <div class="widget">
+                {% for error_field in topic_reply_form.errors.values() %}
+                {% for error in error_field %}
+                <div class="alert alert-error">
+                    <button type="button" class="close" data-dismiss="alert">×</button>
+                    {{ error }}
                 </div>
+                {% endfor %}
+                {% endfor %}
             </div>
             {% endif %}
-            <div class="row">
-                <div class="span12">
-                    <label>Content <span>*</span></label>
-                    {{ topic_reply_form.content(class="input-block-level", placeholder="Post body", rows="12", style="resize: horizontal;") }}
-                </div>
+            <div class="widget">
+                <label>Content <span>*</span></label>
+                {{ topic_reply_form.content(class="input-block-level", placeholder="Post body", rows="12", style="resize: horizontal;") }}
             </div>
-            <div class="row">
-                <div class="span12">
-                    <button class="btn btn-theme" type="submit">Submit</button>
-                </div>
+            <div class="widget">
+                <button class="btn btn-theme" type="submit">Submit</button>
             </div>
         </form>
     </div>
