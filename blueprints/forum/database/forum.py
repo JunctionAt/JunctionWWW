@@ -114,7 +114,7 @@ class Topic(Document):
         return Post.objects(topic=self).count()
 
     def get_last_post(self):
-        return Post.objects(topic=self).order_by('+date').first()
+        return Post.objects(topic=self).order_by('-date').first()
 
     def get_pretty_date(self):
         return pretty_date(self.date)
@@ -124,6 +124,9 @@ class PostEdit(EmbeddedDocument):
     author = ReferenceField(User, dbref=False)
     content = StringField()
     date = DateTimeField()
+
+import math
+POSTS_PER_PAGE = 20
 
 
 class Post(Document):
@@ -148,6 +151,14 @@ class Post(Document):
 
     def can_edit(self, user):
         return user.is_authenticated() and (self.author.name == user.name or user.has_permission('forum.edit_posts'))
+
+    def get_post_url(self):
+        post_num = len(Post.objects(forum=self.forum, date__lt=self.date))
+        post_page = math.floor(post_num / POSTS_PER_PAGE) + 1
+        return url_for('forum.view_topic', page=post_page, **self.topic.get_url_info()) + "#post-" + str(self.id)
+
+    def get_permalink_url(self):
+        return url_for('forum.permalink_post_redirect', post_id=str(self.id), dummy_name=self.topic.name)
 
 
 def pretty_url_escape(string):
