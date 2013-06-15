@@ -4,14 +4,14 @@ from flask import render_template, redirect, abort
 
 from .. import blueprint
 from ..database.forum import Topic, Post
-from topic_edit import PostEditForm
+from post_reply import TopicReplyForm
 
 
 @blueprint.route('/forum/t/<int:topic_id>/<string:topic_name>/', defaults={'page': 1})
 @blueprint.route('/forum/t/<int:topic_id>/<string:topic_name>/page/<int:page>/')
 def view_topic(topic_id, topic_name, page):
 
-    post_edit_form = PostEditForm()
+    topic_reply_form = TopicReplyForm()
 
     topic = Topic.objects(topic_url_id=topic_id).first()
     if topic is None:
@@ -26,4 +26,4 @@ def view_topic(topic_id, topic_name, page):
     for post in posts:
         print post.date
 
-    return render_template('forum_topic_view.html', topic=topic, board=board, forum=forum, posts=posts, post_edit_form=post_edit_form)
+    return render_template('forum_topic_view.html', topic=topic, board=board, forum=forum, posts=posts, topic_reply_form=topic_reply_form)
