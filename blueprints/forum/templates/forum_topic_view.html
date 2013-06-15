@@ -20,7 +20,7 @@
         </div>
     </div>
 {% for post in posts %}
-    <div class="row">
+    <div id="post-{{post.id}}" class="row post-root">
         <aside style="margin: 0; padding: 0;">
             <div class="widget container">
                 <div class="row" style="margin-bottom: 0;">
@@ -29,18 +29,28 @@
                             <span>by <a href="{{ post.author.get_profile_url() }}">{{ post.author.name }}</a> {{ post.date|pretty_date }}</span>
                         </div>
                         <div class="pull-right">
+                            <a href="#post-{{ post.id }}">permalink</a>
+                            <a class="quote-link" href="#">quote</a>
                             {% if post.can_edit(current_user) %}
-                            <a href="{{ url_for('forum.edit_post', post_id=post.id) }}">edit</a>
+                            <a class="edit-link" href="{{ url_for('forum.edit_post', post_id=post.id) }}">edit</a>
                             {% endif %}
                         </div>
                     </div>
                 </div>
                 <div class="row" style="margin-bottom: 0;">
-                    <div class="span2">
-                        <img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}" style="margin-left: 12px; margin-top: 12px;">
-                    </div>
-                    <div class="span9">
-                        <span>{{ post.content|escape|markdown|safe }}</span>
+                    <div class="span2 forum-post-left"><img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}" /></div>
+                    <div class="span10 forum-post-right">
+                        <div class="forum-post-rendered">{{ post.content|escape|markdown|safe }}</div>
+                        <div class="forum-post-raw">{{ post.content|escape }}</div>
+                        <div class="forum-post-edit">
+                            <form action="{{ url_for('forum.edit_post', post_id=post.id) }}" method="post">
+                                <div class="widget">
+                                    <textarea name="content"></textarea>
+                                </div>
+                                <button class="btn btn-theme" type="submit">Submit</button>
+                            </form>
+                        </div>
+
                         <!-- {{ post.id }} -->
                     </div>
                 </div>
@@ -48,7 +58,7 @@
         </aside>
     </div>
 {% endfor %}
-    <div class="row">
+    <div id="post-reply" class="row">
         <h3>Post reply</h3>
         <form class="container" method="post" action="{{ topic.get_post_url() }}">
             {% if topic_reply_form.errors %}

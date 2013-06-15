@@ -1,0 +1,20 @@
+div.forum-post-raw {
+    display:none;
+}
+div.forum-post-edit {
+    display:none;
+}
+div.forum-post-edit textarea {
+    resize:both;
+    width:700px;
+    height:200px;
+}
+
+div.forum-post-left {
+    text-align:center;
+    margin-top:10px;
+}
+div.forum-post-right {
+    margin-top:10px;
+    margin-left:12px;
+}
