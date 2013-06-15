@@ -14,6 +14,8 @@ PAGINATION_VALUE_RANGE = 3
 @blueprint.route('/forum/t/<int:topic_id>/<string:topic_name>/', defaults={'page': 1})
 @blueprint.route('/forum/t/<int:topic_id>/<string:topic_name>/page/<int:page>/')
 def view_topic(topic_id, topic_name, page):
+    if page == 0:
+        abort(404)
 
     topic_reply_form = TopicReplyForm()
 

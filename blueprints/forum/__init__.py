@@ -14,4 +14,4 @@ blueprint = Blueprint('forum', __name__, template_folder='templates')
 
 import database.forum
 
-from views import board_views, forum_views, post_reply, post_topic, topic_edit, topic_view
+from views import board_views, forum_views, post_reply, post_topic, topic_edit, topic_view, post_permalink
