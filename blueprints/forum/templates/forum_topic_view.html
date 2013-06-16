@@ -60,6 +60,7 @@
         </aside>
     </div>
 {% endfor %}
+    {% if current_user.is_authenticated() %}
     <div id="post-reply" class="row">
         <h3>Post reply</h3>
         <form class="container" method="post" action="{{ topic.get_post_url() }}">
@@ -84,7 +85,7 @@
             </div>
         </form>
     </div>
-    {% if current_user.is_authenticated() %}
+    {% endif %}
     <div class="row">
         <div class="span12">
             <div class="pagination">
@@ -104,6 +105,5 @@
             </div>
         </div>
     </div>
-    {% endif %}
 </div>
 {% endblock %}
