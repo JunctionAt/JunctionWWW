@@ -15,6 +15,11 @@ div.forum-post-edit textarea {
     width:450px;
     height:120px;
 }
+#post-reply textarea {
+    resize: both;
+    width: 450px;
+    height:150px;
+}
 
 div.forum-post-left {
     text-align:center;
