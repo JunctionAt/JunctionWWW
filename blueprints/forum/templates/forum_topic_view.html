@@ -30,7 +30,9 @@
                         </div>
                         <div class="pull-right">
                             <a href="#post-{{ post.id }}">permalink</a>
+                            {% if current_user.is_authenticated() %}
                             <a class="quote-link" href="#">quote</a>
+                            {% endif %}
                             {% if post.can_edit(current_user) %}
                             <a class="edit-link" href="{{ url_for('forum.edit_post', post_id=post.id) }}">edit</a>
                             {% endif %}
@@ -82,6 +84,7 @@
             </div>
         </form>
     </div>
+    {% if current_user.is_authenticated() %}
     <div class="row">
         <div class="span12">
             <div class="pagination">
@@ -101,5 +104,6 @@
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
 {% endblock %}
