@@ -27,7 +27,10 @@ class User(Document, flask_login.UserMixin, object):
     name = StringField(required=True, unique=True)
     # noinspection PyShadowingBuiltins
     hash = StringField(required=True)
+
     mail = StringField()
+    mail_verified = BooleanField(default=False)
+
     registered = DateTimeField(default=datetime.datetime.utcnow, required=True)
     verified = BooleanField(default=False)
 

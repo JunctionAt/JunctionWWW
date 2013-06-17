@@ -1,0 +1,27 @@
+{% extends "base_newer.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Settings'}]
+%}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="span3">
+            <div class="box">
+                <ul class="nav nav-list">
+                    <li class="nav-header">Account</li>
+                    <li class="{{ 'active' if current_settings_pane == 'email' }}"><a href="{{ url_for('settings.email_pane') }}">Email</a></li>
+                    <li class="nav-header">Notifications</li>
+                    <li class="{{ 'active' if current_settings_pane == 'customize_notifications' }}"><a href="#">Customize Notifications</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="span9">
+            {% block settings_pane %}
+
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
