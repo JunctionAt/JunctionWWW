@@ -32,7 +32,6 @@ class User(Document, flask_login.UserMixin, object):
     mail_verified = BooleanField(default=False)
 
     registered = DateTimeField(default=datetime.datetime.utcnow, required=True)
-    verified = BooleanField(default=False)
 
     notifications = ListField(ReferenceField('Notification', dbref=False))
 
@@ -96,19 +95,19 @@ class User(Document, flask_login.UserMixin, object):
         return url_for('avatar.get_avatar', name=self.name)
 
 
-class Token(Document):
-
-    token = StringField(required=True)
-    name = StringField(required=True)
-    # noinspection PyShadowingBuiltins
-    hash = StringField(required=True)
-    mail = StringField()
-    ip = StringField(required=True)
-    expires = DateTimeField(required=True)
-
-    meta = {
-        'collection': 'tokens'
-    }
+#class Token(Document):
+#
+#    token = StringField(required=True)
+#    name = StringField(required=True)
+#    # noinspection PyShadowingBuiltins
+#    hash = StringField(required=True)
+#    mail = StringField()
+#    ip = StringField(required=True)
+#    expires = DateTimeField(required=True)
+#
+#    meta = {
+#        'collection': 'tokens'
+#    }
 
 
 class ConfirmedUsername(Document):

@@ -6,15 +6,15 @@ from flask_login import current_user
 from blueprints.bans.ban_model import Note
 from blueprints.bans.appeal_model import Appeal
 from blueprints.auth import login_required
+from blueprints.auth.util import require_permissions
 import math
 
 NOTES_PER_PAGE = 15
 
 @bans.route('/a/notes/list/', defaults={'page': 1})
 @bans.route('/a/notes/list/<int:page>')
+@require_permissions('bans.note.view')
 def notes_index(page):
-    if not current_user.has_permission('bans.note.view'):
-        abort(403)
     if page == 0:
         abort(404)
 

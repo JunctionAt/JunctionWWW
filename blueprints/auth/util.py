@@ -4,6 +4,9 @@ from wtforms import ValidationError
 import bcrypt
 import re
 from blueprints.auth.user_model import User
+from blueprints.auth import current_user
+from flask import abort
+from functools import wraps
 
 
 # class Login(object):
@@ -54,3 +57,15 @@ def authenticate_user(username, password, message="Invalid username or password.
         #     except KeyError:
         #         pass
         #     raise ValidationError('Invalid username or password.')
+
+
+def require_permissions(*permissions):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            for permission in permissions:
+                if not current_user.has_permission(permission):
+                    abort(403)
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator

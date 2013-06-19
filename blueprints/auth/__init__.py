@@ -25,7 +25,7 @@ from flask_login import (LoginManager, login_required as __login_required__, cur
                          login_user, AnonymousUser)
 
 import bcrypt
-from blueprints.auth.user_model import User, Token
+from blueprints.auth.user_model import User
 from blueprints.api import apidoc
 
 
@@ -107,4 +107,4 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated
 
-from views import login, logout, activate, reauth, setpassword, administrative, register_new
+from views import login, logout, reauth, setpassword, administrative, register_new, add_api_account

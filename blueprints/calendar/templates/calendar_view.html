@@ -1,0 +1,37 @@
+{% extends "base_newer.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Calendar'}]
+%}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div id="calendar"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block css %}
+    <link href="/static/fullcalendar/fullcalendar.css" rel="stylesheet">
+{% endblock %}
+
+{% block javascript %}
+    <script src="/static/fullcalendar/fullcalendar.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,basicWeek,basicDay'
+                },
+                eventSources: [
+                    {% for url in feed_urls %}
+                        '{{ url }}',
+                    {% endfor %}
+                ]
+            });
+        });
+    </script>
+{% endblock %}

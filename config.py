@@ -1,7 +1,7 @@
 import flask
 from blueprints import (auth, notifications, static_pages, api, avatar,
                         logs, bans, forum, wiki, player_groups, admin,
-                        player_profiles, donations, staff, settings)
+                        player_profiles, donations, staff, settings, calendar)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
@@ -65,6 +65,8 @@ BLUEPRINTS = [
 
     dict(blueprint=staff.blueprint),
 
+    dict(blueprint=calendar.blueprint),
+
     dict(blueprint=settings.blueprint)
 
     ]
@@ -85,3 +87,5 @@ UPLOAD_FOLDER = "/tmp/www/uploads"
 RECAPTCHA_USE_SSL = True
 RECAPTCHA_PUBLIC_KEY = '6LdkRtkSAAAAAMtMsr3JLyMcNN-2dsMSpeLM5CvB'
 RECAPTCHA_PRIVATE_KEY = '6LdkRtkSAAAAAA8EBjvIX38Z62LIpNmAbFNseNqh'
+
+default_calendar = 'main'
