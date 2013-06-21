@@ -5,9 +5,8 @@ from .. import blueprint
 import datetime
 import json
 
-
-@blueprint.route('/calendar/feed.json')
-def calendar_feed():
+@blueprint.route('/calendar/<string:calendar_name>/<string:feed_name>.json')
+def calendar_feed(calendar_name, feed_name):
     start_raw = request.args.get('start', None)
     if not start_raw:
         abort(400)

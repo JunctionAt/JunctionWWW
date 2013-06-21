@@ -22,9 +22,9 @@
         $(document).ready(function() {
             $('#calendar').fullCalendar({
                 header: {
-                    left: 'prev,next today',
+                    left: 'month,basicWeek,basicDay',
                     center: 'title',
-                    right: 'month,basicWeek,basicDay'
+                    right: 'prev,next today'
                 },
                 eventSources: [
                     {% for url in feed_urls %}
