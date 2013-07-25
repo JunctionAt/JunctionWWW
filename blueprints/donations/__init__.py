@@ -35,18 +35,18 @@ def get_donations_stats_data():
     pass
 
 
-class RenewDateForm(Form):
-    date = DateField('Renew Date', format='%Y-%m-%d')
+#class RenewDateForm(Form):
+#    date = DateField('Renew Date', format='%Y-%m-%d')
 
-@blueprint.route('/donate/set_renew_date')
-@login_required
-def set_renew_date():
-    if not current_user.has_permission('financial.set_renew'):
-        return redirect('/')
-
-    form = RenewDateForm(request.form)
-
-    if request.method == "POST" and form.validate():
-        return 'ya'
-
-    return render_template('set_renew_date.html', form=form)
+#@blueprint.route('/donate/set_renew_date')
+#@login_required
+#def set_renew_date():
+#    if not current_user.has_permission('financial.set_renew'):
+#        return redirect('/')
+#
+#    form = RenewDateForm(request.form)
+#
+#    if request.method == "POST" and form.validate():
+#        return 'ya'
+#
+#    return render_template('set_renew_date.html', form=form)

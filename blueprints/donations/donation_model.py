@@ -69,5 +69,6 @@ class PaymentTransaction(Transaction):
     note = StringField()
     period_begin = DateTimeField()
     period_end = DateTimeField()
+    username = StringField()
 
     type = "payment"

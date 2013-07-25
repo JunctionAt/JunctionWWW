@@ -1,66 +1,55 @@
 from flask import Flask
 from reverse_proxied import ReverseProxied
-from flask.ext.admin import Admin
+from flask.ext.restful import Api as Restful_Api
 
+
+# Setup App
 application = Flask(__name__)
 
+# Setup Extensions
+ReverseProxied(application)
+rest_api = Restful_Api(application, prefix="/api")
+application.rest_api = rest_api
+
+# Setup Jinja Env
+application.jinja_env.add_extension('jinja2.ext.do')
+
+from util import pretty_date
+application.jinja_env.filters['pretty_date'] = pretty_date
+
+# Set secret key
+# TODO: Move to local config
+application.secret_key = "3750vIhza0IdTjPlI2H612cI8vQvfxIP7B4lsE5L"
+
+# Load config files
+with application.app_context():
+    application.config.from_object("local_config")
+    application.config.from_object("config")
+
+# Setup blueprints from config
+for blueprint in application.config["BLUEPRINTS"]:
+    application.register_blueprint(**blueprint)
+
+# Read the git hash from a file. This should be set by the deploy script
 try:
     with open('version_hash', 'r') as version_file:
         application.config['version_hash'] = version_file.readline()
 except IOError:
     application.config['version_hash'] = "DEVELOP"
 
-application.secret_key = "3750vIhza0IdTjPlI2H612cI8vQvfxIP7B4lsE5L"
-application.config.from_object("local_config")
-
-application.jinja_env.add_extension('jinja2.ext.do')
-
-with application.app_context():
-    application.config.from_object("config")
-
-for blueprint in application.config["BLUEPRINTS"]:
-    application.register_blueprint(**blueprint)
-
-ReverseProxied(application)
-    
-if application.config['DEBUG']:
-    from werkzeug import SharedDataMiddleware
-    import os
-    application.wsgi_app = SharedDataMiddleware(application.wsgi_app, {
-        '/': os.path.join(os.path.dirname(__file__), 'static')
-    })
-
-    application.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
-    application.config["DEBUG_TB_PROFILER_ENABLED"] = False
-    application.config['DEBUG_TB_PANELS'] = (
-        'flask_debugtoolbar.panels.headers.HeaderDebugPanel',
-        'flask_debugtoolbar.panels.logger.LoggingPanel',
-        'flask_debugtoolbar.panels.timer.TimerDebugPanel',
-        'flask_debugtoolbar.panels.profiler.ProfilerDebugPanel',
-        'flask_debugtoolbar.panels.request_vars.RequestVarsDebugPanel',
-        #'flask_debugtoolbar.panels.template.TemplateDebugPanel',
-        #'flask_debugtoolbar.panels.versions.VersionDebugPanel',
-        'flask_debugtoolbar_mongo.panel.MongoDebugPanel',
-    )
-
-    from flask_debugtoolbar import DebugToolbarExtension
-    #toolbar = DebugToolbarExtension(application)
-#else:
-#    import logging
-#    from logging.handlers import TimedRotatingFileHandler
-#    handler = TimedRotatingFileHandler('log/log', when='D', interval=1, utc=True)
-#    handler.setLevel(logging.WARNING)
-#    application.logger.addHandler(handler)
-
+# Setup exceptional
 if application.config.has_key("EXCEPTIONAL_API_KEY"):
     from flask.ext.exceptional import Exceptional
     exceptional = Exceptional(application)
 
+# Load debug stuffs
+if application.config['DEBUG']:
+    with application.app_context():
+        import debug
+        debug.setup_env()
 
-from util import pretty_date
-application.jinja_env.filters['pretty_date'] = pretty_date
 
-
+# If the app was started directly, run http server
 def run():
     application.run(
         host=application.config.get('HOST', None),
