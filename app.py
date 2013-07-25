@@ -38,9 +38,9 @@ except IOError:
     application.config['version_hash'] = "DEVELOP"
 
 # Setup exceptional
-if application.config.has_key("EXCEPTIONAL_API_KEY"):
-    from flask.ext.exceptional import Exceptional
-    exceptional = Exceptional(application)
+#if application.config.has_key("EXCEPTIONAL_API_KEY"):
+#    from flask.ext.exceptional import Exceptional
+#    exceptional = Exceptional(application)
 
 # Load debug stuffs
 if application.config['DEBUG']:
