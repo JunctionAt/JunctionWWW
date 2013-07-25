@@ -3,7 +3,7 @@ __author__ = 'HansiHE'
 from flask import Blueprint, render_template, send_file, abort, redirect, request
 from itsdangerous import URLSafeSerializer
 from blueprints.auth import current_user, login_required
-from donation_model import Transaction
+from donation_model import Transaction, DonationTransaction
 from blueprints.base import cache
 from wtforms import Form, DateField
 
@@ -18,13 +18,13 @@ import ipn
 @blueprint.route('/donate')
 def donate():
     funds_target = 50
-    donations = Transaction.objects(valid=True)
+    donations = DonationTransaction.objects(valid=True)
     return render_template(
         'donate_newer.html',
         funds_target=funds_target,
         funds_current=donations.sum('amount'),
         total_fees=donations.sum('fee'),
-        total_donations=Transaction.objects(valid=True, gross__gt=0).sum('gross'),
+        total_donations=DonationTransaction.objects(valid=True, gross__gt=0).sum('gross'),
         num_donations=len(donations),
         top_donations=donations.order_by('-amount').limit(5).only('gross', 'fee', 'username', 'valid'),
         signed_user=username_signer.dumps(current_user.name) if current_user.is_authenticated() else None

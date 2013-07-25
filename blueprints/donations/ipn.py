@@ -4,7 +4,7 @@ from . import blueprint
 from flask import request, current_app
 from werkzeug.datastructures import ImmutableOrderedMultiDict
 import requests
-from donation_model import Transaction, TransactionStatus, TransactionLog
+from donation_model import DonationTransaction, DonationTransactionStatus, TransactionLog
 from . import username_signer
 from itsdangerous import BadData, BadPayload, BadSignature
 from blueprints.base import cache
@@ -69,11 +69,11 @@ def process_transaction(data):
     txn_id = data.get("parent_txn_id") or data.get("txn_id")
 
     # Check if the transaction already exists in db.
-    transaction = Transaction.objects(transaction_id=txn_id).first()
+    transaction = DonationTransaction.objects(transaction_id=txn_id).first()
     if transaction:
         pass
     else:
-        transaction = Transaction()
+        transaction = DonationTransaction()
 
         transaction.username = username
         transaction.email = data["payer_email"]
@@ -84,7 +84,7 @@ def process_transaction(data):
         transaction.payment_type = data.get("payment_type", "")
         transaction.transaction_id = txn_id
 
-    transaction_status = TransactionStatus()
+    transaction_status = DonationTransactionStatus()
     transaction_status.status = data["payment_status"]
     transaction_status.reason = data.get("pending_reason", None) or data.get("reason_code", None)
     transaction_status.valid = validate_transaction(data)
