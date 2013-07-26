@@ -111,7 +111,7 @@ class Topic(Document):
         return url_for('forum.post_reply', **self.get_url_info())
 
     def get_replies(self):
-        return Post.objects(topic=self).count()
+        return Post.objects(topic=self).count() - 1
 
     def get_last_post(self):
         return Post.objects(topic=self).order_by('-date').first()
