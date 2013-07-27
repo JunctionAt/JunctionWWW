@@ -19,28 +19,32 @@
                         <td>Created</td>
                         <td>Appeal</td>
                     </tr>
-                    {% for ban in bans %}
-                    <tr style="{{ loop.cycle('background-color: #f5f5f5;', 'background-color: #ffffff;') }}">
-                        <td>{{ ban.uid }}</td>
-                        <td>{{ ban.reason }}</td>
-                        <td>{{ ban.username }}</td>
-                        <td>{{ ban.issuer }}</td>
-                        <td>{{ ban.time.strftime("%H:%M %d %b %y") }}</td>
-                        <td>
-                            {% if ban.appeal is not none %}
-                            <a href="{{ url_for('bans.view_appeal', uid=ban.uid) }}">View Appeal</a>
-                            {% elif ban.username|lower == current_user.name|lower and ban.appeal is none and ban.active %}
-                            <a href="{{ url_for('bans.post_new_appeal', uid=ban.uid) }}">Appeal Ban</a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
+                    {% if bans|length == 0 %}
+                        You have no bans :D
+                    {% else %}
+                        {% for ban in bans %}
+                            <tr style="{{ loop.cycle('background-color: #f5f5f5;', 'background-color: #ffffff;') }}">
+                                <td>{{ ban.uid }}</td>
+                                <td>{{ ban.reason }}</td>
+                                <td>{{ ban.username }}</td>
+                                <td>{{ ban.issuer }}</td>
+                                <td>{{ ban.time.strftime("%H:%M %d %b %y") }}</td>
+                                <td>
+                                    {% if ban.appeal is not none %}
+                                        <a href="{{ url_for('bans.view_appeal', uid=ban.uid) }}">View Appeal</a>
+                                    {% elif ban.username|lower == current_user.name|lower and ban.appeal is none and ban.active %}
+                                        <a href="{{ url_for('bans.post_new_appeal', uid=ban.uid) }}">Appeal Ban</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
                 </table>
                 {% if previous_button %}
-                <a href="{{ url_for('bans.bans_index', page=current_page-1) }}">Previous</a>
+                    <a href="{{ url_for('bans.bans_index', page=current_page-1) }}">Previous</a>
                 {% endif %}
                 {% if next_button %}
-                <a href="{{ url_for('bans.bans_index', page=current_page+1) }}">Next</a>
+                    <a href="{{ url_for('bans.bans_index', page=current_page+1) }}">Next</a>
                 {% endif %}
                 <p>{{ location_info }}</p>
             </div>

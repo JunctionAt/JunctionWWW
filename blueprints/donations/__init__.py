@@ -17,12 +17,13 @@ import ipn
 
 @blueprint.route('/donate')
 def donate():
-    funds_target = 50
+    funds_target = 49
     donations = DonationTransaction.objects(valid=True)
+    transactions = Transaction.objects()
     return render_template(
         'donate_newer.html',
         funds_target=funds_target,
-        funds_current=donations.sum('amount'),
+        funds_current=transactions.sum('amount'),
         total_fees=donations.sum('fee'),
         total_donations=DonationTransaction.objects(valid=True, gross__gt=0).sum('gross'),
         num_donations=len(donations),
@@ -50,3 +51,5 @@ def get_donations_stats_data():
 #        return 'ya'
 #
 #    return render_template('set_renew_date.html', form=form)
+
+from views import payment_add

@@ -2,6 +2,7 @@ __author__ = 'HansiHE'
 
 from mongoengine import *
 from datetime import datetime
+from blueprints.auth.user_model import User
 
 
 class TransactionLog(Document):
@@ -28,6 +29,8 @@ class Transaction(Document):
 
     amount = FloatField(required=True)  # = the actual calculated amount
 
+    created = DateTimeField(required=True, default=datetime.utcnow)
+
     # https://developer.paypal.com/webapps/developer/docs/classic/ipn/integration-guide/IPNandPDTVariables/#id091EB04C0HS__id0913D0E0UQU
     # Canceled_Reversal: valid=true
     # Completed: valid=true
@@ -43,9 +46,18 @@ class Transaction(Document):
 
     meta = {
         'collection': 'financial_transactions',
-        'indexed': [ 'username', 'amount' ],
-        'allow_inheritance': True
-    }
+        'allow_inheritance': True,
+        #'indexes': [
+        #    'username',
+        #    'amount',
+        #    {
+        #        'fields': ['transaction_id'],
+        #        'unique': True,
+        #        'sparse': True
+        #    }
+        #]
+    } # TODO: Make indexes work for inheritance
+
 
 class DonationTransaction(Transaction):
 
@@ -55,8 +67,7 @@ class DonationTransaction(Transaction):
     gross = FloatField(required=True)  # = the total amount donated
     fee = FloatField(required=True)  # = the amount paypal has robbed us for
     payment_type = StringField()  # Should be either echeck or instant
-    created = DateTimeField(required=True, default=datetime.utcnow)
-    transaction_id = StringField(unique=True)  # = parent_txn_id or txn_id, unique id
+    transaction_id = StringField()  # = parent_txn_id or txn_id, unique id # TODO: Add unique=true when indexes are working
     valid = BooleanField()  #Could be used for easy querying, should be set when payment_status is Pending or Completed. Changed to false if shit happens.
 
     payment_status_events = ListField(EmbeddedDocumentField(DonationTransactionStatus))  # list of states received for this transaction
@@ -67,8 +78,8 @@ class DonationTransaction(Transaction):
 class PaymentTransaction(Transaction):
 
     note = StringField()
-    period_begin = DateTimeField()
-    period_end = DateTimeField()
-    username = StringField()
+    period_begin = DateTimeField(required=True)
+    period_end = DateTimeField(required=True)
+    user = ReferenceField(User, dbref=False, required=True)
 
     type = "payment"

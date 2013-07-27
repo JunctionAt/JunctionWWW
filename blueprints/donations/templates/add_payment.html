@@ -1,0 +1,35 @@
+{% extends "base_newer.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Donate'}]
+%}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="span12 widget">
+            <form action="." method="post">
+                {% if form.errors.values() %}
+                    <div class="alert alert-error">
+                        {{ form.errors.values()[0][0] }}
+                    </div>
+                {% endif %}
+
+                {{ form.amount.label }}
+                {{ form.amount(placeholder="50 ($)") }}
+
+                {{ form.note.label }}
+                {{ form.note }}
+
+                {{ form.start_date.label }}
+                {{ form.start_date(placeholder="Eg. 2013-12-31") }}
+
+                {{ form.end_date.label }}
+                {{ form.end_date(placeholder="Eg. 2014-01-31") }}
+
+                {{ form.submit }}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
