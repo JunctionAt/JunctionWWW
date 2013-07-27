@@ -79,7 +79,7 @@ class DonationTransaction(Transaction):
                 'sparse': True
             }
         ]
-    } # TODO: Make indexes work for inheritance
+    }
 
 
 class PaymentTransaction(Transaction):
