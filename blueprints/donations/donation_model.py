@@ -47,16 +47,10 @@ class Transaction(Document):
     meta = {
         'collection': 'financial_transactions',
         'allow_inheritance': True,
-        #'indexes': [
-        #    'username',
-        #    'amount',
-        #    {
-        #        'fields': ['transaction_id'],
-        #        'unique': True,
-        #        'sparse': True
-        #    }
-        #]
-    } # TODO: Make indexes work for inheritance
+        'indexes': [
+            'amount'
+        ]
+    }
 
 
 class DonationTransaction(Transaction):
@@ -67,12 +61,25 @@ class DonationTransaction(Transaction):
     gross = FloatField(required=True)  # = the total amount donated
     fee = FloatField(required=True)  # = the amount paypal has robbed us for
     payment_type = StringField()  # Should be either echeck or instant
-    transaction_id = StringField()  # = parent_txn_id or txn_id, unique id # TODO: Add unique=true when indexes are working
+    transaction_id = StringField(unique=True)  # = parent_txn_id or txn_id, unique id
     valid = BooleanField()  #Could be used for easy querying, should be set when payment_status is Pending or Completed. Changed to false if shit happens.
 
     payment_status_events = ListField(EmbeddedDocumentField(DonationTransactionStatus))  # list of states received for this transaction
 
     type = "donation"
+
+    meta = {
+        'allow_inheritance': True,
+        'indexes': [
+            'username',
+        #    'amount',
+            {
+                'fields': ['transaction_id'],
+                'unique': True,
+                'sparse': True
+            }
+        ]
+    } # TODO: Make indexes work for inheritance
 
 
 class PaymentTransaction(Transaction):
