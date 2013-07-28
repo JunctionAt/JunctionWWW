@@ -1,0 +1,37 @@
+{% extends "base_newer.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Donate', 'url': url_for('donations.donate')},
+{'title': 'Payments'}]
+%}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="span12">
+            <div class="widget">
+                <table class="table">
+                    <tr>
+                        <td>Registered</td>
+                        <td>Date Begin</td>
+                        <td>Date End</td>
+                        <td>Amount</td>
+                        <td>Note</td>
+                        <td>User</td>
+                    </tr>
+                    {% for payment in payments %}
+                        <tr style="{{ loop.cycle('background-color: #f5f5f5;', 'background-color: #ffffff;') }}">
+                            <td>{{ payment.created.strftime("%H:%M %d %b %y") }}</td>
+                            <td>{{ payment.period_begin.strftime("%d %b %y") }}</td>
+                            <td>{{ payment.period_end.strftime("%d %b %y") }}</td>
+                            <td>{{ payment.amount }}$</td>
+                            <td>{{ payment.note }}</td>
+                            <td>{{ payment.user.name }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

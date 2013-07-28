@@ -52,4 +52,4 @@ def get_donations_stats_data():
 #
 #    return render_template('set_renew_date.html', form=form)
 
-from views import payment_add
+from views import payment_add, payments_view

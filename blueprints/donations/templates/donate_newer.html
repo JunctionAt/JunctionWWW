@@ -48,6 +48,7 @@
                 <span>Number of donations: {{ num_donations }}</span><br>
                 <span>Total donations: {{ total_donations }}</span><br>
                 <span>Amount taken by Paypal: {{ total_fees }}$</span><br>
+                <a href="{{ url_for('donations.payments_view') }}">See payments</a><br>
             </div>
         </div>
         <div class="span6">
