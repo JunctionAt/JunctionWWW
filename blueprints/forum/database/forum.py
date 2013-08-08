@@ -67,7 +67,6 @@ class Board(Document):
         return Topic.objects(board=self).order_by('-date').first()
 
 
-
 class TopicEdit(EmbeddedDocument):
 
     author = ReferenceField(User, dbref=False)
