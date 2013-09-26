@@ -5,7 +5,7 @@ from blueprints.auth import login_required
 from flask_login import current_user
 import json
 import markdown
-from notification_model import Notification
+from notification_model import BaseNotification
 
 
 blueprint = Blueprint('notifications', __name__, template_folder='templates')
@@ -21,15 +21,15 @@ class notification_renderer(object):
 
 
 def get_notifications(user):
-    return Notification.objects(receiver=user)
+    return BaseNotification.objects(receiver=user.name)
 
 
 def get_previews(user, num):
-    return Notification.objects(receiver=user).order_by('-id').limit(num).only("id", "preview")
+    return BaseNotification.objects(receiver=user.name).order_by('-date').limit(num)
 
 
 def get_num(user):
-    return len(Notification.objects(receiver=user))
+    return len(BaseNotification.objects(receiver=user.name))
 
 
 @current_app.context_processor
@@ -45,12 +45,12 @@ def inject_notifications():
 @login_required
 @blueprint.route('/notifications')
 def notifications_view():
-    return render_template('notifications_view.html', notifications=get_notifications(current_user.to_dbref()))
+    return render_template('notifications_view.html', notifications=get_notifications(current_user))
 
 @login_required
 @blueprint.route('/notifications/delete/<string:id>/')
 def notification_delete(id):
-    notification = Notification.objects(id=id).first()
+    notification = BaseNotification.objects(id=id).first()
     if notification is None:
         abort(404)
     if not notification.receiver.id == current_user.id:
@@ -64,6 +64,6 @@ def notification_delete(id):
 
 @blueprint.route('/nsendtest')
 def test_send_notification():
-    curr = Notification(receiver=current_user.to_dbref(), sender_type=1, sender_user=current_user.to_dbref(), preview="A testable notification :D", deletable=True, type="test", module="test")
+    curr = BaseNotification(receiver=current_user.to_dbref(), sender_type=1, sender_user=current_user.to_dbref(), preview="A testable notification :D", deletable=True, type="test", module="test")
     curr.save()
     return 'yep'

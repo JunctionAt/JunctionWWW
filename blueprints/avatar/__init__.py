@@ -13,6 +13,7 @@ import os
 import mongoengine
 from datetime import datetime
 import flask
+from blueprints.settings.views import settings_panels_structure
 
 from base64 import decodestring
 
@@ -27,12 +28,9 @@ class AvatarForm(Form):
     mc_skin_button = SubmitField('Get skin face')
 
 
-@avatar.route('/profile/<string:name>/avatar/', methods=["GET", "POST"])
+@avatar.route('/settings/avatar', methods=["GET", "POST"])
 @login_required
-def avatar_control(name):
-    if name != current_user.name:
-        abort(404)
-
+def avatar_control():
     form = AvatarForm()
 
     if request.method == "POST":
@@ -61,7 +59,8 @@ def avatar_control(name):
         return redirect(request.path)
 
     return render_template(
-        'avatar_settings.html',
+        'avatar_pane.html',
+        settings_panels_structure=settings_panels_structure,
         avatar_form=form,
         name=current_user.name,
         user=current_user
@@ -144,3 +143,5 @@ def get_mc_face(name):
     out_img.seek(0)
 
     return out_img
+
+import avatar_settings_pane

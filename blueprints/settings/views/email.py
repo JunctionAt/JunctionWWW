@@ -10,6 +10,7 @@ from blueprints.base import mail
 from flask.ext.mail import Message
 from itsdangerous import URLSafeSerializer
 import datetime, time
+from . import add_settings_pane, settings_panels_structure
 
 
 serializer = URLSafeSerializer('kjF4IvN6fuFeAKrSTlvTsIR6nZZOuhw5SKEox0goL8KEwo8AMF')
@@ -51,7 +52,7 @@ def email_pane():
         return redirect(url_for('settings.email_pane'))
 
     form.mail.data = current_user.mail if not form.mail.data else form.mail.data
-    return render_template('settings_email.html', form=form)
+    return render_template('settings_email.html', settings_panels_structure=settings_panels_structure, form=form)
 
 
 DATA_VER = 3
@@ -91,3 +92,5 @@ def send_verification_mail():
                       recipients=[current_user.mail],
                       body="Click here to confirm this mail with %s on Junction.at: %s" % (current_user.name, link))
     mail.send(message)
+
+add_settings_pane(lambda: url_for('settings.email_pane'), "Account", "Email")

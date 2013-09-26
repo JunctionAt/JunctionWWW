@@ -21,7 +21,7 @@
     <div class="row">
         <div class="span12">
             <a class="btn btn-theme" href="{{ profile.get_edit_text_url() }}">Edit profile text</a>
-            <a class="btn btn-theme" href="{{ url_for('avatar.avatar_control', name=user.name) }}">Edit avatar</a>
+            <a class="btn btn-theme" href="{{ url_for('avatar.avatar_control') }}">Edit avatar</a>
             <a class="btn btn-theme" href="{{ profile.get_set_password_url() }}">Change password</a>
         </div>
     </div>

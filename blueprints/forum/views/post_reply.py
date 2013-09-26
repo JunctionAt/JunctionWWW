@@ -42,4 +42,6 @@ def post_reply(topic_id, topic_name):
         post.edits.append(post_edit)
         post.save()
 
+        topic.update(users_read_topic=[])
+
         return redirect(topic.get_url())

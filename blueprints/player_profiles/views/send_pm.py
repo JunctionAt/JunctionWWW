@@ -5,7 +5,7 @@ from .. import blueprint
 from blueprints.auth import User, current_user, login_required
 from wtforms import Form, TextAreaField, SubmitField
 from wtforms.validators import Length, Required
-from blueprints.notifications.notification_model import Notification
+from blueprints.notifications.notification_model import PMNotification
 
 
 class ComposePMForm(Form):
@@ -28,10 +28,11 @@ def send_pm(name):
         if not form.validate():
             return render_template('profile_send_pm.html', user=user, form=form)
 
-        notification = Notification(
-            receiver=user.to_dbref(), sender_type=1, sender_user=current_user.to_dbref(),
-            preview="PM from %s" % current_user.name, deletable=True, type="pm", module="pm", render_type=1,
-            data={'text': form.text.data})
+        notification = PMNotification(receiver=user.name, sender=current_user.name,
+                                      source="Website", message=form.text.data)
+        #    receiver=user.to_dbref(), sender_type=1, sender_user=current_user.to_dbref(),
+        #    preview="PM from %s" % current_user.name, deletable=True, type="pm", module="pm", render_type=1,
+        #    data={'text': form.text.data})
         notification.save()
 
         flash('The PM was sent.')

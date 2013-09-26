@@ -10,10 +10,16 @@
         <div class="span3">
             <div class="box">
                 <ul class="nav nav-list">
-                    <li class="nav-header">Account</li>
+                    {% for category, panes in settings_panels_structure.iteritems() %}
+                        <li class="nav-header">{{ category }}</li>
+                        {% for name, pane in panes.iteritems() %}
+                            <li class="{{ 'active' if current_settings_pane == pane['menu_id'] }}"><a href="{{ pane['url']() }}">{{ name }}</a></li>
+                        {% endfor %}
+                    {% endfor %}
+                    <!-- <li class="nav-header">Account</li>
                     <li class="{{ 'active' if current_settings_pane == 'email' }}"><a href="{{ url_for('settings.email_pane') }}">Email</a></li>
                     <li class="nav-header">Notifications</li>
-                    <li class="{{ 'active' if current_settings_pane == 'customize_notifications' }}"><a href="#">Customize Notifications</a></li>
+                    <li class="{{ 'active' if current_settings_pane == 'customize_notifications' }}"><a href="#">Customize Notifications</a></li> -->
                 </ul>
             </div>
         </div>

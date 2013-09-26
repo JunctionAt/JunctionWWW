@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from reverse_proxied import ReverseProxied
 from flask.ext.restful import Api as Restful_Api
 
@@ -41,6 +41,25 @@ except IOError:
 #if application.config.has_key("EXCEPTIONAL_API_KEY"):
 #    from flask.ext.exceptional import Exceptional
 #    exceptional = Exceptional(application)
+
+# Setup airbrake/errbit
+from airbrake import AirbrakeErrorHandler
+import gevent
+@application.errorhandler(500)
+def internal_error(error):
+    handler = AirbrakeErrorHandler(
+        api_key="97ed9107d2d204537f07080f85315281",
+        api_url="http://errbit.junction.at/notifier_api/v2/notices",
+        env_name=application.config['version_hash'],
+        request_url=request.url,
+        request_path=request.path,
+        request_method=request.method,
+        request_args=request.args,
+        request_headers=request.headers)
+    #gevent.spawn(handler.emit, error)
+    handler.emit(error)
+
+    return "Something went wrong. :( Staff have been notified, and are working on the issue. Please check back later.", 500
 
 # Load debug stuffs
 if application.config['DEBUG']:

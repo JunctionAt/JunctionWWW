@@ -6,6 +6,7 @@ from flask import render_template, redirect, url_for, abort
 
 from .. import blueprint
 from ..database.forum import Board, Topic
+from blueprints.auth import current_user
 
 
 TOPICS_PER_PAGE = 10
@@ -32,7 +33,7 @@ def view_board(board_id, board_name, page):
     forum = board.forum
 
     # Get our sorted topics and the number of topics.
-    topics = Topic.objects(board=board).order_by('+date')
+    topics = Topic.objects(board=board).order_by('-date')
     topic_num = len(topics)
 
     # Calculate the total number of pages and make sure the request is a valid page.
@@ -46,6 +47,10 @@ def view_board(board_id, board_name, page):
 
     # Compile the list of topics we want displayed.
     display_topics = topics.skip((page - 1) * TOPICS_PER_PAGE).limit(TOPICS_PER_PAGE)
+    if current_user.is_authenticated():
+        read_topics = display_topics.filter(users_read_topic__in=[current_user.id]).scalar('id')
+    else:
+        read_topics = None
 
     # Find the links we want for the next/prev buttons if applicable.
     next_page = url_for('forum.view_board', page=page + 1, **board.get_url_info()) if page < num_pages \
@@ -60,6 +65,6 @@ def view_board(board_id, board_name, page):
         links.append({'num': num, 'url': url_for('forum.view_board', page=num, **board.get_url_info()), 'active': (num == page)})
 
     # Render it all out :D
-    return render_template('forum_board.html', board=board, forum=forum, topics=display_topics,
+    return render_template('forum_board.html', board=board, forum=forum, topics=display_topics, read_topics=read_topics,
                            total_pages=num_pages, current_page=page,
                            next=next_page, prev=prev_page, links=links)

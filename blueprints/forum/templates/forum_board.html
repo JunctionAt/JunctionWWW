@@ -22,6 +22,7 @@
             <table class="table table-condensed">
                 <thead>
                     <tr>
+                        <th></th>
                         <th>Topic</th>
                         <th>Latest</th>
                     </tr>
@@ -30,7 +31,20 @@
                     {% for topic in topics %}
                     {% set last_post = topic.get_last_post() %}
                     <tr>
-                        <th><a href="{{ topic.get_url() }}">{{ topic.title }}</a> by <a href="{{ topic.author.get_profile_url() }}">{{ topic.author.name }}</a></th>
+                        <th>
+                            {% if read_topics != None %}
+                                {% if topic.id in read_topics %}
+                                    <small style="color: #cccccc">!</small>
+                                {% else %}
+                                    <small>!</small>
+                                {% endif %}
+                            {% endif %}
+                        </th>
+                        <th>
+                            <a href="{{ topic.get_url() }}">{{ topic.title }}</a>
+                            by
+                            <a href="{{ topic.author.get_profile_url() }}">{{ topic.author.name }}</a>
+                        </th>
                         <th>{{ last_post.get_pretty_date() }} by <a href="{{ last_post.author.get_profile_url() }}">{{ last_post.author.name }}</a></th>
                     </tr>
                     {% endfor %}

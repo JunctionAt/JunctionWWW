@@ -12,7 +12,7 @@ from ..database.forum import Board, Topic, TopicEdit, Post, PostEdit
 class PostTopicForm(Form):
     title = TextField("Title", validators=[
         Required(message="A title is required."),
-        Length(min=3, max=30, message="A title must be between 3 and 30 characters.")])
+        Length(min=3, max=80, message="A title must be between 3 and 30 characters.")])
     content = TextAreaField("Content", validators=[
         Required(message="Some content is required."),
         Length(min=1, max=5000, message="Content must be between 1 and 5000 characters long.")])

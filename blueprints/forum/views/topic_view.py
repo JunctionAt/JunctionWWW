@@ -6,6 +6,7 @@ from .. import blueprint
 from ..database.forum import Topic, Post
 from post_reply import TopicReplyForm
 import math
+from blueprints.auth import current_user
 
 POSTS_PER_PAGE = 20
 PAGINATION_VALUE_RANGE = 3
@@ -19,11 +20,14 @@ def view_topic(topic_id, topic_name, page):
 
     topic_reply_form = TopicReplyForm()
 
-    topic = Topic.objects(topic_url_id=topic_id).first()
+    topic = Topic.objects(topic_url_id=topic_id).exclude().first()
     if topic is None:
         abort(404)
     if not topic_name == topic.get_url_name():
         return redirect(topic.get_url())
+
+    if current_user.is_authenticated():
+        topic.update(add_to_set__users_read_topic=current_user.to_dbref())
 
     board = topic.board
     forum = board.forum

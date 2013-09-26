@@ -92,6 +92,8 @@ class Topic(Document):
     board = ReferenceField(Board, dbref=False)
     forum = ReferenceField(Forum, dbref=False)
 
+    users_read_topic = ListField(ReferenceField(User, dbref=False))
+
     meta = {
         'collection': 'forum_topics',
         'indexes': ['board', 'author', 'topic_url_id']
