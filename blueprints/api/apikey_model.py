@@ -10,7 +10,6 @@ class ApiKey(Document):
     key = UUIDField(binary=False, required=True, default=uuid4, unique=True)
     owner = ReferenceField(User, required=True)
 
-    write = BooleanField(default=False)
     as_user = BooleanField(default=False)
 
     access = ListField(StringField())

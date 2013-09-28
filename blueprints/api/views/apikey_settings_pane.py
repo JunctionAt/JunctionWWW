@@ -5,8 +5,9 @@ from blueprints.settings.views import add_settings_pane, settings_panels_structu
 from .. import blueprint
 from blueprints.auth import login_required, current_user
 from ..apikey_model import ApiKey
-from wtforms import Form, TextField, StringField, SelectMultipleField
+from wtforms import Form, TextField, StringField, SelectMultipleField, SubmitField
 from wtforms.validators import Length
+from .. import access_tokens
 
 @blueprint.route('/settings/api')
 @login_required
@@ -51,21 +52,35 @@ class PreSelectMultipleField(SelectMultipleField):
 
 class ApiKeyEditForm(Form):
     label = StringField("Label")
-    acl = PreSelectMultipleField("ACL", choices=[("testval", "Test"), ("testval2", "Test 2")])
+    acl = PreSelectMultipleField("ACL")
+    submit = SubmitField("Save")
 
 
-@blueprint.route('/settings/api/key/<string:key_id>/')
+@blueprint.route('/settings/api/key/<string:key_id>/', methods=["GET", "POST"])
 @login_required
 def api_key_edit(key_id):
     key = ApiKey.objects(id=key_id).first()
     if key is None or current_user != key.owner:
         abort(401)
 
-    form = ApiKeyEditForm()
+    form = ApiKeyEditForm(request.form)
 
-    form.label.data = key.label
-    form.acl.data = ['testval']
+    if request.method == "GET":
+        form.label.data = key.label
+        form.acl.choices = list()
+        for access_token in access_tokens.values():
+            if access_token.get("permission"):
+                if not current_user.has_permission(access_token.get("permission")):
+                    continue
+            form.acl.choices.append((access_token.get("token"), access_token.get("token")))
+        form.acl.data = key.access
 
-    return render_template('api_settings_edit_pane.html', settings_panels_structure=settings_panels_structure, form=form, key=key)
+        return render_template('api_settings_edit_pane.html', settings_panels_structure=settings_panels_structure, form=form, key=key)
+    elif request.method == "POST":
+        key.label = form.label.data
+        key.access = form.acl.data
+        key.save()
+
+        return redirect(url_for('api.api_key_edit', key_id=key_id))
 
 add_settings_pane(lambda: url_for('api.api_key_settings_pane'), "Developer", "Api Keys", menu_id="api_keys")

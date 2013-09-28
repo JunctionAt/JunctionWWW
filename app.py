@@ -1,6 +1,5 @@
 from flask import Flask, request
 from reverse_proxied import ReverseProxied
-from flask.ext.restful import Api as Restful_Api
 
 
 # Setup App
@@ -8,8 +7,6 @@ application = Flask(__name__)
 
 # Setup Extensions
 ReverseProxied(application)
-rest_api = Restful_Api(application, prefix="/api")
-application.rest_api = rest_api
 
 # Setup Jinja Env
 application.jinja_env.add_extension('jinja2.ext.do')

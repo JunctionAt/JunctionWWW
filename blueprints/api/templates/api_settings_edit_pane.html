@@ -5,7 +5,7 @@
 
 {% block settings_pane %}
 <div class="box">
-    <form>
+    <form method="post" action=".">
         <label>Key</label>
         <p><code>{{ key.key }}</code></p>
 
@@ -13,6 +13,8 @@
         {{ form.label }}
 
         {{ form.acl(id='api-key-acl-select') }}
+
+        {{ form.submit(class="btn btn-theme pull-right") }}
     </form>
 </div>
 {% endblock %}
