@@ -17,15 +17,37 @@ multiple requests.
 """
 
 from functools import wraps
-import datetime
+from flask_login import current_user, login_user, login_required as __login_required__, LoginManager, AnonymousUser
+from flask import request, current_app, abort, Blueprint
+from user_model import User
 import re
 
-from flask import ( Blueprint, request, current_app, abort, jsonify)
-from flask_login import (LoginManager, login_required as __login_required__, current_user,
-                         login_user, AnonymousUser)
+
+def login_required(f):
+    """
+    This is a custom version of the flask_login decorator that will accept HTTP Basic Auth or
+    fall back on the regular login_required provided by flask_login.
+    """
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not current_user.is_authenticated():
+            try:
+                auth = request.authorization
+                user = User.objects(name=re.compile(auth.username, re.IGNORECASE)).first()
+                if not user or not user.hash == bcrypt.hashpw(auth.password, user.hash) or \
+                        not login_user(user, remember=False, force=True):
+                    raise Exception()
+            except:
+                if current_app.config.get('API', False):
+                    login_user(ApiUser())
+                else:
+                    if request.path[-5:] == '.json': abort(403)
+                    return __login_required__(f)(*args, **kwargs)
+        return f(*args, **kwargs)
+    return decorated
 
 import bcrypt
-from blueprints.auth.user_model import User
 from blueprints.api import apidoc
 
 
@@ -33,8 +55,7 @@ subpath = ''
 
 mailregex = re.compile("[^@]+@[^@]+\.[^@]+")
 
-blueprint = Blueprint('auth', __name__, template_folder='templates',
-                      static_folder='static', static_url_path='/auth/static')
+blueprint = None
 
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
@@ -83,28 +104,13 @@ class ApiUser:
         return True
 
 
-def login_required(f):
-    """
-    This is a custom version of the flask_login decorator that will accept HTTP Basic Auth or
-    fall back on the regular login_required provided by flask_login.
-    """
+def get_blueprint():
 
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if not current_user.is_authenticated():
-            try:
-                auth = request.authorization
-                user = User.objects(name=re.compile(auth.username, re.IGNORECASE)).first()
-                if not user or not user.hash == bcrypt.hashpw(auth.password, user.hash) or \
-                        not login_user(user, remember=False, force=True):
-                    raise Exception()
-            except:
-                if current_app.config.get('API', False):
-                    login_user(ApiUser())
-                else:
-                    if request.path[-5:] == '.json': abort(403)
-                    return __login_required__(f)(*args, **kwargs)
-        return f(*args, **kwargs)
-    return decorated
+    global blueprint
+    if blueprint is None:
+        blueprint = Blueprint('auth', __name__, template_folder='templates',
+                      static_folder='static', static_url_path='/auth/static')
 
-from views import login, logout, reauth, setpassword, administrative, register_new, add_api_account
+        from views import login, logout, reauth, setpassword, administrative, register_new, add_api_account
+
+    return blueprint

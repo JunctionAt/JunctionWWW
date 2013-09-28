@@ -1,8 +1,12 @@
 {% extends "base_newer.html" %}
 
 {% set breadcrumb_items = [
-{'title': 'Settings'}]
+{'title': 'Settings', 'url': url_for('settings.settings_main')}]
 %}
+
+{% if current_settings_path %}
+    {% set breadcrumb_items = breadcrumb_items + current_settings_path %}
+{% endif %}
 
 {% block content %}
 <div class="container">

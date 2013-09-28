@@ -10,6 +10,7 @@ import random
 
 from .. import blueprint
 import bcrypt
+from blueprints.settings.views import add_settings_pane, settings_panels_structure
 
 
 class SetPasswordForm(Form):
@@ -19,19 +20,18 @@ class SetPasswordForm(Form):
     password_match = PasswordField('Verify Password', [EqualTo('password', message="The passwords didn't match.")])
 
 
-@blueprint.route("/profile/<string:name>/setpassword", methods=["GET", "POST"])
+@blueprint.route("/settings/setpassword", methods=["GET", "POST"])
 @fresh_login_required
-def setpassword(name):
-    if current_user.name != name:
-        abort(404)
-
+def setpassword():
     form = SetPasswordForm(request.form)
     if request.method == "POST" and form.validate():
         current_user.hash = bcrypt.hashpw(form.password.data, bcrypt.gensalt())
         current_user.save()
         flash('Your password has been changed.')
         return redirect(current_user.get_profile_url()), 303
-    return render_template("setpassword.html", form=form, user=current_user)
+    return render_template("setpassword_settings_pane.html", form=form, user=current_user, settings_panels_structure=settings_panels_structure)
+
+add_settings_pane(lambda: url_for('auth.setpassword'), "Account", "Change Password", menu_id="setpassword")
 
 
 @blueprint.route("/profile/<string:name>/resetpassword")

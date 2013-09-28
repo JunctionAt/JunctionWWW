@@ -1,6 +1,9 @@
 from . import docs, apikey_model
-from flask import request
+from flask import request, Blueprint
 from blueprints.api.apikey_model import ApiKey
+
+blueprint = Blueprint('api', __name__, template_folder='templates')
+
 
 def require_api_key(write=True, access=None):
     def init(func):
@@ -17,3 +20,4 @@ def require_api_key(write=True, access=None):
 
 
 from docs import *
+from views import apikey_settings_pane

@@ -7,7 +7,7 @@ from blueprints import (auth, notifications, static_pages, api, avatar,
 BLUEPRINTS = [
 
     # Authentication
-    dict(blueprint=auth.blueprint),
+    dict(blueprint=auth.get_blueprint()),
 
     # Notifications
     dict(blueprint=notifications.blueprint),
@@ -16,7 +16,7 @@ BLUEPRINTS = [
     dict(blueprint=static_pages.static_pages),
 
     # API Doc
-    dict(blueprint=api.api),
+    dict(blueprint=api.blueprint),
 
     # Logs
     dict(blueprint=logs.logs),
