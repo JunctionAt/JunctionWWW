@@ -1,5 +1,6 @@
 from flask import Flask, request
 from reverse_proxied import ReverseProxied
+from flask_wtf import CsrfProtect
 
 
 # Setup App
@@ -7,6 +8,7 @@ application = Flask(__name__)
 
 # Setup Extensions
 ReverseProxied(application)
+CsrfProtect(application)
 
 # Setup Jinja Env
 application.jinja_env.add_extension('jinja2.ext.do')

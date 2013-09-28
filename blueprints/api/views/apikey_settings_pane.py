@@ -5,7 +5,8 @@ from blueprints.settings.views import add_settings_pane, settings_panels_structu
 from .. import blueprint
 from blueprints.auth import login_required, current_user
 from ..apikey_model import ApiKey
-from wtforms import Form, TextField, StringField, SelectMultipleField, SubmitField
+from flask_wtf import Form
+from wtforms import TextField, StringField, SelectMultipleField, SubmitField
 from wtforms.validators import Length
 from .. import access_tokens
 
@@ -63,20 +64,22 @@ def api_key_edit(key_id):
     if key is None or current_user != key.owner:
         abort(401)
 
-    form = ApiKeyEditForm(request.form)
+    form = ApiKeyEditForm()
+    form.acl.choices = list()
+    for access_token in access_tokens.values():
+        if access_token.get("permission"):
+            if not current_user.has_permission(access_token.get("permission")):
+                continue
+        form.acl.choices.append((access_token.get("token"), access_token.get("token")))
 
     if request.method == "GET":
         form.label.data = key.label
-        form.acl.choices = list()
-        for access_token in access_tokens.values():
-            if access_token.get("permission"):
-                if not current_user.has_permission(access_token.get("permission")):
-                    continue
-            form.acl.choices.append((access_token.get("token"), access_token.get("token")))
         form.acl.data = key.access
 
         return render_template('api_settings_edit_pane.html', settings_panels_structure=settings_panels_structure, form=form, key=key)
     elif request.method == "POST":
+        form.validate()
+
         key.label = form.label.data
         key.access = form.acl.data
         key.save()

@@ -17,7 +17,7 @@ multiple requests.
 """
 
 from functools import wraps
-from flask_login import current_user, login_user, login_required as __login_required__, LoginManager, AnonymousUser
+from flask_login import current_user, login_user, login_required as __login_required__, LoginManager, AnonymousUserMixin
 from flask import request, current_app, abort, Blueprint
 from user_model import User
 import re
@@ -82,7 +82,7 @@ def load_user(id):
 login_manager.init_app(current_app, add_context_processor=True)
 
 
-class Anon(AnonymousUser):
+class Anon(AnonymousUserMixin):
 
     def has_permission(self, perm_node):
         return False

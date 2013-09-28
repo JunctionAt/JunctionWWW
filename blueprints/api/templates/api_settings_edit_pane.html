@@ -6,6 +6,9 @@
 {% block settings_pane %}
 <div class="box">
     <form method="post" action=".">
+
+        {{ form.hidden_tag() }}
+
         <label>Key</label>
         <p><code>{{ key.key }}</code></p>
 

@@ -4,7 +4,8 @@ from flask import Blueprint, request, render_template, abort, send_file, flash, 
 from blueprints.auth import login_required
 from avatar_model import Avatar
 from flask_login import current_user
-from flask_wtf import Form, FileField, SubmitField
+from flask_wtf import Form
+from wtforms import FileField, SubmitField
 import StringIO
 import requests
 from PIL import Image

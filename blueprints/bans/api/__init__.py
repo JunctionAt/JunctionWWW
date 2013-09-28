@@ -7,5 +7,5 @@ import bans
 import notes
 
 
-rest_api.add_resource(bans.Bans, '/anathema/bans/')
-rest_api.add_resource(notes.Notes, '/anathema/notes/')
+#rest_api.add_resource(bans.Bans, '/anathema/bans/')
+#rest_api.add_resource(notes.Notes, '/anathema/notes/')
