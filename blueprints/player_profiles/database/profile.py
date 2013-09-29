@@ -1,17 +1,16 @@
 __author__ = 'HansiHE'
 
 from mongoengine import *
-from blueprints.auth.user_model import User
 from flask import url_for
 
 
 class PlayerProfile(Document):
 
-    user = ReferenceField(User, dbref=False)
+    user = ReferenceField('User', dbref=False)
 
     profile_text = StringField(default="I play minecraft :D")
 
-    badges = ListField()
+    badges = ListField(StringField())
 
     def get_edit_text_url(self):
         return url_for('player_profiles.profile_text_edit', name=self.user.name)

@@ -13,6 +13,9 @@
             <div class="box">
                 <h3 class="rheading">Log in to Junction <span></span></h3>
                 <form action="{{ url_for('auth.login', ext='html') }}" method=post>
+
+                    {{ form.hidden_tag() }}
+
                     {% if form.errors.values() %}
                     <div class="alert alert-error">
                         {{ form.errors.values()[0][0] }}
