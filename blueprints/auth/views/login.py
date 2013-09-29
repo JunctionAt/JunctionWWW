@@ -4,7 +4,8 @@ import re
 
 from flask import request, render_template, redirect, url_for, flash, abort
 from flask_login import login_user, login_required
-from wtforms import Form, TextField, PasswordField, BooleanField, ValidationError
+from flask_wtf import Form
+from wtforms import TextField, PasswordField, BooleanField, ValidationError
 from wtforms.validators import *
 from werkzeug.datastructures import MultiDict
 
