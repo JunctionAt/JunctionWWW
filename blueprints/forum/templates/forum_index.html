@@ -8,8 +8,8 @@
 <div class="container">
     <div class="row">
         <div class="span8">
+            <div class="box">
             {% for category in categories %}
-            <aside>
                 <div class="widget">
                     <h5 class="">{{ category.name }}</h5>
                     <span>{{ category.description }}</span>
@@ -17,9 +17,9 @@
                     <table class="table table-condensed">
                         <thead>
                             <tr>
-                                <th>Board</th>
-                                <th>Latest</th>
-                                <th>Topics</th>
+                                <th class="span4">Board</th>
+                                <th class="span6">Latest Topic</th>
+                                <th class="span2">Topics</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -28,7 +28,7 @@
                             <tr>
                                 <th><a href="{{ board.get_url() }}">{{ board.name }}</a></th>
                                 {% if last_topic %}
-                                <th><a href="{{ last_topic.get_url() }}">{{ last_topic.title }}</a> by <a href="{{ last_topic.author.get_profile_url() }}">{{ last_topic.author.name }}</a></th>
+                                <th><a href="{{ last_topic.get_url() }}">{{ last_topic.title }}</a><!-- by <a href="{{ last_topic.author.get_profile_url() }}">{{ last_topic.author.name }}--></a></th>
                                 {% else %}
                                 <th>No topics :(</th>
                                 {% endif %}
@@ -43,29 +43,30 @@
                         {% endfor %}
                     </ul> -->
                 </div>
-            </aside>
             {% endfor %}
+            </div>
         </div>
         <div class="span4">
-            <aside>
-                <div class="widget">
-                    <h4 class="rheading">
-                        Recent Topics
-                        <span></span>
-                    </h4>
-                    <ul class="recent-posts">
+            <div class="box">
+                <h3>
+                    Recent
+                </h3>
+                <table class="table">
+                    <tbody>
                         {% for topic in recent_topics %}
-                        <li>
-                            <a href="{{ topic.get_url() }}">{{ topic.title }}</a>
-                            <div class="clear">
-                            </div>
-                            <span class="date"><i class="icon-calendar"></i> {{ topic.get_pretty_date() }}</span>
-                            <span class="comment"><i class="icon-comment"></i> {{ topic.get_replies() }} Replies</span>
-                        </li>
+                        <tr>
+                            <th>
+                                <a href="{{ topic.get_url() }}">{{ topic.title }}</a>
+                                <div class="clear">
+                                </div>
+                                <span class="date"><small><i class="icon-calendar"></i>{{ topic.get_pretty_date() }}</small></span>
+                                <span class="comment"><small><i class="icon-comment"></i>{{ topic.get_replies() }} Replies</small></span>
+                            </th>
+                        </tr>
                         {% endfor %}
-                    </ul>
-                </div>
-            </aside>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

@@ -74,7 +74,7 @@ BLUEPRINTS = [
 
 # Markdown support
 from flaskext.markdown import Markdown
-Markdown(flask.current_app)
+Markdown(flask.current_app, safe_mode="escape")
 
 # Server name global
 @flask.current_app.context_processor
@@ -87,6 +87,12 @@ UPLOAD_FOLDER = "/tmp/www/uploads"
 RECAPTCHA_USE_SSL = True
 RECAPTCHA_PUBLIC_KEY = '6LdkRtkSAAAAAMtMsr3JLyMcNN-2dsMSpeLM5CvB'
 RECAPTCHA_PRIVATE_KEY = '6LdkRtkSAAAAAA8EBjvIX38Z62LIpNmAbFNseNqh'
+
+# Reddit Link
+REDDIT_CLIENT_ID = ""
+REDDIT_CLIENT_SECRET = ""
+REDDIT_REDIRECT_URL = ""
+REDDIT_SUBREDDIT = 'Junction'
 
 DEFAULT_FORUM = 'main'
 DEFAULT_CALENDAR = 'main'

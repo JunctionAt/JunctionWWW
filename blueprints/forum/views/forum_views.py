@@ -17,7 +17,7 @@ def view_forum(forum):
     if forum is None:
         abort(404)
     categories = Category.objects(forum=forum)
-    recent_topics = Topic.objects(forum=forum).order_by('-date').limit(5)
+    recent_topics = Topic.objects(forum=forum).order_by('-last_post_date').limit(8)
 
     return render_template("forum_index.html", categories=categories, forum=forum, recent_topics=recent_topics)
 

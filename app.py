@@ -8,7 +8,6 @@ application = Flask(__name__)
 
 # Setup Extensions
 ReverseProxied(application)
-csrf = CsrfProtect(application)
 
 # Setup Jinja Env
 application.jinja_env.add_extension('jinja2.ext.do')

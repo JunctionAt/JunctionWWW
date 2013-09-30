@@ -89,6 +89,8 @@ class Topic(Document):
     last_editor = ReferenceField(User, dbref=False)
     edits = ListField(EmbeddedDocumentField(TopicEdit))
 
+    last_post_date = DateTimeField(required=True)
+
     board = ReferenceField(Board, dbref=False)
     forum = ReferenceField(Forum, dbref=False)
 
@@ -167,4 +169,4 @@ def pretty_url_escape(string):
     return ''.join([s for s in string if s in chars]).replace(" ", "_")
 
 def pretty_date(date):
-    return date.strftime("%d %B, %Y")
+    return date.strftime("%d %b, %Y")

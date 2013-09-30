@@ -1679,8 +1679,13 @@ ul.nav-tabs { margin: 0 !important; border: none; }
 
 /* breadcrumb */
 #subintro .breadcrumb {
-	margin:30px 0 0;
+	margin:15px 0 0;/* margin:30px 0 0; MODIFICATION*/
 	background:none;
+}
+
+/* MODIFICATION */
+#subintro .row {
+    margin-bottom: 15px;
 }
 
 #subintro ul.breadcrumb li {
@@ -1940,6 +1945,25 @@ ul.social {
 ul.social li {
 	display:inline;
 }
+
+/* MODIFICATION */
+
+.forum-post-rendered blockquote {
+    border-left: 2px solid #369;
+    padding-left: 4px;
+    margin: 5px 15px 5px 5px;
+}
+
+.forum-post-rendered blockquote p {
+    line-height: 1.6em;
+    font-size: 13px;
+    color: #666;
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-style: normal;
+    margin-bottom: 15px;
+}
+
+/* END MODIFICATION */
 
 
 /* misc */

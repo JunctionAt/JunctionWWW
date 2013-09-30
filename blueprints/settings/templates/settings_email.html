@@ -22,6 +22,9 @@
         {% endif %}
     </div>
     <form method="post" class="form-inline">
+
+        {{ form.hidden_tag() }}
+
         {{ form.mail }}
         {{ form.update(class='btn btn-theme') }}
         {% if not current_user.mail_verified %}

@@ -1,7 +1,8 @@
 __author__ = 'HansiHE'
 
 from flask import render_template, request, redirect, abort
-from wtforms import Form, TextAreaField, SubmitField
+from flask_wtf import Form
+from wtforms import TextAreaField, SubmitField
 from wtforms.validators import Required, Length
 
 from .. import blueprint
@@ -42,6 +43,6 @@ def post_reply(topic_id, topic_name):
         post.edits.append(post_edit)
         post.save()
 
-        topic.update(users_read_topic=[])
+        topic.update(set__users_read_topic=[], set__last_post_date=post.date)
 
         return redirect(topic.get_url())

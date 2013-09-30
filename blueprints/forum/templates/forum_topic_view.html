@@ -42,7 +42,7 @@
                 <div class="row" style="margin-bottom: 0;">
                     <div class="span2 forum-post-left"><img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}" /></div>
                     <div class="span10 forum-post-right">
-                        <div class="forum-post-rendered">{{ post.content|escape|markdown|safe }}</div>
+                        <div class="forum-post-rendered">{{ post.content|markdown|safe }}</div>
                         <div class="forum-post-raw">{{ post.content|escape }}</div>
                         <div class="forum-post-edit">
                             <form action="{{ url_for('forum.edit_post', post_id=post.id) }}" method="post">
@@ -64,6 +64,9 @@
     <div id="post-reply" class="row">
         <h3>Post reply</h3>
         <form class="container" method="post" action="{{ topic.get_post_url() }}">
+
+            {{ topic_reply_form.hidden_tag() }}
+
             {% if topic_reply_form.errors %}
             <div class="widget">
                 {% for error_field in topic_reply_form.errors.values() %}
@@ -77,10 +80,11 @@
             </div>
             {% endif %}
             <div class="widget">
-                <label>Content <span>*</span></label>
+                <label for="content">Content <span>*</span></label>
                 {{ topic_reply_form.content(class="input-block-level", placeholder="Post body") }}
             </div>
             <div class="widget">
+                <p><a href="#format-help-modal" role="button" data-toggle="modal">Formatting help?</a></p>
                 <button class="btn btn-theme" type="submit">Submit</button>
             </div>
         </form>
@@ -104,6 +108,42 @@
                 </ul>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="format-help-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="format-help-modal-label" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Markdown Help</h3>
+    </div>
+    <div class="modal-body">
+        <p>Junction uses a version of Markdown for formatting, much like reddit. Here are some basics to get ya started.</p>
+        <table class="table table-bordered table-condensed table-striped">
+            <thead>
+                <tr>
+                    <th class="span6">
+                        You Type
+                    </th>
+                    <th class="span6">
+                        You Get
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>*italics*</th>
+                    <th><em>italics</em></th>
+                </tr>
+                <tr>
+                    <th>**bold**</th>
+                    <th><strong>bold</strong></th>
+                </tr>
+                <tr>
+                    <th>(link)[https://junction.at]</th>
+                    <th><a href="https://junction.at">link</a></th>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}

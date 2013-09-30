@@ -64,4 +64,30 @@ def view_topic(topic_id, topic_name, page):
     return render_template('forum_topic_view.html', topic=topic, board=board, forum=forum,
                            posts=display_posts, topic_reply_form=topic_reply_form,
                            total_pages=num_pages, current_page=page,
-                           next=next_page, prev=prev_page, links=links)
+                           next=next_page, prev=prev_page, links=links, markdown_escape=markdown_escape)
+
+
+from markupsafe import Markup, text_type
+def markdown_escape(s):
+    """Convert the characters &, <, >, ' and " in string s to HTML-safe
+    sequences.  Use this if you need to display text that might contain
+    such characters in HTML.  Marks return value as markup string.
+    """
+    if hasattr(s, '__html__'):
+        return s.__html__().replace('&gt;', '>')
+    return Markup(text_type(s)
+        .replace('&', '&amp;')
+        .replace('>', '&gt;')
+        .replace('<', '&lt;')
+        .replace("'", '&#39;')
+        .replace('"', '&#34;')
+    )
+
+#@blueprint.route('/f/ulastpost')
+#def ulastpost():
+#    topics = Topic.objects()
+#    for topic in topics:
+#        post = Post.objects(topic=topic).order_by('-date').first()
+#        topic.last_post_date = post.date
+#        topic.save()
+#    return 'ye'

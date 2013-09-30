@@ -19,12 +19,13 @@
     </div>
     <div class="row">
         <aside class="span12 widget">
-            <table class="table table-condensed">
+            <table class="table table-condensed table-striped table-hover">
                 <thead>
                     <tr>
                         <th></th>
                         <th>Topic</th>
-                        <th>Latest</th>
+                        <th>Posted</th>
+                        <th>Most Recent</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,10 +43,15 @@
                         </th>
                         <th>
                             <a href="{{ topic.get_url() }}">{{ topic.title }}</a>
-                            by
+                        </th>
+                        <th>
                             <a href="{{ topic.author.get_profile_url() }}">{{ topic.author.name }}</a>
                         </th>
-                        <th>{{ last_post.get_pretty_date() }} by <a href="{{ last_post.author.get_profile_url() }}">{{ last_post.author.name }}</a></th>
+                        <th>
+                            {{ last_post.get_pretty_date() }}
+                            by
+                            <a href="{{ last_post.author.get_profile_url() }}">{{ last_post.author.name }}</a>
+                        </th>
                     </tr>
                     {% endfor %}
                 </tbody>

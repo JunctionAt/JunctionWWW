@@ -12,6 +12,9 @@
 
 {% block content %}
 <form class="container" method="post" action=".">
+
+    {{ form.hidden_tag() }}
+
     {% if form.errors %}
     <div class="row">
         <div class="span12">
