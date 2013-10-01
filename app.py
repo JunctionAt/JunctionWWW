@@ -42,7 +42,7 @@ except IOError:
 
 # Setup airbrake/errbit
 from airbrake import AirbrakeErrorHandler
-import gevent
+#import gevent
 @application.errorhandler(500)
 def internal_error(error):
     handler = AirbrakeErrorHandler(
@@ -72,5 +72,3 @@ def run():
         host=application.config.get('HOST', None),
         port=application.config.get('PORT', None),
         use_evalex=False)
-
-if __name__ == "__main__": run()
