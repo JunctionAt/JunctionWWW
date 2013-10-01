@@ -3,7 +3,8 @@ __author__ = 'HansiHE'
 from .. import blueprint
 from ..database.forum import Post, PostEdit
 from flask import abort, render_template, request, redirect
-from wtforms import Form, TextAreaField
+from flask_wtf import Form
+from wtforms import TextAreaField
 from wtforms.validators import Required, Length
 from blueprints.auth import current_user
 from datetime import datetime

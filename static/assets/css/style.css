@@ -1679,13 +1679,13 @@ ul.nav-tabs { margin: 0 !important; border: none; }
 
 /* breadcrumb */
 #subintro .breadcrumb {
-	margin:15px 0 0;/* margin:30px 0 0; MODIFICATION*/
+	margin:10px 0 0;/* margin:30px 0 0; MODIFICATION*/
 	background:none;
 }
 
 /* MODIFICATION */
 #subintro .row {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 #subintro ul.breadcrumb li {
@@ -1962,6 +1962,63 @@ ul.social li {
     font-style: normal;
     margin-bottom: 15px;
 }
+
+/* body {
+    background-image: url("/static/img/lil_fiber.png");
+} */
+
+.navbar-inner {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+/* sticky footer */
+html, body {
+    height: 100%;
+}
+
+#footer-wrap {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -370px; /* Including margins */
+}
+
+#wrapper {
+    height: 100%;
+}
+
+footer {
+    height: 340px; /* Without margins */
+}
+
+.footer-push {
+    height: 370px; /* Including margins */
+}
+/* end sticky footer */
+
+/* modal form bottom margin remove */
+.modal form {
+    margin-bottom: 0;
+}
+
+/* footer color change */
+
+/* footer {
+    background-color: #dddddd !important;
+}
+
+footer .verybottom {
+    background-color: #cccccc !important;
+}
+
+footer h1, footer h2, footer h3, footer h4, footer h5, footer h6 {
+    color: #555555 !important;
+}
+footer a {
+    color: #777777 !important;
+} */
+
+/* end footer color change */
 
 /* END MODIFICATION */
 

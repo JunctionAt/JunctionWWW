@@ -6,7 +6,8 @@ from blueprints.auth.user_model import User
 from blueprints.forum.database.forum import Post, Topic
 from ..database.profile import PlayerProfile
 from blueprints.auth import current_user, login_required
-from wtforms import Form, TextAreaField, SubmitField
+from flask_wtf import Form
+from wtforms import TextAreaField, SubmitField
 from wtforms.validators import Length
 
 

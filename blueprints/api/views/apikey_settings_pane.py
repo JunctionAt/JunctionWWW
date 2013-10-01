@@ -13,8 +13,10 @@ from .. import access_tokens
 @blueprint.route('/settings/api')
 @login_required
 def api_key_settings_pane():
+    apikey_add_form = AddApiKeyForm(request.form)
+    apikey_del_form = DelApiKeyForm(request.form)
     keys = ApiKey.objects(owner=current_user.to_dbref())
-    return render_template('api_settings_pane.html', settings_panels_structure=settings_panels_structure, keys=keys)
+    return render_template('api_settings_pane.html', settings_panels_structure=settings_panels_structure, keys=keys, apikey_add_form=apikey_add_form, apikey_del_form=apikey_del_form)
 
 
 class AddApiKeyForm(Form):
@@ -32,6 +34,10 @@ def api_key_add():
     flash("Key has been added.")
 
     return redirect(url_for('api.api_key_edit', key_id=key.id))
+
+
+class DelApiKeyForm(Form):
+    pass
 
 
 @blueprint.route('/settings/api/delkey/<string:key_id>', methods=["POST"])

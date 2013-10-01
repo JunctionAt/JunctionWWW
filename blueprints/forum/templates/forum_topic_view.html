@@ -46,6 +46,8 @@
                         <div class="forum-post-raw">{{ post.content|escape }}</div>
                         <div class="forum-post-edit">
                             <form action="{{ url_for('forum.edit_post', post_id=post.id) }}" method="post">
+                                {{ topic_reply_form.hidden_tag() }}
+
                                 <div class="widget">
                                     <textarea name="content"></textarea>
                                 </div>

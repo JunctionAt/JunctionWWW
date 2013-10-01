@@ -7,7 +7,7 @@ from blueprints.auth import current_user
 from blueprints.api import require_api_key, register_api_access_token, datetime_format
 from blueprints.base import rest_api
 from ..ban_model import Ban
-import datetime
+import re
 
 
 class InvalidDataException(Exception):
@@ -18,7 +18,7 @@ def get_local_bans(username=None, uid=None, active=None):
     query = dict()
 
     if username is not None:
-        query['username'] = username
+        query['username'] = re.compile(username, re.IGNORECASE)
     if uid is not None:
         query['uid'] = uid
     if active is not None:

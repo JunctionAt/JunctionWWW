@@ -2,7 +2,7 @@ __author__ = 'HansiHE'
 
 from flask import render_template, request, url_for, abort, flash, redirect
 from .. import blueprint
-from wtforms import Form
+from flask_wtf import Form
 from wtforms.fields import TextField, SubmitField
 from wtforms.validators import Email, Required, InputRequired
 from blueprints.auth import current_user, User, login_required

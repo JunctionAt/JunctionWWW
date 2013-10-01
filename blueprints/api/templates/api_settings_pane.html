@@ -61,6 +61,7 @@
                     <h3 id="apikey-delete-label-{{ key.id }}">Are you sure?</h3>
                 </div>
                 <div class="modal-body">
+                    {{ apikey_del_form.hidden_tag() }}
                     <p>Deleting this API key cannot be undone. <code>{{ key.key }}</code> with label <code>{{ key.label }}</code>.</p>
                 </div>
                 <div class="modal-footer">
@@ -78,6 +79,7 @@
             <h3 id="apikey-add-label">Add new API key</h3>
         </div>
         <div class="modal-body">
+            {{ apikey_add_form.hidden_tag() }}
             <label for="apikey-add-form-label">Label</label>
             <input name="label" id="apikey-add-form-label" type="text" placeholder="no label" maxlength="20">
             <span class="help-block">The label can have max 20 characters.</span>
