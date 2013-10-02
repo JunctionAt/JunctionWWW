@@ -69,3 +69,9 @@ def require_permissions(*permissions):
             return func(*args, **kwargs)
         return wrapper
     return decorator
+
+
+def validate_username(username):
+    if 2 <= len(username) <= 16 and re.match(r'^[A-Za-z0-9_]+$', username):
+        return True
+    return False
