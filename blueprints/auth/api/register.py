@@ -12,6 +12,7 @@ add_api_username_verification_token = 'api.auth.add_ip_username_verification'
 
 def check_verification(username, ip):
     return ConfirmedUsername.objects(ip=str(ip), username__iexact=username).first() is not None
+    #TODO: Check time
 
 
 def add_verification(username, ip):
