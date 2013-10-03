@@ -11,6 +11,9 @@
             <div class="box">
                 <h3 class="rheading">Sign up <span></span></h3>
                 <form method="post" action=".">
+
+                    {{ form.hidden_tag() }}
+
                     <p>Thanks, <strong>{{ username }}</strong>! Please complete your sign-up below.</p>
                     {% if form.errors.values() %}
                     <div class="alert alert-error">

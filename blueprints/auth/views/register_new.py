@@ -5,9 +5,9 @@ from flask import render_template, request, abort, redirect, url_for, flash
 from ..user_model import ConfirmedUsername
 from blueprints.auth import login_required, current_user
 from blueprints.auth.user_model import User
-from wtforms import Form, TextField, PasswordField, SubmitField, ValidationError
+from flask.ext.wtf import Form
+from wtforms import TextField, PasswordField, SubmitField
 from wtforms.validators import Email, Required, Length, EqualTo, Optional
-import re
 import bcrypt
 
 

@@ -19,13 +19,18 @@
 {% endblock %}
 
 {% block javascript %}
+<!-- TODO: move api url to url_for -->
 <script>
     function do_pooling() {
         $.ajax({
-            url: "{{ url_for('auth.check_authenticated_req', username=username) }}",
-            dataType: "text",
+            url: "/api/auth/ip_username_verification",
+            dataType: "json",
+            cache: false,
+            data: {
+                username: "{{ username }}"
+            },
             success: function(data, status, event) {
-                if(data == "YES") {
+                if(data["verified"] == true) {
                     document.location.reload(true);
                 }
             },
