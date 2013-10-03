@@ -2,7 +2,7 @@
 jQuery(document).ready(function($) {
 
 	// social network icon tooltip
-	$('.social li a').tooltip();
+	/*$('.social li a').tooltip();*/
 		
 
 		
@@ -20,28 +20,28 @@ jQuery(document).ready(function($) {
 	});
 
 	// accordion
-	$('.accordion').on('show', function (e) {
+	/*$('.accordion').on('show', function (e) {
 		$(e.target).prev('.accordion-heading').find('.accordion-toggle').addClass('active');
 		$(e.target).prev('.accordion-heading').find('.accordion-toggle i').removeClass('icon-plus');
 		$(e.target).prev('.accordion-heading').find('.accordion-toggle i').addClass('icon-minus');
-    });
+  });
     
-    $('.accordion').on('hide', function (e) {
-        $(this).find('.accordion-toggle').not($(e.target)).removeClass('active');
+  $('.accordion').on('hide', function (e) {
+    $(this).find('.accordion-toggle').not($(e.target)).removeClass('active');
 		$(this).find('.accordion-toggle i').not($(e.target)).removeClass('icon-minus');
 		$(this).find('.accordion-toggle i').not($(e.target)).addClass('icon-plus');
-    });	
-	
+  });*/
+
 
 	// add animation effect on call action area
-	$(".call-action").hover(
+	/*$(".call-action").hover(
 		function () {
-		$('.cta a').addClass("animated tada");
-		},
+	  	$('.cta a').addClass("animated tada");
+  	},
 		function () {
-		$('.cta a').removeClass("animated tada");
+		  $('.cta a').removeClass("animated tada");
 		}
-	);
+	);*/
 	
 	
 	// Create the dropdown base
@@ -56,14 +56,18 @@ jQuery(document).ready(function($) {
 	// Populate dropdown with menu items
 	$("nav a").each(function() {
 		var el = $(this);
-        if(el.hasClass("hide-in-dropdown")) {
+    /*$("<option />", {
+      "value"   : el.attr("href"),
+      "text"    : el.text()
+    }).appendTo("nav select");*/
+    if(el.hasClass("hide-in-dropdown")) {
 
-        } else {
-            $("<option />", {
-                "value"   : el.attr("href"),
-                "text"    : el.attr("data-dropdown-text") != undefined ? el.attr("data-dropdown-text") : el.text()
-            }).appendTo("nav select");
-        }
+    } else {
+        $("<option />", {
+            "value"   : el.attr("href"),
+            "text"    : el.attr("data-dropdown-text") != undefined ? el.attr("data-dropdown-text") : el.text()
+        }).appendTo("nav select");
+    }
 	});
 
 	// To make dropdown actually work
@@ -79,13 +83,13 @@ jQuery(document).ready(function($) {
 	});
 	
 	//prettyPhoto
-	$("a[data-pretty^='prettyPhoto']").prettyPhoto();
+	/*$("a[data-pretty^='prettyPhoto']").prettyPhoto();*/
 
 	//portfolio hover
-	$('ul.da-thumbs > li').hoverdir();
+	//$('ul.da-thumbs > li').hoverdir();
 	
 	//add effect on box
-	$(".box").hover(
+	/*$(".box").hover(
 		function () {
 		$(this).find('.icon').addClass("animated fadeInDown");
 		$(this).find('h4').addClass("animated fadeInUp");
@@ -94,14 +98,14 @@ jQuery(document).ready(function($) {
 		$(this).find('.icon').removeClass("animated fadeInDown");
 		$(this).find('h4').removeClass("animated fadeInUp");
 		}
-	);
+	);*/
 	
 
 	// flexslider
-	$('.flexslider').flexslider({
+	/*$('.flexslider').flexslider({
 		animation: "fade",
 		controlNav: false  
-	});
+	});*/
 
   
 	// twitter feed
@@ -120,7 +124,7 @@ jQuery(document).ready(function($) {
 
 		
 	//iview slider
-	$('#iview').iView({
+	/*$('#iview').iView({
 		pauseTime: 7000,
 		pauseOnHover: true,
 		directionNavHoverOpacity: 0,
@@ -133,8 +137,26 @@ jQuery(document).ready(function($) {
 		timerPosition: "bottom-right",
 		controlNav: true,
 		controlNavThumbs: true
-	});
+	});*/
 	
+  //Junction Reddit MODIFICATION
+  //$(function() {
+    list = $(".subreddit-recent");
 
+    $.ajax({
+      url: "https://pay.reddit.com/r/junction/new.json?limit=4",
+      type: "get",
+      dataType: "jsonp",
+      jsonp: "jsonp",
+      success: function(data) {
+        var posts = data.data.children;
+          $(".subreddit-recent .loading").remove();
+            for(var i=0; i < posts.length; i++) {
+              var post = posts[i];
+              list.append("<li><a href=\"" + post.data.url + "\">"+ post.data.title +"</a></li>");
+            }
+      }
+    });
+  //});
 
 });

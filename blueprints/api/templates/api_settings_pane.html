@@ -1,12 +1,12 @@
 {% extends "settings_base.html" %}
 
-{% set current_settings_path = [{'title': "Developer"}, {'title': "Api Keys", 'url': url_for('api.api_key_settings_pane')}] %}
+{% set current_settings_path = [{'title': "Developer"}, {'title': "API Keys", 'url': url_for('api.api_key_settings_pane')}] %}
 {% set current_settings_pane = "api_keys" %}
 
 {% block settings_pane %}
 <div class="box">
     <h3 class="rheading">
-        Manage API keys
+        Manage API Keys
         <span></span>
     </h3>
     <table class="table table-striped table-hover">

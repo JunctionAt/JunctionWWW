@@ -9,14 +9,7 @@ from flask import Blueprint, Markup, render_template, url_for, current_app, g, r
 
 #from blueprints.player_groups import player_groups, Group
 
-static_pages = Blueprint('static_pages', __name__,
-                         template_folder='templates',
-                         static_folder='static',
-                         # This should work without having to munge the static path,
-                         # but the application's static path takes precedence
-                         # if no url_prefix is specified:
-                         # https://github.com/mitsuhiko/flask/issues/348
-                         static_url_path='/static_pages/static')
+static_pages = Blueprint('static_pages', __name__, template_folder='templates')
 
 #client = requests.session()
 #client.post('https://ssl.reddit.com/api/login',
@@ -50,7 +43,7 @@ def landing_page():
     #                 .all())],
     #        player_groups.endpoints.iteritems(), []))
     #if not posts.fetching and posts.refresh < datetime.utcnow(): PostFetchThread().start()
-    return render_template('index_newer.html')#, posts=map(lambda post: post['data'], posts.data))#, groups=groups)
+    return render_template('index.html')#, posts=map(lambda post: post['data'], posts.data))#, groups=groups)
 
 @static_pages.route('/servers/')
 def view_servers():

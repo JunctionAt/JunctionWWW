@@ -92,4 +92,4 @@ def api_key_edit(key_id):
 
         return redirect(url_for('api.api_key_edit', key_id=key_id))
 
-add_settings_pane(lambda: url_for('api.api_key_settings_pane'), "Developer", "Api Keys", menu_id="api_keys")
+add_settings_pane(lambda: url_for('api.api_key_settings_pane'), "Developer", "API Keys", menu_id="api_keys")
