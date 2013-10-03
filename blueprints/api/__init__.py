@@ -5,6 +5,7 @@ from flask import request, Blueprint
 from blueprints.api.apikey_model import ApiKey
 from blueprints.auth.user_model import User
 from blueprints.auth.util import validate_username
+from functools import wraps
 
 datetime_format = "%S:%M %d/%m/%Y %Z"
 
@@ -16,18 +17,21 @@ def register_api_access_token(token, description=None, link=None, permission=Non
     access_tokens[token] = dict(token=token, description=description, link=link, permission=permission)
 
 
-def require_api_key(access_tokens=list(), must_be_registered=True): # I know, not a word
+def require_api_key(access_tokens=list(), asuser_must_be_registered=True): # I know, not a word
     def init(func):
+        @wraps(func)
         def wrap(*args, **kwargs):
 
             # Check and obtain API key from DB
             try:
                 key = ApiKey.objects(key=request.headers['ApiKey']).first()
-                for access in access_tokens:
-                    if access not in key.access:
-                        return {'error': [{'message': "api key doesn't have access to '%s'" % access, 'identifier': "permission#%s" % access}]}
             except KeyError:
                 return {'error': [{'message': "no/invalid ApiKey header provided", 'identifier': "apikey_not_provided"}]}
+            if key is None:
+                return {'error': [{'message': "no/invalid ApiKey header provided", 'identifier': "apikey_not_provided"}]}
+            for access in access_tokens:
+                if access not in key.access:
+                    return {'error': [{'message': "api key doesn't have access to '%s'" % access, 'identifier': "permission#%s" % access}]}
 
             # Check for the AsUser header, apply stuff to context
             if 'AsUser' in request.headers:
@@ -40,12 +44,12 @@ def require_api_key(access_tokens=list(), must_be_registered=True): # I know, no
                 if not validate_username(username):
                     return {'error': [{'message': "the AsUser username is not a valid minecraft username", 'identifier': "asuser_username_not_valid"}]}
 
-                user = User.objects(name=request.headers['AsUser']).first()
-                if user is None and must_be_registered:
+                user = User.objects(name=username).first()
+                if user is None and asuser_must_be_registered:
                     return {'error': [{'message': "the user specified in the AsUser header wasn't found", 'identifier': "asuser_not_found"}]}
 
                 request.api_user = user
-                request.api_user_name = key.owner.name
+                request.api_user_name = username
 
             else:
                 request.api_user = key.owner

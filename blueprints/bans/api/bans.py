@@ -3,11 +3,12 @@ __author__ = 'HansiHE'
 from flask import request
 from flask.ext.restful import Resource
 from flask.ext.restful.reqparse import RequestParser
-from blueprints.auth import current_user
 from blueprints.api import require_api_key, register_api_access_token, datetime_format
 from blueprints.base import rest_api
 from ..ban_model import Ban
 import re
+from blueprints.auth.util import validate_username
+import datetime
 
 
 class InvalidDataException(Exception):
@@ -28,15 +29,19 @@ def get_local_bans(username=None, uid=None, active=None):
 
     bans_response = []
     for ban_data in bans_data:
-        bans_response.append(dict(
-            id=ban_data.uid, issuer=ban_data.issuer, username=ban_data.username, reason=ban_data.reason,
-            server=ban_data.server,
-            time=ban_data.time.strftime(datetime_format) if ban_data.time is not None else None,
-            active=ban_data.active,
-            remove_time=ban_data.removed_time.strftime(datetime_format) if ban_data.removed_time is not None else None,
-            remove_user=ban_data.removed_by, source='local'))
+        bans_response.append(construct_local_ban_data(ban_data))
 
     return bans_response
+
+
+def construct_local_ban_data(ban):
+    return dict(
+        id=ban.uid, issuer=ban.issuer, username=ban.username, reason=ban.reason,
+        server=ban.server,
+        time=ban.time.strftime(datetime_format) if ban.time is not None else None,
+        active=ban.active,
+        remove_time=ban.removed_time.strftime(datetime_format) if ban.removed_time is not None else None,
+        remove_user=ban.removed_by, source='local')
 
 
 def get_global_bans(username):
@@ -64,7 +69,6 @@ def get_bans(username=None, uid=None, active=None, scope="local"):
 
 
 class Bans(Resource):
-
     get_parser = RequestParser()
     get_parser.add_argument("username", type=str)
     get_parser.add_argument("id", type=int)
@@ -73,7 +77,7 @@ class Bans(Resource):
 
     def validate_get(self, args):
         if not args.get("username") and not args.get("id"):
-            return {'error': [{"message": "a id or a username must be provided"}]}, 400
+            return {'error': [{"message": "a id or a username must be provided"}]}
 
         if args.get("id") and args.get("scope") != "local":
             return {'error': [{"message": "query by id can only be used in local scope"}]}
@@ -81,7 +85,7 @@ class Bans(Resource):
         if args.get("active") == "False" and args.get("scope") != "local":
             return {'error': [{"message": "query for non active bans can only be used in local scope"}]}
 
-    @require_api_key(access_tokens=['anathema.bans.get'])
+    @require_api_key(access_tokens=['anathema.bans.get'], asuser_must_be_registered=False)
     def get(self):
         args = self.get_parser.parse_args()
         validate_args = self.validate_get(args)
@@ -101,36 +105,44 @@ class Bans(Resource):
 
         bans = get_bans(username, uid, active, scope)
 
-        print(request.api_user)
-
         return {'bans': bans}
 
     post_parser = RequestParser()
     post_parser.add_argument("username", type=str, required=True) # Username to ban
-    post_parser.add_argument("issuer", type=str, required=True) # The one who created the ban, this is optional and requires extra permissions
     post_parser.add_argument("reason", type=str, required=True) # A optional reason for the ban
-    post_parser.add_argument("location", type=str, required=True) # A optional server/interface where the ban was made
+    post_parser.add_argument("server", type=str, required=True) # A optional server/interface where the ban was made
+    # Issuer is provided in as_user
 
     def validate_post(self, args):
-        if args.get("username") and len(args.get("username")) > 16:
-            return {"message": "usernames are limited to 16 characters (username)"}, 400
-
-        if args.get("issuer") and len(args.get("issuer")) > 16:
-            return {"message": "usernames are limited to 16 characters (issuer)"}, 400
-        if not args.get("issuer"):
-            args["issuer"] = current_user.name
+        if args.get("username") and not validate_username(args.get("username")):
+            return {'error': [{"message": "invalid username"}]}
 
         if args.get("reason") and len(args.get("reason")) > 1000:
-            return {"message": "the reason must be below 1000 characters long"}, 400
+            return {'error': [{"message": "the reason must be below 1000 characters long"}]}
 
-        if args.get("location") and len(args.get("location")) > 100:
-            return {"message": "the location must be below 100 characters long"}
+        if args.get("server") and len(args.get("server")) > 10:
+            return {'error': [{"message": "the location must be below 100 characters long"}]}
 
+    @require_api_key(access_tokens=['anathema.bans.post'], asuser_must_be_registered=False)
     def post(self):
         args = self.post_parser.parse_args()
         validate_args = self.validate_post(args)
         if validate_args:
             return validate_args
+
+        issuer = request.api_user_name
+        username = args.get("username")
+        reason = args.get("reason")
+        source = args.get("server")
+
+        if len(Ban.objects(username=username, active=True)) > 0:
+            return {
+                'error': [{'message': "the user is already banned", 'identifier': "anathema.bans.add:user_already_exists"}]}
+
+        ban = Ban(issuer=issuer, username=username, reason=reason, server=source).save()
+
+        return {'ban': construct_local_ban_data(ban)}
+
 
     delete_parser = RequestParser()
     delete_parser.add_argument("username", type=str)
@@ -138,14 +150,38 @@ class Bans(Resource):
 
     def validate_delete(self, args):
         if not args.get("username") and not args.get("id"):
-            return {"message": "a id or a username must be provided"}, 400
+            return {"message": "a id or a username must be provided"}
 
+    @require_api_key(access_tokens=['anathema.bans.delete'], asuser_must_be_registered=False)
     def delete(self):
         args = self.delete_parser.parse_args()
         validate_args = self.validate_delete(args)
         if validate_args:
             return validate_args
 
+        remover = request.api_user_name
+        username = args.get("username")
+        uid = args.get("id")
+
+        query = dict(active=True)
+
+        if username:
+            query["username"] = username
+        if uid:
+            query["uid"] = uid
+
+        ban = Ban.objects(**query).first()
+
+        ban.active = False
+        ban.removed_by = remover
+        ban.removed_time = datetime.datetime.utcnow()
+        ban.save()
+
+        return {'ban': construct_local_ban_data(ban)}
+
+
 rest_api.add_resource(Bans, '/anathema/bans')
 
 register_api_access_token('anathema.bans.get')
+register_api_access_token('anathema.bans.post', permission="api.anathema.bans.post")
+register_api_access_token('anathema.bans.delete', permission="api.anathema.bans.delete")

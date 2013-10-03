@@ -12,6 +12,10 @@ class ApiTest(Resource):
     def get(self):
         return {'success': True}
 
+    @require_api_key(access_tokens=['api.test'])
+    def post(self):
+        return {'success': True}
+
 rest_api.add_resource(ApiTest, '/test')
 register_api_access_token('api.test',
                           """Provides access to the method /test. As indicated by the name, doesn't do anything at all.""")
