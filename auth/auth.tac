@@ -17,8 +17,8 @@ import base64
 SERVER_HOST   = "192.95.39.248"
 SERVER_PORT   = 25565
 
-PING_VERSION  = "1.6.2"
-PING_PROTOCOL = "74"
+PING_VERSION  = "1.6.4"
+PING_PROTOCOL = "78"
 PING_MOTD     = "Junction Auth"
 
 AUTH_ADDR     = "http://session.minecraft.net/game/checkserver.jsp?user={user}&serverId={serverId}"
