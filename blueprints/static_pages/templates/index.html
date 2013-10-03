@@ -1,57 +1,88 @@
-{% extends "base.html" %}
+{% extends "base_newer.html" %}
+
+{% set current_page = 'home' %}
 
 {% block content %}
-<div class=grid_3>
-  <div class=pane>
-    <h2><a href="http://reddit.com/r/junction">Subreddit</a></h2>
-  </div>
-</div>
-<div class=grid_9>
-  <div class=pane>
-    <table width=100%>
-      <tr>
-        <td valign=top width=33%>
-          <h2 style=text-align:center><a href="{{ url_for('static_pages.pve_landing_page') }}">p.junction.at</a></h2>
-          <p>PvE. Survival without player-killing.</p>
-          <h4>Largest cities</h4>
-          <table>
-            <thead>
-              <tr>
-                <td>City</td>
-                <td align=right>Citizens</td>
-              </tr>
-            </thead>
-            <tr>
-              <td width=100%></td>
-              <td align=right></td>
-            </tr>
-          </table>
-          <p><a href="/pve/cities/register">Register a city</a></p>
-        </td>
-        <td valign=top width=33%>
-          <h2 style=text-align:center><a href="{{ url_for('static_pages.survival_landing_page') }}">s.junction.at</a></h2>
-          <p>Moderated SMP.</p>
-          <h4>Largest clans</h4>
-          <table>
-            <thead>
-              <tr>
-                <td>Clan</td>
-                <td align=right>Members</td>
-              </tr>
-            </thead>
-            <tr>
-              <td width=100%></td>
-              <td align=right></td>
-            </tr>
-          </table>
-          <p><a href="/survival/clans/register">Register a clan</a></p>
-        </td>
-        <td valign=top width=33%>
-          <h2 style=text-align:center><a href="{{ url_for('static_pages.chaos_landing_page') }}">x.junction.at</a></h2>
-          <p>Event / Chaos server.</p>
-        </td>
-      </tr>
-    </table>
-  </div>
+<div class="container">
+    <div class="row">
+        <div class="centered">
+            <h1 style="margin-bottom: 30px; margin-top: 40px;">Welcome to Junction.</h1>
+            <div class="">
+                <div class="span4" style="font-size: 1.25em; margin-bottom: 40px;">
+                    <span>Minecraft</span>
+                    <br>
+                    <span>Multiplayer</span>
+                    <br>
+                    <span>Servers</span>
+                    <br>
+                </div>
+                <div class="span4" style="font-size: 1.25em; margin-bottom: 40px;">
+                    <span>Vibrant,</span>
+                    <br>
+                    <span>creative</span>
+                    <br>
+                    <span>community</span>
+                </div>
+                <div class="span4" style="font-size: 1.25em; margin-bottom: 40px;">
+                    <span>Join</span>
+                    <br>
+                    <span>at</span>
+                    <br>
+                    <span><code>junction.at</code></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="span3 features">
+            <img src="/static/img/pve.png" />
+            <div class="box">
+                <div class="divcenter">
+                    <h4>PvE</h4>
+                    <a href="#">Cities</a><br>
+                    <a href="{{ url_for('wiki.display_wiki_article', wiki_url='help') }}">Help</a><br>
+                    <a href="{{ url_for('wiki.display_wiki_article', wiki_url='rules') }}">Rules</a><br>
+                </div>
+            </div>
+        </div>
+        <div class="span3 features">
+            <img src="/static/img/survival.png" />
+            <div class="box">
+                <div class="divcenter">
+                    <h4>Survival</h4>
+                    <a href="#">Clans</a><br>
+                    <a href="{{ url_for('wiki.display_wiki_article', wiki_url='help') }}">Help</a><br>
+                    <a href="{{ url_for('wiki.display_wiki_article', wiki_url='rules') }}">Rules</a><br>
+                </div>
+            </div>
+        </div>
+        <div class="span3 features">
+            <img src="/static/img/event.png" />
+            <div class="box">
+                <div class="divcenter">
+                    <h4>Events</h4>
+                    <a href="{{ url_for('calendar.view_calendar') }}">Calendar</a><br>
+                    <a href="{{ url_for('wiki.display_wiki_article', wiki_url='help') }}">Help</a><br>
+                    <a href="{{ url_for('wiki.display_wiki_article', wiki_url='rules') }}">Rules</a><br>
+                </div>
+            </div>
+        </div>
+        <div class="span3 features">
+            <img src="/static/img/cross.png" />
+            <div class="box">
+                <div class="divcenter">
+                    <h4>Your Account</h4>
+                    {%- if current_user.is_authenticated() %}
+                    <a href="{{ url_for('bans.your_bans') }}">Infractions</a><br>
+                    <a href="{{ url_for('settings.settings_main') }}">Settings</a><br>
+                    <a href="{{ url_for('auth.logout') }}">Logout</a><br>
+                    {%- else %}
+                    <a href="{{ url_for('auth.login') }}">Login</a>
+                    {%- endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
+

@@ -1972,27 +1972,29 @@ ul.social li {
 }
 
 /* sticky footer */
-html, body {
-    height: 100%;
-}
+@media (min-width: 768px) {
+    html, body {
+        height: 100%;
+    }
 
-#footer-wrap {
-    min-height: 100%;
-    height: auto !important;
-    height: 100%;
-    margin: 0 auto -370px; /* Including margins */
-}
+    #footer-wrap {
+        min-height: 100%;
+        height: auto !important;
+        height: 100%;
+        margin: 0 auto -370px; /* Including margins */
+    }
 
-#wrapper {
-    height: 100%;
-}
+    #wrapper {
+        height: 100%;
+    }
 
-footer {
-    height: 340px; /* Without margins */
-}
+    footer {
+        height: 340px; /* Without margins */
+    }
 
-.footer-push {
-    height: 370px; /* Including margins */
+    .footer-push {
+        height: 370px; /* Including margins */
+    }
 }
 /* end sticky footer */
 
