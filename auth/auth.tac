@@ -15,7 +15,7 @@ import base64
 ### begin config
 
 SERVER_HOST   = "192.95.39.248"
-SERVER_PORT   = 25565
+SERVER_PORT   = 25665
 
 PING_VERSION  = "1.6.4"
 PING_PROTOCOL = "78"
@@ -24,11 +24,12 @@ PING_MOTD     = "Junction Auth"
 AUTH_ADDR     = "http://session.minecraft.net/game/checkserver.jsp?user={user}&serverId={serverId}"
 AUTH_TIMEOUT  = 10
 
-API_LOGIN     = "https://junction.at/login.json"
+#API_LOGIN     = "https://junction.at/login.json"
 API_ADDR      = "https://junction.at/api/auth/ip_username_verification?username={user}&ip={addr}"
 API_TIMEOUT   = 10
-API_USERNAME  = "Anathema"
-API_PASSWORD  = "7M5GiAKOimuwectX9QON"
+#API_USERNAME  = "Anathema"
+#API_PASSWORD  = "7M5GiAKOimuwectX9QON"
+API_KEY       = "596213b9-e12e-4da3-91db-96a197e4aee8"
 
 ### end config
 
@@ -198,7 +199,7 @@ class AuthProtocol(protocol.Protocol):
                     d = getPage(API_ADDR.format(
                         user = self.username,
                         addr = self.addr.host,
-                    ), cookies=self.factory.cookies, timeout=API_TIMEOUT)
+                    ), method='PUT', headers={"ApiKey": API_KEY}, timeout=API_TIMEOUT)
                     d.addCallbacks(api_ok, api_err)
 
                 def auth_err(e):
@@ -224,26 +225,26 @@ class AuthFactory(protocol.Factory):
     def __init__(self):
         self.keypair = Crypto.make_keypair()
         self.public_key = Crypto.export_public_key(self.keypair)
-        self.cookies = {}
+#        self.cookies = {}
 
-    def startFactory(self):
-        def login_ok(d):
-            print "API LOGIN: Failed."
-        def login_err(e):
-            if e.check(PageRedirect) and e.value.status == "303":
-                print "API LOGIN: OK"
-            else:
-                print "API LOGIN: {0}".format(e.getErrorMessage())
-
-        args = json.dumps({"username": API_USERNAME, "password": API_PASSWORD})
-        d = getPage(
-            API_LOGIN,
-            method="POST",
-            cookies=self.cookies,
-            followRedirect=False,
-            postdata=args,
-            headers={'Content-Type': 'application/json'})
-        d.addCallbacks(login_ok, login_err)
+#    def startFactory(self):
+#        def login_ok(d):
+#            print "API LOGIN: Failed."
+#        def login_err(e):
+#            if e.check(PageRedirect) and e.value.status == "303":
+#                print "API LOGIN: OK"
+#            else:
+#                print "API LOGIN: {0}".format(e.getErrorMessage())
+#
+#        args = json.dumps({"username": API_USERNAME, "password": API_PASSWORD})
+#        d = getPage(
+#            API_LOGIN,
+#            method="POST",
+#            cookies=self.cookies,
+#            followRedirect=False,
+#            postdata=args,
+#            headers={'Content-Type': 'application/json'})
+#        d.addCallbacks(login_ok, login_err)
 
     def buildProtocol(self, addr):
         return AuthProtocol(self, addr)
