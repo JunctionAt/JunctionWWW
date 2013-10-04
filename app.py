@@ -1,6 +1,5 @@
 from flask import Flask, request
 from reverse_proxied import ReverseProxied
-from flask_wtf import CsrfProtect
 
 
 # Setup App
@@ -15,18 +14,16 @@ application.jinja_env.add_extension('jinja2.ext.do')
 from util import pretty_date
 application.jinja_env.filters['pretty_date'] = pretty_date
 
-# Set secret key
-# TODO: Move to local config
-application.secret_key = "3750vIhza0IdTjPlI2H612cI8vQvfxIP7B4lsE5L"
-
 # Load config files
 with application.app_context():
-    application.config.from_object("local_config")
-    application.config.from_object("config")
+    application.config.from_pyfile('config\\local_config.py')
+    application.config.from_pyfile('config\\blueprint.py')
 
 # Setup blueprints from config
 for blueprint in application.config["BLUEPRINTS"]:
     application.register_blueprint(**blueprint)
+
+from blueprints import base
 
 # Read the git hash from a file. This should be set by the deploy script
 try:
@@ -64,7 +61,6 @@ if application.config['DEBUG']:
     with application.app_context():
         import debug
         debug.setup_env()
-
 
 # If the app was started directly, run http server
 def run():
