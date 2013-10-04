@@ -31,6 +31,8 @@ class User(Document, flask_login.UserMixin, object):
     mail = StringField()
     mail_verified = BooleanField(default=False)
 
+    reddit_username = StringField()
+
     registered = DateTimeField(default=datetime.datetime.utcnow, required=True)
 
     notifications = ListField(ReferenceField('Notification', dbref=False))

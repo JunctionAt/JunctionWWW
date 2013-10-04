@@ -1,6 +1,7 @@
 __author__ = 'HansiHE'
 
 from flask import current_app
+from blueprints.auth import current_user
 import praw
 from .. import blueprint
 
@@ -18,3 +19,7 @@ def get_flair(reddit_user):
             flair = flair_item['flair_text']
             return flair
 
+@blueprint.route('/settings/reddit', methods=["GET", "POST"])
+def reddit_pane():
+    flair = get_flair(current_user.reddit_username)
+    return
