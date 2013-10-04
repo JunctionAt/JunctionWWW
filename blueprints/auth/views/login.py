@@ -55,7 +55,7 @@ def login(ext):
             user = authenticate_user(form.username.data, form.password.data)
         except LoginException, e:
             form.errors["login"] = [e.message]
-            return render_template("login.html", form=form)
+            return render_template("login.html", form=form, title="Login")
 
         #if not user.verified:
         #    if ext == 'json': abort(403)
@@ -73,7 +73,7 @@ def login(ext):
             abort(405)
         return login_required(lambda: (redirect("/"), 303))()
 
-    return render_template("login.html", form=form)
+    return render_template("login.html", form=form, title="Login")
 
 
 @apidoc(__name__, blueprint, '/login.json', endpoint='login', defaults=dict(ext='json'), methods=('GET',))

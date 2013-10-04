@@ -23,7 +23,7 @@ def appeals_index(page):
     num_pages = math.ceil(appeal_num / float(APPEALS_PER_PAGE))
     if num_pages < page:
         if page==1:
-            return render_template('no_result_bans.html', message='No appeals found.')
+            return render_template('no_result_bans.html', message="No appeals found.", view="bans.appeals_index", title="All appeals")
         abort(404)
 
     display_appeals = appeals.skip((page - 1) * APPEALS_PER_PAGE)
@@ -33,6 +33,8 @@ def appeals_index(page):
 
     return render_template(
         'appeals_index.html',
+        view="bans.appeals_index",
+        title="All appeals",
         appeals=display_appeals,
         location_info=location_info,
         next_button=next_button,

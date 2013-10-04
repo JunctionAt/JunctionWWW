@@ -9,4 +9,4 @@ from . import settings_panels_structure
 @blueprint.route('/settings/')
 @login_required
 def settings_main():
-    return render_template('settings_base.html', settings_panels_structure=settings_panels_structure)
+    return render_template('settings_base.html', settings_panels_structure=settings_panels_structure, title="Settings")

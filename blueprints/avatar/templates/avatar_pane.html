@@ -1,6 +1,7 @@
 {% extends "settings_base.html" %}
 
 {% set current_settings_pane = "avatar" %}
+{% set current_settings_path = [{'title': "Account"}, {'title': "Profile Picture", 'url': url_for('avatar.avatar_control')}] %}
 
 {% block settings_pane %}
 <div class="">

@@ -28,4 +28,4 @@ def reauth():
 
         flash(u"Reauthenticated.")
         return redirect(request.args.get("next", '/'))
-    return render_template("reauth.html", form=form)
+    return render_template("reauth.html", form=form, title="Refresh Login")

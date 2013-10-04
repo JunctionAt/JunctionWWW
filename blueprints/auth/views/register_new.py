@@ -16,7 +16,7 @@ def register_start():
     if current_user.is_authenticated():
         flash("You are already logged in. Log out to register another account.")
         return redirect('/')
-    return render_template('register_1.html')
+    return render_template('register_1.html', title="Register")
 
 
 class RegistrationForm(Form):
@@ -44,7 +44,7 @@ def register_pool(username):
         form = RegistrationForm(request.form)
 
         if request.method == "GET":
-            return render_template('register_3.html', username=username, form=form)
+            return render_template('register_3.html', username=username, form=form, title="Register")
 
         elif request.method == "POST":
             if form.validate():
@@ -55,12 +55,12 @@ def register_pool(username):
                 user.save()
                 flash("Registration complete!")
                 return redirect(url_for('auth.login'))
-            return render_template('register_3.html', username=username, form=form)
+            return render_template('register_3.html', username=username, form=form, title="Register")
 
     #Is not verified
     else:
         if request.method == "GET":
-            return render_template('register_2.html', username=username)
+            return render_template('register_2.html', username=username, title="Register - Waiting...")
         else:
             abort(405)
 

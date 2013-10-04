@@ -2,8 +2,10 @@
 
 {% set breadcrumb_items = [
 {'title': 'Anathema', 'url': url_for('bans.a_front')},
-{'title': 'Bans', 'url': url_for('bans.bans_index')}]
+{'title': title, 'url': url_for(view)}]
 %}
+
+{% set title = "Anathema - " + title %}
 
 {% block content %}
 <div class="container">

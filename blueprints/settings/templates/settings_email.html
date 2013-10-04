@@ -1,5 +1,6 @@
 {% extends "settings_base.html" %}
 
+{% set current_settings_path = [{'title': "Account"}, {'title': "Email", 'url': url_for('settings.email_pane')}] %}
 {% set current_settings_pane = "Email" %}
 
 {% block settings_pane %}

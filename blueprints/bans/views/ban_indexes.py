@@ -19,7 +19,7 @@ def your_bans(page):
     ban_num = len(bans)
 
     if not ban_num:
-        return render_template('no_result_bans.html', message="You have no bans.")
+        return render_template('no_result_bans.html', message="You have no bans.", view="bans.your_bans", title="Your Bans")
 
     #Pagination logic begin
     num_pages = math.ceil(ban_num/float(BANS_PER_PAGE))
@@ -35,6 +35,7 @@ def your_bans(page):
     return render_template(
         'bans_index.html',
         view="bans.your_bans",
+        title="Your Bans",
         bans=display_bans,
         location_info=location_info,
         next_button=next_button,
@@ -50,7 +51,7 @@ def created_bans(page):
     ban_num = len(bans)
 
     if not ban_num:
-        return render_template('no_result_bans.html', message="No bans found")
+        return render_template('no_result_bans.html', message="No bans found", view="bans.created_bans", title="Bans you've made")
 
     num_pages = math.ceil(ban_num/float(BANS_PER_PAGE))
     if num_pages < page:
@@ -64,6 +65,7 @@ def created_bans(page):
     return render_template(
         'bans_index.html',
         view="bans.created_bans",
+        title="Bans you've made",
         bans=display_bans,
         location_info=location_info,
         next_button=next_button,
@@ -84,7 +86,7 @@ def bans_index(page):
     num_pages = math.ceil(ban_num/float(BANS_PER_PAGE))
     if num_pages < page:
         if page==1:
-            return render_template('no_result_bans.html', message='No bans found.')
+            return render_template('no_result_bans.html', message="No bans found.", view="bans.bans_index", title="All bans")
         abort(404)
 
     display_bans = bans.skip((page-1)*BANS_PER_PAGE).limit(BANS_PER_PAGE)
@@ -95,6 +97,7 @@ def bans_index(page):
     return render_template(
         'bans_index.html',
         view="bans.bans_index",
+        title="All bans",
         bans=display_bans,
         location_info=location_info,
         next_button=next_button,

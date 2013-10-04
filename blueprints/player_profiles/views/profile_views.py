@@ -21,7 +21,7 @@ def profile_view(name):
 
     profile = get_profile(user)
 
-    return render_template('profile_view.html', user=user, forum_info=forum_info, profile=profile)
+    return render_template('profile_view.html', user=user, forum_info=forum_info, profile=profile, title="Profile - " + user.name)
 
 
 class ProfileTextEditForm(Form):
@@ -47,7 +47,7 @@ def profile_text_edit(name):
         return redirect(current_user.get_profile_url())
 
     form.text.data = profile.profile_text
-    return render_template('profile_edit_text.html', profile=profile, form=form, user=current_user)
+    return render_template('profile_edit_text.html', profile=profile, form=form, user=current_user, title="Edit Profile")
 
 
 class ForumInfo(object):

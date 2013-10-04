@@ -16,7 +16,7 @@ def api_key_settings_pane():
     apikey_add_form = AddApiKeyForm(request.form)
     apikey_del_form = DelApiKeyForm(request.form)
     keys = ApiKey.objects(owner=current_user.to_dbref())
-    return render_template('api_settings_pane.html', settings_panels_structure=settings_panels_structure, keys=keys, apikey_add_form=apikey_add_form, apikey_del_form=apikey_del_form)
+    return render_template('api_settings_pane.html', settings_panels_structure=settings_panels_structure, keys=keys, apikey_add_form=apikey_add_form, apikey_del_form=apikey_del_form, title="Settings - Developer - API Keys")
 
 
 class AddApiKeyForm(Form):
@@ -82,7 +82,7 @@ def api_key_edit(key_id):
         form.label.data = key.label
         form.acl.data = key.access
 
-        return render_template('api_settings_edit_pane.html', settings_panels_structure=settings_panels_structure, form=form, key=key)
+        return render_template('api_settings_edit_pane.html', settings_panels_structure=settings_panels_structure, form=form, key=key, title="Settings - Developer - API Keys - Edit")
     elif request.method == "POST":
         form.validate()
 

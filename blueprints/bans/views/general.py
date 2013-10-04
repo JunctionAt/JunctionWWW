@@ -10,4 +10,4 @@ import math
 
 @bans.route('/a/')
 def a_front():
-    return render_template('a_front.html')
+    return render_template('a_front.html', title="Anathema")

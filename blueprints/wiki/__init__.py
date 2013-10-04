@@ -71,12 +71,12 @@ def get_wiki_article(wiki_url):
 def display_pages():
     pages = requests.get('http://api.reddit.com/r/Junction/wiki/pages/').json()['data']
     pages = filter(lambda page: page.find('/')==-1 and not page.startswith('_'), pages)
-    return render_template('wiki_listing.html', links=pages)
+    return render_template('wiki_listing.html', links=pages, title="Wiki - pages")
 
 @blueprint.route('/wiki/')
 def display_index():
-    return render_template('wiki_page.html', article=get_wiki_article('index'), index=True)
+    return render_template('wiki_page.html', article=get_wiki_article('index'), index=True, title="Wiki")
 
 @blueprint.route('/wiki/<string:wiki_url>')
 def display_wiki_article(wiki_url):
-    return render_template('wiki_page.html', article=get_wiki_article(wiki_url), index=False, wiki_url=wiki_url)
+    return render_template('wiki_page.html', article=get_wiki_article(wiki_url), index=False, wiki_url=wiki_url, title="Wiki - " + wiki_url)

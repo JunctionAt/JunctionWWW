@@ -1,4 +1,21 @@
 {% extends "base_newer.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Anathema', 'url': url_for('bans.a_front')},
+{'title': title, 'url': url_for(view)}]
+%}
+
+{% set title = "Anathema - " + title %}
+
 {% block content %}
-{{ message }}
+<div class="container">
+  <div class="row">
+      <div class="span12">
+          <div class="centered">
+              <h2 class="error">{{ message }}</h3>
+              <i class="icon-remove-circle icon-circled icon-128 active" style="margin-right:0"></i>
+          </div>
+      </div>
+  </div>
+</div>
 {% endblock %}

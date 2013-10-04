@@ -29,7 +29,7 @@ static_pages = Blueprint('static_pages', __name__, template_folder='templates')
 #            posts.refresh = datetime.utcnow() + timedelta(0, 10 * 60)
 #            posts.fetching = False
 #        lock.release()
-                
+
 @static_pages.route('/')
 def landing_page():
     #groups = dict(
@@ -43,11 +43,11 @@ def landing_page():
     #                 .all())],
     #        player_groups.endpoints.iteritems(), []))
     #if not posts.fetching and posts.refresh < datetime.utcnow(): PostFetchThread().start()
-    return render_template('index.html')#, posts=map(lambda post: post['data'], posts.data))#, groups=groups)
+    return render_template('index.html', title="Home")#, posts=map(lambda post: post['data'], posts.data))#, groups=groups)
 
 @static_pages.route('/servers/')
 def view_servers():
-    return render_template('servers.html')
+    return render_template('servers.html', title="Servers")
 
 @static_pages.route('/favicon.ico')
 def favicon():

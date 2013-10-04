@@ -24,7 +24,7 @@ def notes_index(page):
     num_pages = math.ceil(note_num/float(NOTES_PER_PAGE))
     if num_pages < page:
         if page==1:
-            return render_template('no_result_bans.html', message='No notes found.')
+            return render_template('no_result_bans.html', message="No notes found.", view="bans.notes_index", title="All notes")
         abort(404)
 
     display_notes = notes.skip((page-1)*NOTES_PER_PAGE).limit(NOTES_PER_PAGE)
@@ -35,6 +35,7 @@ def notes_index(page):
     return render_template(
         'notes_index.html',
         view="bans.notes_index",
+        title="All notes",
         notes=display_notes,
         location_info=location_info,
         next_button=next_button,
