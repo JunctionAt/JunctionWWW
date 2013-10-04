@@ -15,7 +15,7 @@ import base64
 ### begin config
 
 SERVER_HOST   = "192.95.39.248"
-SERVER_PORT   = 25665
+SERVER_PORT   = 25565
 
 PING_VERSION  = "1.6.4"
 PING_PROTOCOL = "78"
