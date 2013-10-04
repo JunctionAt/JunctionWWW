@@ -89,7 +89,7 @@ class Topic(Document):
     last_editor = ReferenceField(User, dbref=False)
     edits = ListField(EmbeddedDocumentField(TopicEdit))
 
-    last_post_date = DateTimeField(required=True)
+    last_post_date = DateTimeField(required=True, default=datetime.utcnow)
 
     board = ReferenceField(Board, dbref=False)
     forum = ReferenceField(Forum, dbref=False)
