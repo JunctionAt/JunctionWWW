@@ -9,14 +9,14 @@
 
 {% block content %}
 <div class="container">
-    {% if current_user.is_authenticated() and user.name != current_user.name %}
+    {%- if current_user.is_authenticated() and user.name != current_user.name %}
     <!-- Toolbar for others -->
     <div class="row">
         <div class="span12">
             <a class="btn btn-theme" href="{{ profile.get_send_pm_url() }}">Send PM</a>
         </div>
     </div>
-    {% elif current_user.is_authenticated() %}
+    {%- elif current_user.is_authenticated() %}
     <!-- Toolbar for yourself -->
     <div class="row">
         <div class="span12">
@@ -25,7 +25,7 @@
             <a class="btn btn-theme" href="{{ profile.get_set_password_url() }}">Change password</a>
         </div>
     </div>
-    {% endif %}
+    {%- endif %}
     <div class="row">
         <div class="span3">
             <div class="row">
@@ -63,29 +63,32 @@
                     </div>
                     <div class="tab-pane" id="forum">
                         <div class="span4">
-                            <aside class="widget">
-                                <h3 class="rheading">Stats <span></span></h3>
-                                <span>Total Topics: {{ forum_info.topic_num }}</span>
-                                <div class="clear"></div>
-                                <span>Total Posts: {{ forum_info.post_num }}</span>
-                                <div class="clear"></div>
+                            <aside>
+                                <div class="widget">
+                                    <h3 class="rheading">Stats <span></span></h3>
+                                    <span>Total Topics: {{ forum_info.topic_num }}</span>
+                                    <div class="clear"></div>
+                                    <span>Total Posts: {{ forum_info.post_num }}</span>
+                                </div>
                             </aside>
                         </div>
                         <div class="span4">
-                            <aside class="widget">
-                                <h3 class="rheading">Recent Activity</h3>
-                                <ul>
-                                    {% for activity in forum_info.forum_activity %}
-                                    {% set activity_topic = activity.topic %}
-                                    <li>
-                                        <label><strong>{% if activity.is_op %}New Topic{% else %}New Reply{% endif %}</strong></label>
-                                        <div class="clear"></div>
-                                        <a href="{{ activity_topic.get_url() }}">{{ activity_topic.title }}</a>
-                                        <div class="clear"></div>
-                                        <p>{{ activity.content|truncate(length=100, killwords=False, end="...") }}</p>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
+                            <aside>
+                                <div class="widget">
+                                    <h3 class="rheading">Recent Activity</h3>
+                                    <ul>
+                                        {%- for activity in forum_info.forum_activity %}
+                                        {%- set activity_topic = activity.topic %}
+                                        <li>
+                                            <label><strong>{% if activity.is_op %}New Topic{% else %}New Reply{% endif %}</strong></label>
+                                            <div class="clear"></div>
+                                            <a href="{{ activity_topic.get_url() }}">{{ activity_topic.title }}</a>
+                                            <div class="clear"></div>
+                                            <p>{{ activity.content|truncate(length=100, killwords=False, end="...") }}</p>
+                                        </li>
+                                        {%- endfor %}
+                                    </ul>
+                                </div>
                             </aside>
                         </div>
                     </div>
