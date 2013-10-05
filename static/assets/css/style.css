@@ -1679,7 +1679,7 @@ ul.nav-tabs { margin: 0 !important; border: none; }
 
 /* breadcrumb */
 #subintro .breadcrumb {
-	margin:10px 0 0;/* margin:30px 0 0; MODIFICATION*/
+	margin:6px 0 0;/* margin:30px 0 0; MODIFICATION*/
 	background:none;
 }
 
@@ -1947,6 +1947,16 @@ ul.social li {
 }
 
 /* MODIFICATION */
+
+.nobreak {
+    margin-bottom: 0;
+}
+
+/* header height */
+header .navbar {
+    padding: 25px 0 15px;
+}
+/* end header height */
 
 .forum-post-rendered blockquote {
     border-left: 2px solid #369;
@@ -2292,12 +2302,16 @@ img.alignright{
 	margin-left:30px;
 }
 
+.marginleft5 {
+    margin-left: 5px;
+}
+
 .marginright20 {
 	margin-right:20px;
 }
 
 .marginright5 {
-	margin-left:5px;
+	margin-right:5px;
 }
 
 

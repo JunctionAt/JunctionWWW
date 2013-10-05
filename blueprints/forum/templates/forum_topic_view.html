@@ -11,19 +11,23 @@
 
 {% block content %}
 <div class="container">
-    <div class="row">
+    <div class="row" style="margin-bottom: 15px">
         <div class="span12">
-            <h3>{{ topic.title }}</h3>
-            {% if current_user.is_authenticated() %}
-            <a class="btn btn-theme" type="submit" href="{{ topic.get_post_url() }}">Post New Reply</a>
-            {% endif %}
+            <div class="pull-left">
+                <h3 class="nobreak">{{ topic.title }}</h3>
+            </div>
+            <div class="pull-right">
+                {% if current_user.is_authenticated() %}
+                <a class="btn btn-small" type="submit" href="#post-reply">Post New Reply</a>
+                {% endif %}
+            </div>
         </div>
     </div>
 {% for post in posts %}
     <div id="post-{{post.id}}" class="row post-root">
-        <aside style="margin: 0; padding: 0;">
-            <div class="widget container">
-                <div class="row" style="margin-bottom: 0;">
+        <div class="span12">
+            <div class="box" style="padding: 0 6px 10px 6px;">
+                <div class="row-fluid nobreak">
                     <div class="span12" style="border-bottom: 1px solid #dddddd; padding-left: 2px; padding-top: 5px; padding-bottom: 5px;">
                         <div class="pull-left">
                             <span>by <a href="{{ post.author.get_profile_url() }}">{{ post.author.name }}</a> {{ post.date|pretty_date }}</span>
@@ -39,7 +43,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row" style="margin-bottom: 0;">
+                <div class="row-fluid" style="margin-bottom: 0;">
                     <div class="span2 forum-post-left"><img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}" /></div>
                     <div class="span10 forum-post-right">
                         <div class="forum-post-rendered">{{ post.content|markdown|safe }}</div>
@@ -59,37 +63,40 @@
                     </div>
                 </div>
             </div>
-        </aside>
+        </div>
     </div>
 {% endfor %}
     {% if current_user.is_authenticated() %}
     <div id="post-reply" class="row">
-        <h3>Post reply</h3>
-        <form class="container" method="post" action="{{ topic.get_post_url() }}">
+        <div class="span12">
+            <div class="box">
+                <h5 class="nobreak">Reply</h5>
+                <form method="post" action="{{ topic.get_post_url() }}">
 
-            {{ topic_reply_form.hidden_tag() }}
+                    {{ topic_reply_form.hidden_tag() }}
 
-            {% if topic_reply_form.errors %}
-            <div class="widget">
-                {% for error_field in topic_reply_form.errors.values() %}
-                {% for error in error_field %}
-                <div class="alert alert-error">
-                    <button type="button" class="close" data-dismiss="alert">×</button>
-                    {{ error }}
-                </div>
-                {% endfor %}
-                {% endfor %}
+                    {% if topic_reply_form.errors %}
+                    <div class="widget">
+                        {% for error_field in topic_reply_form.errors.values() %}
+                        {% for error in error_field %}
+                        <div class="alert alert-error">
+                            <button type="button" class="close" data-dismiss="alert">×</button>
+                            {{ error }}
+                        </div>
+                        {% endfor %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="widget">
+                        {{ topic_reply_form.content(class="input-block-level", placeholder="Post body") }}
+                    </div>
+                    <div class="widget">
+                        <button class="btn btn-success btn-small pull-left marginlr5" type="submit">Submit</button>
+                        <p class="pull-left"><a href="#format-help-modal" role="button" data-toggle="modal">Formatting help?</a></p>
+                    </div>
+                </form>
             </div>
-            {% endif %}
-            <div class="widget">
-                <label for="content">Content <span>*</span></label>
-                {{ topic_reply_form.content(class="input-block-level", placeholder="Post body") }}
-            </div>
-            <div class="widget">
-                <p><a href="#format-help-modal" role="button" data-toggle="modal">Formatting help?</a></p>
-                <button class="btn btn-theme" type="submit">Submit</button>
-            </div>
-        </form>
+        </div>
     </div>
     {% endif %}
     <div class="row">
