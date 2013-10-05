@@ -1,9 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-</head>
-<body>
+{% extends "settings_base.html" %}
 
-</body>
-</html>
+{% set current_settings_path = [{'title': "Account"}, {'title': "Reddit", 'url': url_for('settings.reddit_pane')}] %}
+{% set current_settings_pane = "Reddit" %}
+
+{% block settings_pane %}
+<div class="box">
+    {%- if reddit_username != None %}
+    <p>Reddit username: {{ reddit_username }}</p>
+    <form method="post" class="form-inline" action="{{ url_for('settings.reddit_unlink') }}">
+        <input class="btn btn-danger" type="submit" value="Unlink your Reddit username">
+    </form>
+        {%- if reddit_username == current_user.name %}
+        <p>You can't set your subreddit flair, as your usernames are the same!</p>
+        {%- elif flair != None %}
+        <p>Subreddit flair: {{ flair }}</p>
+        <p><small>Setting flair takes a few seconds, please click the button only once.</small></p>
+        <form method="post" class="form-inline" action="{{ url_for('settings.reddit_unset_flair') }}">
+            <input class="btn btn-danger" type="submit" value="Unset your subreddit flair">
+        </form>
+        {%- else %}
+        <p>Subreddit flair: not set</p>
+        <p><small>Setting flair takes a few seconds, please click the button only once.</small></p>
+        <form method="post" class="form-inline" action="{{ url_for('settings.reddit_set_flair') }}">
+            <input class="btn btn-theme" type="submit" value="Set your subreddit flair">
+        </form>
+        {%- endif %}
+    {%- else %}
+    <p>Reddit username: not linked</p>
+    <form method="post" class="form-inline" action="{{ url_for('settings.reddit_link') }}">
+        <input class="btn btn-theme" type="submit" value="Link your Reddit username">
+    </form>
+    {%- endif %}
+</div>
+{% endblock %}

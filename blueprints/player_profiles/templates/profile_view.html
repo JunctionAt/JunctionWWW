@@ -32,10 +32,20 @@
                 <aside>
                     <div class="widget">
                         <h4 class="rheading">{{ user.name }} <span></span></h4>
-                        <img class="center" src="{{ user.get_avatar_url() }}">
+                        <img src="{{ user.get_avatar_url() }}">
                     </div>
                 </aside>
             </div>
+            {%- if user.reddit_username != None %}
+            <div class="row">
+                <aside>
+                    <div class="widget">
+                        <h5 class="rheading">Reddit</h5>
+                        <span>Reddit username: <a href="https://pay.reddit.com/user/{{ user.reddit_username }}/">{{ user.reddit_username }}</a></span>
+                    </div>
+                </aside>
+            </div>
+            {%- endif %}
             <div class="row">
                 <aside>
                     <div class="widget">
