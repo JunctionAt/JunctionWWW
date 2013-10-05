@@ -42,22 +42,25 @@ except IOError:
 
 # Setup airbrake/errbit
 if application.config.get('AIRBRAKE_ENABLED', True):
-    from airbrake import AirbrakeErrorHandler
-    from flask.signals import got_request_exception
+    with application.app_context():
+        from airbrake import AirbrakeErrorHandler
+        from flask.signals import got_request_exception
+        from flask import current_app
 
-    def log_exception(sender, exception, **extra):
-        handler = AirbrakeErrorHandler(
-            api_key=application.config['AIRBRAKE_API_KEY'],
-            api_url=application.config['AIRBRAKE_API_URL'], #"http://errbit.junction.at/notifier_api/v2/notices",
-            env_name=application.config['version_hash'],
-            request_url=request.url,
-            request_path=request.path,
-            request_method=request.method,
-            request_args=request.args,
-            request_headers=request.headers)
-        handler.emit(exception)
+        def log_exception(sender, exception, **extra):
+            print "yee"
+            handler = AirbrakeErrorHandler(
+                api_key=application.config['AIRBRAKE_API_KEY'],
+                api_url=application.config['AIRBRAKE_API_URL'], #"http://errbit.junction.at/notifier_api/v2/notices",
+                env_name=application.config['version_hash'],
+                request_url=request.url,
+                request_path=request.path,
+                request_method=request.method,
+                request_args=request.args,
+                request_headers=request.headers)
+            handler.emit(exception)
 
-    got_request_exception.connect(log_exception, application)
+        got_request_exception.connect(log_exception, current_app)
 
 # Error page
 @application.errorhandler(500)
