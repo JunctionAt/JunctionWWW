@@ -19,5 +19,5 @@ class GroupList(Resource):
 
         return {'users': user_groups}
 
-rest_api.add_resource(GroupList, '/auth/groups/list')
-register_api_access_token('auth.groups.list.get')
+rest_api.add_resource(GroupList, '/auth/group/list')
+register_api_access_token('auth.group.list.get')
