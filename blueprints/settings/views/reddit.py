@@ -74,7 +74,7 @@ def reddit_set_flair():
     reddit_username = current_user.reddit_username
     if reddit_username != None:
         if username.lower() != reddit_username.lower():
-            reddit_oauth.login('JunctionBot', '^pOd9$qHU&t8J#t8Nd#m')
+            reddit_oauth.login(current_app.config.get('REDDIT_BOT_USERNAME'), current_app.config.get('REDDIT_BOT_PASSWORD'))
             reddit_oauth.get_subreddit(subreddit).set_flair(reddit_username, username)
             flash('Your flair has been set on /r/%s.' % subreddit)
             return redirect(url_for('settings.reddit_pane'))
