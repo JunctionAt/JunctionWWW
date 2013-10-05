@@ -112,6 +112,6 @@ def get_blueprint():
                       static_folder='static', static_url_path='/auth/static')
 
         from views import login, logout, reauth, setpassword, administrative, register_new, add_api_account
-        from api import register
+        from api import register, groups
 
     return blueprint
