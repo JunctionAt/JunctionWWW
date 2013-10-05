@@ -1,5 +1,6 @@
 from flask import Flask, request
 from reverse_proxied import ReverseProxied
+from os import pathsep
 
 
 # Setup App
@@ -16,8 +17,10 @@ application.jinja_env.filters['pretty_date'] = pretty_date
 
 # Load config files
 with application.app_context():
-    application.config.from_pyfile('config\\local_config.py')
-    application.config.from_pyfile('config\\blueprint.py')
+    from config import local_config
+    application.config.from_object(local_config)
+    from config import blueprint_config
+    application.config.from_object(blueprint_config)
 
 # Setup blueprints from config
 for blueprint in application.config["BLUEPRINTS"]:
