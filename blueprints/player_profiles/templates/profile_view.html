@@ -50,7 +50,7 @@
                 <aside>
                     <div class="widget">
                         <h5 class="rheading">Badges</h5>
-                        <span>Nothing here :(</span>
+                        {{ render_badges(profile)|safe }}
                     </div>
                 </aside>
             </div>
@@ -64,7 +64,7 @@
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="overview">
-                        <p>{{ profile.profile_text|escape|markdown }}</p>
+                        <p>{{ profile.profile_text|markdown }}</p>
                     </div>
                     <div class="tab-pane" id="stats">
                         <p>

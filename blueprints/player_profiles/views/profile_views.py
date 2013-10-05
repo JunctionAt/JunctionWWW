@@ -5,6 +5,7 @@ from flask import render_template, abort, request, redirect
 from blueprints.auth.user_model import User
 from blueprints.forum.database.forum import Post, Topic
 from ..database.profile import PlayerProfile
+from ..badges import render_badges
 from blueprints.auth import current_user, login_required
 from flask_wtf import Form
 from wtforms import TextAreaField, SubmitField
@@ -21,7 +22,7 @@ def profile_view(name):
 
     profile = get_profile(user)
 
-    return render_template('profile_view.html', user=user, forum_info=forum_info, profile=profile, title="Profile - " + user.name)
+    return render_template('profile_view.html', user=user, forum_info=forum_info, profile=profile, render_badges=render_badges, title="Profile - " + user.name)
 
 
 class ProfileTextEditForm(Form):

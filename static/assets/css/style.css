@@ -2032,6 +2032,11 @@ footer a {
 
 /* end footer color change */
 
+.player-badge {
+    width: 16px;
+    height: 16px;
+}
+
 /* END MODIFICATION */
 
 
