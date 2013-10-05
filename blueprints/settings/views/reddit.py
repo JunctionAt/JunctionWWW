@@ -3,7 +3,7 @@ __author__ = 'HansiHE'
 from flask import render_template, request, url_for, flash, redirect
 from blueprints.base import csrf
 from blueprints.auth import current_user, login_required
-import praw, md5, os
+import praw, hashlib, os
 from .. import blueprint
 from . import add_settings_pane, settings_panels_structure
 
@@ -11,7 +11,7 @@ from . import add_settings_pane, settings_panels_structure
 
 CLIENT_ID = 'YfYyXm8wPjag2w'
 CLIENT_SECRET = '3pFHaT9xDyjRC2ZBnmjl3kusavE'
-REDIRECT_URI = 'https://williammck-dev.junction.at/settings/reddit/link'
+REDIRECT_URI = 'https://junction.at/settings/reddit/link'
 
 #subreddit = current_app.config.get('REDDIT_SUBREDDIT')
 subreddit = 'Junction'
@@ -43,7 +43,7 @@ def reddit_pane():
 @csrf.exempt
 def reddit_link():
     if request.method == 'POST':
-        state = md5.new(os.urandom(24)).hexdigest()
+        state = hashlib.md5(os.urandom(24)).hexdigest()
         link = reddit_oauth.get_authorize_url(state, 'identity')
         return redirect("%s" % link)
     try:
