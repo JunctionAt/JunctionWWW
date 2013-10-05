@@ -7,7 +7,7 @@ from blueprints.auth.user_model import User
 from blueprints.auth.util import validate_username
 from functools import wraps
 
-datetime_format = "%S:%M %d/%m/%Y %Z"
+datetime_format = "%I:%M %d/%m/%Y %p"
 
 blueprint = Blueprint('api', __name__, template_folder='templates')
 

@@ -1,7 +1,7 @@
 import flask
 from blueprints import (auth, notifications, static_pages, api, avatar,
                         logs, bans, forum, wiki, admin,
-                        player_profiles, donations, staff, settings, calendar)
+                        player_profiles, donations, staff, settings, calendar, modreq)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
@@ -11,7 +11,7 @@ BLUEPRINTS = [
 
     # Notifications
     dict(blueprint=notifications.blueprint),
-    
+
     # Static pages
     dict(blueprint=static_pages.static_pages),
 
@@ -23,7 +23,7 @@ BLUEPRINTS = [
 
     # Avatars
     dict(blueprint=avatar.avatar),
-    
+
     # Player stats
     #dict(blueprint=player_stats.player_stats([
     #            dict(name='pve', tablename='pve_stats',
@@ -39,7 +39,7 @@ BLUEPRINTS = [
     #                    'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
     #                    ]),
    #             ])),
-    
+
     # Player profiles
     dict(blueprint=player_profiles.blueprint),
 
@@ -51,7 +51,7 @@ BLUEPRINTS = [
 
     # Bans
     dict(blueprint=bans.bans),
-    
+
     # Forum
     dict(blueprint=forum.blueprint),
 
