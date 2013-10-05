@@ -25,7 +25,9 @@ RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''
 
 # Reddit Link Bot/Settings
+REDDIT_BOT_USERNAME = 'JunctionBot'
+REDDIT_BOT_PASSWORD = ''
 REDDIT_CLIENT_ID = ''
 REDDIT_CLIENT_SECRET = ''
-REDDIT_REDIRECT_URL = ''
+REDDIT_REDIRECT_URI = 'https://junction.at/settings/reddit/link'
 REDDIT_SUBREDDIT = 'Junction'
