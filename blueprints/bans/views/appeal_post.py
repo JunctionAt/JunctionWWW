@@ -3,7 +3,8 @@ __author__ = 'HansiHE'
 from .. import bans
 from flask import render_template, abort, redirect, url_for, request, flash
 from flask_login import current_user
-from wtforms import Form, TextAreaField, SelectField, SubmitField, TextField
+from flask_wtf import Form
+from wtforms import TextAreaField, SelectField, SubmitField, TextField
 from wtforms.validators import Required, Length
 from blueprints.bans.ban_model import Ban
 from blueprints.bans.appeal_model import Appeal, AppealReply, AppealEdit
