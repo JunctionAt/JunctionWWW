@@ -1,7 +1,8 @@
-import flask
+__author__ = 'HansiHE'
+
 from blueprints import (auth, notifications, static_pages, api, avatar,
                         logs, bans, forum, wiki, admin,
-                        player_profiles, donations, staff, settings, calendar, modreq)
+                        player_profiles, donations, staff, settings, calendar)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
@@ -70,29 +71,3 @@ BLUEPRINTS = [
     dict(blueprint=settings.blueprint)
 
     ]
-
-
-# Markdown support
-from flaskext.markdown import Markdown
-Markdown(flask.current_app, safe_mode="escape")
-
-# Server name global
-@flask.current_app.context_processor
-def inject_server():
-    return dict(server_display_name=lambda server: dict(pve='PvE', survival='Survival', event='Event', chaos='Chaos', staff='Staff')[server],)
-
-UPLOAD_FOLDER = "/tmp/www/uploads"
-
-# Recaptcha
-RECAPTCHA_USE_SSL = True
-RECAPTCHA_PUBLIC_KEY = '6LdkRtkSAAAAAMtMsr3JLyMcNN-2dsMSpeLM5CvB'
-RECAPTCHA_PRIVATE_KEY = '6LdkRtkSAAAAAA8EBjvIX38Z62LIpNmAbFNseNqh'
-
-# Reddit Link
-REDDIT_CLIENT_ID = ""
-REDDIT_CLIENT_SECRET = ""
-REDDIT_REDIRECT_URL = ""
-REDDIT_SUBREDDIT = 'Junction'
-
-DEFAULT_FORUM = 'main'
-DEFAULT_CALENDAR = 'main'
