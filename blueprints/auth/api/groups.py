@@ -15,7 +15,7 @@ class GroupList(Resource):
 
         user_groups = dict()
         for name, groups in users:
-            user_groups[name] = dict(groups=groups)
+            user_groups[name] = dict(groups=map(lambda group: group.name, groups))
 
         return {'users': user_groups}
 
