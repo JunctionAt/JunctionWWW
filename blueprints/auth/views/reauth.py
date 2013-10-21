@@ -3,7 +3,8 @@ __author__ = 'HansiHE'
 from .. import blueprint, login_required
 from flask import request, flash, redirect, render_template, session, current_app, abort
 from flask_login import confirm_login, login_fresh, current_user, user_needs_refresh, login_url
-from wtforms import Form, PasswordField
+from flask_wtf import Form
+from wtforms import PasswordField
 from wtforms.validators import Required, Length
 from blueprints.auth.util import authenticate_user, LoginException
 

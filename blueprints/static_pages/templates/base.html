@@ -42,7 +42,7 @@
                                 <!-- logo -->
                                 <div class="logo">
                                     <a href="/">
-                                    <img src="/static/img/junction2.svg" alt="" style="height: 40px; position: relative; top: -8px;" />
+                                        <img src="/static/img/junction.svg" alt="Junction logo" style="height: 40px; position: relative; top: -8px;" />
                                     </a>
                                 </div>
                                 <!-- end logo -->
@@ -85,7 +85,7 @@
                                             {%- if current_user.is_authenticated() %}
                                             {%- set notification_previews = get_notifications_previews(current_user, 5) %}
                                             {%- set num_notifications = get_notifications_num(current_user) %}
-                                            <li class="dropdown">
+                                            <li class="dropdown{% if current_page == 'notifications' %} active{% endif %}">
                                             <a href="{{ url_for('notifications.notifications_view') }}"><i class="icon-envelope{% if not num_notifications == 0 %}-alt{% endif %}"></i> {{ num_notifications }} <i class="icon-angle-down"></i></a>
                                                 <ul class="dropdown-menu" style="display: none;">
                                                     {%- for notification in notification_previews %}
@@ -121,7 +121,8 @@
                         </div>
                     </div>
                 </section>
-                {%- endif %} 
+                {%- endif %}
+                {%- if get_flashed_messages() %}
                 <div class="container">
                     <div class="row" style="margin-bottom: 0;">
                         <div class="span12">
@@ -134,8 +135,10 @@
                         </div>
                     </div>
                 </div>
+                {%- endif %}
                 <div class="content">
-                {%- block content %} 
+                {%- block content %}
+                <p>You shouldn't be seeing this message. Contact a tech and give them the URL you're on currently.</p>
                 {%- endblock %}
                 </div>
                 <div class="footer-push"></div>

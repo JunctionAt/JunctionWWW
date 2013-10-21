@@ -4,26 +4,97 @@
 {'title': 'Notifications'}]
 %}
 
-{% macro render_body(notification) %}
-    {% if notification.render_type == 0 %}
-        {{ notification.data['text']|escape }}
-    {% elif notification.render_type == 1 %}
-        {{ notification.data['text']|escape|markdown|safe }}
-    {% elif notification.render_type == 2 %}
-        {{ notification.data['text']|safe }}
-    {% elif notification.render_type == 3 %}
+{% set current_page = 'notifications' %}
 
-    {% endif %}
-{% endmacro %}
+{%- macro render_notification(notification) %}
+{%- if notification._cls == 'BaseNotification.BasePlayerSenderNotification.PMNotification' %}
+<a href="#mail-{{ notification.id }}" data-toggle="modal" title="Click to view message">Mail</a>
+{%- endif %}
+{%- endmacro %}
+
+{%- macro render_sender(notification) %}
+{%- if notification._cls == 'BaseNotification.BasePlayerSenderNotification.PMNotification' %}
+<a href="{{ notification.sender_user.get_profile_url() }}">{{ notification.sender }}</a>
+{%- endif %}
+{%- endmacro %}
+
+{%- macro render_tools(notification) %}
+{%- if notification._cls == 'BaseNotification.BasePlayerSenderNotification.PMNotification' %}
+<a href="{{ url_for('player_profiles.send_pm', name=notification.sender_user) }}" title="Reply"><i class="icon-reply"></i></a>
+{%- if not notification.read %}
+<a href="{{ url_for('notifications.notification_mark', id=notification.id, mark='read') }}" title="Mark as read"><i class="icon-envelope"></i></a>
+{%- else %}
+<a href="{{ url_for('notifications.notification_mark', id=notification.id, mark='unread') }}" title="Mark as unread"><i class="icon-envelope-alt"></i></a>
+{%- endif %}
+<a href="{{ url_for('notifications.notification_delete', id=notification.id) }}" title="Delete"><i class="icon-remove"></i></a>
+{%- endif %}
+{%- endmacro %}
 
 {% block content %}
 <div class="container">
-    {% for notification in notifications %}
     <div class="row">
+    {%- if notifications %}
         <div class="span12">
-                {{ notification.render_notification() }}
+            <div class="box">
+                <table class="table table-condensed table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Notification</th>
+                            <th>Sender</th>
+                            <th>Time sent</th>
+                            <th>Tools</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%- for notification in notifications %}
+                        <tr>
+                            <td>
+                                {%- if notification.read %}
+                                <small style="color: #cccccc">!</small>
+                                {%- else %}
+                                <small>!</small>
+                                {%- endif %}
+                            </td>
+                            <td>
+                                {{ render_notification(notification) }}
+                            </td>
+                            <td>
+                                {{ render_sender(notification) }}
+                            </td>
+                            <td>
+                                {{ notification.date.strftime("%H:%M %d %b %y") }}
+                            </td>
+                            <td>
+                                {{ render_tools(notification) }}
+                            </td>
+                        </tr>
+                        {%- endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
+        {%- for notification in notifications %}
+        {%- if notification._cls == 'BaseNotification.BasePlayerSenderNotification.PMNotification' %}
+        <div id="mail-{{ notification.id }}" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="mail-label-{{ notification.id }}" aria-hidden="true">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="mail-label-{{ notification.id }}">Mail Message</h3>
+            </div>
+            <div class="modal-body">
+                {{ notification.message|markdown|safe }}
+            </div>
+        </div>
+        {%- endif %}
+        {%- endfor %}
+    {%- else %}
+        <div class="span12">
+            <div class="centered">
+                <h2 class="error">You have no notifications.</h3>
+                <i class="icon-remove-circle icon-circled icon-128 active" style="margin-right:0"></i>
+            </div>
+        </div>
+    {%- endif %}
     </div>
-    {% endfor %}
 </div>
 {% endblock %}

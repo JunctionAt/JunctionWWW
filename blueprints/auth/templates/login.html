@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% from 'formhelpers.html' import render_field %}
-
 {% set breadcrumb_items = [
 {'title': 'Login', 'url': url_for('auth.login')}]
 %}
+
+{% set current_page = 'profile' %}
 
 {% block content %}
 <div class="container">
@@ -12,15 +12,16 @@
         <div class="offset4 span4">
             <div class="box">
                 <h3 class="rheading">Log in to Junction <span></span></h3>
-                <form action="{{ url_for('auth.login', ext='html') }}" method=post>
-
+                <form action="" method="post">
                     {{ form.hidden_tag() }}
-
-                    {% if form.errors.values() %}
+                    {%- for error_field in form.errors.values() %}
+                    {%- for error in error_field %}
                     <div class="alert alert-error">
-                        {{ form.errors.values()[0][0] }}
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        {{ error }}
                     </div>
-                    {% endif %}
+                    {%- endfor %}
+                    {%- endfor %}
                     <div class="widget">
                         {{ form.username(placeholder=form.username.label.text) }}
                     </div>
@@ -34,6 +35,8 @@
                     </div>
                     <button class="btn btn-theme" type="submit">Log in</button>
                 </form>
+                <p>Don't have an account? <a href="{{ url_for('auth.register_start') }}">Create one</a>!</p>
+                <p>Forgot your password? Contact a tech.</p>
             </div>
         </div>
     </div>

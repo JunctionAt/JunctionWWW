@@ -62,9 +62,6 @@ def set_unban_date(uid):
     if not ban.active:
         abort(404)
 
-    #if not ban.active:
-    #    abort(404)
-
     unban_date_form = UnbanDateForm(request.form)
 
     if unban_date_form.remove.data:
@@ -76,7 +73,8 @@ def set_unban_date(uid):
 
     ban.save()
 
-    return 'SUCCESS'
+    flash('Setting of unban date succeeded.')
+    return redirect(url_for('bans.view_appeal', uid=reply.appeal.ban.uid))
 
 class UnlockDateForm(Form):
     remove = SubmitField('Remove the set date')
@@ -98,9 +96,6 @@ def set_unlock_date(uid):
     if not ban.active:
         abort(404)
 
-    #if not ban.active:
-    #    abort(404)
-
     unlock_date_form = UnlockDateForm(request.form)
 
     appeal = ban.appeal
@@ -114,7 +109,8 @@ def set_unlock_date(uid):
 
     appeal.save()
 
-    return 'SUCCESS'
+    flash('Setting of unlock date succeeded.')
+    return redirect(url_for('bans.view_appeal', uid=reply.appeal.ban.uid))
 
 @bans.route('/a/appeal/action/remove_ban_id/<int:uid>/', methods=['POST', 'GET'])
 @login_required
@@ -136,5 +132,5 @@ def unban_ban_id(uid):
 
     ban.save()
 
-    return 'SUCCESS'
-
+    flash('Unbanning succeeded.')
+    return redirect(url_for('bans.view_appeal', uid=reply.appeal.ban.uid))

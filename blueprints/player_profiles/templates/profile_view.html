@@ -22,37 +22,31 @@
         <div class="span12">
             <a class="btn btn-theme" href="{{ profile.get_edit_text_url() }}">Edit profile text</a>
             <a class="btn btn-theme" href="{{ url_for('avatar.avatar_control') }}">Edit avatar</a>
-            <a class="btn btn-theme" href="{{ profile.get_set_password_url() }}">Change password</a>
+            <a class="btn btn-theme" href="{{ url_for('auth.setpassword') }}">Change password</a>
         </div>
     </div>
     {%- endif %}
     <div class="row">
         <div class="span3">
             <div class="row">
-                <aside>
-                    <div class="widget">
-                        <h4 class="rheading">{{ user.name }} <span></span></h4>
-                        <img src="{{ user.get_avatar_url() }}">
-                    </div>
-                </aside>
+                <div class="box">
+                    <h4 class="rheading">{{ user.name }} <span></span></h4>
+                    <img src="{{ user.get_avatar_url() }}">
+                </div>
             </div>
             {%- if user.reddit_username != None %}
             <div class="row">
-                <aside>
-                    <div class="widget">
-                        <h5 class="rheading">Reddit</h5>
-                        <span>Reddit username: <a href="https://pay.reddit.com/user/{{ user.reddit_username }}/">{{ user.reddit_username }}</a></span>
-                    </div>
-                </aside>
+                <div class="box">
+                    <h5 class="rheading">Reddit</h5>
+                    <span>Reddit username: <a href="http://www.reddit.com/user/{{ user.reddit_username }}/">{{ user.reddit_username }}</a></span>
+                </div>
             </div>
             {%- endif %}
             <div class="row">
-                <aside>
-                    <div class="widget">
-                        <h5 class="rheading">Badges</h5>
-                        {{ render_badges(profile)|safe }}
-                    </div>
-                </aside>
+                <div class="box">
+                    <h5 class="rheading">Badges</h5>
+                    {{ render_badges(profile)|safe }}
+                </div>
             </div>
         </div>
         <div class="span9">
@@ -64,7 +58,7 @@
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="overview">
-                        <p>{{ profile.profile_text|markdown }}</p>
+                        <p>{{ profile.profile_text|markdown|safe }}</p>
                     </div>
                     <div class="tab-pane" id="stats">
                         <p>
@@ -85,12 +79,12 @@
                         <div class="span4">
                             <aside>
                                 <div class="widget">
-                                    <h3 class="rheading">Recent Activity</h3>
+                                    <h3 class="rheading">Recent Activity <span></span></h3>
                                     <ul>
                                         {%- for activity in forum_info.forum_activity %}
                                         {%- set activity_topic = activity.topic %}
                                         <li>
-                                            <label><strong>{% if activity.is_op %}New Topic{% else %}New Reply{% endif %}</strong></label>
+                                            <strong>{% if activity.is_op %}New Topic{% else %}New Reply{% endif %}</strong>
                                             <div class="clear"></div>
                                             <a href="{{ activity_topic.get_url() }}">{{ activity_topic.title }}</a>
                                             <div class="clear"></div>

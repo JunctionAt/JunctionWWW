@@ -17,13 +17,13 @@
                 <h3 class="nobreak">{{ topic.title }}</h3>
             </div>
             <div class="pull-right">
-                {% if current_user.is_authenticated() %}
+                {%- if current_user.is_authenticated() %}
                 <a class="btn btn-small" type="submit" href="#post-reply">Post New Reply</a>
-                {% endif %}
+                {%- endif %}
             </div>
         </div>
     </div>
-{% for post in posts %}
+    {%- for post in posts %}
     <div id="post-{{post.id}}" class="row post-root">
         <div class="span12">
             <div class="box" style="padding: 0 6px 10px 6px;">
@@ -34,12 +34,12 @@
                         </div>
                         <div class="pull-right">
                             <a href="#post-{{ post.id }}">permalink</a>
-                            {% if current_user.is_authenticated() %}
+                            {%- if current_user.is_authenticated() %}
                             <a class="quote-link" href="#">quote</a>
-                            {% endif %}
-                            {% if post.can_edit(current_user) %}
+                            {%- endif %}
+                            {%- if post.can_edit(current_user) %}
                             <a class="edit-link" href="{{ url_for('forum.edit_post', post_id=post.id) }}">edit</a>
-                            {% endif %}
+                            {%- endif %}
                         </div>
                     </div>
                 </div>
@@ -51,54 +51,51 @@
                         <div class="forum-post-edit">
                             <form action="{{ url_for('forum.edit_post', post_id=post.id) }}" method="post">
                                 {{ topic_reply_form.hidden_tag() }}
-
                                 <div class="widget">
                                     <textarea name="content"></textarea>
                                 </div>
                                 <button class="btn btn-theme" type="submit">Submit</button>
                             </form>
                         </div>
-
                         <!-- {{ post.id }} -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
-{% endfor %}
-    {% if current_user.is_authenticated() %}
+    {%- endfor %}
+    {%- if current_user.is_authenticated() %}
     <div id="post-reply" class="row">
         <div class="span12">
             <div class="box">
-                <h5 class="nobreak">Reply</h5>
-                <form method="post" action="{{ topic.get_post_url() }}">
-
+                <label for="content">Reply</label>
+                <form method="post" action="{{ topic.get_post_url() }}" style="margin-bottom:0;">
                     {{ topic_reply_form.hidden_tag() }}
-
-                    {% if topic_reply_form.errors %}
+                    {%- if topic_reply_form.errors %}
                     <div class="widget">
-                        {% for error_field in topic_reply_form.errors.values() %}
-                        {% for error in error_field %}
+                        {%- for error_field in topic_reply_form.errors.values() %}
+                        {%- for error in error_field %}
                         <div class="alert alert-error">
                             <button type="button" class="close" data-dismiss="alert">×</button>
                             {{ error }}
                         </div>
-                        {% endfor %}
-                        {% endfor %}
+                        {%- endfor %}
+                        {%- endfor %}
                     </div>
-                    {% endif %}
+                    {%- endif %}
                     <div class="widget">
                         {{ topic_reply_form.content(class="input-block-level", placeholder="Post body") }}
                     </div>
                     <div class="widget">
-                        <button class="btn btn-success btn-small pull-left marginlr5" type="submit">Submit</button>
+                        <button class="btn btn-theme btn-small pull-left marginright5" type="submit">Submit</button>
                         <p class="pull-left"><a href="#format-help-modal" role="button" data-toggle="modal">Formatting help?</a></p>
                     </div>
+                    <div class="clear"></div>
                 </form>
             </div>
         </div>
     </div>
-    {% endif %}
+    {%- endif %}
     <div class="row">
         <div class="span12">
             <div class="pagination">
@@ -106,11 +103,11 @@
                     <li class="{% if not prev %}disabled{% endif %}">
                         <a href="{{ prev or '#' }}">Prev</a>
                     </li>
-                    {% for link in links %}
+                    {%- for link in links %}
                     <li class="{% if link['active'] %}active{% endif %}">
                         <a href="{{ link['url'] }}">{{ link['num'] }}</a>
                     </li>
-                    {% endfor %}
+                    {%- endfor %}
                     <li class="{% if not next %}disabled{% endif %}">
                         <a href="{{ next or '#' }}">Next</a>
                     </li>
@@ -119,7 +116,6 @@
         </div>
     </div>
 </div>
-
 <div id="format-help-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="format-help-modal-label" aria-hidden="true">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -140,16 +136,20 @@
             </thead>
             <tbody>
                 <tr>
-                    <th>*italics*</th>
-                    <th><em>italics</em></th>
+                    <td>*italics*</td>
+                    <td><em>italics</em></td>
                 </tr>
                 <tr>
-                    <th>**bold**</th>
-                    <th><strong>bold</strong></th>
+                    <td>**bold**</td>
+                    <td><strong>bold</strong></td>
                 </tr>
                 <tr>
-                    <th>(link)[https://junction.at]</th>
-                    <th><a href="https://junction.at">link</a></th>
+                    <td>[link](https://junction.at)</td>
+                    <td><a href="https://junction.at">link</a></td>
+                </tr>
+                <tr>
+                    <td>![catz](http://i.imgur.com/FudN96H.jpg)</td>
+                    <td><img alt="catz" src="http://i.imgur.com/FudN96H.jpg"></td>
                 </tr>
             </tbody>
         </table>

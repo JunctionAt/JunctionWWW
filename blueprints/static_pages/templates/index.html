@@ -35,10 +35,10 @@
     </div>
     <div class="row">
         <div class="span3 features">
-            <img src="/static/img/pve.png" />
+            <a href="{{ url_for('static_pages.view_servers') }}#pve"><img src="/static/img/pve.png" /></a>
             <div class="box">
                 <div class="divcenter">
-                    <h4>PvE</h4>
+                    <a href="{{ url_for('static_pages.view_servers') }}#pve"><h4>PvE</h4></a>
                     <a href="#">Cities</a><br>
                     <a href="{{ url_for('wiki.display_wiki_article', wiki_url='help') }}">Help</a><br>
                     <a href="{{ url_for('wiki.display_wiki_article', wiki_url='rules') }}">Rules</a><br>
@@ -46,10 +46,10 @@
             </div>
         </div>
         <div class="span3 features">
-            <img src="/static/img/survival.png" />
+            <a href="{{ url_for('static_pages.view_servers') }}#survival"><img src="/static/img/survival.png" /></a>
             <div class="box">
                 <div class="divcenter">
-                    <h4>Survival</h4>
+                    <a href="{{ url_for('static_pages.view_servers') }}#survival"><h4>Survival</h4></a>
                     <a href="#">Clans</a><br>
                     <a href="{{ url_for('wiki.display_wiki_article', wiki_url='help') }}">Help</a><br>
                     <a href="{{ url_for('wiki.display_wiki_article', wiki_url='rules') }}">Rules</a><br>
@@ -57,10 +57,10 @@
             </div>
         </div>
         <div class="span3 features">
-            <img src="/static/img/event.png" />
+            <a href="{{ url_for('static_pages.view_servers') }}#event"><img src="/static/img/event.png" /></a>
             <div class="box">
                 <div class="divcenter">
-                    <h4>Events</h4>
+                    <a href="{{ url_for('static_pages.view_servers') }}#event"><h4>Events</h4></a>
                     <a href="{{ url_for('calendar.view_calendar') }}">Calendar</a><br>
                     <a href="{{ url_for('wiki.display_wiki_article', wiki_url='help') }}">Help</a><br>
                     <a href="{{ url_for('wiki.display_wiki_article', wiki_url='rules') }}">Rules</a><br>
@@ -68,15 +68,16 @@
             </div>
         </div>
         <div class="span3 features">
-            <img src="/static/img/cross.png" />
+            <a href="{% if current_user.is_authenticated() %}{{ current_user.get_profile_url() }}{% else %}{{ url_for('auth.login') }}{% endif %}"><img src="/static/img/cross.png" /></a>
             <div class="box">
                 <div class="divcenter">
-                    <h4>Your Account</h4>
                     {%- if current_user.is_authenticated() %}
+                    <a href="{{ current_user.get_profile_url() }}"><h4>Your Account</h4></a>
                     <a href="{{ url_for('bans.your_bans') }}">Infractions</a><br>
                     <a href="{{ url_for('settings.settings_main') }}">Settings</a><br>
                     <a href="{{ url_for('auth.logout') }}">Logout</a><br>
                     {%- else %}
+                    <a href="{{ url_for('auth.login') }}"><h4>Your Account</h4></a>
                     <a href="{{ url_for('auth.login') }}">Login</a>
                     {%- endif %}
                 </div>

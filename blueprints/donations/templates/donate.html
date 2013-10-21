@@ -1,174 +1,79 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Junction - Donate</title>
-    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
-    <link href='/static/css/jquery-ui.css' rel='stylesheet' type='text/css'>
-    <script src="/static/js/jquery-1.9.1-min.js" type="text/javascript"></script>
-    <script src="/static/js/jquery-ui-1.10.1.custom.min.js" type="text/javascript"></script>
-    <style type="text/css">
-        body {
-            background: #D7D7D7;
-            font-family: 'Roboto', sans-serif;
-            margin-top: 16px;
-            min-width: 960px;
-        }
-        .container {
-            width: 960px;
-            margin: 0 auto;
-            border-left: #333333;
-            border-right: #333333;
-        }
-        .header {
-            width: 100%;
-            height: 128px;
-        }
-        .logo_grid_scaffold {
-            width: 128px;
-            height: 128px;
-            float: left;
-        }
-        .logo {
-            height: 128px;
-        }
-        .header-pane {
-            background: #414142;
-            height: 128px;
-            width: 827px;
-            float: left;
-            margin-left: 5px;
-        }
-        .title {
-            font-size: 2em;
-            margin: 45px 20px;
-            color: #ffffff;
-        }
-        .content {
-            width: 960px;
-            position: relative;
-            left: -2px;
-            border-right: 2px #aaaaaa solid;
-            border-left: 2px #aaaaaa solid;
-            border-top: 2px #aaaaaa solid;
-            border-radius: 2px;
-            min-height: 500px;
-            margin-top: 8px;
-            background: #f2f2f2;
-        }
-        .progress {
-            width: 100%;
-            height: 18px;
-            background: #e2d6d2;
-            border-bottom: 1px #aaaaaa solid;
-        }
-        .progress .bar {
-            width: {{ funds_percentage }}%;
-            height: inherit;
-            background: #aed8b6;
-            /* IE10 Consumer Preview */
-            background-image: -ms-linear-gradient(top, #bce7c4 0%, #96d89f 60%);
-            /* Mozilla Firefox */
-            background-image: -moz-linear-gradient(top, #bce7c4 0%, #96d89f 60%);
-            /* Opera */
-            background-image: -o-linear-gradient(top, #bce7c4 0%, #96d89f 60%);
-            /* Webkit (Safari/Chrome 10) */
-            background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #bce7c4), color-stop(0.6, #96d89f));
-            /* Webkit (Chrome 11+) */
-            background-image: -webkit-linear-gradient(top, #bce7c4 0%, #96d89f 60%);
-            /* W3C Markup, IE10 Release Preview */
-            background-image: linear-gradient(to bottom, #bce7c4 0%, #96d89f 60%);
-        }
-        .progress-hanger {
-            width: 300px;
-            border: 1px #aaaaaa solid;
-            border-top: 0;
-            border-bottom-left-radius: 2px;
-            border-bottom-right-radius: 2px;
-            background: #f8f8f8;
-            margin: 0 auto;
-            text-align: center;
-            padding: 3px;
-        }
-        .description {
-            width: 80%;
-            margin: 6px auto;
-            background: #ffffff;
-            border: 1px #bbbbbb solid;
-            border-radius: 5px;
-            padding: 10px;
-        }
-        .donate {
-            width: 90%;
-            margin: 8px auto;
-        }
-        .donate #amount {
-            width: 30px;
-        }
-        .seperator {
-            width: 98%;
-            border-top: 1px #bbbbbb solid;
-            border-bottom: 1px #ffffff solid;
-            margin: 8px auto;
-        }
-    </style>
-    <script>
-        $(function() {
-            $("#amount-slider").slider({
-                value: 10,
-                min:2,
-                max:400,
-                step:1,
-                slide: function( event, ui ) {
-                    var val = ui.value;
-                    $("#amount").val(Math.round(val<100?val/3:33+((val-100)*2)));
-                }
-            });
-            $( "#amount" ).val($( "#amount-slider" ).slider( "value" ) );
-            $("#amount").change(function() {
-                if($("#amount").val() < 1) {
-                    $("#amount").val(1)
-                };
-                $("#amount-slider").slider("value", $("#amount").val());
-            });
-        });
-    </script>
-</head>
-<body>
-    <div class="container">
-        <section class="header">
-            <a class="logo_grid_scaffold">
-                <img src="/static/img/logo.png" class="logo">
-            </a>
-            <div class="header-pane">
-                <h1 class="title">Donations</h1>
-            </div>
-        </section>
-        <section class="content">
-            <section>
-                <div class="progress">
-                    <div class="bar"></div>
-                </div>
-                <div class="progress-hanger">
-                    {{ funds_percentage }}% ({{ funds_current }}$) funds collected of {{ funds_target }}$
-                </div>
+{% extends "base.html" %}
 
-            </section>
-            <div class="description">
-                The Junction Minecraft community is run entirely by the players.
-                Therefore we need your help each month, to pay for our top-notch server hardware.
-                All the donated money go towards paying bills.
-                Donating is entirely optional for everyone, and won't give you any privileges except bragging rights.
+{% set breadcrumb_items = [
+{'title': 'Donate'}]
+%}
+
+{% set title = 'Donate' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="span12 widget">
+            <div class="alert alert-error">
+                Not all features on here are finished just yet. Donations are working just fine though.
             </div>
-            <div class="seperator"></div>
-            <form class="donate" action="https://www.paypal.com/cgi-bin/webscr" method="post">
-                <div><div id="amount-slider"></div></div>
-                <label for="amount">$</label>
-                <input type="text" id="amount"/>
-                <input type="hidden" name="cmd" value="_s-xclick">
-                <input type="hidden" name="hosted_button_id" value="RUW3VXFPJECNN">
-                <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-            </form>
-        </section>
+            {%- if not current_user.is_authenticated() %}
+            <div class="alert alert-info">
+                Please log in to your account before donating to claim any possible swag.
+            </div>
+            {%- endif %}
+        </div>
     </div>
-</body>
-</html>
+    <div class="row">
+        <div class="span12">
+            <div class="widget box">
+                <div class="progress">
+                    <div class="bar progress-striped" style="width: {{ funds_current / funds_target * 100 }}%;"></div>
+                </div>
+                <div>{{ funds_current }}$ raised of {{ funds_target }}$</div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="offset4 span4 center">
+            <div class="widget box">
+                <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="margin: 0;">
+                    <input type="hidden" name="cmd" value="_s-xclick">
+                    <input type="hidden" name="hosted_button_id" value="72TWX9774QACJ">
+                    <input type="hidden" name="custom" value="{{ signed_user }}">
+                    <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+                    <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="span6">
+            <div class="widget box">
+                <h3 class="rheading">Stats <span></span></h3>
+                <span>Number of donations: {{ num_donations }}</span><br>
+                <span>Total donations: {{ total_donations }}</span><br>
+                <span>Amount taken by Paypal: {{ total_fees }}$</span><br>
+                <a href="{{ url_for('donations.payments_view') }}">See payments</a><br>
+            </div>
+        </div>
+        <div class="span6">
+            <div class="widget box">
+                <h3 class="rheading">Top donations <span></span></h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <td>User</td>
+                            <td>Amount (-fees)</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%- for donation in top_donations %}
+                        <tr>
+                            <td>{{ donation.username or 'Anonymous' }}</td>
+                            <td>{{ donation.gross }} (-{{ donation.fee }})</td>
+                        </tr>
+                        {%- endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

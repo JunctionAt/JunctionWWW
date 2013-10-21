@@ -21,7 +21,7 @@ def donate():
     donations = DonationTransaction.objects(valid=True)
     transactions = Transaction.objects()
     return render_template(
-        'donate_newer.html',
+        'donate.html',
         funds_target=funds_target,
         funds_current=transactions.sum('amount'),
         total_fees=donations.sum('fee'),

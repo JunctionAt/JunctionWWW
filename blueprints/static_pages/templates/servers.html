@@ -16,18 +16,44 @@
     </div>
     <div class="row">
         <div class="span12">
-            <h3 class="rheading">Servers</h3>
+            <h3 class="rheading">Servers <span></span></h3>
         </div>
     </div>
-    <div class="row">
+    <div class="row" id="pve">
         <div class="span3">
-            <img src="/static/img/pve.jpg" style="border-radius: 2px; border: 1px solid #e9e9e9;">
+            <img src="/static/img/servers_pve.png" style="border-radius: 2px; border: 1px solid #e9e9e9;">
+        </div>
+        <div class="span9">
+            <div class="box">
+                <h3 class="rheading">PvE<span></span></h3>
+                <p>A server with a custom generated map, dedicated to surviving against the environment and building. Build your dream home or join others to construct cities. PvP is not allowed, build protections are available, and chests can be locked so you can protect what you've worked for.</p>
+                <p>Server can be joined directly by connecting to <code>p.junction.at</code>.</p>
+                <p>Want to see what people have been building? Visit <a href="https://junction.at/carto/pve/">the cartographs</a> and get ideas from today and older map revisions.</p>
+            </div>
+         </div>
+    </div>
+    <div class="row" id="survival">
+        <div class="span3">
+            <img src="/static/img/servers_survival.png" style="border-radius: 2px; border: 1px solid #e9e9e9;">
         </div>
         <div class="span9">
           <div class="box">
-            <h3 class="rheading">PvE <span></span></h3>
-            <p>A server with a custom generated map, dedicated to surviving against the environment and building. Build your dream home or join others to construct cities. PvP is not allowed, build protections are available, and chests can be locked so you can protect what you've worked for.</p>
-            <p>Server can be joined directly by connecting to <code>p.junction.at</code>.</p>
+            <h3 class="rheading">Survival<span></span></h3>
+            <p>Fight to the death with people you've never met before in state of the art arenas and vast landscapes. Build a base deep underground and wait for someone to fall into your elaborate trap of fate. Have you gathered up tons of diamonds for your armour and swords? Protect your chests so your enemies won't steal it all.</p>
+            <p>Server can be joined directly by connecting to <code>s.junction.at</code>.</p>
+            <p>Want to see ideas for your extravagant hideout? Visit <a href="https://junction.at/carto/survival/">the cartographs</a> and get ideas from older map revisions. We don't generate the current revision in order to let people keep their bases private.</p>
+          </div>
+         </div>
+    </div>
+    <div class="row" id="event">
+        <div class="span3">
+            <img src="/static/img/servers_event.png" style="border-radius: 2px; border: 1px solid #e9e9e9;">
+        </div>
+        <div class="span9">
+          <div class="box">
+            <h3 class="rheading">Events<span></span></h3>
+            <p>Always changing, the event server gives you a place to experience the best of Minecraft maps from famous creators, or highlights from our players. Want to see what is coming up next? Visit the <a href="{{ url_for('calendar.view_calendar') }}">calendar</a> and get info about upcoming events.</p>
+            <p>Server can be joined directly by connecting to <code>e.junction.at</code>.</p>
           </div>
          </div>
     </div>

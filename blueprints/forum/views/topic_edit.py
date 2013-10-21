@@ -4,7 +4,7 @@ from .. import blueprint
 from ..database.forum import Post, PostEdit
 from flask import abort, render_template, request, redirect
 from flask_wtf import Form
-from wtforms import TextAreaField
+from wtforms import TextAreaField, SubmitField
 from wtforms.validators import Required, Length
 from blueprints.auth import current_user
 from datetime import datetime
@@ -16,6 +16,7 @@ class PostEditForm(Form):
     content = TextAreaField("Content", validators=[
         Required(message="Some content is required."),
         Length(min=1, max=5000, message="Content must be between 1 and 5000 characters long.")])
+    submit = SubmitField("Submit")
 
 
 @login_required

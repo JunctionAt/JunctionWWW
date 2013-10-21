@@ -4,70 +4,54 @@
 {'title': 'Anathema', 'url': url_for('bans.a_front')}]
 %}
 
+{% set current_page = 'bans' %}
+
 {% block content %}
 <div class="container">
     <div class="row">
         <div class="span3">
-            <aside>
-                <div class="widget">
-                    <div class="divcenter">
-                        <a href="{{ url_for('bans.bans_index') }}">
-                            <i class="icon-circled icon-128 icon-ban-circle" style="margin-left: 16px;"></i>
+            <div class="box divcenter">
+                        <a href="{{ url_for('bans.bans_index') }}" class="bans-link-icon">
+                            <i class="icon-circled icon-128 icon-ban-circle"></i>
                         </a>
                         <br>
                         <a href="{{ url_for('bans.bans_index') }}">Bans</a>
-                    </div>
-                </div>
-            </aside>
+            </div>
         </div>
         <div class="span3">
-            <aside>
-                <div class="widget">
-                    <div class="divcenter">
-                        <a href="{{ url_for('bans.appeals_index') }}" style="margin-left: 16px;">
+            <div class="box divcenter">
+                       <a href="{{ url_for('bans.appeals_index') }}" class="bans-link-icon">
                             <i class="icon-circled icon-128 icon-share-alt"></i>
                         </a>
                         <br>
                         <a href="{{ url_for('bans.appeals_index') }}">Appeals</a>
-                    </div>
-                </div>
-            </aside>
+            </div>
         </div>
         <div class="span3">
-            <aside>
-                <div class="widget">
-                    {% if current_user.has_permission('bans.note.view') %}
-                    <div class="divcenter">
-                        <a href="{{ url_for('bans.notes_index') }}" style="margin-left: 16px;">
+            <div class="box divcenter">
+                    {%- if current_user.has_permission('bans.note.view') %}
+                        <a href="{{ url_for('bans.notes_index') }}" class="bans-link-icon">
                             <i class="icon-circled icon-128 icon-tag"></i>
                         </a>
                         <br>
                         <a href="{{ url_for('bans.notes_index') }}">Notes</a>
-                    </div>
-                    {% else %}
-                    <div class="divcenter">
-                        <a style="margin-left: 16px;">
+                    {%- else %}
+                        <a class="bans-link-icon">
                             <i class="icon-circled icon-128 icon-tag" style="background-color: #888;"></i>
                         </a>
                         <br>
                         <a style="color: #888;">Notes</a>
-                    </div>
-                    {% endif %}
-                </div>
-            </aside>
+                    {%- endif %}
+            </div>
         </div>
         <div class="span3">
-            <aside>
-                <div class="widget">
-                    <div class="divcenter">
-                        <a href="{{ url_for('bans.your_bans') }}" style="margin-left: 16px;">
+            <div class="box divcenter">
+                        <a href="{{ url_for('bans.your_bans') }}" class="bans-link-icon">
                             <i class="icon-circled icon-128 icon-edit"></i>
                         </a>
                         <br>
                         <a href="{{ url_for('bans.your_bans') }}">Appeal Ban</a>
-                    </div>
-                </div>
-            </aside>
+            </div>
         </div>
     </div>
 </div>

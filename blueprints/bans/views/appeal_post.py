@@ -19,7 +19,9 @@ This file should contain everything related to viewing, editing and posting to a
 
 
 class AppealReplyForm(Form):
-    text = TextAreaField('Text')
+    text = TextAreaField('Text', validators=[
+        Required(message="Some content is required."),
+        Length(min=1, max=5000, message="Content must be between 1 and 5000 characters long.")])
     submit = SubmitField('Submit')
 
 
@@ -51,6 +53,7 @@ def view_appeal(uid):
 
     return render_template(
         'view_appeal.html',
+        title='Anathema - Appeals - Appeal #' + str(ban.uid),
         reply_form=reply_form,
 #        admin_form=admin_form,
         ban=ban,
@@ -77,7 +80,7 @@ def post_appeal_reply(uid):
     if appeal is None:
         abort(404)
 
-    if (current_user.has_permission("bans.appeal.manage") or (current_user.name.lower() == ban.username.lower() and appeal.state==0)) and reply_form.submit.data:
+    if (current_user.has_permission("bans.appeal.manage") or (current_user.name.lower() == ban.username.lower() and appeal.state==0)) and reply_form.validate():
         reply = AppealReply(creator=current_user.to_dbref(), text=reply_form.text.data, appeal=appeal)
         reply.edits.append(AppealEdit(text=reply_form.text.data, user=current_user.to_dbref()))
         reply.save()
@@ -109,6 +112,7 @@ def post_new_appeal(uid):
     if request.method == 'GET':
         return render_template(
             'new_appeal.html',
+            title='Anathema - Your Bans - New Appeal',
             form=form
         )
 

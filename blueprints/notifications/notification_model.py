@@ -22,6 +22,7 @@ class BaseNotification(Document):
     receiver = StringField(required=True)
 
     date = DateTimeField(required=True, default=datetime.datetime.utcnow)
+    deletable = BooleanField(default=False)
 
     read = BooleanField(default=False)
     deleted = BooleanField(default=False)
@@ -54,6 +55,7 @@ class BasePlayerSenderNotification(BaseNotification):
 
 class PMNotification(BasePlayerSenderNotification):
 
+    deletable = BooleanField(default=True)
     source = StringField()
     message = StringField(required=True)
 

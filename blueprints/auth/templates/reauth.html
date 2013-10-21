@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 
+{% set breadcrumb_items = [
+{'title': 'Refresh Login', 'url': url_for('auth.reauth')}]
+%}
+
+{% set current_page = 'profile' %}
+
 {% block content %}
 <div class="container">
     <div class="row">
@@ -10,7 +16,16 @@
                     We need to verify your password before you can do this.
                 </p>
                 <form style="margin: 0;" accept-charset="UTF-8" action="" method="post">
+                    {%- for error_field in form.errors.values() %}
+                    {%- for error in error_field %}
+                    <div class="alert alert-error">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        {{ error }}
+                    </div>
+                    {%- endfor %}
+                    {%- endfor %}
                     <div class="widget">
+                        {{ form.hidden_tag() }}
                         {{ form.password(placeholder=form.password.label.text) }}
                     </div>
                     <div class="widget">

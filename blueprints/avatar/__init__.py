@@ -37,7 +37,7 @@ def avatar_control():
     if request.method == "POST":
         if form.mc_skin_button.data:
             set_avatar(current_user.name, get_mc_face(current_user.name))
-        elif form.upload_button.data and form.image.has_file():
+        elif form.upload_button.data and form.image.data:
             try:
                 data = StringIO.StringIO(form.image.data.read())
                 image = Image.open(data)

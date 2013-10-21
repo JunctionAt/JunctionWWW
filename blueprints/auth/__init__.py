@@ -108,10 +108,9 @@ def get_blueprint():
 
     global blueprint
     if blueprint is None:
-        blueprint = Blueprint('auth', __name__, template_folder='templates',
-                      static_folder='static', static_url_path='/auth/static')
+        blueprint = Blueprint('auth', __name__, template_folder='templates')
 
-        from views import login, logout, reauth, setpassword, administrative, register_new, add_api_account
+        from views import login, logout, reauth, setpassword, register, add_api_account
         from api import register, groups
 
     return blueprint

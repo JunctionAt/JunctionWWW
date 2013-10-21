@@ -5,32 +5,31 @@
 
 {% block settings_pane %}
 <div class="box">
-    {% for error in form.mail.errors %}
+    <h3 class="rheading">Email <span></span></h3>
+    {%- for error in form.mail.errors %}
         <div class="alert alert-error">
             <button type="button" class="close" data-dismiss="alert">×</button>
             {{ error }}
         </div>
-    {% endfor %}
+    {%- endfor %}
     <div>
-        {% if current_user.mail_verified %}
-        <span><code>{{ current_user.mail }}</code> has been verified with your account!</span>
-        {% else %}
-            {% if current_user.mail %}
-            <span><code>{{ current_user.mail }}</code> is not yet verified.</span>
-            {% else %}
-            <span>You have no mail address associated.</span>
-            {% endif %}
-        {% endif %}
+        {%- if current_user.mail_verified %}
+        <p><code>{{ current_user.mail }}</code> has been verified with your account!</p>
+        {%- else %}
+        {%- if current_user.mail %}
+        <p><code>{{ current_user.mail }}</code> is not yet verified.</p>
+        {%- else %}
+        <p>You have no mail address associated.</p>
+        {%- endif %}
+        {%- endif %}
     </div>
     <form method="post" class="form-inline">
-
         {{ form.hidden_tag() }}
-
         {{ form.mail }}
         {{ form.update(class='btn btn-theme') }}
-        {% if not current_user.mail_verified %}
-            {{ form.resend(class='btn btn-theme') }}
-        {% endif %}
+        {%- if not current_user.mail_verified %}
+        {{ form.resend(class='btn btn-theme') }}
+        {%- endif %}
     </form>
 </div>
 {% endblock %}

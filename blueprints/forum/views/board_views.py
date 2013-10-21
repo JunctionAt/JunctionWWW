@@ -22,8 +22,6 @@ def view_board_redirect(board_id):
 @blueprint.route('/forum/b/<int:board_id>/<string:board_name>/', defaults={'page': 1})
 @blueprint.route('/forum/b/<int:board_id>/<string:board_name>/page/<int:page>/')
 def view_board(board_id, board_name, page):
-    if page == 0:
-        abort(404)
 
     board = Board.objects(board_id=board_id).first()
     if board is None:

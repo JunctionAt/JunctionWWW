@@ -4,33 +4,24 @@
 {% set current_settings_path = [{'title': "Account"}, {'title': "Profile Picture", 'url': url_for('avatar.avatar_control')}] %}
 
 {% block settings_pane %}
-<div class="">
-    <div class="container-fluid">
-        <div class="row-fluid">
-            <div class="offset4 span4">
-                <aside>
-                    <div class="widget center" style="margin-bottom: 20px;">
-                        <img src="{{ url_for('avatar.get_avatar', name=name) }}">
-                    </div>
-                </aside>
-            </div>
+<div class="row-fluid">
+    <div class="offset4 span4">
+        <div class="box center" style="margin-bottom: 20px;">
+            <img src="{{ url_for('avatar.get_avatar', name=name) }}">
         </div>
-        <form method="post" enctype="multipart/form-data">
-            {{ avatar_form.hidden_tag() }}
-            <aside>
-                <div class="widget">
-                    <h4>Upload image</h4>
-                    {{ avatar_form.image }}
-                    {{ avatar_form.upload_button(class="btn btn-theme") }}
-                </div>
-            </aside>
-            <aside>
-                <div class="widget">
-                    <h4>Use skin face</h4>
-                    {{ avatar_form.mc_skin_button(class="btn btn-theme") }}
-                </div>
-            </aside>
-        </form>
     </div>
 </div>
+<form method="post" enctype="multipart/form-data">
+    {{ avatar_form.hidden_tag() }}
+    <div class="row-fluid box">
+        <h3 class="rheading">Upload image <span></span></h3>
+        {{ avatar_form.image }}
+        {{ avatar_form.upload_button(class="btn btn-theme") }}
+    </div>
+    <br>
+    <div class="row-fluid box">
+        <h3 class="rheading">Use skin face <span></span></h3>
+        {{ avatar_form.mc_skin_button(class="btn btn-theme") }}
+    </div>
+</form>
 {% endblock %}

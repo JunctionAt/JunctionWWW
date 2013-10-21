@@ -1,21 +1,23 @@
 {% extends "base.html" %}
 
 {% set breadcrumb_items = [
-{'title': 'Staff'}]
+{'title': 'Staff', 'url': url_for('staff.view_staff')}]
 %}
+
+{% set title = 'Staff' %}
 
 {% block content %}
 <div class="container">
     <div class="row">
-        {% for person in staff %}
-        {% set profile_url = person.get_profile_url() %}
+        {%- for person in staff %}
+        {%- set profile_url = person.get_profile_url() %}
         <div class="span2 widget">
             <a href="{{ profile_url }}">
                 <img src="{{ person.get_avatar_url() }}" href="{{ profile_url }}">
                 <h6 href="{{ profile_url }}">{{ person.name }}</h6>
             </a>
         </div>
-        {% endfor %}
+        {%- endfor %}
     </div>
 </div>
 {% endblock %}

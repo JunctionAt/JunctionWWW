@@ -1,10 +1,81 @@
 {% extends "base.html" %}
 
+{% set breadcrumb_items = [
+{'title': 'Anathema', 'url': url_for('bans.a_front')},
+{'title': 'Appeals', 'url': url_for('bans.appeals_index')},
+{'title': 'Appeal #' ~ ban.uid, 'url': url_for('bans.view_appeal', uid=ban.uid)},
+{'title': 'Edit Reply'}]
+%}
+
+{% set current_page = 'bans' %}
+
 {% block content %}
-<div class="grid_12 pane">
-    <form method="post">
-        {{ form.text(style="width: 100%;") }}
-        {{ form.submit }}
-    </form>
+<form class="container" method="post">
+    {{ form.hidden_tag() }}
+    {%- if form.errors %}
+    <div class="row">
+        <div class="span12">
+            {%- for error_field in form.errors.values() %}
+                {%- for error in error_field %}
+                <div class="alert alert-error">
+                    <button type="button" class="close" data-dismiss="alert">×</button>
+                    {{ error }}
+                </div>
+                {%- endfor %}
+            {%- endfor %}
+        </div>
+    </div>
+    {%- endif %}
+    <div class="row">
+        <div class="span12">
+            <label for="text">Content <span>*</span></label>
+            {{ form.text(class="input-block-level", placeholder="Appeal body", rows="12", style="resize: horizontal;") }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="span12">
+            <button class="btn btn-theme pull-left marginright5" name="submit" type="submit">Submit</button>
+            <p class="pull-left"><a href="#format-help-modal" role="button" data-toggle="modal">Formatting help?</a></p>
+        </div>
+    </div>
+</form>
+<div id="format-help-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="format-help-modal-label" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Markdown Help</h3>
+    </div>
+    <div class="modal-body">
+        <p>Junction uses a version of Markdown for formatting, much like reddit. Here are some basics to get ya started.</p>
+        <table class="table table-bordered table-condensed table-striped">
+            <thead>
+                <tr>
+                    <th class="span6">
+                        You Type
+                    </th>
+                    <th class="span6">
+                        You Get
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>*italics*</td>
+                    <td><em>italics</em></td>
+                </tr>
+                <tr>
+                    <td>**bold**</td>
+                    <td><strong>bold</strong></td>
+                </tr>
+                <tr>
+                    <td>[link](https://junction.at)</td>
+                    <td><a href="https://junction.at">link</a></td>
+                </tr>
+                <tr>
+                    <td>![catz](http://i.imgur.com/FudN96H.jpg)</td>
+                    <td><img alt="catz" src="http://i.imgur.com/FudN96H.jpg"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
