@@ -13,7 +13,6 @@
             <div class="box">
                 <h3 class="rheading">Log in to Junction <span></span></h3>
                 <form action="" method="post">
-                    {{ form.hidden_tag() }}
                     {%- for error_field in form.errors.values() %}
                     {%- for error in error_field %}
                     <div class="alert alert-error">
