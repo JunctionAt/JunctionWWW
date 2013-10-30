@@ -30,6 +30,14 @@ static_pages = Blueprint('static_pages', __name__, template_folder='templates')
 #            posts.fetching = False
 #        lock.release()
 
+@current_app.errorhandler(404)
+def error_404(e):
+      return render_template('404.html'), 404
+
+@current_app.errorhandler(403)
+def error_403(e):
+      return render_template('403.html'), 403
+
 @static_pages.route('/')
 def landing_page():
     #groups = dict(
