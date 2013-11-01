@@ -9,7 +9,7 @@
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="span12 widget">
+        <div class="span12">
             <div class="alert alert-error">
                 Not all features on here are finished just yet. Donations are working just fine though.
             </div>
@@ -22,17 +22,17 @@
     </div>
     <div class="row">
         <div class="span12">
-            <div class="widget box">
+            <div class="box">
                 <div class="progress">
                     <div class="bar progress-striped" style="width: {{ funds_current / funds_target * 100 }}%;"></div>
                 </div>
-                <div>{{ funds_current }}$ raised of {{ funds_target }}$</div>
+                <div>${{ funds_current }} raised of ${{ funds_target }}</div>
             </div>
         </div>
     </div>
     <div class="row">
         <div class="offset4 span4 center">
-            <div class="widget box">
+            <div class="box">
                 <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="margin: 0;">
                     <input type="hidden" name="cmd" value="_s-xclick">
                     <input type="hidden" name="hosted_button_id" value="72TWX9774QACJ">
@@ -45,16 +45,16 @@
     </div>
     <div class="row">
         <div class="span6">
-            <div class="widget box">
+            <div class="box">
                 <h3 class="rheading">Stats <span></span></h3>
                 <span>Number of donations: {{ num_donations }}</span><br>
-                <span>Total donations: {{ total_donations }}</span><br>
-                <span>Amount taken by Paypal: {{ total_fees }}$</span><br>
+                <span>Total donations: ${{ total_donations }}</span><br>
+                <span>Amount taken by Paypal: ${{ total_fees }}</span><br>
                 <a href="{{ url_for('donations.payments_view') }}">See payments</a><br>
             </div>
         </div>
         <div class="span6">
-            <div class="widget box">
+            <div class="box">
                 <h3 class="rheading">Top donations <span></span></h3>
                 <table class="table">
                     <thead>
@@ -67,7 +67,7 @@
                         {%- for donation in top_donations %}
                         <tr>
                             <td>{{ donation.username or 'Anonymous' }}</td>
-                            <td>{{ donation.gross }} (-{{ donation.fee }})</td>
+                            <td>${{ donation.gross }} (-${{ donation.fee }})</td>
                         </tr>
                         {%- endfor %}
                     </tbody>
