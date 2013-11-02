@@ -6,22 +6,22 @@
 <div class="container">
     <div class="row">
         <div class="centered">
-            <h1 style="margin-bottom: 30px; margin-top: 40px;">Welcome to Junction.</h1>
-            <div class="">
+            <h1 style="margin-bottom: 30px; margin-top: 40px;">Chaos 1.7.2 is up!</h1>
+            <div>
                 <div class="span4" style="font-size: 1.25em; margin-bottom: 40px;">
-                    <span>Minecraft</span>
+                    <span>Revision 2</span>
                     <br>
-                    <span>Multiplayer</span>
+                    <span>will be up</span>
                     <br>
-                    <span>Servers</span>
+                    <span>soon&trade;</span>
                     <br>
                 </div>
                 <div class="span4" style="font-size: 1.25em; margin-bottom: 40px;">
-                    <span>Vibrant,</span>
+                    <span>Enjoy</span>
                     <br>
-                    <span>creative</span>
+                    <span>Chaos</span>
                     <br>
-                    <span>community</span>
+                    <span>for now.</span>
                 </div>
                 <div class="span4" style="font-size: 1.25em; margin-bottom: 40px;">
                     <span>Join</span>
@@ -34,7 +34,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="span3 features">
+    {#        <div class="span3 features">
             <a href="{{ url_for('static_pages.view_servers') }}#pve"><img src="/static/img/pve.png" /></a>
             <div class="box">
                 <div class="divcenter">
@@ -66,8 +66,8 @@
                     <a href="{{ url_for('wiki.display_wiki_article', wiki_url='rules') }}">Rules</a><br>
                 </div>
             </div>
-        </div>
-        <div class="span3 features">
+        </div>#}
+        <div class="span4 offset4 features">
             <a href="{% if current_user.is_authenticated() %}{{ current_user.get_profile_url() }}{% else %}{{ url_for('auth.login') }}{% endif %}"><img src="/static/img/cross.png" /></a>
             <div class="box">
                 <div class="divcenter">

@@ -58,12 +58,10 @@
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="overview">
-                        <p>{{ profile.profile_text|markdown|safe }}</p>
+                        {{ profile.profile_text|markdown|safe }}
                     </div>
                     <div class="tab-pane" id="stats">
-                        <p>
-                            This isn't made yet :(
-                        </p>
+                        <p>This isn't made yet :(</p>
                     </div>
                     <div class="tab-pane" id="forum">
                         <div class="span4">
