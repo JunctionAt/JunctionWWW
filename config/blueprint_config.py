@@ -1,8 +1,8 @@
 __author__ = 'HansiHE'
 
 from blueprints import (auth, notifications, static_pages, api, avatar,
-                        logs, bans, forum, wiki, admin,
-                        player_profiles, donations, staff, settings, calendar)
+                        logs, bans, forum, wiki, admin, modreq,
+                        player_profiles, groups, donations, staff, settings, calendar)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
@@ -45,6 +45,7 @@ BLUEPRINTS = [
     dict(blueprint=player_profiles.blueprint),
 
     # Player groups (Clans & Cities)
+    dict(blueprint=groups.get_blueprint()),
     #dict(blueprint=player_groups.player_groups([
     #            dict(name='pve', group='city', groups='cities', member='citizen', owner='mayor'),
     #            dict(name='survival', group='clan', owner='leader'),
