@@ -1,3 +1,3 @@
-from modreq_model import ModReqP, ModReqS, ModReqE
+from modreq_model import ModReq
 
 import api
