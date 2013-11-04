@@ -13,6 +13,7 @@ blueprint = Blueprint('api', __name__, template_folder='templates')
 
 access_tokens = dict()
 
+
 def register_api_access_token(token, description=None, link=None, permission=None):
     access_tokens[token] = dict(token=token, description=description, link=link, permission=permission)
 
@@ -58,6 +59,17 @@ def require_api_key(access_tokens=list(), asuser_must_be_registered=True): # I k
             return func(*args, **kwargs)
         return wrap
     return init
+
+
+def endpoint():
+    """
+    This decorator adds documentation for the endpoint.
+    It does nothing for now, but it is good practice to add this to views.
+    """
+    def wrap(func):
+        # TODO: Add documentation stuff
+        return func
+    return wrap
 
 register_api_access_token("api.as_user", "allows you to use the AsUser header to perform actions as users other than the key creator", permission="api.as_user")
 
