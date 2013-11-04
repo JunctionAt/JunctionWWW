@@ -37,15 +37,16 @@ def edit_reply(uid):
     if appeal is None:
         abort(404)
 
-    if request.method == "POST":
-        if (current_user.has_permission("bans.appeal.edit") or (current_user.name.lower() == ban.username.lower() and appeal.state==0)) and form.validate():
-            reply.edits.append(AppealEdit(text=form.text.data, user=current_user.to_dbref(), time=datetime.datetime.utcnow()))
-            reply.edited = datetime.datetime.utcnow()
-            reply.editor = current_user.to_dbref()
-            reply.text = form.text.data
-            reply.save()
-            return redirect(url_for('bans.view_appeal', uid=ban.uid))
+    if not current_user.has_permission("bans.appeal.edit") or (current_user.name.lower() == ban.username.lower() and appeal.state==0):
+        abort(403)
 
-    if request.method == "GET":
-        form.text.data = reply.text
-        return render_template('edit_appeal_reply.html', form=form, ban=ban, title='Anathema - Appeals - Appeal #' + str(ban.uid) + ' - Edit Reply')
+    if request.method == "POST" and form.validate():
+        reply.edits.append(AppealEdit(text=form.text.data, user=current_user.to_dbref(), time=datetime.datetime.utcnow()))
+        reply.edited = datetime.datetime.utcnow()
+        reply.editor = current_user.to_dbref()
+        reply.text = form.text.data
+        reply.save()
+        return redirect(url_for('bans.view_appeal', uid=ban.uid))
+
+    form.text.data = reply.text
+    return render_template('edit_appeal_reply.html', form=form, ban=ban, title='Anathema - Appeals - Appeal #' + str(ban.uid) + ' - Edit Reply')
