@@ -9,13 +9,11 @@
 <div class="container">
     <div class="row">
         <div class="span12">
-            <aside>
-                <div class="widget">
-                    {%- for link in links %}
-                    <p><a href="/wiki/{{ link }}">{{ link }}</a></p>
-                    {%- endfor %}
-                </div>
-            </aside>
+            <div class="box">
+                {%- for link in links %}
+                <p><a href="/wiki/{{ link }}">{{ link }}</a></p>
+                {%- endfor %}
+            </div>
         </div>
     </div>
 </div>

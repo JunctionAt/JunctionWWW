@@ -80,16 +80,19 @@ def post_appeal_reply(uid):
     if appeal is None:
         abort(404)
 
-    if (current_user.has_permission("bans.appeal.manage") or (current_user.name.lower() == ban.username.lower() and appeal.state==0)) and reply_form.validate():
+    if not current_user.has_permission("bans.appeal.manage") or (current_user.name.lower() == ban.username.lower() and appeal.state==0):
+        abort(403)
+
+    if request.method == "POST" and reply_form.validate():
         reply = AppealReply(creator=current_user.to_dbref(), text=reply_form.text.data, appeal=appeal)
         reply.edits.append(AppealEdit(text=reply_form.text.data, user=current_user.to_dbref()))
         reply.save()
         appeal.replies.append(reply)
         appeal.last = datetime.datetime.utcnow()
         appeal.save()
+        return redirect(url_for('bans.view_appeal', uid=uid))
 
-    return redirect(url_for('bans.view_appeal', uid=uid))
-
+    abort(404)
 
 class NewAppealForm(Form):
     text = TextAreaField('Appeal Text', [ Required(), Length(min=8) ])
@@ -106,17 +109,13 @@ def post_new_appeal(uid):
     if ban is None:
         abort(404)
 
-    if hasattr(ban, 'appeal') and ban.appeal is not None and ban.username != current_user.name:
+    if hasattr(ban, 'appeal') and ban.appeal is not None:
         abort(404)
 
-    if request.method == 'GET':
-        return render_template(
-            'new_appeal.html',
-            title='Anathema - Your Bans - New Appeal',
-            form=form
-        )
+    if not ban.username == current_user.name:
+        abort(403)
 
-    if request.method == 'POST':
+    if request.method == 'POST' and form.validate():
         appeal = Appeal(ban=ban)
         appeal.save()
         reply = AppealReply(creator=current_user.to_dbref(), text=form.text.data, appeal=appeal)
@@ -128,3 +127,5 @@ def post_new_appeal(uid):
         ban.save()
 
         return redirect(url_for('bans.view_appeal', uid=ban.uid))
+
+    return render_template('new_appeal.html', title='Anathema - Your Bans - New Appeal', form=form)

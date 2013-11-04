@@ -2033,6 +2033,10 @@ header .navbar {
     margin-bottom: 0;
 }
 
+footer .verybottom {
+    padding-top: 45px;
+}
+
 /* footer color change */
 
 /* footer {
