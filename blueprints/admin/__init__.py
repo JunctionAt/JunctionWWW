@@ -63,12 +63,15 @@ class Forum_Post_View(ModelView):
 
 admin.add_view(Forum_Post_View(Post, endpoint='admin_forum_posts', category='Mongo Forum'))
 
-#Bans and Appeals - UNSAFE - DO NOT USE
-#class Ban_View(ModelView):
-#	pass
-#
-#admin.add_view(Ban_View(Ban, endpoint='admin_bans_bans', category='Mongo Bans'))
-#
+#Bans
+class Ban_View(ModelView):
+    action_disallowed_list = ['delete']
+    can_delete = False
+    can_edit = False
+    form_excluded_columns = ['appeal', 'time', 'removed_time', 'removed_by', 'active']
+admin.add_view(Ban_View(Ban, endpoint='admin_bans', category='Mongo Bans'))
+
+#Appeals - UNSAFE DO NOT USE
 #class Appeal_View(ModelView):
 #	pass
 #
