@@ -37,7 +37,7 @@ def edit_reply(uid):
     if appeal is None:
         abort(404)
 
-    if not current_user.has_permission("bans.appeal.edit") or (current_user.name.lower() == ban.username.lower() and appeal.state==0):
+    if not (current_user.has_permission("bans.appeal.edit") or (current_user.name.lower() == ban.username.lower() and appeal.state==0)):
         abort(403)
 
     if request.method == "POST" and form.validate():
