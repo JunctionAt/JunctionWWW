@@ -25,9 +25,9 @@ def ipn_listener():
 
     validate_url = "https://www.paypal.com/cgi-bin/webscr" if not is_debug else "https://www.sandbox.paypal.com/cgi-bin/webscr"
 
-    print values
+    #print values
 
-    print 'Validating IPN using %s' % validate_url
+    #print 'Validating IPN using %s' % validate_url
 
     r = requests.post(validate_url, data=values, headers={
         "Content-Type": "application/x-www-form-urlencoded",
@@ -35,17 +35,18 @@ def ipn_listener():
         "Connection": "Close"
     })
 
-    print r.text
-    if r.text == 'VERIFIED':
-        print "PayPal transaction was verified successfully."
+    #print r.text
+    if 'VERIFIED' in r.text:
+        #print "PayPal transaction was verified successfully."
         if is_debug:
             print values
         else:
             process_transaction(values)
-        payer_email = request.form.get('payer_email')
-        print "Pulled {email} from transaction".format(email=payer_email)
+        #payer_email = request.form.get('payer_email')
+        #print "Pulled {email} from transaction".format(email=payer_email)
     else:
         pass
+        raise InvalidResponseError()
         #print 'Paypal IPN string {arg} did not validate'.format(arg=arg)
 
     print r.status_code
@@ -102,3 +103,7 @@ def process_transaction(data):
 
 def validate_transaction(data):
     return data["payment_status"] in ["Canceled_Reversal", "Completed", "Pending", "Processed"]
+
+
+class InvalidResponseError(Exception):
+    pass
