@@ -13,45 +13,48 @@ is_debug = current_app.config['PAYPAL_IPN_DEBUG_MODE']
 
 @blueprint.route('/donate/ipn_callback', methods=['POST'])
 def ipn_listener():
-    #arg = ''
-    values = request.form.to_dict()
-    #for x, y in values.iteritems():
-    #    if len(arg) is not 0:
-    #        arg += "&"
-    #    arg += "%s=%s"% (x, y,)
-    #arg += ""
+    try:
+        #arg = ''
+        values = request.form.to_dict()
+        #for x, y in values.iteritems():
+        #    if len(arg) is not 0:
+        #        arg += "&"
+        #    arg += "%s=%s"% (x, y,)
+        #arg += ""
 
-    values['cmd'] = "_notify-validate"
+        values['cmd'] = "_notify-validate"
 
-    validate_url = "https://www.paypal.com/cgi-bin/webscr" if not is_debug else "https://www.sandbox.paypal.com/cgi-bin/webscr"
+        validate_url = "https://www.paypal.com/cgi-bin/webscr" if not is_debug else "https://www.sandbox.paypal.com/cgi-bin/webscr"
 
-    #print values
+        #print values
 
-    #print 'Validating IPN using %s' % validate_url
+        #print 'Validating IPN using %s' % validate_url
 
-    r = requests.post(validate_url, data=values, headers={
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Host": "www.paypal.com",
-        "Connection": "Close"
-    })
+        r = requests.post(validate_url, data=values, headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Host": "www.paypal.com",
+            "Connection": "Close"
+        })
 
-    #print r.text
-    if 'VERIFIED' in r.text:
-        #print "PayPal transaction was verified successfully."
-        if is_debug:
-            print values
+        #print r.text
+        if 'VERIFIED' in r.text:
+            #print "PayPal transaction was verified successfully."
+            if is_debug:
+                print values
+            else:
+                process_transaction(values)
+            #payer_email = request.form.get('payer_email')
+            #print "Pulled {email} from transaction".format(email=payer_email)
         else:
-            process_transaction(values)
-        #payer_email = request.form.get('payer_email')
-        #print "Pulled {email} from transaction".format(email=payer_email)
-    else:
-        pass
-        raise InvalidResponseError()
-        #print 'Paypal IPN string {arg} did not validate'.format(arg=arg)
+            pass
+            raise InvalidResponseError()
+            #print 'Paypal IPN string {arg} did not validate'.format(arg=arg)
 
-    print r.status_code
+        print r.status_code
 
-    return r.text
+        return r.text
+    except Exception, e:
+        raise Exception(e.__str__())
 
 
 def process_transaction(data):
