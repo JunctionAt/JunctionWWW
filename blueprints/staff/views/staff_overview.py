@@ -13,5 +13,8 @@ def view_staff():
     techs = User.objects(role_groups__in=[Role_Group.objects(name="technical").first()])
     techs = list(techs)
     shuffle(techs)
+    inactives = User.objects(role_groups__in=[Role_Group.objects(name="inactive").first()])
+    inactives = list(inactives)
+    shuffle(inactives)
 
-    return render_template('staff_view_staff.html', mods=mods, techs=techs, title="Staff")
+    return render_template('staff_view_staff.html', mods=mods, techs=techs, inactives=inactives, title="Staff")

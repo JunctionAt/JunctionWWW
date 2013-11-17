@@ -38,5 +38,20 @@
         </div>
         {%- endfor %}
     </div>
+    <div class="row">
+        <div class="span12">
+            <h3 class="rheading">Inactive Staff <span></span></h3>
+            <p>These players served Junction at some point in time. They haven't been around in a while and therefore have had their powers removed.</p>
+        </div>
+        {%- for person in inactives %}
+        {%- set profile_url = person.get_profile_url() %}
+        <div class="span2">
+            <a href="{{ profile_url }}">
+                <img src="{{ person.get_avatar_url() }}" href="{{ profile_url }}">
+                <h6 href="{{ profile_url }}" style="width:128px;text-align:center;">{{ person.name }}</h6>
+            </a>
+        </div>
+        {%- endfor %}
+    </div>
 </div>
 {% endblock %}
