@@ -127,7 +127,8 @@ def get_mc_face(name):
 
     response = requests.get(mc_skin_url % name)
 
-    if response.headers['content-type'] != 'application/octet-stream':
+    if not (response.headers['content-type'] is 'application/octet-stream' or
+            response.headers['content-type'] is 'image/png'):
         return
 
     if response.status_code != 200:
