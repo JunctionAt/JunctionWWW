@@ -1,7 +1,7 @@
 __author__ = 'HansiHE'
 
 from blueprints import (auth, notifications, static_pages, api, avatar,
-                        logs, bans, forum, wiki, admin, modreq,
+                        logs, bans, forum, wiki, admin, modreq, alts,
                         player_profiles, groups, donations, staff, settings, calendar)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
@@ -53,6 +53,8 @@ BLUEPRINTS = [
 
     # Bans
     dict(blueprint=bans.bans),
+
+    dict(blueprint=alts.alts),
 
     # Forum
     dict(blueprint=forum.blueprint),
