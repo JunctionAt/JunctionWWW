@@ -1,15 +1,36 @@
 __author__ = 'HansiHE'
 
-from mongoengine import *
+import mongoengine
+import datetime
 
-class PlayerAlt(Document):
 
-    username = StringField(required=True, unique=True)
+class PlayerIpsModel(mongoengine.Document):
 
-    ips = ListField(StringField(), required=True)
+    username = mongoengine.StringField(required=True, unique=True)
+    ips = mongoengine.ListField(mongoengine.StringField(), required=True)
+
+    last_login = mongoengine.DateTimeField(required=True)
+
+    def update_last_login(self):
+        self.last_login = datetime.datetime.utcnow()
 
     meta = {
-        'collection' : 'alts',
-        'indexed' : [ 'username', 'ips' ]
+        'collection': 'player_ip_relationships',
+        'indexed': ['username', 'ips']
     }
 
+
+class IpPlayersModel(mongoengine.Document):
+
+    ip = mongoengine.StringField(required=True, unique=True)
+    usernames = mongoengine.ListField(mongoengine.StringField(), required=True)
+
+    last_login = mongoengine.DateTimeField(required=True)
+
+    def update_last_login(self):
+        self.last_login = datetime.datetime.utcnow()
+
+    meta = {
+        'collection': 'ip_player_relationships',
+        'indexed': ['ip', 'usernames']
+    }

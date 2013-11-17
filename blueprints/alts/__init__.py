@@ -2,89 +2,63 @@ __author__ = 'HansiHE'
 
 from flask import Blueprint, request, render_template, abort, send_file, flash, redirect, url_for
 from blueprints.auth import login_required
-import json
-from alts_model import PlayerAlt
+from alts_model import PlayerIpsModel, IpPlayersModel
+from flask.ext.restful import Resource
+from blueprints.api import require_api_key, register_api_access_token, datetime_format
+import ipaddress
+import re
+from flask.ext.restful.reqparse import RequestParser
+from blueprints.base import rest_api
 
 alts = admin = Blueprint('alts', __name__, template_folder='templates')
 
-def construct_error(error):
-    return json.dumps({
-        'success': False,
-        'error': error
-    })
 
-def construct_success():
-    return json.dumps({
-        'success': True
-    })
+def validate_username(username):
+    if 2 <= len(username) <= 16 and re.match(r'^[A-Za-z0-9_]+$', username):
+        return True
+    return False
 
-#
-@alts.route('/alts/link_user_ip.json')
-def link_user_ip():
-    args = request.args
 
+def verify_ip_address(addr):
     try:
-        username = args['username']
-    except IndexError:
-        return construct_error("No field 'username' provided.")
-    try:
-        ip = args['ip']
-    except IndexError:
-        return construct_error("No field 'ip' provided.")
-
-    user = PlayerAlt.objects(username=username).first()
-
-    if user is None:
-        user = PlayerAlt(username=username)
-    elif ip in user.ips:
-        return construct_success()
-
-    user.ips.append(ip)
-    user.save()
+        print ipaddress.ip_address(addr)
+        return True
+    except ValueError:
+        return False
 
 
-def get_alts_user():
-    args = request.args
+class Alts(Resource):
 
-    try:
-        username = args['username']
-    except IndexError:
-        return construct_error("No field 'username' provided.")
+    get_parser = RequestParser()
+    get_parser.add_argument("username", type=str, required=True, help="username cannot be blank")
+    get_parser.add_argument("ip", type=str, required=True, help="ip cannot be blank")
 
-    user = PlayerAlt.objects(username=username).first()
+    @require_api_key(access_tokens=['anathema.alts.update'])
+    def post(self):
+        args = self.get_parser.parse_args()
 
-    if user is None:
-        return json.dumps({
-            'success': True,
-            'ips': []
-        })
+        if not validate_username(args["username"]):
+            return {'error': [{"message": "username is not valid"}]}
+        username = args["username"]
 
-    return json.dumps({
-        'success': True,
-        'ips': user.ips
-    })
+        if not verify_ip_address(args["ip"].decode("ascii")):
+            return {'error': [{"message": "ip is not valid"}]}
+        ip = args["ip"]
 
-def get_alts_ip():
-    args = request.args
+        player_ips = PlayerIpsModel.objects(username=username).first()
+        if not player_ips:
+            player_ips = PlayerIpsModel(username=username, ips=[ip])
+        player_ips.update_last_login()
+        player_ips.save()
 
-    try:
-        ip = args['ip']
-    except IndexError:
-        return construct_error("No field 'ip' provided.")
+        ip_players = IpPlayersModel.objects(ip=ip).first()
+        if not ip_players:
+            ip_players = IpPlayersModel(ip=ip, usernames=[username])
+        ip_players.update_last_login()
+        ip_players.save()
 
-    users = PlayerAlt.objects(ips__in=ip)
+        return {"success": True}
 
-    if len(users) == 0:
-        return json.dumps({
-            'success': True,
-            'usernames': []
-        })
 
-    usernames = []
-    for user in users:
-        usernames.append(user.username)
-
-    return json.dumps({
-        'success': True,
-        'usernames': usernames
-    })
+rest_api.add_resource(Alts, '/anathema/alts')
+register_api_access_token('anathema.alts.update', permission="api.anathema.alts.update")
