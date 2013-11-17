@@ -13,8 +13,8 @@ listings = [
         "These players are trusted with the keys to the server. "
         "They fixit when something crashes, code our custom plugins, and make sure everything's greased up."},
     {"id": "inactive", "name": "Inactive Staff", "description":
-        "These players served Junction at some point in time. "
-        "They haven't been around in a while and therefore have had their powers removed."},
+        "These players served as staff on Junction at some point in time. "
+        "They haven't been around in a while or have resigned themselves and therefore have had their powers removed."},
 ]
 
 @blueprint.route('/staff/')
