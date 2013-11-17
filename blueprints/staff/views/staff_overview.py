@@ -6,6 +6,7 @@ from blueprints.auth.user_model import User, Role_Group
 
 @blueprint.route('/staff/')
 def view_staff():
-    staff = User.objects(role_groups__in=[Role_Group.objects(name="moderator").first()])
+    mods = User.objects(role_groups__in=[Role_Group.objects(name="moderator").first()])
+    techs = User.objects(role_groups__in=[Role_Group.objects(name="technical").first()])
 
-    return render_template('staff_view_staff.html', staff=staff, title="Staff")
+    return render_template('staff_view_staff.html', mods=mods, techs=techs, title="Staff")
