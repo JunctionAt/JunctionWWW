@@ -8,50 +8,22 @@
 
 {% block content %}
 <div class="container">
-    <div class="row">
-        <div class="span12">
-            <h3 class="rheading">Moderators <span></span></h3>
-            <p>These players complete modreqs, ban the troublemakers, and set up protections. Just remember they have a life as well!</p>
+    {% for listing in listings %}
+        <div class="row">
+            <div class="span12">
+                <h3 class="rheading">{{ listing["name"] }} <span></span></h3>
+                <p>{{ listing["description"] }}</p>
+            </div>
+            {%- for person in data[listing["id"]] %}
+                {%- set profile_url = person.get_profile_url() %}
+                <div class="span2">
+                    <a href="{{ profile_url }}">
+                        <img src="{{ person.get_avatar_url() }}" href="{{ profile_url }}">
+                        <h6 href="{{ profile_url }}" style="width:128px;text-align:center;">{{ person.name }}</h6>
+                    </a>
+                </div>
+            {%- endfor %}
         </div>
-        {%- for person in mods %}
-        {%- set profile_url = person.get_profile_url() %}
-        <div class="span2">
-            <a href="{{ profile_url }}">
-                <img src="{{ person.get_avatar_url() }}" href="{{ profile_url }}">
-                <h6 href="{{ profile_url }}" style="width:128px;text-align:center;">{{ person.name }}</h6>
-            </a>
-        </div>
-        {%- endfor %}
-    </div>
-    <div class="row">
-        <div class="span12">
-            <h3 class="rheading">Technical Staff <span></span></h3>
-            <p>These players are trusted with the keys to the server. They fixit when something crashes, code our custom plugins, and make sure everything's greased up.</p>
-        </div>
-        {%- for person in techs %}
-        {%- set profile_url = person.get_profile_url() %}
-        <div class="span2">
-            <a href="{{ profile_url }}">
-                <img src="{{ person.get_avatar_url() }}" href="{{ profile_url }}">
-                <h6 href="{{ profile_url }}" style="width:128px;text-align:center;">{{ person.name }}</h6>
-            </a>
-        </div>
-        {%- endfor %}
-    </div>
-    <div class="row">
-        <div class="span12">
-            <h3 class="rheading">Inactive Staff <span></span></h3>
-            <p>These players served Junction at some point in time. They haven't been around in a while and therefore have had their powers removed.</p>
-        </div>
-        {%- for person in inactives %}
-        {%- set profile_url = person.get_profile_url() %}
-        <div class="span2">
-            <a href="{{ profile_url }}">
-                <img src="{{ person.get_avatar_url() }}" href="{{ profile_url }}">
-                <h6 href="{{ profile_url }}" style="width:128px;text-align:center;">{{ person.name }}</h6>
-            </a>
-        </div>
-        {%- endfor %}
-    </div>
+    {% endfor %}
 </div>
 {% endblock %}
