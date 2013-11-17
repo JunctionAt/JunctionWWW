@@ -7,11 +7,12 @@ import requests
 from donation_model import DonationTransaction, DonationTransactionStatus, TransactionLog
 from . import username_signer
 from itsdangerous import BadData, BadPayload, BadSignature
-from blueprints.base import cache
+from blueprints.base import cache, csrf
 
 is_debug = current_app.config['PAYPAL_IPN_DEBUG_MODE']
 
 @blueprint.route('/donate/ipn_callback', methods=['POST'])
+@csrf.exempt
 def ipn_listener():
     #arg = ''
     values = request.form.to_dict()

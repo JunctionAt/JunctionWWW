@@ -67,7 +67,7 @@ admin.add_view(Forum_Post_View(Post, endpoint='admin_forum_posts', category='Mon
 class Ban_View(ModelView):
     action_disallowed_list = ['delete']
     can_delete = False
-    can_edit = False
+    can_edit = True
     form_excluded_columns = ['appeal', 'time', 'removed_time', 'removed_by', 'active']
 admin.add_view(Ban_View(Ban, endpoint='admin_bans', category='Mongo Bans'))
 
