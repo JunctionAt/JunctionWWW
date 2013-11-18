@@ -16,7 +16,7 @@ listings = [
         "These players served as staff on Junction at some point in time. "
         "They haven't been around in a while and therefore have had their powers removed."},
     {"id": "resigned", "name": "Former Staff", "description":
-        "These players were former Junction staff members and have left to play as a normal player."
+        "These players were former Junction staff members and have left to play as a normal player."},
 ]
 
 @blueprint.route('/staff/')
