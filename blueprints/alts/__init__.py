@@ -48,14 +48,14 @@ class Alts(Resource):
         player_ips = PlayerIpsModel.objects(username=username).first()
         if not player_ips:
             player_ips = PlayerIpsModel(username=username, ips=[ip])
-        player_ips.update_last_login()
-        player_ips.save()
+            player_ips.save()
+        player_ips.update_last_login_and_add_entry(ip)
 
         ip_players = IpPlayersModel.objects(ip=ip).first()
         if not ip_players:
             ip_players = IpPlayersModel(ip=ip, usernames=[username])
-        ip_players.update_last_login()
-        ip_players.save()
+            ip_players.save()
+        ip_players.update_last_login_and_add_entry(username)
 
         return {"success": True}
 
