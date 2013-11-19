@@ -90,6 +90,7 @@ class IpPlayer_View(ModelView):
     can_edit = False
     can_create = False
     column_searchable_list = ['ip']
+    column_filters = ['last_login']
 admin.add_view(IpPlayer_View(IpPlayersModel, endpoint='admin_alt_ip', category='Mongo Alts'))
 
 class PlayerIp_View(ModelView):
@@ -97,4 +98,5 @@ class PlayerIp_View(ModelView):
     can_edit = False
     can_create = False
     column_searchable_list = ['username']
+    column_filters = ['last_login']
 admin.add_view(PlayerIp_View(PlayerIpsModel, endpoint='admin_alt_username', category='Mongo Alts'))
