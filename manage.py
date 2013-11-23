@@ -51,5 +51,31 @@ def print_routes():
     for rule in application.url_map.iter_rules():
         print rule
 
+
+@manager.option('-b', dest="ban_id", required=True)
+def destroy_ban(ban_id):
+    from blueprints.bans import appeal_model, ban_model
+
+    ban = ban_model.Ban.objects(uid=ban_id).first()
+
+    if ban is None:
+        print("ban not found")
+        return
+
+    appeal = ban.appeal
+
+    if appeal is not None:
+        print("ban has appeal")
+        replies = appeal.replies
+        for reply in replies:
+            reply.delete()
+        appeal.delete()
+    else:
+        print("ban does not have appeal")
+
+    ban.delete()
+
+    print("ban deleted")
+
 if __name__ == "__main__":
     manager.run()
