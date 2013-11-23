@@ -56,7 +56,7 @@ def print_routes():
 def destroy_ban(ban_id):
     from blueprints.bans import appeal_model, ban_model
 
-    ban = ban_model.Ban.objects(uid=ban_id).first()
+    ban = ban_model.Ban.objects(uid=int(ban_id)).first()
 
     if ban is None:
         print("ban not found")
