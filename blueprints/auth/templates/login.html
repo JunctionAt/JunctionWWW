@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_new.html" %}
 
 {% set breadcrumb_items = [
 {'title': 'Login', 'url': url_for('auth.login')}]
@@ -7,11 +7,12 @@
 {% set current_page = 'profile' %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="offset4 span4">
-            <div class="box">
-                <h3 class="rheading">Log in to Junction <span></span></h3>
+<div class="row">
+    <div class="small-10 small-offset-1 medium-8 medium-offset-2 large-6 large-offset-3 columns">
+        <div class="box">
+            <div class="">
+                <h4>Log in to Junction</h4>
+                <hr>
                 <form action="" method="post">
                     {{ form.hidden_tag() }}
                     {%- for error_field in form.errors.values() %}
@@ -33,10 +34,12 @@
                             {{ form.remember() }} {{ form.remember.label.text }}
                         </label>
                     </div>
-                    <button class="btn btn-theme" type="submit">Log in</button>
+                    <button class="button small" type="submit">Log in</button>
                 </form>
-                <p>Don't have an account? <a href="{{ url_for('auth.register_start') }}">Create one</a>!</p>
-                <p>Forgot your password? Contact a tech.</p>
+                <div class="panel callout radius">
+                    <span>Don't have an account? <a href="{{ url_for('auth.register_start') }}">Create one</a>!</span>
+                    <span>Forgot your password? Contact a tech.</span>
+                </div>
             </div>
         </div>
     </div>

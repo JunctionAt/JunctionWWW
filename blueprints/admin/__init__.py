@@ -12,6 +12,7 @@ from blueprints.alts.alts_model import PlayerIpsModel, IpPlayersModel
 import mongoengine
 
 from blueprints.auth.user_model import Role_Group, User
+from blueprints.alts.alts_model import IpPlayersModel, PlayerIpsModel
 
 
 #The Role Groups collection view
@@ -64,6 +65,7 @@ class Forum_Post_View(ModelView):
 
 admin.add_view(Forum_Post_View(Post, endpoint='admin_forum_posts', category='Mongo Forum'))
 
+
 #Bans
 class Ban_View(ModelView):
     action_disallowed_list = ['delete']
@@ -71,6 +73,29 @@ class Ban_View(ModelView):
     can_edit = True
     form_excluded_columns = ['appeal', 'time', 'removed_time', 'removed_by', 'active']
 admin.add_view(Ban_View(Ban, endpoint='admin_bans', category='Mongo Bans'))
+
+
+#Alts
+class Alt_Ip_Player_View(ModelView):
+    action_disallowed_list = ['delete', 'create']
+    can_delete = False
+    can_edit = True
+    can_create = False
+    form_excluded_columns = []
+    column_searchable_list = ['ip']
+    column_filters = ['last_login']
+admin.add_view(Alt_Ip_Player_View(IpPlayersModel, endpoint='alts_ip_player', category='Alts', name="Ip-Player Relationships"))
+
+
+class Alt_Player_Ip_View(ModelView):
+    action_disallowed_list = ['delete',  'create']
+    can_delete = False
+    can_edit = True
+    can_create = False
+    form_excluded_columns = []
+    column_searchable_list = ['username']
+    column_filters = ['last_login']
+admin.add_view(Alt_Player_Ip_View(PlayerIpsModel, endpoint='alts_player_ip', category='Alts', name="Player-Ip Relationships"))
 
 #Appeals - UNSAFE DO NOT USE
 #class Appeal_View(ModelView):

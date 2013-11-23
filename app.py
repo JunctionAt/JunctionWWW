@@ -1,6 +1,7 @@
 from flask import Flask, request
 from reverse_proxied import ReverseProxied
 from os import pathsep
+from assets import assets
 
 
 # Setup App
@@ -77,6 +78,8 @@ def internal_error(error):
     #handler.emit(error)
 
     return "Something went wrong. :( Staff have been notified, and are working on the issue. Please check back later.", 500
+
+assets(application)
 
 # Load debug stuffs
 if application.config['DEBUG']:

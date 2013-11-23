@@ -1,0 +1,31 @@
+
+// Begin base template styles
+
+// Top-bar message icon
+.top-bar .messages a .fi-mail {
+  font-size: 1.2em;
+  line-height: 0;
+  margin-right: 5px;
+  line-break: 10px;
+}
+
+.top-bar .messages a {
+  padding-left: 40px;
+}
+
+// Top-bar cross
+.header-title-cross {
+  padding-left: 28px !important;
+}
+
+.header-title-cross:before {
+  position: absolute;
+  content: "";
+  width: 13px;
+  height: 13px;
+  background-size: 13px 13px;
+  background-image: url("/static/img/junction-cross.svg");
+  background-repeat: no-repeat;
+  top: 17px;
+  left: 11px;
+}

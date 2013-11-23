@@ -45,5 +45,11 @@ def dev_verify_ip_username(ip, username):
 
     print("Success! You can now register the user %s from %s" % (username, ip))
 
+
+@manager.command
+def print_routes():
+    for rule in application.url_map.iter_rules():
+        print rule
+
 if __name__ == "__main__":
     manager.run()

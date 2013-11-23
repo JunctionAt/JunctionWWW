@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{% if title %}Junction - {{ title }}{% else %}Junction{% endif %}</title>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {#-<meta name="description" content="">
+        <meta name="author" content="">#}
+        <!-- styles -->
+        {% assets "css_main" %}
+            <link type="text/css" rel="stylesheet" href="{{ ASSET_URL }}">
+        {% endassets %}
+        {%- block css %}
+        {%- endblock %}
+        <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+        <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <!-- fav and touch icons -->
+        <link rel="shortcut icon" href="/static/favicon.ico">
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/static/img/apple-touch-icon-144-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/static/img/apple-touch-icon-114-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/static/img/apple-touch-icon-72-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" href="/static/img/apple-touch-icon-57-precomposed.png">
+    </head>
+    <body>
+        <div class="contain-to-grid">
+            <nav class="top-bar" data-options="is_hover:false">
+                <ul class="title-area">
+                    <li class="name">
+                        <h1><a href="/" class="header-title-cross">Junction</a></h1>
+                    </li>
+                </ul>
+
+                <section class="top-bar-section">
+                    <ul class="right">
+                        <li class="has-dropdown"><a href="#">Servers</a>
+                            <ul class="dropdown">
+                                <li><a href="#">Chaos</a></li>
+                                <li><a href="#">Event</a></li>
+                            </ul>
+                        </li>
+                        <li class="{% if current_page == 'forum' %}active{% endif %}">
+                            <a href="{{ url_for('forum.forum_landing') }}">Forum</a>
+                        </li>
+                        {% if current_user.is_authenticated() %}
+                            <li class="{% if current_page == 'profile' %}active{% endif %}">
+                                <a href="{{ current_user.get_profile_url() }}">{{ current_user.name }}</a>
+                            </li>
+                            {%- set num_notifications = get_notifications_num(current_user) %}
+                            <li class="messages"><a href="#"><i class="fi-mail"></i>{{ num_notifications }}</a></li>
+                        {% else %}
+                            <li class="has-form">
+                                <ul class="button-group">
+                                    <li><a href="{{ url_for('auth.login') }}" class="button">Sign In</a></li>
+                                    <li><a href="{{ url_for('auth.register_start') }}" class="button">Register</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </section>
+            </nav>
+        </div>
+
+        <div id="wrapper">
+            <div id="footer-wrap">
+                {%- if breadcrumb_items %}
+                <br>
+                <div class="row">
+                    <div class="large-12 columns">
+                        <ul class="breadcrumbs">
+                            {%- for item in breadcrumb_items %}
+                                {%- if item['url'] %}
+                                <li><a href="{{ item['url'] }}">{{ item['title'] }}</a></li>
+                                {%- else %}
+                                <li class="unavailable">{{ item['title'] }}</li>
+                                {%- endif %}
+                            {%- endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {%- endif %}
+                {%- if get_flashed_messages() %}
+                <div class="container">
+                    <div class="row" style="margin-bottom: 0;">
+                        <div class="span12">
+                            {%- for message in get_flashed_messages() %}
+                            <div class="alert">
+                                <button type="button" class="close" data-dismiss="alert">×</button>
+                                {{ message }}
+                            </div>
+                            {%- endfor %}
+                        </div>
+                    </div>
+                </div>
+                {%- endif %}
+                <div class="content">
+                {%- block content %}
+                <p>You shouldn't be seeing this message. Contact a tech and give them the URL you're on currently.</p>
+                {%- endblock %}
+                </div>
+                <div class="footer-push"></div>
+            </div>
+        </div>
+        <!-- end wrapper -->
+        <a href="#" class="scrollup" style="display: none;"><i class="icon-chevron-up icon-square icon-48 active"></i></a>
+        {% assets "js_main" %}
+            <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        {% endassets %}
+        <script type="text/javascript">
+            $(document).foundation();
+        </script>
+        {%- block javascript %}
+        {%- endblock %}
+    </body>
+</html>
