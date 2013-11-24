@@ -39,7 +39,7 @@ def your_bans(page):
     links = []
     for page_mod in range(-min(PAGINATION_VALUE_RANGE, page - 1), min(PAGINATION_VALUE_RANGE, num_pages-page) + 1):
         num = page + page_mod
-        links.append({'num': num, 'url': url_for('bans.your_bans', page=num), 'active': (not num == page)})
+        links.append({'num': num, 'url': url_for('bans.your_bans', page=num), 'active': num != page})
 
 
     return render_template(
@@ -81,7 +81,7 @@ def created_bans(page):
     links = []
     for page_mod in range(-min(PAGINATION_VALUE_RANGE, page - 1), min(PAGINATION_VALUE_RANGE, num_pages-page) + 1):
         num = page + page_mod
-        links.append({'num': num, 'url': url_for('bans.created_bans', page=num), 'active': (num == page)})
+        links.append({'num': num, 'url': url_for('bans.created_bans', page=num), 'active': num != page})
 
     return render_template(
         'bans_index.html',
@@ -121,7 +121,7 @@ def bans_index(page):
     links = []
     for page_mod in range(-min(PAGINATION_VALUE_RANGE, page - 1), min(PAGINATION_VALUE_RANGE, num_pages-page) + 1):
         num = page + page_mod
-        links.append({'num': num, 'url': url_for('bans.bans_index', page=num), 'active': (num == page)})
+        links.append({'num': num, 'url': url_for('bans.bans_index', page=num), 'active': num != page})
 
     return render_template(
         'bans_index.html',
