@@ -64,8 +64,8 @@ if application.config.get('AIRBRAKE_ENABLED', True):
         got_request_exception.connect(log_exception, current_app)
 
 # Error page
-@application.errorhandler(500)
-def internal_error(error):
+#@application.errorhandler(500)
+#def internal_error(error):
     #handler = AirbrakeErrorHandler(
     #    api_key="97ed9107d2d204537f07080f85315281",
     #    api_url="http://errbit.junction.at/notifier_api/v2/notices",
@@ -78,7 +78,7 @@ def internal_error(error):
     #handler.emit(error)
 
     #return "Something went wrong. :( Staff have been notified, and are working on the issue. Please check back later.", 500
-    return str(error)
+    #return str(error)
 
 assets(application)
 
