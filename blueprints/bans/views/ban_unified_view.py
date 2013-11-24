@@ -38,7 +38,7 @@ def view_ban(ban_uid):
     replies = AppealReply.objects(ban=ban).order_by('+created')
     notes = Note.objects(username=ban.username, active=True)
 
-    can_post = True or current_user.has_permission("bans.appeal.manage") or (current_user.name.lower() == ban.username.lower())
+    can_post = current_user.has_permission("bans.appeal.manage") or (current_user.name.lower() == ban.username.lower())
 
     return render_template('bans_unified_view.html', ban_id=ban_uid, ban_object=ban, appeal_object=appeal, notes=notes,
                            reply_form=AppealReplyForm(), replies=replies, can_post=can_post)
@@ -52,7 +52,7 @@ def post_ban_reply(ban_uid):
     if ban is None:
         abort(404)
 
-    if not (True or current_user.has_permission("bans.appeal.manage") or (current_user.name.lower() == ban.username.lower())):
+    if not (current_user.has_permission("bans.appeal.manage") or (current_user.name.lower() == ban.username.lower())):
         abort(403)
 
     appeal = ban.appeal
