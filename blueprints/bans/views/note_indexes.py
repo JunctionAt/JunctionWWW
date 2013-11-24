@@ -45,7 +45,7 @@ def notes_index(page):
     return render_template(
         'notes_index.html',
         view="bans.notes_index",
-        title="All notes",
+        base_title="All notes",
         notes=display_notes,
         total_pages=num_pages,
         next=next_page,

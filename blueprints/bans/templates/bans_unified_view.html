@@ -1,0 +1,97 @@
+{% extends "base_new.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Anathema', 'url': url_for('bans.a_front')},
+{'title': 'All Bans', 'url': url_for('bans.bans_index')},
+{'title': '#' ~ ban_id}]
+%}
+
+{% set title = "Anathema - Ban #" . ban_id %}
+
+{% set current_page = 'bans' %}
+
+{% block content %}
+<div class="ban-container">
+    <div class="row">
+        <div class="small-12 columns">
+            <h4>Ban #{{ ban_id }} for <span class="player-name">{{ ban_object.username }}</span></h4>
+            <hr>
+        </div>
+    </div>
+    <div class="row">
+        <div class="small-12 medium-4 medium-push-8 columns">
+            <h6>Info:</h6>
+            <div class="panel">
+                <ul class="info-list">
+                    <li class="key">User:</li>
+                    <li class="value player-name">{{ ban_object.username }}</li>
+                    <li class="key">Issuer:</li>
+                    <li class="value player-name">{{ ban_object.issuer }}</li>
+                    <li class="key">Date:</li>
+                    <li class="value weak">{{ ban_object.time|pretty_date }}</li>
+                </ul>
+            </div>
+
+            <h6>Notes:</h6>
+            <div class="note">
+                <blockquote>
+                    maybe xray?
+                    <cite>hansihe</cite>
+                </blockquote>
+            </div>
+            {% for note in notes %}
+                <blockquote>
+                    maybe xray?
+                    <cite>hansihe</cite>
+                </blockquote>
+            {% endfor %}
+        </div>
+        <div class="small-12 medium-8 medium-pull-4 columns">
+            <h6>Reason:</h6>
+            <div class="panel">
+                {{ ban_object.reason }}
+            </div>
+            <h6>Comments:</h6>
+            {% if replies %}
+                {% for reply in replies %}
+                    <div class="appeal-comment">
+                        <div class="row">
+                            <div class="small-12 medium-3 large-2 columns meta">
+                                <a href="{{ reply.creator.get_profile_url() }}"><span class="player-name">{{ reply.creator.name }}</span></a>
+                                <br>
+                                {% if reply.creator.name|lower == ban_object.username|lower %}
+                                    <span class="secondary label">Banned</span>
+                                {% elif reply.creator.name|lower == ban_object.issuer|lower %}
+                                    <span class="secondary label">Issuer</span>
+                                {% endif %}
+                            </div>
+                            <div class="small-12 medium-9 large-10 columns text">
+                                {{ reply.text|markdown|safe }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <span>No replies</span>
+            {% endif %}
+            {% if can_post %}
+                <div class="row">
+                    <div class="small-12 columns">
+                        <form class="appeal-response" action="{{ url_for('bans.post_ban_reply', ban_uid=ban_id) }}" method="post" data-abide>
+                            {{ reply_form.csrf_token }}
+                            <fieldset>
+                                <legend>Reply</legend>
+                                <div class="text-field">
+                                    {{ reply_form.text(placeholder="Body", required="", class="text-area") }}
+                                    <small class="error">Please enter some text.</small>
+                                </div>
+                                {{ reply_form.submit(class="button right submit") }}
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

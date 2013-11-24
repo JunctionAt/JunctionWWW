@@ -6,8 +6,7 @@ from blueprints.admin.view import ModelView
 from blueprints.base import admin
 from blueprints.forum.database.forum import Forum, Category, Board, Topic, Post
 from flask.ext.admin.model import typefmt
-from blueprints.bans.ban_model import Ban
-from blueprints.bans.appeal_model import AppealReply, Appeal
+from blueprints.bans.ban_model import Ban, AppealReply
 from blueprints.alts.alts_model import PlayerIpsModel, IpPlayersModel
 import mongoengine
 

@@ -24,10 +24,12 @@
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/static/img/apple-touch-icon-114-precomposed.png">
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/static/img/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="/static/img/apple-touch-icon-57-precomposed.png">
+
+        <a href="https://plus.google.com/110085231338813337690" rel="publisher" style="display: none;">Google+</a>
     </head>
     <body>
         <div class="contain-to-grid">
-            <nav class="top-bar" data-options="is_hover:false">
+            <nav class="top-bar" data-topbar>
                 <ul class="title-area">
                     <li class="name">
                         <h1><a href="/" class="header-title-cross">Junction</a></h1>
@@ -36,7 +38,7 @@
 
                 <section class="top-bar-section">
                     <ul class="right">
-                        <li class="has-dropdown"><a href="#">Servers</a>
+                        <li class="has-dropdown not-click"><a href="#">Servers</a>
                             <ul class="dropdown">
                                 <li><a href="#">Chaos</a></li>
                                 <li><a href="#">Event</a></li>
@@ -46,8 +48,12 @@
                             <a href="{{ url_for('forum.forum_landing') }}">Forum</a>
                         </li>
                         {% if current_user.is_authenticated() %}
-                            <li class="{% if current_page == 'profile' %}active{% endif %}">
+                            <li class="has-dropdown not-click {% if current_page == 'profile' %}active{% endif %}">
                                 <a href="{{ current_user.get_profile_url() }}">{{ current_user.name }}</a>
+                                <ul class="dropdown">
+                                    <li><a href="{{ url_for('settings.settings_main') }}">Account Settings</a></li>
+                                    <li><a href="{{ url_for('auth.logout') }}">Log out</a></li>
+                                </ul>
                             </li>
                             {%- set num_notifications = get_notifications_num(current_user) %}
                             <li class="messages"><a href="#"><i class="fi-mail"></i>{{ num_notifications }}</a></li>
@@ -82,20 +88,20 @@
                     </div>
                 </div>
                 {%- endif %}
-                {%- if get_flashed_messages() %}
-                <div class="container">
-                    <div class="row" style="margin-bottom: 0;">
-                        <div class="span12">
-                            {%- for message in get_flashed_messages() %}
-                            <div class="alert">
-                                <button type="button" class="close" data-dismiss="alert">×</button>
-                                {{ message }}
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="row" style="margin-bottom: 0;">
+                            <div class="span12">
+                                {%- for category, message in messages %}
+                                    <div data-alert class="alert-box {{ 'info' if category == 'message' else category }} radius">
+                                        {{ message }}
+                                        <a href="#" class="close">&times;</a>
+                                    </div>
+                                {%- endfor %}
                             </div>
-                            {%- endfor %}
                         </div>
-                    </div>
-                </div>
-                {%- endif %}
+                    {%- endif %}
+                {% endwith %}
                 <div class="content">
                 {%- block content %}
                 <p>You shouldn't be seeing this message. Contact a tech and give them the URL you're on currently.</p>

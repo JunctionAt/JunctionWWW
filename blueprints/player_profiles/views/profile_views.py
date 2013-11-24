@@ -12,7 +12,7 @@ from wtforms import TextAreaField, SubmitField
 from wtforms.validators import Length
 
 
-@blueprint.route('/profile/<string:name>/')
+@blueprint.route('/p/<string:name>/')
 def profile_view(name):
     user = User.objects(name=name).first()
     if user is None:

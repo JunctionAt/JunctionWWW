@@ -1,74 +1,50 @@
-{% extends "base.html" %}
+{% extends "base_new.html" %}
 
 {% set breadcrumb_items = [
 {'title': 'Anathema', 'url': url_for('bans.a_front')},
-{'title': title, 'url': url_for(view)}]
+{'title': base_title, 'url': url_for(view)}]
 %}
 
-{% set title = "Anathema - " + title %}
+{% set title = "Anathema - " + base_title %}
 
 {% set current_page = 'bans' %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="span12">
-            <div class="box">
-                <table class="table table-condensed table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Ban</th>
-                            <th>Reason</th>
-                            <th>Username</th>
-                            <th>Server</th>
-                            <th>Issuer</th>
-                            <th>Created</th>
-                            <th>Appeal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {%- for ban in bans %}
-                        <tr>
-                            <td>{{ ban.uid }}</td>
-                            <td>{{ ban.reason }}</td>
-                            <td>{{ ban.username }}</td>
-                            <td>{{ ban.server }} </td>
-                            <td>{{ ban.issuer }}</td>
-                            <td>{{ ban.time.strftime("%H:%M %d %b %y") }}</td>
-                            <td>
-                            {%- if ban.appeal is not none %}
-                                <a href="{{ url_for('bans.view_appeal', uid=ban.uid) }}">View Appeal</a>
-                            {%- elif ban.username|lower == current_user.name|lower and ban.appeal is none and ban.active %}
-                                <a href="{{ url_for('bans.post_new_appeal', uid=ban.uid) }}">Appeal Ban</a>
-                            {%- else %}
-                                &nbsp;
-                            {%- endif %}
-                            </td>
-                        </tr>
-                        {%- endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="span12">
-            <div class="pagination">
-                <ul>
-                    <li class="{% if not prev %}disabled{% endif %}">
-                        <a href="{{ prev or '#' }}">Prev</a>
-                    </li>
-                    {%- for link in links %}
-                    <li class="{% if link['active'] %}active{% endif %}">
-                        <a href="{{ link['url'] }}">{{ link['num'] }}</a>
-                    </li>
-                    {%- endfor %}
-                    <li class="{% if not next %}disabled{% endif %}">
-                        <a href="{{ next or '#' }}">Next</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
+<div class="row">
+    <div class="small-12 columns">
+        <h4>{{ base_title }}</h4>
+        <table class="full-width-table">
+            <thead>
+                <tr>
+                    <th>Ban</th>
+                    <th>Reason</th>
+                    <th>Username</th>
+                    <th>Server</th>
+                    <th>Issuer</th>
+                    <th width="140px">Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%- for ban in bans %}
+                <tr>
+                    <td><a href="{{ url_for('bans.view_ban', ban_uid=ban.uid) }}">{{ ban.uid }}</a></td>
+                    <td>{{ ban.reason }}</td>
+                    <td>{{ ban.username }}</td>
+                    <td>{{ ban.server }} </td>
+                    <td>{{ ban.issuer }}</td>
+                    <td>{{ ban.time.strftime("%H:%M %d %b %y") }}</td>
+                </tr>
+                {%- endfor %}
+            </tbody>
+        </table>
+
+        <ul class="pagination">
+            <li class="arrow {% if not prev %}unavailable{% endif %}"><a href="{{ prev or '#' }}">&laquo;</a></li>
+            {% for link in links %}
+                <li class="{% if not link['active'] %}unavailable{% endif %}"><a href="{{ link['url'] }}">{{ link['num'] }}</a></li>
+            {% endfor %}
+            <li class="arrow {% if not next %}unavailable{% endif %}"><a href="{{ next or '#' }}">&raquo;</a></li>
+        </ul>
     </div>
 </div>
 {% endblock %}

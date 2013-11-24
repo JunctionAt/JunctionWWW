@@ -4,7 +4,6 @@ from .. import bans
 from flask import render_template, abort, url_for
 from flask_login import current_user
 from blueprints.bans.ban_model import Ban
-from blueprints.bans.appeal_model import Appeal
 from blueprints.auth import login_required
 import math
 
@@ -46,7 +45,7 @@ def your_bans(page):
     return render_template(
         'bans_index.html',
         view="bans.your_bans",
-        title="Your Bans",
+        base_title="Your Bans",
         bans=display_bans,
         total_pages=num_pages,
         next=next_page,
@@ -87,7 +86,7 @@ def created_bans(page):
     return render_template(
         'bans_index.html',
         view="bans.created_bans",
-        title="Bans you've made",
+        base_title="Bans you've made",
         bans=display_bans,
         total_pages=num_pages,
         next=next_page,
@@ -127,7 +126,7 @@ def bans_index(page):
     return render_template(
         'bans_index.html',
         view="bans.bans_index",
-        title="All bans",
+        base_title="All bans",
         bans=display_bans,
         total_pages=num_pages,
         next=next_page,

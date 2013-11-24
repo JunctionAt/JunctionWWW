@@ -68,14 +68,12 @@
                                             <a href="{{ url_for('bans.a_front') }}" class="hide-in-dropdown"><i class="icon-ban-circle"></i> Appeals <i class="icon-angle-down"></i></a>
                                                 <ul class="dropdown-menu" style="display: none;">
                                                     <li><a href="{{ url_for('bans.bans_index') }}">Bans</a></li>
-                                                    <li><a href="{{ url_for('bans.appeals_index') }}">Appeals</a></li>
                                                 </ul>
                                             </li>
                                             <li class="dropdown{% if current_page == 'profile' %} active{% endif %}">
                                                 {%- if current_user.is_authenticated() %}
                                             <a href="{{ current_user.get_profile_url() }}"><i class="icon-user"></i> {{ current_user.name }} <i class="icon-angle-down"></i></a>
                                                 <ul class="dropdown-menu" style="display: none;">
-                                                    <li><a href="{{ url_for('bans.your_bans') }}">Infractions</a></li>
                                                     <li><a href="{{ url_for('settings.settings_main') }}">Settings</a></li>
                                                     <li><a href="{{ url_for('auth.logout') }}">Log out</a></li>
                                                 </ul>
