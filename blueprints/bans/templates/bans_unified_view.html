@@ -34,22 +34,18 @@
 
             <h6>Notes:</h6>
             <div class="note">
-                <blockquote>
-                    maybe xray?
-                    <cite>hansihe</cite>
-                </blockquote>
+                {% for note in notes %}
+                    <blockquote>
+                        {{ note.note }}
+                        <cite>{{ note.issuer }}</cite>
+                    </blockquote>
+                {% endfor %}
             </div>
-            {% for note in notes %}
-                <blockquote>
-                    maybe xray?
-                    <cite>hansihe</cite>
-                </blockquote>
-            {% endfor %}
         </div>
         <div class="small-12 medium-8 medium-pull-4 columns">
             <h6>Reason:</h6>
             <div class="panel">
-                {{ ban_object.reason }}
+                {{ ban_object.reason|markdown|safe }}
             </div>
             <h6>Comments:</h6>
             {% if replies %}
