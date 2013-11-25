@@ -35,8 +35,10 @@
                 </ul>
                 <section class="top-bar-section">
                     <ul class="right">
-                        <li class="has-dropdown not-click"><a href="{{ url_for('static_pages.view_servers') }}">Servers</a>
+                        <li class="has-dropdown not-click{% if current_page == 'servers' %} active{% endif %}">
+                            <a href="{{ url_for('static_pages.view_servers') }}">Servers</a>
                             <ul class="dropdown">
+                                <li class="show-for-small-only"><a href="{{ url_for('static_pages.view_servers') }}">All Servers</a></li>
                                 <li><a href="{{ url_for('static_pages.view_servers') }}#chaos">Chaos</a></li>
                                 <li><a href="{{ url_for('static_pages.view_servers') }}#event">Event</a></li>
                             </ul>
@@ -48,6 +50,7 @@
                         <li class="has-dropdown not-click{% if current_page == 'profile' %} active{% endif %}">
                             <a href="{{ current_user.get_profile_url() }}">{{ current_user.name }}</a>
                             <ul class="dropdown">
+                                <li class="show-for-small-only"><a href="{{ current_user.get_profile_url() }}">Your Profile</a></li>
                                 <li><a href="{{ url_for('settings.settings_main') }}">Account Settings</a></li>
                                 <li><a href="{{ url_for('auth.logout') }}">Log out</a></li>
                             </ul>
