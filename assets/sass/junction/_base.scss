@@ -10,6 +10,17 @@
   color: #7154c8;
 }
 
+textarea {
+  height: rem-calc(250);
+}
+
+// Top-bar gradient
+.top-bar-container {
+  -webkit-box-shadow: 0px 0px 8px 0px #111;
+  box-shadow: 0px 0px 8px 0px #111;
+}
+
+
 // Top-bar message icon
 .top-bar .messages a .fi-mail {
   font-size: 1.2em;
@@ -18,8 +29,10 @@
   line-break: 10px;
 }
 
-.top-bar .messages a {
-  padding-left: 40px;
+@media #{$medium-up} {
+  .top-bar .messages a {
+    padding-left: 40px;
+  }
 }
 
 // Top-bar cross
@@ -37,6 +50,16 @@
   background-repeat: no-repeat;
   top: 17px;
   left: 15px;
+}
+
+// Landing page
+.landing-container {
+  padding-top: 10%;
+
+  h1, h3 {
+    color: #FFFFFF;
+    text-align: center;
+  }
 }
 
 // Ban page
@@ -128,4 +151,31 @@
       }
     }
   }
+}
+
+// Servers page
+.servers-container {
+  h4, h2 {
+    text-align: center;
+  }
+}
+
+// Profile page
+.profile-container {
+  .forum-totals {
+    line-height: 1.6;
+  }
+  .tabs dd {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #d9d9d9;
+  }
+  .content {
+    width: 100%;
+  }
+}
+
+// Error pages (403, 404)
+.errorpage-container {
+  text-align: center;
 }

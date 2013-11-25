@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_new.html" %}
 
 {% set breadcrumb_items = [
 {'title': '404'}]
@@ -7,12 +7,11 @@
 {% set title = "404" %}
 
 {% block content %}
-<div class="container">
+<div class="errorpage-container">
     <div class="row">
-        <div class="span12 centered">
-            <h2 class="error">404</h3>
+        <div class="small-12">
+            <h2>404</h3>
             <p>Yeah, we lost you somewhere. Hopefully you eventually find what you were looking for.</p>
-            <i class="icon-remove-circle icon-circled icon-128 active" style="margin-right:0"></i>
         </div>
     </div>
 </div>
