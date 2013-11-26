@@ -17,23 +17,23 @@
         <tbody>
             {% for key in keys %}
                 <tr>
-                    <th>{{ key.label }}</th>
-                    <th>{{ key.key }}</th>
-                    <th>
+                    <td>{{ key.label }}</td>
+                    <td>{{ key.key }}</td>
+                    <td>
                         <a href="#" class="button split tiny">Manage <span data-dropdown="drop"></span></a><br>
                         <ul id="drop" class="f-dropdown" data-dropdown-content>
                             <li><a href="{{ url_for('api.api_key_edit', key_id=key.id) }}">Edit</a></li>
                             <li><a href="#" data-reveal-id="apikey-delete-{{ key.id }}">Delete</a></li>
                         </ul>
-                    </th>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
         <tfoot>
             <tr>
-                <th></th>
-                <th></th>
-                <th><a class="button tiny" href="#" data-reveal-id="apikey-add">Add Key</a></th>
+                <td></td>
+                <td></td>
+                <td><a class="button tiny" href="#" data-reveal-id="apikey-add">Add Key</a></td>
             </tr>
         </tfoot>
     </table>
