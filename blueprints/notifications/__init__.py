@@ -45,7 +45,7 @@ def inject_notifications():
 @login_required
 @blueprint.route('/notifications')
 def notifications_view():
-    return render_template('notifications_view.html', notifications=get_notifications(current_user))
+    return render_template('notifications_view.html', title="Notifications", notifications=get_notifications(current_user))
 
 @login_required
 @blueprint.route('/notifications/delete/<string:id>/')
