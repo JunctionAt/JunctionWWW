@@ -153,18 +153,12 @@ textarea {
   }
 }
 
-// Servers page
-.servers-container {
-  h4, h2 {
-    text-align: center;
-  }
-}
-
-// Staff page
-.staff-container {
-  h6 {
-    width: 128px;
-    text-align: center;
+// Register page - Step 2
+.register2-container {
+  img {
+    position: relative;
+    top: -2px;
+    margin-right: 4px;
   }
 }
 
@@ -183,11 +177,6 @@ textarea {
   .content {
     width: 100%;
   }
-}
-
-// Error pages (403, 404)
-.errorpage-container {
-  text-align: center;
 }
 
 // API Settings

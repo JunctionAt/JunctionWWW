@@ -7,9 +7,9 @@
 <div class="panel">
     <h3>Email</h3>
     {%- for error in form.mail.errors %}
-        <div data-alert class="alert-box warning radius">
-            <a href="#" class="close">&times;</a>
+        <div data-alert class="alert-box alert radius">
             {{ error }}
+            <a href="#" class="close">&times;</a>
         </div>
     {%- endfor %}
     <div>

@@ -16,7 +16,7 @@
             <ul class="small-block-grid-1 medium-block-grid-6">
                 {%- for person in data[listing["id"]] %}
                 {%- set profile_url = person.get_profile_url() %}
-                <li>
+                <li class="text-center">
                     <a href="{{ profile_url }}">
                         <img src="{{ person.get_avatar_url() }}" href="{{ profile_url }}">
                         <h6 href="{{ profile_url }}">{{ person.name }}</h6>

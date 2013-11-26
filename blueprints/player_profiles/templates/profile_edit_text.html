@@ -7,16 +7,16 @@
 %}
 
 {% block content %}
-<form method="post" action="." data-abide>
+<form method="post" action="" data-abide>
     {{ form.hidden_tag() }}
     {%- if form.errors %}
     <div class="row">
         <div class="small-12 columns">
             {%- for error_field in form.errors.values() %}
             {%- for error in error_field %}
-            <div class="alert-box alert-warning radius">
-                <a href="#" class="close">&times;</a>
+            <div class="alert-box alert radius">
                 {{ error }}
+                <a href="#" class="close">&times;</a>
             </div>
             {%- endfor %}
             {%- endfor %}

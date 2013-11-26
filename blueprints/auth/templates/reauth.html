@@ -9,16 +9,16 @@
 {% block content %}
 <div class="reauth-container">
     <div class="row">
-        <div class="small-12 medium-4 medium-push-4">
+        <div class="small-12 medium-4 medium-offset-4">
             <div class="panel">
                 <h3>Refresh Login</h3>
                 <p>We need to verify your password before you can do this.</p>
                 <form action="" method="post" data-abide>
                     {%- for error_field in form.errors.values() %}
                     {%- for error in error_field %}
-                    <div class="alert-box warning radius" data-alert>
-                        <a href="#" class="close">&times;</a>
+                    <div class="alert-box alert radius" data-alert>
                         {{ error }}
+                        <a href="#" class="close">&times;</a>
                     </div>
                     {%- endfor %}
                     {%- endfor %}

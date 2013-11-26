@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_new.html" %}
 
 {% set breadcrumb_items = [
 {'title': 'Sign up'}]
@@ -7,14 +7,15 @@
 {% set current_page = 'profile' %}
 
 {% block content %}
-<div class="container">
+<div class="register1-container">
     <div class="row">
-        <div class="offset4 span4">
-            <div class="box">
-                <h3 class="rheading">Sign up <span></span></h3>
-                <form class="form-inline" onsubmit="window.location.href='/register/'+$('#username-field').val(); return false;">
-                    <input type="text" class="input-medium" id="username-field" placeholder="In-Game Username">
-                    <button class="btn btn-theme">Go</button>
+        <div class="small-12 medium-4 medium-offset-4 columns">
+            <div class="panel">
+                <h3>Sign up</h3>
+                <form onsubmit="window.location.href='/register/'+$('#username-field').val(); return false;" data-abide>
+                    <input type="text" id="username-field" required placeholder="In-Game Username">
+                    <small class="error">A username is required.</small>
+                    <button>Go</button>
                 </form>
             </div>
         </div>
