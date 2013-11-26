@@ -151,6 +151,9 @@
 
 // Donate page
 .donate-container {
+  .progress {
+    overflow: hidden;
+  }
   .top table {
     width: 100%;
   }
