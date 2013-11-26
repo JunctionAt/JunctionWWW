@@ -10,10 +10,6 @@
   color: #7154c8;
 }
 
-textarea {
-  height: rem-calc(250);
-}
-
 // Top-bar gradient
 .top-bar-container {
   -webkit-box-shadow: 0px 0px 8px 0px #111;
@@ -153,6 +149,21 @@ textarea {
   }
 }
 
+// Donate page
+.donate-container {
+  .top table {
+    width: 100%;
+  }
+  .stats {
+    line-height: rem-calc(20);
+  }
+}
+.payments-container {
+  table {
+    width: 100%;
+  }
+}
+
 // Register page - Step 2
 .register2-container {
   img {
@@ -165,7 +176,7 @@ textarea {
 // Profile page
 .profile-container {
   .forum-totals {
-    line-height: rem-calc(1.6);
+    line-height: rem-calc(20);
   }
   .tabs dd {
     border: {
@@ -176,6 +187,11 @@ textarea {
   }
   .content {
     width: 100%;
+  }
+}
+.edit-profile-container, .send-pm-container {
+  textarea {
+    height: rem-calc(250);
   }
 }
 
