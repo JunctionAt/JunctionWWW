@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_new.html" %}
 
 {% set current_page = 'profile' %}
 
@@ -8,76 +8,62 @@
 %}
 
 {% block content %}
-<div class="container">
+<div class="profile-container">
     {%- if current_user.is_authenticated() and user.name != current_user.name %}
-    <!-- Toolbar for others -->
     <div class="row">
-        <div class="span12">
-            <a class="btn btn-theme" href="{{ profile.get_send_pm_url() }}">Send PM</a>
+        <div class="small-12 columns">
+            <a class="button" href="{{ profile.get_send_pm_url() }}">Send PM</a>
         </div>
     </div>
     {%- elif current_user.is_authenticated() %}
-    <!-- Toolbar for yourself -->
     <div class="row">
-        <div class="span12">
-            <a class="btn btn-theme" href="{{ profile.get_edit_text_url() }}">Edit profile text</a>
-            <a class="btn btn-theme" href="{{ url_for('avatar.avatar_control') }}">Edit avatar</a>
-            <a class="btn btn-theme" href="{{ url_for('auth.setpassword') }}">Change password</a>
+        <div class="small-12 columns">
+            <a class="button" href="{{ profile.get_edit_text_url() }}">Edit profile text</a>
+            <a class="button" href="{{ url_for('avatar.avatar_control') }}">Edit avatar</a>
+            <a class="button" href="{{ url_for('auth.setpassword') }}">Change password</a>
         </div>
     </div>
     {%- endif %}
     <div class="row">
-        <div class="span3">
-            <div class="row">
-                <div class="box">
-                    <h4 class="rheading">{{ user.name }} <span></span></h4>
-                    <img src="{{ user.get_avatar_url() }}">
-                </div>
+        <div class="small-12 medium-3 columns">
+            <div class="panel">
+                <h4>{{ user.name }}</h4>
+                <img src="{{ user.get_avatar_url() }}">
             </div>
             {%- if user.reddit_username != None %}
-            <div class="row">
-                <div class="box">
-                    <h5 class="rheading">Reddit</h5>
-                    <span>Reddit username: <a href="http://www.reddit.com/user/{{ user.reddit_username }}/">{{ user.reddit_username }}</a></span>
-                </div>
+            <div class="panel">
+                <h5>Reddit</h5>
+                <span><a href="http://www.reddit.com/user/{{ user.reddit_username }}/">{{ user.reddit_username }}</a></span>
             </div>
             {%- endif %}
-            <div class="row">
-                <div class="box">
-                    <h5 class="rheading">Badges</h5>
-                    {{ render_badges(profile)|safe }}
-                </div>
+            <div class="panel">
+                <h5>Badges</h5>
+                {{ render_badges(profile)|safe }}
             </div>
         </div>
-        <div class="span9">
-            <div class="tabbable tabs-top">
-                <ul class="nav nav-tabs">
-                    <li class="active"><a href="#overview" data-toggle="tab">Overview</a></li>
-                    <li class=""><a href="#stats" data-toggle="tab">Stats</a></li>
-                    <li class=""><a href="#forum" data-toggle="tab">Forum</a></li>
-                </ul>
-                <div class="tab-content">
-                    <div class="tab-pane active" id="overview">
+        <div class="small-12 medium-9 columns">
+            <dl class="tabs" data-tab>
+                <dd class="active"><a href="#overview">Overview</a></dd>
+                {#<dd><a href="#stats">Stats</a></dd>#}
+                <dd><a href="#forum">Forum</a></dd>
+            </dl>
+            <div class="panel">
+                <div class="tabs-content">
+                    <div class="content active" id="overview">
                         {{ profile.profile_text|markdown|safe }}
                     </div>
-                    <div class="tab-pane" id="stats">
+                    {#<div class="content" id="stats">
                         <p>This isn't made yet :(</p>
-                    </div>
-                    <div class="tab-pane" id="forum">
-                        <div class="span4">
-                            <aside>
-                                <div class="widget">
-                                    <h3 class="rheading">Stats <span></span></h3>
+                    </div>#}
+                    <div class="content" id="forum">
+                            <div class="small-12 medium-6 columns forum-totals">
+                                    <h3>Stats</h3>
                                     <span>Total Topics: {{ forum_info.topic_num }}</span>
                                     <div class="clear"></div>
                                     <span>Total Posts: {{ forum_info.post_num }}</span>
-                                </div>
-                            </aside>
-                        </div>
-                        <div class="span4">
-                            <aside>
-                                <div class="widget">
-                                    <h3 class="rheading">Recent Activity <span></span></h3>
+                            </div>
+                            <div class="small-12 medium-6 columns">
+                                    <h3>Recent Activity</h3>
                                     <ul>
                                         {%- for activity in forum_info.forum_activity %}
                                         {%- set activity_topic = activity.topic %}
@@ -90,9 +76,7 @@
                                         </li>
                                         {%- endfor %}
                                     </ul>
-                                </div>
-                            </aside>
-                        </div>
+                            </div>
                     </div>
                 </div>
             </div>

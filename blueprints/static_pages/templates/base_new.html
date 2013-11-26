@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="js" lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{% if title %}Junction - {{ title }}{% else %}Junction{% endif %}</title>
+        <meta name="description" content="The finer sort of Minecraft servers." />
+        <meta name="author" content="Junction Minecraft" />
+        <meta name="copyright" content="Junction Minecraft Servers. Copyright (c) 2013" />
+        {%- assets "css_main" %}
+        <link type="text/css" rel="stylesheet" href="{{ ASSET_URL }}">
+        {%- endassets %}
+        {%- block css %}
+        {%- endblock %}
+        <link rel="shortcut icon" href="/static/favicon.ico">
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/static/img/apple-touch-icon-144-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/static/img/apple-touch-icon-114-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/static/img/apple-touch-icon-72-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" href="/static/img/apple-touch-icon-57-precomposed.png">
+        <a href="https://plus.google.com/110085231338813337690" rel="publisher" style="display: none;">Google+</a>
+    </head>
+    <body>
+        <div class="contain-to-grid top-bar-container">
+            <nav class="top-bar" data-topbar>
+                <ul class="title-area">
+                    <li class="name">
+                        <h1><a href="{{ url_for('static_pages.landing_page') }}" class="header-title-cross">Junction</a></h1>
+                    </li>
+                    <li class="toggle-topbar menu-icon">
+                        <a href="#">
+                            <span>Menu</span>
+                        </a>
+                    </li>
+                </ul>
+                <section class="top-bar-section">
+                    <ul class="right">
+                        <li class="has-dropdown not-click{% if current_page == 'servers' %} active{% endif %}">
+                            <a href="{{ url_for('static_pages.view_servers') }}">Servers</a>
+                            <ul class="dropdown">
+                                <li class="show-for-small-only"><a href="{{ url_for('static_pages.view_servers') }}">All Servers</a></li>
+                                <li><a href="{{ url_for('static_pages.view_servers') }}#chaos">Chaos</a></li>
+                                <li><a href="{{ url_for('static_pages.view_servers') }}#event">Event</a></li>
+                            </ul>
+                        </li>
+                        <li{% if current_page == 'forum' %} class="active"{% endif %}>
+                            <a href="{{ url_for('forum.forum_landing') }}">Forum</a>
+                        </li>
+                        {%- if current_user.is_authenticated() %}
+                        <li class="has-dropdown not-click{% if current_page == 'profile' %} active{% endif %}">
+                            <a href="{{ current_user.get_profile_url() }}">{{ current_user.name }}</a>
+                            <ul class="dropdown">
+                                <li class="show-for-small-only"><a href="{{ current_user.get_profile_url() }}">Your Profile</a></li>
+                                <li><a href="{{ url_for('settings.settings_main') }}">Account Settings</a></li>
+                                <li><a href="{{ url_for('auth.logout') }}">Log out</a></li>
+                            </ul>
+                        </li>
+                        {%- set num_notifications = get_notifications_num(current_user) %}
+                        <li class="messages"><a href="#"><i class="fi-mail"></i>{{ num_notifications }}</a></li>
+                        {%- else %}
+                        <li{% if current_page == 'profile' %} class="active"{% endif %}>
+                            <a href="{{ url_for('auth.login') }}">Login</a>
+                        </li>
+                        {%- endif %}
+                    </ul>
+                </section>
+            </nav>
+        </div>
+        <div id="wrapper">
+            <div id="footer-wrap">
+                {%- if breadcrumb_items %}
+                <br>
+                <div class="row">
+                    <div class="small-12 columns">
+                        <ul class="breadcrumbs">
+                            {%- for item in breadcrumb_items %}
+                            {%- if item['url'] %}
+                            <li><a href="{{ item['url'] }}">{{ item['title'] }}</a></li>
+                            {%- else %}
+                            <li class="unavailable">{{ item['title'] }}</li>
+                            {%- endif %}
+                            {%- endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {%- endif %}
+                {%- with messages = get_flashed_messages(with_categories=true) %}
+                {%- if messages %}
+                <br>
+                <div class="row" style="margin-bottom: 0;">
+                    <div class="small-12 columns">
+                        {%- for category, message in messages %}
+                            <div data-alert class="alert-box {{ 'secondary' if category == 'message' else category }} radius">
+                                {{ message }}
+                                <a href="#" class="close">&times;</a>
+                            </div>
+                        {%- endfor %}
+                    </div>
+                </div>
+                {%- endif %}
+                {%- endwith %}
+                <div class="content">
+                {%- block content %}
+                <p>You shouldn't be seeing this message. Contact a tech and give them the URL you're on currently.</p>
+                {%- endblock %}
+                </div>
+                <div class="footer-push"></div>
+            </div>
+        </div>
+        <!-- end wrapper -->
+        {%- assets "js_main" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        {%- endassets %}
+        <script type="text/javascript">
+            $(document).foundation();
+        </script>
+        {%- block javascript %}
+        {%- endblock %}
+    </body>
+</html>

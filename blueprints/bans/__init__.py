@@ -14,12 +14,13 @@ def process_ban(ban):
         return False
     return True
 
-import views.api
-import views.note_indexes
+#import views.api
+#import views.note_indexes
 import views.ban_indexes
-import views.appeal_indexes
-import views.appeal_post
-import views.appeal_manage
-import views.appeal_edit
+import views.ban_unified_view
+#import views.appeal_indexes
+#import views.appeal_post
+#import views.appeal_manage
+#import views.appeal_edit
 import views.general
 import api

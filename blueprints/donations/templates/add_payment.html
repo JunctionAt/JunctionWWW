@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_new.html" %}
 
 {% set breadcrumb_items = [
 {'title': 'Donate', 'url': url_for('donations.donate')},
@@ -8,12 +8,12 @@
 {% set title = 'Donate - Add Payment' %}
 
 {% block content %}
-<div class="container">
+<div class="add-payment-container">
     <div class="row">
-        <div class="span12 widget">
-            <form action="." method="post">
+        <div class="small-12 columns">
+            <form class="panel" action="" method="post">
                 {%- if form.errors.values() %}
-                <div class="alert alert-error">
+                <div class="alert-box alert radius">
                     {{ form.errors.values()[0][0] }}
                 </div>
                 {%- endif %}
@@ -25,7 +25,7 @@
                 {{ form.start_date(placeholder="Eg. 2013-12-31") }}
                 {{ form.end_date.label }}
                 {{ form.end_date(placeholder="Eg. 2014-01-31") }}
-                {{ form.submit }}
+                {{ form.submit(class="button") }}
             </form>
         </div>
     </div>

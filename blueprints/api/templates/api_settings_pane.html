@@ -4,39 +4,27 @@
 {% set current_settings_pane = "api_keys" %}
 
 {% block settings_pane %}
-<div class="box">
-    <h3 class="rheading">
-        Manage API Keys
-        <span></span>
-    </h3>
-    <table class="table table-striped table-hover">
+<div class="panel api-settings-container">
+    <h3>Manage API Keys</h3>
+    <table>
         <thead>
             <tr>
                 <th>Label</th>
                 <th>Key</th>
-                <th colspan="1"></th>
+                <th width="200"></th>
             </tr>
         </thead>
         <tbody>
             {% for key in keys %}
                 <tr>
-                    <th><small>{{ key.label }}</small></th>
-                    <th><small>{{ key.key }}</small></th>
-                    <th class="span1">
-                        <div class="btn-group">
-                            <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
-                                Manage
-                                <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a href="{{ url_for('api.api_key_edit', key_id=key.id) }}">Edit</a>
-                                </li>
-                                <li>
-                                    <a href="#apikey-delete-{{ key.id }}" role="button" data-toggle="modal">Delete</a>
-                                </li>
-                            </ul>
-                        </div>
+                    <th>{{ key.label }}</th>
+                    <th>{{ key.key }}</th>
+                    <th>
+                        <a href="#" class="button split tiny">Manage <span data-dropdown="drop"></span></a><br>
+                        <ul id="drop" class="f-dropdown" data-dropdown-content>
+                            <li><a href="{{ url_for('api.api_key_edit', key_id=key.id) }}">Edit</a></li>
+                            <li><a href="#" data-reveal-id="apikey-delete-{{ key.id }}">Delete</a></li>
+                        </ul>
                     </th>
                 </tr>
             {% endfor %}
@@ -45,7 +33,7 @@
             <tr>
                 <th></th>
                 <th></th>
-                <th><a class="btn btn-success btn-small pull-right" href="#apikey-add" role="button" data-toggle="modal">Add Key</a></th>
+                <th><a class="button tiny" href="#" data-reveal-id="apikey-add">Add Key</a></th>
             </tr>
         </tfoot>
     </table>
@@ -53,41 +41,27 @@
 
 <!-- API Key modals -->
 <div>
-    {% for key in keys %}
-        <div id="apikey-delete-{{ key.id }}" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="apikey-delete-label-{{ key.id }}" aria-hidden="true">
+    {%- for key in keys %}
+        <div id="apikey-delete-{{ key.id }}" class="reveal-modal" data-reveal>
             <form method="post" action="{{ url_for('api.api_key_delete', key_id=key.id) }}">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3 id="apikey-delete-label-{{ key.id }}">Are you sure?</h3>
-                </div>
-                <div class="modal-body">
-                    {{ apikey_del_form.hidden_tag() }}
-                    <p>Deleting this API key cannot be undone. <code>{{ key.key }}</code> with label <code>{{ key.label }}</code>.</p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
-                    <button class="btn btn-danger">Yes, delete key</button>
-                </div>
+                <a class="close-reveal-modal">&#215;</a>
+                <h3>Are you sure?</h3>
+                {{ apikey_del_form.hidden_tag() }}
+                <p>Deleting this API key cannot be undone. <code>{{ key.key }}</code> with label <code>{{ key.label }}</code>.</p>
+                <button class="alert" type="submit">Yes, delete key</button>
             </form>
         </div>
     {% endfor %}
 </div>
-<div id="apikey-add" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="apikey-add-label" aria-hidden="true">
+<div id="apikey-add" class="reveal-modal" data-reveal>
     <form method="post" action="{{ url_for('api.api_key_add') }}">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="apikey-add-label">Add new API key</h3>
-        </div>
-        <div class="modal-body">
-            {{ apikey_add_form.hidden_tag() }}
-            <label for="apikey-add-form-label">Label</label>
-            <input name="label" id="apikey-add-form-label" type="text" placeholder="no label" maxlength="20">
-            <span class="help-block">The label can have max 20 characters.</span>
-        </div>
-        <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Abort</button>
-            <button class="btn btn-success">Add Key</button>
-        </div>
+        <a class="close-reveal-modal">&#215;</a>
+        <h3>Add new API key</h3>
+        {{ apikey_add_form.hidden_tag() }}
+        <label for="apikey-add-form-label">Label</label>
+        <input name="label" id="apikey-add-form-label" type="text" placeholder="no label" maxlength="20">
+        <p>The label can have max 20 characters.</p>
+        <button type="submit">Add Key</button>
     </form>
 </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_new.html" %}
 
 {% set breadcrumb_items = [
 {'title': 'Donate'}]
@@ -7,32 +7,32 @@
 {% set title = 'Donate' %}
 
 {% block content %}
-<div class="container">
+<div class="donate-container">
     <div class="row">
-        <div class="span12">
-            <div class="alert alert-error">
+        <div class="small-12 columns">
+            <div class="alert-box alert radius" data-alert>
                 Not all features on here are finished just yet. Donations are working just fine though.
             </div>
             {%- if not current_user.is_authenticated() %}
-            <div class="alert alert-info">
+            <div class="alert-box secondary" data-alert>
                 Please log in to your account before donating to claim any possible swag.
             </div>
             {%- endif %}
         </div>
     </div>
     <div class="row">
-        <div class="span12">
-            <div class="box">
+        <div class="small-12 columns">
+            <div class="panel">
                 <div class="progress">
-                    <div class="bar progress-striped" style="width: {{ funds_current / funds_target * 100 }}%;"></div>
+                    <div class="meter" style="width: {{ funds_current / funds_target * 100 }}%;"></div>
                 </div>
                 <div>${{ funds_current }} raised of ${{ funds_target }}</div>
             </div>
         </div>
     </div>
     <div class="row">
-        <div class="offset4 span4 center">
-            <div class="box">
+        <div class="small-12 medium-4 medium-offset-4 columns text-center">
+            <div class="panel">
                 <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="margin: 0;">
                     <input type="hidden" name="cmd" value="_s-xclick">
                     <input type="hidden" name="hosted_button_id" value="72TWX9774QACJ">
@@ -44,19 +44,19 @@
         </div>
     </div>
     <div class="row">
-        <div class="span6">
-            <div class="box">
-                <h3 class="rheading">Stats <span></span></h3>
+        <div class="small-12 medium-6 columns stats">
+            <div class="panel">
+                <h3>Stats</h3>
                 <span>Number of donations: {{ num_donations }}</span><br>
                 <span>Total donations: ${{ total_donations }}</span><br>
                 <span>Amount taken by Paypal: ${{ total_fees }}</span><br>
                 <a href="{{ url_for('donations.payments_view') }}">See payments</a><br>
             </div>
         </div>
-        <div class="span6">
-            <div class="box">
-                <h3 class="rheading">Top donations <span></span></h3>
-                <table class="table">
+        <div class="small-12 medium-6 columns top">
+            <div class="panel">
+                <h3>Top donations</h3>
+                <table>
                     <thead>
                         <tr>
                             <td>User</td>

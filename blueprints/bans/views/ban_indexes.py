@@ -4,7 +4,6 @@ from .. import bans
 from flask import render_template, abort, url_for
 from flask_login import current_user
 from blueprints.bans.ban_model import Ban
-from blueprints.bans.appeal_model import Appeal
 from blueprints.auth import login_required
 import math
 
@@ -40,13 +39,13 @@ def your_bans(page):
     links = []
     for page_mod in range(-min(PAGINATION_VALUE_RANGE, page - 1), min(PAGINATION_VALUE_RANGE, num_pages-page) + 1):
         num = page + page_mod
-        links.append({'num': num, 'url': url_for('bans.your_bans', page=num), 'active': (num == page)})
+        links.append({'num': num, 'url': url_for('bans.your_bans', page=num), 'active': num != page})
 
 
     return render_template(
         'bans_index.html',
         view="bans.your_bans",
-        title="Your Bans",
+        base_title="Your Bans",
         bans=display_bans,
         total_pages=num_pages,
         next=next_page,
@@ -82,12 +81,12 @@ def created_bans(page):
     links = []
     for page_mod in range(-min(PAGINATION_VALUE_RANGE, page - 1), min(PAGINATION_VALUE_RANGE, num_pages-page) + 1):
         num = page + page_mod
-        links.append({'num': num, 'url': url_for('bans.created_bans', page=num), 'active': (num == page)})
+        links.append({'num': num, 'url': url_for('bans.created_bans', page=num), 'active': num != page})
 
     return render_template(
         'bans_index.html',
         view="bans.created_bans",
-        title="Bans you've made",
+        base_title="Bans you've made",
         bans=display_bans,
         total_pages=num_pages,
         next=next_page,
@@ -122,12 +121,12 @@ def bans_index(page):
     links = []
     for page_mod in range(-min(PAGINATION_VALUE_RANGE, page - 1), min(PAGINATION_VALUE_RANGE, num_pages-page) + 1):
         num = page + page_mod
-        links.append({'num': num, 'url': url_for('bans.bans_index', page=num), 'active': (num == page)})
+        links.append({'num': num, 'url': url_for('bans.bans_index', page=num), 'active': num != page})
 
     return render_template(
         'bans_index.html',
         view="bans.bans_index",
-        title="All bans",
+        base_title="All bans",
         bans=display_bans,
         total_pages=num_pages,
         next=next_page,

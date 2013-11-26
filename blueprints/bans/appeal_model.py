@@ -7,14 +7,14 @@ from blueprints.auth.user_model import User
 import shortuuid
 
 
-class AppealEdit(EmbeddedDocument):
+class Old_AppealEdit(EmbeddedDocument):
 
     text = StringField(required=True)
     user = ReferenceField(User, dbref=False, required=True)
     time = DateTimeField(default=datetime.datetime.utcnow, required=True)
 
 
-class AppealReply(Document):
+class Old_AppealReply(Document):
 
     appeal = ReferenceField('Appeal', dbref=False, required=True)
     uid = SequenceField(unique=True)
@@ -27,22 +27,22 @@ class AppealReply(Document):
 
     text = StringField(required=True)
 
-    edits = ListField(EmbeddedDocumentField(AppealEdit))
+    edits = ListField(EmbeddedDocumentField(Old_AppealEdit))
 
     hidden = BooleanField(default=False)
 
     meta = {
         'collection': 'appeal_responses',
-        'indexed': [ 'appeal', 'uid' ]
+        'indexed': ['appeal', 'uid']
     }
 
 
-class Appeal(Document):
+class Old_Appeal(Document):
 
     ban = ReferenceField(Ban, dbref=False, required=True)
     created = DateTimeField(default=datetime.datetime.utcnow, required=True)
 
-    replies = ListField(ReferenceField(AppealReply, dbref=False))
+    replies = ListField(ReferenceField(Old_AppealReply, dbref=False))
     last = DateTimeField(default=datetime.datetime.utcnow, required=True)
 
     #0:open - 1:hard closed for timeframe - 2:hard closed forever
@@ -52,5 +52,5 @@ class Appeal(Document):
 
     meta = {
         'collection': 'appeals',
-        'indexed': [ 'ban' ]
+        'indexed': ['ban']
     }

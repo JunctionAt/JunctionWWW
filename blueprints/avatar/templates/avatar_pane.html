@@ -4,24 +4,25 @@
 {% set current_settings_path = [{'title': "Account"}, {'title': "Profile Picture", 'url': url_for('avatar.avatar_control')}] %}
 
 {% block settings_pane %}
-<div class="row-fluid">
-    <div class="offset4 span4">
-        <div class="box center" style="margin-bottom: 20px;">
+<div class="row">
+    <div class="small-12 medium-4 medium-offset-4 columns">
+        <div class="panel text-center">
             <img src="{{ url_for('avatar.get_avatar', name=name) }}">
         </div>
     </div>
 </div>
-<form method="post" enctype="multipart/form-data">
-    {{ avatar_form.hidden_tag() }}
-    <div class="row-fluid box">
-        <h3 class="rheading">Upload image <span></span></h3>
-        {{ avatar_form.image }}
-        {{ avatar_form.upload_button(class="btn btn-theme") }}
+<div class="row">
+    <div class="small-12 columns">
+        <div class="panel">
+            <form method="post" enctype="multipart/form-data">
+                {{ avatar_form.hidden_tag() }}
+                <h3>Upload image</h3>
+                {{ avatar_form.image }}
+                {{ avatar_form.upload_button(class="button") }}
+                <h3>Use skin face</h3>
+                {{ avatar_form.mc_skin_button(class="button") }}
+            </form>
+        </div>
     </div>
-    <br>
-    <div class="row-fluid box">
-        <h3 class="rheading">Use skin face <span></span></h3>
-        {{ avatar_form.mc_skin_button(class="btn btn-theme") }}
-    </div>
-</form>
+</div>
 {% endblock %}
