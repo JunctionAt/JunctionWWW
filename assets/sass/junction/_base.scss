@@ -163,12 +163,14 @@ textarea {
 // Profile page
 .profile-container {
   .forum-totals {
-    line-height: 1.6;
+    line-height: rem-calc(1.6);
   }
   .tabs dd {
-    border-style: solid;
-    border-width: 1px;
-    border-color: #d9d9d9;
+    border: {
+      style: solid;
+      width: rem-calc(1);
+      color: #d9d9d9;
+    }
   }
   .content {
     width: 100%;
@@ -178,4 +180,78 @@ textarea {
 // Error pages (403, 404)
 .errorpage-container {
   text-align: center;
+}
+
+// API Settings
+.api-settings-container {
+  .button {
+    margin-bottom: 0;
+  }
+  table {
+    width: 100%;
+  }
+}
+
+
+// API Settings Edit
+.ms-container {
+  background: transparent url('/static/img/switch.png') no-repeat 50% 50%;
+  width: rem-calc(370);
+
+  &:after {
+    content: ".";
+    display: block;
+    height: 0;
+    line-height: 0;
+    font-size: 0;
+    clear: both;
+    min-height: 0;
+    visibility: hidden;
+  }
+
+  .ms-selectable, .ms-selection {
+    float: left;
+    width: 45%;
+
+    li.ms-hover {
+      cursor: pointer;
+      color: #fff;
+      text-decoration: none;
+      background-color: #008cba;
+    }
+  }
+
+  .ms-selection {
+    float: right;
+  }
+
+  .ms-list {
+    background: #fff;
+    border: {
+      style: solid;
+      width: rem-calc(1);
+      color: #d9d9d9;
+    }
+    margin: rem-calc(5 0 20);
+    position: relative;
+    height: rem-calc(200);
+    padding: 0;
+    overflow-y: auto;
+
+    &.ms-focus {
+      outline: 0;
+    }
+  }
+
+  ul {
+    margin: 0;
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .ms-selectable li.ms-elem-selectable,
+  .ms-selection li.ms-elem-selection {
+    border-bottom: rem-calc(1) #d9d9d9 solid;
+    padding: rem-calc(2 10);
+  }
 }

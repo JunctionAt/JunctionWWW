@@ -4,12 +4,12 @@
 {% set current_settings_pane = "Email" %}
 
 {% block settings_pane %}
-<div class="box">
-    <h3 class="rheading">Email <span></span></h3>
+<div class="panel">
+    <h3>Email</h3>
     {%- for error in form.mail.errors %}
-        <div class="alert alert-error">
-            <button type="button" class="close" data-dismiss="alert">×</button>
+        <div data-alert class="alert-box warning radius">
             {{ error }}
+            <a href="#" class="close">&times;</a>
         </div>
     {%- endfor %}
     <div>
@@ -23,12 +23,13 @@
         {%- endif %}
         {%- endif %}
     </div>
-    <form method="post" class="form-inline">
+    <form method="post" data-abide>
         {{ form.hidden_tag() }}
-        {{ form.mail }}
-        {{ form.update(class='btn btn-theme') }}
+        {{ form.mail(required='', pattern='email') }}
+        <small class="error">An email address is required.</small>
+        {{ form.update(class='button') }}
         {%- if not current_user.mail_verified %}
-        {{ form.resend(class='btn btn-theme') }}
+        {{ form.resend(class='button') }}
         {%- endif %}
     </form>
 </div>

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_new.html" %}
 
 {% set breadcrumb_items = [
 {'title': 'Settings', 'url': url_for('settings.settings_main')}]
@@ -11,21 +11,21 @@
 {% set current_page = 'profile' %}
 
 {% block content %}
-<div class="container">
+<div class="settings-container">
     <div class="row">
-        <div class="span3">
-            <div class="box">
-                <ul class="nav nav-list">
+        <div class="small-12 medium-3 columns">
+            <div class="panel">
+                <ul class="side-nav">
                     {%- for category, panes in settings_panels_structure.iteritems() %}
                     <li class="nav-header">{{ category }}</li>
                     {%- for name, pane in panes.iteritems() %}
-                    <li class="{{ 'active' if current_settings_pane == pane['menu_id'] }}"><a href="{{ pane['url']() }}">{{ name }}</a></li>
+                    <li{% if current_settings_pane == pane['menu_id'] %} class="active"{% endif %}><a href="{{ pane['url']() }}">{{ name }}</a></li>
                     {%- endfor %}
                     {%- endfor %}
                 </ul>
             </div>
         </div>
-        <div class="span9">
+        <div class="small-12 medium-9 columns">
         {%- block settings_pane %}
         {%- endblock %}
         </div>
