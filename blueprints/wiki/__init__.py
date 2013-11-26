@@ -1,7 +1,7 @@
 __author__ = 'HansiHE'
 
 import flask
-from flask import Blueprint, url_for, render_template, jsonify, current_app
+from flask import Blueprint, url_for, render_template, jsonify, current_app, abort
 from blueprints.base import cache
 import markdown
 from markdown.inlinepatterns import Pattern
@@ -80,4 +80,7 @@ def display_index():
 
 @blueprint.route('/wiki/<string:wiki_url>')
 def display_wiki_article(wiki_url):
-    return render_template('wiki_page.html', article=get_wiki_article(wiki_url), index=False, wiki_url=wiki_url, title="Wiki - " + wiki_url)
+    try:
+        return render_template('wiki_page.html', article=get_wiki_article(wiki_url), index=False, wiki_url=wiki_url, title="Wiki - " + wiki_url)
+    except KeyError:
+        abort(404)
