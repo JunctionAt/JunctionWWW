@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_new.html" %}
 
 {% set breadcrumb_items = [
 {'title': 'Wiki', 'url': url_for('wiki.display_index')}]
@@ -6,10 +6,10 @@
 {% if wiki_url %}{% do breadcrumb_items.append({'title': wiki_url, 'url': url_for('wiki.display_wiki_article', wiki_url=wiki_url)}) %}{% endif %}
 
 {% block content %}
-<div class="container">
+<div class="wiki-page-container">
     <div class="row">
-        <div class="span12">
-            <div class="box">
+        <div class="small-12 columns">
+            <div class="panel">
                 {{ article['content']|markdown }}
             </div>
         </div>
