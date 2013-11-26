@@ -5,14 +5,14 @@
 
 {% block settings_pane %}
 <div class="row">
-    <div class="small-12 medium-4 medium-push-4">
+    <div class="small-12 medium-4 medium-push-4 columns">
         <div class="panel text-center">
             <img src="{{ url_for('avatar.get_avatar', name=name) }}">
         </div>
     </div>
 </div>
 <div class="row">
-    <div class="small-12">
+    <div class="small-12 columns">
         <div class="panel">
             <form method="post" enctype="multipart/form-data">
                 {{ avatar_form.hidden_tag() }}

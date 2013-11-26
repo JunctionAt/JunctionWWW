@@ -9,7 +9,7 @@
     {%- if reddit_username != None %}
     <p><strong>Reddit username:</strong> <code>{{ reddit_username }}</code></p>
     <form method="post" action="{{ url_for('settings.reddit_unlink') }}">
-        <input class="button alert" type="submit" value="Unlink your Reddit username">
+        <button class="alert" type="submit">Unlink your Reddit username</button>
     </form>
     {%- if reddit_username == current_user.name %}
     <p>You can't set your subreddit flair, as your usernames are the same!</p>
@@ -17,19 +17,19 @@
     <p><strong>Subreddit flair:</strong> <code>{{ flair }}</code></p>
     <p><small>Setting flair takes a few seconds, please click the button only once.</small></p>
     <form method="post" action="{{ url_for('settings.reddit_unset_flair') }}">
-        <input class="button alert" type="submit" value="Unset your subreddit flair">
+       <button class="alert" type="submit">Unset your subreddit flair</button>
     </form>
     {%- else %}
     <p><strong>Subreddit flair:</strong> not set</p>
     <p><small>Setting flair takes a few seconds, please click the button only once.</small></p>
     <form method="post" action="{{ url_for('settings.reddit_set_flair') }}">
-        <input class="button" type="submit" value="Set your subreddit flair">
+        <button type="submit">Set your subreddit flair</button>
     </form>
     {%- endif %}
     {%- else %}
     <p><strong>Reddit username:</strong> not linked</p>
     <form method="post" action="{{ url_for('settings.reddit_link') }}">
-        <input class="button" type="submit" value="Link your Reddit username">
+        <button type="submit">Link your Reddit username</button>
     </form>
     {%- endif %}
 </div>

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_new.html" %}
 
 {% set breadcrumb_items = [
 {'title': 'Refresh Login', 'url': url_for('auth.reauth')}]
@@ -7,30 +7,25 @@
 {% set current_page = 'profile' %}
 
 {% block content %}
-<div class="container">
+<div class="reauth-container">
     <div class="row">
-        <div class="offset4 span4">
-            <div class="box">
-                <h3 class="rheading">Refresh Login <span></span></h3>
-                <p class="widget">
-                    We need to verify your password before you can do this.
-                </p>
-                <form style="margin-bottom: 0;" action="" method="post">
+        <div class="small-12 medium-4 medium-push-4">
+            <div class="panel">
+                <h3>Refresh Login</h3>
+                <p>We need to verify your password before you can do this.</p>
+                <form action="" method="post" data-abide>
                     {%- for error_field in form.errors.values() %}
                     {%- for error in error_field %}
-                    <div class="alert alert-error">
-                        <button type="button" class="close" data-dismiss="alert">×</button>
+                    <div class="alert-box warning radius" data-alert>
+                        <a href="#" class="close">&times;</a>
                         {{ error }}
                     </div>
                     {%- endfor %}
                     {%- endfor %}
-                    <div class="widget">
-                        {{ form.hidden_tag() }}
-                        {{ form.password(placeholder=form.password.label.text) }}
-                    </div>
-                    <div class="widget">
-                        <button class="btn btn-theme">Refresh Login</button>
-                    </div>
+                    {{ form.hidden_tag() }}
+                    {{ form.password(placeholder=form.password.label.text, required='') }}
+                    <small class="error">A password is required.</small>
+                    <button type="submit">Refresh Login</button>
                 </form>
             </div>
         </div>

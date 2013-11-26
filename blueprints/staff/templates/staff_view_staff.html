@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_new.html" %}
 
 {% set breadcrumb_items = [
 {'title': 'Staff', 'url': url_for('staff.view_staff')}]
@@ -7,23 +7,25 @@
 {% set title = 'Staff' %}
 
 {% block content %}
-<div class="container">
-    {% for listing in listings %}
-        <div class="row">
-            <div class="span12">
-                <h3 class="rheading">{{ listing["name"] }} <span></span></h3>
-                <p>{{ listing["description"] }}</p>
-            </div>
-            {%- for person in data[listing["id"]] %}
+<div class="staff-container">
+    {%- for listing in listings %}
+    <div class="row">
+        <div class="small-12 columns">
+            <h3>{{ listing["name"] }}</h3>
+            <p>{{ listing["description"] }}</p>
+            <ul class="small-block-grid-1 medium-block-grid-6">
+                {%- for person in data[listing["id"]] %}
                 {%- set profile_url = person.get_profile_url() %}
-                <div class="span2">
+                <li>
                     <a href="{{ profile_url }}">
                         <img src="{{ person.get_avatar_url() }}" href="{{ profile_url }}">
-                        <h6 href="{{ profile_url }}" style="width:128px;text-align:center;">{{ person.name }}</h6>
+                        <h6 href="{{ profile_url }}">{{ person.name }}</h6>
                     </a>
-                </div>
-            {%- endfor %}
+                </li>
+                {%- endfor %}
+            </ul>
         </div>
-    {% endfor %}
+    </div>
+    {%- endfor %}
 </div>
 {% endblock %}

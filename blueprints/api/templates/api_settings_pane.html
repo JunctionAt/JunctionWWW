@@ -48,7 +48,7 @@
                 <h3>Are you sure?</h3>
                 {{ apikey_del_form.hidden_tag() }}
                 <p>Deleting this API key cannot be undone. <code>{{ key.key }}</code> with label <code>{{ key.label }}</code>.</p>
-                <button class="button alert">Yes, delete key</button>
+                <button class="alert" type="submit">Yes, delete key</button>
             </form>
         </div>
     {% endfor %}
@@ -61,7 +61,7 @@
         <label for="apikey-add-form-label">Label</label>
         <input name="label" id="apikey-add-form-label" type="text" placeholder="no label" maxlength="20">
         <p>The label can have max 20 characters.</p>
-        <button class="button">Add Key</button>
+        <button type="submit">Add Key</button>
     </form>
 </div>
 {% endblock %}
