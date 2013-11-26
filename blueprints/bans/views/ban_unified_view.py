@@ -60,7 +60,7 @@ def post_ban_reply(ban_uid):
     if request.method == "POST" and reply_form.validate():
         last_reply = AppealReply.objects(ban=ban).order_by('-created').first()
 
-        if last_reply.creator.name == current_user.name:
+        if last_reply and last_reply.creator.name == current_user.name:
             last_reply.text += "\n- - -\n" + reply_form.text.data
             last_reply.edits.append(AppealEdit(text=last_reply.text, user=current_user.to_dbref()))
             last_reply.save()
