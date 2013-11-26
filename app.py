@@ -44,9 +44,7 @@ except IOError:
 if application.config.get('AIRBRAKE_ENABLED', True):
     from airbrake import AirbrakeErrorHandler
     from flask.signals import got_request_exception
-    from flask import current_app
 
-    @got_request_exception.connect_via(current_app)
     def log_exception(sender, exception, **extra):
         handler = AirbrakeErrorHandler(
             api_key=application.config['AIRBRAKE_API_KEY'],
@@ -58,6 +56,7 @@ if application.config.get('AIRBRAKE_ENABLED', True):
             request_args=request.args,
             request_headers=request.headers)
         handler.emit(exception)
+    got_request_exception.connect(log_exception, sender=application)
 
 # Error page
 #@application.errorhandler(500)
