@@ -22,6 +22,7 @@ def assets(app):
                      assets_folder+'js/foundation/foundation.dropdown.js',
                      assets_folder+'js/foundation/foundation.abide.js',
                      assets_folder+'js/foundation/foundation.joyride.js',
+                     assets_folder+'js/foundation/foundation.orbit.js',
                      assets_folder+'js/foundation/foundation.tab.js',
                      assets_folder+'js/foundation/foundation.reveal.js',
                      assets_folder+'js/foundation/foundation.alert.js')
