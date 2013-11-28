@@ -7,18 +7,18 @@
 {% set current_page = 'bans' %}
 
 {% block content %}
-<div class="container">
+<div class="anathema-front-container">
     <div class="row">
-        <div class="span3">
-            <div class="box divcenter">
-                        <a href="{{ url_for('bans.bans_index') }}" class="bans-link-icon">
+        <div class="small-12 medium-3 columns">
+            <div class="panel text-center">
+                      {#<a href="{{ url_for('bans.bans_index') }}" class="bans-link-icon">
                             <i class="icon-circled icon-128 icon-ban-circle"></i>
                         </a>
-                        <br>
-                        <a href="{{ url_for('bans.bans_index') }}">Bans</a>
+                        <br>#}
+                        <h2><a href="{{ url_for('bans.bans_index') }}">Bans</a></h2>
             </div>
         </div>
-        <div class="span3">
+        {#<div class="small-12 medium-3 columns">
             <div class="box divcenter">
                        <a href="" class="bans-link-icon">
                             <i class="icon-circled icon-128 icon-share-alt"></i>
@@ -43,14 +43,14 @@
                         <a style="color: #888;">Notes</a>
                     {%- endif %}
             </div>
-        </div>
-        <div class="span3">
-            <div class="box divcenter">
-                        <a href="{{ url_for('bans.your_bans') }}" class="bans-link-icon">
+        </div>#}
+        <div class="small-12 medium-3 columns">
+            <div class="panel text-center">
+                      {#<a href="{{ url_for('bans.your_bans') }}" class="bans-link-icon">
                             <i class="icon-circled icon-128 icon-edit"></i>
                         </a>
-                        <br>
-                        <a href="{{ url_for('bans.your_bans') }}">Appeal Ban</a>
+                        <br>#}
+                        <h2><a href="{{ url_for('bans.your_bans') }}">Your Infractions</a></h2>
             </div>
         </div>
     </div>
