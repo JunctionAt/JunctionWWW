@@ -1,0 +1,72 @@
+// Forum pages
+.forum-container {
+  .forum-side-nav-container {
+
+    .boards-pane {
+      @include panel($padding: 10px);
+    }
+  }
+
+  .topic-table {
+    width: 100%;
+
+    tbody {
+      .topic-title {
+        display: block;
+      }
+      .topic-by {
+        display: block;
+        font-size: 0.7rem;
+      }
+
+      .latest-container {
+        height: 32px;
+
+        img {
+          height: 32px;
+          width: 32px;
+          float: left;
+        }
+        .post-info {
+          height: 32px;
+          float: left;
+          padding-left: 5px;
+
+          .post-user {
+            display: block;
+          }
+          .post-date {
+            display: block;
+            line-height: 10px;
+            font-size: 0.7rem;
+          }
+        }
+      }
+    }
+  }
+
+  .post-container {
+
+    .post-pane {
+      @include panel($padding: 6px);
+
+      .forum-post-raw {
+        display: none;
+      }
+      .forum-post-edit {
+        display: none;
+      }
+
+      .meta {
+
+      }
+      .text {
+        @media #{$medium-up} {
+          border-left: 1px #d9d9d9 solid;
+        }
+        min-height: 3rem;
+        overflow: auto;
+      }
+    }
+  }
+}

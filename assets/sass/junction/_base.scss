@@ -1,4 +1,3 @@
-
 // Begin base template styles
 
 // General
@@ -48,6 +47,10 @@
   left: 15px;
 }
 
+//Forum stuffs
+@import "forum";
+@import "anathema";
+
 // Landing page
 .landing-container {
   padding-top: 10%;
@@ -55,97 +58,6 @@
   h1, h3 {
     color: #FFFFFF;
     text-align: center;
-  }
-}
-
-// Ban page
-.ban-container {
-  .weak {
-    color: #888888;
-  }
-
-  ul.info-list {
-    list-style: none;
-    margin-left: 0;
-
-    .key {
-      font-family: "Open Sans", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
-      font-weight: 300;
-      font-style: normal;
-      color: #333333;
-      text-rendering: optimizeLegibility;
-      font-size: 0.9rem;
-    }
-    .value {
-      margin-left: 1rem;
-    }
-  }
-
-  .appeal-comment {
-    @include panel($padding: 8px);
-
-    .meta {
-
-    }
-    .text {
-      border-left: 1px #d9d9d9 solid;
-      min-height: 3rem;
-    }
-  }
-
-  .appeal-response {
-    .text-area {
-      height: 8rem;
-      resize: vertical;
-    }
-    .submit {
-      margin-bottom: 0;
-    }
-  }
-}
-
-.forum-container {
-  .side-menu {
-    li.heading {
-
-    }
-  }
-  .topic-table {
-    width: 100%;
-
-    tbody {
-      .topic-title {
-        display: block;
-      }
-      .topic-by {
-        display: block;
-        font-size: 0.7rem;
-      }
-
-      .latest-container {
-        height: 32px;
-
-        img {
-          height: 32px;
-          width: 32px;
-          float: left;
-        }
-        .post-info {
-          height: 32px;
-          float: left;
-          padding-left: 5px;
-
-          .post-user {
-            display: block;
-          }
-          .post-date {
-            display: block;
-            line-height: 10px;
-            font-size: 0.7rem;
-          }
-        }
-      }
-    }
   }
 }
 
