@@ -16,7 +16,7 @@ html, body {
   }
 }
 footer {
-  padding-top: 30px;
+  padding-top: 15px;
   color: #666666;
 
   h5 {
@@ -30,6 +30,12 @@ footer {
   }
   ul, p {
     font-size: rem-calc(12);
+  }
+  li {
+    line-height: 2.2rem;
+  }
+  .inline-list {
+    margin-bottom: 0;
   }
 
   .footer-verybottom-container {

@@ -113,9 +113,9 @@
         <footer class="contain-to-grid">
             <div class="footer-container">
                 <div class="row">
-                    <div class="small-12 medium-4 columns">
-                        <h5>Places</h5>
-                        <ul class="no-bullet">
+                    <div class="small-12 medium-6 columns">
+                        <ul class="inline-list">
+                            <li><h5>Junction</h5></li>
                             <li>
                                 <a href="{{ url_for('bans.a_front') }}">Bans</a>
                             </li>
@@ -129,10 +129,11 @@
                                 <a href="{{ url_for('donations.donate') }}">Donate</a>
                             </li>
                         </ul>
+                        <p>&copy; 2013 Junction Minecraft. All rights reserved.</p>
                     </div>
-                    <div class="small-12 medium-4 columns">
-                        <h5>Contact</h5>
-                        <ul class="no-bullet">
+                    <div class="small-12 medium-6 columns">
+                        <ul class="inline-list">
+                            <li><h5>Contact</h5></li>
                             <li>
                                 <span>IRC: #Junction on <a href="http://rozznet.net">RozzNet</a></span>
                             </li>
@@ -143,16 +144,6 @@
                                 <a href="https://github.com/JunctionAt/jbugs/issues">Report an issue</a>
                             </li>
                         </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-verybottom-container">
-                <div class="row">
-                    <div class="small-12 medium-6 columns">
-                        <p>&copy; Junction 2013. All rights reserved.</p>
-                    </div>
-                    <div class="small-12 medium-6 columns">
-                        <p class="right">Git: {{ config['version_hash'] }}</p>
                     </div>
                 </div>
             </div>
