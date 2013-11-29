@@ -1,27 +1,22 @@
+//.content {
+//  min-height: 100%;
+//}
+.footer-wrapper {
+  min-height: 100%;
+  padding-bottom: 100px;
+}
+
+html, body {
+  height: 100%;
+}
+
 @media #{$medium-up} {
-  html, body {
-    height: 100%;
-  }
-  #wrapper {
-    min-height: 100%;
-    height: auto !important;
-    height: 100%;
-    margin: 0 auto rem-calc(-270);
-  }
   .footer-push {
     height: rem-calc(270);
   }
-  footer {
-    height: rem-calc(240);
-
-    .footer-right {
-      float: right !important;
-    }
-  }
 }
 footer {
-  margin-top: rem-calc(30);
-  padding-top: rem-calc(30);
+  padding-top: 30px;
   color: #666666;
 
   h5 {

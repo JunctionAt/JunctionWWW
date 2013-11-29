@@ -16,7 +16,6 @@ def assets(app):
 
     js_base = Bundle(assets_folder+'js/vendor/custom.modernizr.js',
                      assets_folder+'js/vendor/jquery.js',
-                     assets_folder+'js/junction/reddit.js',
                      assets_folder+'js/junction/jquery.multi-select.js',
                      assets_folder+'js/foundation/foundation.js',
                      assets_folder+'js/foundation/foundation.topbar.js',

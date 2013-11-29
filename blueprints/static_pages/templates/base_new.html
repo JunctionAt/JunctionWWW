@@ -21,7 +21,7 @@
         <a href="https://plus.google.com/110085231338813337690" rel="publisher" style="display: none;">Google+</a>
     </head>
     <body>
-        <div id="wrapper">
+        <div class="footer-wrapper">
             <div class="contain-to-grid top-bar-container">
                 <nav class="top-bar" data-topbar>
                     <ul class="title-area">
@@ -108,8 +108,8 @@
             <p>You shouldn't be seeing this message. Contact a tech and give them the URL you're on currently.</p>
             {%- endblock %}
             </div>
-            <div class="footer-push"></div>
         </div>
+
         <footer class="contain-to-grid">
             <div class="footer-container">
                 <div class="row">
@@ -128,12 +128,6 @@
                             <li>
                                 <a href="{{ url_for('donations.donate') }}">Donate</a>
                             </li>
-                        </ul>
-                    </div>
-                    <div class="small-12 medium-4 columns">
-                        <a href="http://reddit.com/r/Junction"><h5>Subreddit</h5></a>
-                        <ul class="no-bullet subreddit-recent">
-                            <li class="loading">Loading...</li>
                         </ul>
                     </div>
                     <div class="small-12 medium-4 columns">
@@ -158,7 +152,7 @@
                         <p>&copy; Junction 2013. All rights reserved.</p>
                     </div>
                     <div class="small-12 medium-6 columns">
-                        <p class="footer-right">Git: {{ config['version_hash'] }}</p>
+                        <p class="right">Git: {{ config['version_hash'] }}</p>
                     </div>
                 </div>
             </div>
