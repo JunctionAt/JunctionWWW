@@ -1,0 +1,17 @@
+// Donate page
+.donate-container {
+  .progress {
+    overflow: hidden;
+  }
+  .top table {
+    width: 100%;
+  }
+  .stats {
+    line-height: rem-calc(20);
+  }
+}
+.payments-container {
+  table {
+    width: 100%;
+  }
+}
