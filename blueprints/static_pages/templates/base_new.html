@@ -21,98 +21,154 @@
         <a href="https://plus.google.com/110085231338813337690" rel="publisher" style="display: none;">Google+</a>
     </head>
     <body>
-        <div class="contain-to-grid top-bar-container">
-            <nav class="top-bar" data-topbar>
-                <ul class="title-area">
-                    <li class="name">
-                        <h1><a href="{{ url_for('static_pages.landing_page') }}" class="header-title-cross">Junction</a></h1>
-                    </li>
-                    <li class="toggle-topbar menu-icon">
-                        <a href="#">
-                            <span>Menu</span>
-                        </a>
-                    </li>
-                </ul>
-                <section class="top-bar-section">
-                    <ul class="right">
-                        <li class="has-dropdown not-click{% if current_page == 'servers' %} active{% endif %}">
-                            <a href="{{ url_for('static_pages.view_servers') }}">Servers</a>
-                            <ul class="dropdown">
-                                <li class="show-for-small-only"><a href="{{ url_for('static_pages.view_servers') }}">All Servers</a></li>
-                                <li><a href="{{ url_for('static_pages.view_servers') }}#chaos">Chaos</a></li>
-                                <li><a href="{{ url_for('static_pages.view_servers') }}#event">Event</a></li>
-                            </ul>
-                        </li>
-                        <li{% if current_page == 'forum' %} class="active"{% endif %}>
-                            <a href="{{ url_for('forum.forum_landing') }}">Forum</a>
-                        </li>
-                        <li{% if current_page == 'bans' %} class="active"{% endif %}>
-                            <a href="{{ url_for('bans.a_front') }}">Bans</a>
-                        </li>
-                        {%- if current_user.is_authenticated() %}
-                        <li class="has-dropdown not-click{% if current_page == 'profile' %} active{% endif %}">
-                            <a href="{{ current_user.get_profile_url() }}">{{ current_user.name }}</a>
-                            <ul class="dropdown">
-                                <li class="show-for-small-only"><a href="{{ current_user.get_profile_url() }}">Your Profile</a></li>
-                                <li><a href="{{ url_for('settings.settings_main') }}">Account Settings</a></li>
-                                <li><a href="{{ url_for('auth.logout') }}">Log out</a></li>
-                            </ul>
-                        </li>
-                        {%- set num_notifications = get_notifications_num(current_user) %}
-                        <li class="messages{% if current_page == 'notifications' %} active{% endif %}">
-                            <a href="{{ url_for('notifications.notifications_view') }}"><i class="fi-mail"></i>{{ num_notifications }}</a>
-                        </li>
-                        {%- else %}
-                        <li{% if current_page == 'profile' %} class="active"{% endif %}>
-                            <a href="{{ url_for('auth.login') }}">Login</a>
-                        </li>
-                        {%- endif %}
-                    </ul>
-                </section>
-            </nav>
-        </div>
         <div id="wrapper">
-            <div id="footer-wrap">
-                {%- if breadcrumb_items %}
-                <br>
-                <div class="row">
-                    <div class="small-12 columns">
-                        <ul class="breadcrumbs">
-                            {%- for item in breadcrumb_items %}
-                            {%- if item['url'] %}
-                            <li><a href="{{ item['url'] }}">{{ item['title'] }}</a></li>
+            <div class="contain-to-grid top-bar-container">
+                <nav class="top-bar" data-topbar>
+                    <ul class="title-area">
+                        <li class="name">
+                            <h1><a href="{{ url_for('static_pages.landing_page') }}" class="header-title-cross">Junction</a></h1>
+                        </li>
+                        <li class="toggle-topbar menu-icon">
+                            <a href="#">
+                                <span>Menu</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <section class="top-bar-section">
+                        <ul class="right">
+                            <li class="has-dropdown not-click{% if current_page == 'servers' %} active{% endif %}">
+                                <a href="{{ url_for('static_pages.view_servers') }}">Servers</a>
+                                <ul class="dropdown">
+                                    <li class="show-for-small-only"><a href="{{ url_for('static_pages.view_servers') }}">All Servers</a></li>
+                                    <li><a href="{{ url_for('static_pages.view_servers') }}#chaos">Chaos</a></li>
+                                    <li><a href="{{ url_for('static_pages.view_servers') }}#event">Event</a></li>
+                                </ul>
+                            </li>
+                            <li{% if current_page == 'forum' %} class="active"{% endif %}>
+                                <a href="{{ url_for('forum.forum_landing') }}">Forum</a>
+                            </li>
+                            <li{% if current_page == 'bans' %} class="active"{% endif %}>
+                                <a href="{{ url_for('bans.a_front') }}">Bans</a>
+                            </li>
+                            {%- if current_user.is_authenticated() %}
+                            <li class="has-dropdown not-click{% if current_page == 'profile' %} active{% endif %}">
+                                <a href="{{ current_user.get_profile_url() }}">{{ current_user.name }}</a>
+                                <ul class="dropdown">
+                                    <li class="show-for-small-only"><a href="{{ current_user.get_profile_url() }}">Your Profile</a></li>
+                                    <li><a href="{{ url_for('settings.settings_main') }}">Account Settings</a></li>
+                                    <li><a href="{{ url_for('auth.logout') }}">Log out</a></li>
+                                </ul>
+                            </li>
+                            {%- set num_notifications = get_notifications_num(current_user) %}
+                            <li class="messages{% if current_page == 'notifications' %} active{% endif %}">
+                                <a href="{{ url_for('notifications.notifications_view') }}"><i class="fi-mail"></i>{{ num_notifications }}</a>
+                            </li>
                             {%- else %}
-                            <li class="unavailable">{{ item['title'] }}</li>
+                            <li{% if current_page == 'profile' %} class="active"{% endif %}>
+                                <a href="{{ url_for('auth.login') }}">Login</a>
+                            </li>
                             {%- endif %}
-                            {%- endfor %}
+                        </ul>
+                    </section>
+                </nav>
+            </div>
+            {%- if breadcrumb_items %}
+            <br>
+            <div class="row">
+                <div class="small-12 columns">
+                    <ul class="breadcrumbs">
+                        {%- for item in breadcrumb_items %}
+                        {%- if item['url'] %}
+                        <li><a href="{{ item['url'] }}">{{ item['title'] }}</a></li>
+                        {%- else %}
+                        <li class="unavailable">{{ item['title'] }}</li>
+                        {%- endif %}
+                        {%- endfor %}
+                    </ul>
+                </div>
+            </div>
+            {%- endif %}
+            {%- with messages = get_flashed_messages(with_categories=true) %}
+            {%- if messages %}
+            <br>
+            <div class="row" style="margin-bottom: 0;">
+                <div class="small-12 columns">
+                    {%- for category, message in messages %}
+                        <div data-alert class="alert-box {{ 'secondary' if category == 'message' else category }} radius">
+                            {{ message }}
+                            <a href="#" class="close">&times;</a>
+                        </div>
+                    {%- endfor %}
+                </div>
+            </div>
+            {%- endif %}
+            {%- endwith %}
+            <div class="content">
+            {%- block content %}
+            <p>You shouldn't be seeing this message. Contact a tech and give them the URL you're on currently.</p>
+            {%- endblock %}
+            </div>
+            <div class="footer-push"></div>
+        </div>
+        <footer class="contain-to-grid">
+            <div class="footer-container">
+                <div class="row">
+                    <div class="small-12 medium-4 columns">
+                        <h5>Places</h5>
+                        <ul class="no-bullet">
+                            <li>
+                                <a href="{{ url_for('static_pages.view_servers') }}">Servers</a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('forum.forum_landing') }}">Forum</a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('bans.a_front') }}">Bans</a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('wiki.display_index') }}">Wiki</a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('staff.view_staff') }}">Staff</a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('donations.donate') }}">Donate</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="small-12 medium-4 columns">
+                        <a href="http://reddit.com/r/Junction"><h5>Subreddit</h5></a>
+                        <ul class="no-bullet subreddit-recent">
+                            <li class="loading">Loading...</li>
+                        </ul>
+                    </div>
+                    <div class="small-12 medium-4 columns">
+                        <h5>Contact</h5>
+                        <ul class="no-bullet">
+                            <li>
+                                <span>IRC: #Junction on <a href="http://rozznet.net">RozzNet</a></span>
+                            </li>
+                            <li>
+                                <a href="https://github.com/JunctionAt">GitHub</a>
+                            </li>
+                            <li>
+                                <a href="https://github.com/JunctionAt/jbugs/issues">Report an issue</a>
+                            </li>
                         </ul>
                     </div>
                 </div>
-                {%- endif %}
-                {%- with messages = get_flashed_messages(with_categories=true) %}
-                {%- if messages %}
-                <br>
-                <div class="row" style="margin-bottom: 0;">
-                    <div class="small-12 columns">
-                        {%- for category, message in messages %}
-                            <div data-alert class="alert-box {{ 'secondary' if category == 'message' else category }} radius">
-                                {{ message }}
-                                <a href="#" class="close">&times;</a>
-                            </div>
-                        {%- endfor %}
+            </div>
+            <div class="footer-verybottom-container">
+                <div class="row">
+                    <div class="small-12 medium-6 columns">
+                        <p>&copy; Junction 2013. All rights reserved.</p>
+                    </div>
+                    <div class="small-12 medium-6 columns">
+                        <p class="footer-right">Git: {{ config['version_hash'] }}</p>
                     </div>
                 </div>
-                {%- endif %}
-                {%- endwith %}
-                <div class="content">
-                {%- block content %}
-                <p>You shouldn't be seeing this message. Contact a tech and give them the URL you're on currently.</p>
-                {%- endblock %}
-                </div>
-                <div class="footer-push"></div>
             </div>
-        </div>
-        <!-- end wrapper -->
+        </footer>
         {%- assets "js_main" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
         {%- endassets %}
