@@ -6,13 +6,13 @@
     min-height: 100%;
     height: auto !important;
     height: 100%;
-    margin: 0 auto rem-calc(-370);
+    margin: 0 auto rem-calc(-270);
   }
   .footer-push {
-    height: rem-calc(370);
+    height: rem-calc(270);
   }
   footer {
-    height: rem-calc(340);
+    height: rem-calc(240);
 
     .footer-right {
       float: right !important;
@@ -22,15 +22,15 @@
 footer {
   margin-top: rem-calc(30);
   padding-top: rem-calc(30);
-  color: #7e7e7e;
+  color: #676767;
 
   h5 {
-    color: #FFFFFF;
+    color: #858585;
   }
   a {
-    color: #b8b8b8;
+    color: #666666;
     &:hover {
-      color: #2980b9;
+      color: #777777;
     }
   }
   ul, p {
@@ -38,7 +38,6 @@ footer {
   }
 
   .footer-verybottom-container {
-    margin-top: rem-calc(30);
     padding-top: rem-calc(20);
     background: #222222;
   }
