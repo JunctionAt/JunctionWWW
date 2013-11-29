@@ -47,9 +47,6 @@
                             <li{% if current_page == 'forum' %} class="active"{% endif %}>
                                 <a href="{{ url_for('forum.forum_landing') }}">Forum</a>
                             </li>
-                            <li{% if current_page == 'bans' %} class="active"{% endif %}>
-                                <a href="{{ url_for('bans.a_front') }}">Bans</a>
-                            </li>
                             {%- if current_user.is_authenticated() %}
                             <li class="has-dropdown not-click{% if current_page == 'profile' %} active{% endif %}">
                                 <a href="{{ current_user.get_profile_url() }}">{{ current_user.name }}</a>
