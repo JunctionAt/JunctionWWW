@@ -9,7 +9,7 @@
 {'title': "Post Topic", 'url': board.get_post_url()}]
 %}
 
-{% block content %}
+{% block forum_content %}
 <form class="container" method="post" action=".">
     {{ form.hidden_tag() }}
     {%- if form.errors %}

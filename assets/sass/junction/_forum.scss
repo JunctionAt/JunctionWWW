@@ -50,22 +50,45 @@
     .post-pane {
       @include panel($padding: 6px);
 
-      .forum-post-raw {
-        display: none;
-      }
-      .forum-post-edit {
-        display: none;
-      }
-
-      .meta {
-
+      &:hover .button-panel {
+        display: block !important;
       }
       .text {
         @media #{$medium-up} {
           border-left: 1px #d9d9d9 solid;
         }
         min-height: 3rem;
-        overflow: auto;
+        overflow: visible;
+
+        .view {
+          position: relative;
+
+          .button-panel {
+            display: none;
+            position: absolute;
+            top: 0;
+            right: 0;
+            a {
+              color: rgba(0, 0, 0, 0.3);
+              &:hover {
+                color: rgba(0, 0, 0, 0.5);
+              }
+            }
+          }
+
+          .raw-markdown {
+            display: none;
+          }
+          .post-id {
+            display: none;
+          }
+        }
+
+        .edit {
+          .post-edit-textfield {
+            min-height: 100px;
+          }
+        }
       }
     }
   }

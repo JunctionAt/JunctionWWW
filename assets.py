@@ -27,6 +27,7 @@ def assets(app):
                      assets_folder+'js/foundation/foundation.tab.js',
                      assets_folder+'js/foundation/foundation.reveal.js',
                      assets_folder+'js/foundation/foundation.alert.js',
+                     assets_folder+'js/foundation/foundation.tooltip.js',
                      assets_folder+'js/junction/editable.js')
     js_main = Bundle(js_base, filters=None if app.debug else 'rjsmin', output='js/gen/app.%(version)s.js')
     environment.register('js_main', js_main)

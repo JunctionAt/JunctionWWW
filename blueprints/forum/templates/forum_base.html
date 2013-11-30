@@ -1,10 +1,34 @@
-{% extends "base.html" %}
+{% extends "base_new.html" %}
 
 {% set current_page = 'forum' %}
 
-{% block css %}
-    <link href="/static/css/forum.css" rel="stylesheet">
-{% endblock %}
-{% block javascript %}
-    <script src="/static/js/forum.js"></script>
+{% block content %}
+    <div class="forum-container">
+        <div class="row">
+            <div class="small-12 columns">
+                {% block forum_title %}
+
+                {% endblock %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="small-12 medium-8 medium-push-4 large-9 large-push-3 columns">
+                {% block forum_content %}
+
+                {% endblock %}
+            </div>
+            <div class="forum-side-nav-container show-for-medium-up small-12 medium-4 medium-pull-8 large-3 large-pull-9 columns">
+                <div class="boards-pane">
+                    <ul class="side-nav">
+                        {% for category in forum_categories %}
+                            <li class="heading">{{ category.name }}</li>
+                            {% for board in category.get_boards() %}
+                                <li><a href="{{ board.get_url() }}">{{ board.name }}</a></li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

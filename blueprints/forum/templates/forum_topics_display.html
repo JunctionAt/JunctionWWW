@@ -1,0 +1,38 @@
+{% extends "forum_base.html" %}
+
+{% set title = 'Forum' %}
+{% set breadcrumb_items = [{'title': 'Forums'}, {'title': forum.name, 'url': forum.get_url()}] %}
+
+{% block forum_title %}
+
+{% endblock %}
+
+{% block forum_content %}
+    <table class="topic-table">
+        <thead>
+            <tr>
+                <th>Topic</th>
+                <th width="200px">Latest</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for topic in topics %}
+                <tr>
+                    <td>
+                        <a class="topic-title" href="{{ topic.get_url() }}">{{ topic.title }}</a>
+                        <span class="topic-by"><a class="player-name" href="{{ topic.author.get_profile_url() }}">{{ topic.author.name }}</a> <span>{{ topic.date|pretty_date }}</span></span>
+                    </td>
+                    <td>
+                        <div class="latest-container">
+                            <img src="{{ topic.author.get_avatar_url }}">
+                            <div class="post-info">
+                                <a class="post-user player-name" href="{{ topic.author.get_profile_url() }}">{{ topic.author.name }}</a>
+                                <a class="post-date" href="{{ topic.get_last_post().get_post_url() }}">{{ topic.get_last_post().date|pretty_date }}</a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
