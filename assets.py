@@ -15,8 +15,9 @@ def assets(app):
     environment.register('css_main', css_main)
 
     js_base = Bundle(assets_folder+'js/vendor/custom.modernizr.js',
+                     assets_folder+'js/junction/molecular.js',
                      assets_folder+'js/vendor/jquery.js',
-                     assets_folder+'js/junction/jquery.multi-select.js',
+                     assets_folder+'js/vendor/jquery.multi-select.js',
                      assets_folder+'js/foundation/foundation.js',
                      assets_folder+'js/foundation/foundation.topbar.js',
                      assets_folder+'js/foundation/foundation.dropdown.js',
@@ -25,6 +26,7 @@ def assets(app):
                      assets_folder+'js/foundation/foundation.orbit.js',
                      assets_folder+'js/foundation/foundation.tab.js',
                      assets_folder+'js/foundation/foundation.reveal.js',
-                     assets_folder+'js/foundation/foundation.alert.js')
+                     assets_folder+'js/foundation/foundation.alert.js',
+                     assets_folder+'js/junction/editable.js')
     js_main = Bundle(js_base, filters=None if app.debug else 'rjsmin', output='js/gen/app.%(version)s.js')
     environment.register('js_main', js_main)

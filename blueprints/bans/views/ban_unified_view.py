@@ -18,6 +18,13 @@ class AppealReplyForm(Form):
     submit = SubmitField('Post')
 
 
+class BanTextEditForm(Form):
+    text = TextAreaField('Text', validators=[
+        Required(message="Some content is required."),
+        Length(min=1, max=5000, message="Content must be between 1 and 5000 characters long.")])
+    submit = SubmitField('Edit')
+
+
 @bans.route('/a/ban/<int:ban_uid>', methods=['GET'])
 def view_ban(ban_uid):
 
@@ -41,7 +48,7 @@ def view_ban(ban_uid):
     can_post = current_user.has_permission("bans.appeal.manage") or (current_user.is_authenticated() and current_user.name.lower() == ban.username.lower())
 
     return render_template('bans_unified_view.html', ban_id=ban_uid, ban_object=ban, appeal_object=appeal, notes=notes,
-                           reply_form=AppealReplyForm(), replies=replies, can_post=can_post)
+                           reply_form=AppealReplyForm(), edit_form=BanTextEditForm(), replies=replies, can_post=can_post)
 
 @bans.route('/a/ban/<int:ban_uid>/reply', methods=["POST"])
 @login_required

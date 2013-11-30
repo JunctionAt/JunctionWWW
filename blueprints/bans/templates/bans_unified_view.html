@@ -10,6 +10,8 @@
 
 {% set current_page = 'bans' %}
 
+{% set javascript_molecules = ["editable"] %}
+
 {% block content %}
 <div class="ban-container">
     <div class="row">
@@ -44,9 +46,15 @@
         </div>
         <div class="small-12 medium-8 medium-pull-4 columns">
             <h6>Reason:</h6>
-            <div class="panel">
-                {{ ban_object.reason|markdown|safe }}
+            <div class="panel content-editable ban-reason" data-editable="ban-reason" id="ban-reason">
+                <div class="view">
+                    <div class="button-panel">
+                        <a onclick="Editable.set_editable(this)"><i class="fi-page-edit small"></i></a>
+                    </div>
+                    <span class="ban-text">{{ ban_object.reason }}</span>
+                </div>
             </div>
+
             <h6>Comments:</h6>
             {% if replies %}
                 {% for reply in replies %}
@@ -90,4 +98,26 @@
         </div>
     </div>
 </div>
+
+<div class="content-editable-template" data-editable="ban-reason">
+    <div class="edit">
+        <form>
+            {{ edit_form.text(class="ban-text") }}
+            {{ edit_form.submit(class="button tiny") }}
+            <a onclick="Editable.set_viewable(this)">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            Editable.handlers["ban-reason"] = {
+                enable: function(element) {
+                    element.find(".edit .ban-text").val(element.find(".view .ban-text").text())
+                }
+            }
+        });
+    </script>
 {% endblock %}

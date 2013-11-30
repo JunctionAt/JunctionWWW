@@ -1,0 +1,20 @@
+.content-editable {
+  .view {
+    display: block;
+  }
+  .edit {
+    display: none;
+  }
+  &.editing {
+    .view {
+      display: none;
+    }
+    .edit {
+      display: block;
+    }
+  }
+}
+
+.content-editable-template {
+  display: none;
+}

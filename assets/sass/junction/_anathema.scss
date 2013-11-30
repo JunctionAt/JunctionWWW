@@ -42,4 +42,25 @@
       margin-bottom: 0;
     }
   }
+
+  .ban-reason {
+    position: relative;
+
+    &:hover .button-panel {
+      display: block !important;
+    }
+
+    .button-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: none;
+      background-color: #e2e2e2;
+      padding: 3px;
+
+      a {
+        padding: 3px;
+      }
+    }
+  }
 }

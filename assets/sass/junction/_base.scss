@@ -22,6 +22,7 @@
   line-height: 0;
   margin-right: 5px;
   line-break: 10px;
+  vertical-align: -1px;
 }
 
 @media #{$medium-up} {
@@ -53,6 +54,7 @@
 @import "footer";
 @import "settings";
 @import "donate";
+@import "editable";
 
 // Landing page
 .landing-container {
