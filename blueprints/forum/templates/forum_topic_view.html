@@ -50,7 +50,7 @@
                 <div class="row">
                     <div class="small-12 medium-3 large-2 columns meta">
                         <a href="{{ post.author.get_profile_url() }}"><span class="player-name">{{ post.author.name }}</span></a>
-                        <br>
+                        <br><br>
                         <img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}" />
                     </div>
                     <div class="small-12 medium-9 large-10 columns text content-editable" data-editable="topic-reply">
@@ -124,7 +124,7 @@
                 <form method="post" action="{{ topic.get_post_url() }}" data-abide>
                     {{ topic_reply_form.hidden_tag() }}
                     <div class="text-field">
-                        {{ topic_reply_form.content(placeholder="Body", required="", class="text-area") }}
+                        {{ topic_reply_form.content(placeholder="Body", style="height:200px;", required="", class="text-area") }}
                         <small class="error">Please enter some text.</small>
                         {% if topic_reply_form.content.errors %}
                             {% for error in topic_reply_form.content.errors %}
@@ -132,27 +132,23 @@
                             {% endfor %}
                         {% endif %}
                     </div>
-                    <button class="btn btn-theme btn-small pull-left marginright5" type="submit">Submit</button>
-                    <p class="pull-left"><a href="#" data-reveal-id="format-help-modal">Formatting help?</a></p>
+                    <button type="submit">Submit</button>
+                    <p><a href="#" data-reveal-id="format-help-modal">Formatting help?</a></p>
                 </form>
             </div>
         </div>
     </div>
     {%- endif %}
 
-    <div id="format-help-modal" class="reveal-modal" data-reveal>
-        <h3 id="myModalLabel">Markdown Help</h3>
-
+    <div id="format-help-modal" class="reveal-modal" data-reveal="">
+        <h3>Markdown Help</h3>
+        <a class="close-reveal-modal">×</a>
         <p>Junction uses a version of Markdown for formatting, much like reddit. Here are some basics to get ya started.</p>
-        <table class="table table-bordered table-condensed table-striped">
+        <table>
             <thead>
                 <tr>
-                    <th class="span6">
-                        You Type
-                    </th>
-                    <th class="span6">
-                        You Get
-                    </th>
+                    <th>You Type</th>
+                    <th>You Get</th>
                 </tr>
             </thead>
             <tbody>
@@ -170,7 +166,7 @@
                 </tr>
                 <tr>
                     <td>![catz](http://i.imgur.com/FudN96H.jpg)</td>
-                    <td><img alt="catz" src="http://i.imgur.com/FudN96H.jpg"></td>
+                    <td><img alt="catz" src="http://i.imgur.com/FudN96H.jpg" width="100px"></td>
                 </tr>
             </tbody>
         </table>
