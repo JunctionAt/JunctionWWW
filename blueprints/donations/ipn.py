@@ -99,7 +99,7 @@ def process_transaction(data):
 
     transaction.save()
 
-    cache.delete_memoized('donation_stats_data')
+    #cache.delete_memoized('donation_stats_data')
 
 
 def validate_transaction(data):
