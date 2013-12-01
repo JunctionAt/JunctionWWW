@@ -1,7 +1,8 @@
 __author__ = 'HansiHE'
 
 from .. import blueprint
-from wtforms import Form, TextAreaField, DateField, SubmitField, FloatField
+from flask_wtf import Form
+from wtforms import TextAreaField, DateField, SubmitField, FloatField
 from flask import request, render_template, redirect, url_for, abort
 from blueprints.auth import login_required, current_user
 from ..donation_model import PaymentTransaction
