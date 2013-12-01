@@ -12,7 +12,7 @@
     <div class="row">
         <div class="small-12 columns">
             <form class="panel" action="" method="post">
-                {{ topic_reply_form.hidden_tag() }}
+                {{ form.hidden_tag() }}
                 {%- if form.errors.values() %}
                 <div class="alert-box alert radius">
                     {{ form.errors.values()[0][0] }}
