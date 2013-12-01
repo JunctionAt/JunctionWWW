@@ -24,7 +24,7 @@
                     </td>
                     <td>
                         <div class="latest-container">
-                            <img src="{{ topic.author.get_avatar_url }}">
+                            <img src="{{ topic.author.get_avatar_url() }}">
                             <div class="post-info">
                                 <a class="post-user player-name" href="{{ topic.author.get_profile_url() }}">{{ topic.author.name }}</a>
                                 <a class="post-date" href="{{ topic.get_last_post().get_post_url() }}">{{ topic.get_last_post().date|pretty_date }}</a>
