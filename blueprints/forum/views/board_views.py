@@ -65,4 +65,4 @@ def view_board(board_id, board_name, page):
 
     # Render it all out :D
     return render_template('forum_topics_display.html', board=board, forum=forum, topics=display_topics, read_topics=read_topics,
-                           **forum_template_data(forum))
+                           forum_menu_current=board.id, **forum_template_data(forum))

@@ -1,9 +1,36 @@
 // Forum pages
 .forum-container {
-  .forum-side-nav-container {
 
+  .forum-side-nav-container {
     .boards-pane {
-      @include panel($padding: 10px);
+      @include panel($padding: 0);
+      .forum-nav {
+        list-style-type: none;
+        margin: 0;
+        padding-top: 8px;
+        padding-bottom: 8px;
+
+        li {
+          font-family: "Open Sans", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif !important;
+
+          &.heading {
+            padding: 1px 8px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            margin-top: 8px;
+          }
+          &:not(.heading) {
+            padding: 2px 8px;
+            font-size: 1rem;
+            &:hover {
+              background-color: #e8e8e8;
+            }
+          }
+          &.active {
+            background-color: #e2e2e2;
+          }
+        }
+      }
     }
   }
 

@@ -8,6 +8,7 @@ from post_reply import TopicReplyForm
 import math
 from blueprints.auth import current_user
 from topic_edit import PostEditForm
+from ..forum_util import forum_template_data
 
 POSTS_PER_PAGE = 20
 PAGINATION_VALUE_RANGE = 3
@@ -66,7 +67,7 @@ def view_topic(topic_id, topic_name, page):
                            posts=display_posts, topic_reply_form=topic_reply_form,
                            total_pages=num_pages, current_page=page,
                            next=next_page, prev=prev_page, links=links, markdown_escape=markdown_escape,
-                           post_edit=PostEditForm())
+                           post_edit=PostEditForm(), forum_menu_current=board.id, **forum_template_data(forum))
 
 
 from markupsafe import Markup, text_type

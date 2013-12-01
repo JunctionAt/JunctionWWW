@@ -133,51 +133,47 @@
                         {% endif %}
                     </div>
                     <button class="btn btn-theme btn-small pull-left marginright5" type="submit">Submit</button>
-                    <p class="pull-left"><a href="#format-help-modal" role="button" data-toggle="modal">Formatting help?</a></p>
+                    <p class="pull-left"><a href="#" data-reveal-id="format-help-modal">Formatting help?</a></p>
                 </form>
             </div>
         </div>
     </div>
     {%- endif %}
 
-    <div id="format-help-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="format-help-modal-label" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="myModalLabel">Markdown Help</h3>
-        </div>
-        <div class="modal-body">
-            <p>Junction uses a version of Markdown for formatting, much like reddit. Here are some basics to get ya started.</p>
-            <table class="table table-bordered table-condensed table-striped">
-                <thead>
-                    <tr>
-                        <th class="span6">
-                            You Type
-                        </th>
-                        <th class="span6">
-                            You Get
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>*italics*</td>
-                        <td><em>italics</em></td>
-                    </tr>
-                    <tr>
-                        <td>**bold**</td>
-                        <td><strong>bold</strong></td>
-                    </tr>
-                    <tr>
-                        <td>[link](https://junction.at)</td>
-                        <td><a href="https://junction.at">link</a></td>
-                    </tr>
-                    <tr>
-                        <td>![catz](http://i.imgur.com/FudN96H.jpg)</td>
-                        <td><img alt="catz" src="http://i.imgur.com/FudN96H.jpg"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div id="format-help-modal" class="reveal-modal" data-reveal>
+        <h3 id="myModalLabel">Markdown Help</h3>
+
+        <p>Junction uses a version of Markdown for formatting, much like reddit. Here are some basics to get ya started.</p>
+        <table class="table table-bordered table-condensed table-striped">
+            <thead>
+                <tr>
+                    <th class="span6">
+                        You Type
+                    </th>
+                    <th class="span6">
+                        You Get
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>*italics*</td>
+                    <td><em>italics</em></td>
+                </tr>
+                <tr>
+                    <td>**bold**</td>
+                    <td><strong>bold</strong></td>
+                </tr>
+                <tr>
+                    <td>[link](https://junction.at)</td>
+                    <td><a href="https://junction.at">link</a></td>
+                </tr>
+                <tr>
+                    <td>![catz](http://i.imgur.com/FudN96H.jpg)</td>
+                    <td><img alt="catz" src="http://i.imgur.com/FudN96H.jpg"></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
 <div class="content-editable-template" data-editable="topic-reply">

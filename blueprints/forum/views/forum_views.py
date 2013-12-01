@@ -27,7 +27,7 @@ def view_forum(forum):
         read_topics = None
 
     return render_template("forum_topics_display.html", categories=categories, forum=forum, topics=recent_topics,
-                           read_topics=read_topics, **forum_template_data(forum))
+                           read_topics=read_topics, forum_menu_current='latest', **forum_template_data(forum))
 
 #@blueprint.route('/f/a/s/')
 #def setup():
