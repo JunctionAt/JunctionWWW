@@ -63,7 +63,7 @@
                             {% for alt in alts %}
                                 <tr>
                                     <td><span class="player-name">{{ alt.username }}</span></td>
-                                    <td>{{ alt.last_login|full_date(classes='alert label' if alt.last_login < ban_object.time else 'secondary label')|safe }}</td>
+                                    <td>{{ alt.last_login|full_date(classes='alert label' if alt.last_login > ban_object.time else 'secondary label')|safe }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
