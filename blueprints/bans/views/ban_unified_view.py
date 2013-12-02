@@ -51,7 +51,8 @@ def view_ban(ban_uid):
     alts = None
     if current_user.has_permission("bans.appeal.alts"):
         user_ips = PlayerIpsModel.objects(username__iexact=ban.username).first()
-        alts = PlayerIpsModel.objects(ips__in=user_ips.ips, username__ne=ban.username)
+        if user_ips:
+            alts = PlayerIpsModel.objects(ips__in=user_ips.ips, username__ne=ban.username)
 
     return render_template('bans_unified_view.html', ban_id=ban_uid, ban_object=ban, appeal_object=appeal, notes=notes,
                            reply_form=AppealReplyForm(), edit_form=BanTextEditForm(), replies=replies,
