@@ -30,19 +30,46 @@
                     <li class="key">Issuer:</li>
                     <li class="value player-name">{{ ban_object.issuer }}</li>
                     <li class="key">Date:</li>
-                    <li class="value weak">{{ ban_object.time|pretty_date }}</li>
+                    <li class="value weak">{{ ban_object.time|full_date|safe }}</li>
                 </ul>
             </div>
 
             <h6>Notes:</h6>
             <div class="note">
-                {% for note in notes %}
-                    <blockquote>
-                        {{ note.note }}
-                        <cite>{{ note.issuer }}</cite>
-                    </blockquote>
-                {% endfor %}
+                {% if notes %}
+                    {% for note in notes %}
+                        <blockquote>
+                            {{ note.note }}
+                            <cite>{{ note.issuer }}</cite>
+                        </blockquote>
+                    {% endfor %}
+                {% else %}
+                    No notes
+                {% endif %}
             </div>
+
+            {% if current_user.has_permission("bans.appeal.alts") %}
+                <br>
+                <h6>Potential Alts:</h6>
+                <div>
+                    <table class="full-width-table">
+                        <thead>
+                            <tr>
+                                <th width="50%">Username</th>
+                                <th>Last</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alt in alts %}
+                                <tr>
+                                    <td><span class="player-name">{{ alt.username }}</span></td>
+                                    <td>{{ alt.last_login|full_date(classes='alert label' if alt.last_login < ban_object.time else 'secondary label')|safe }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
         </div>
         <div class="small-12 medium-8 medium-pull-4 columns">
             <h6>Reason:</h6>

@@ -12,8 +12,9 @@ ReverseProxied(application)
 # Setup Jinja Env
 application.jinja_env.add_extension('jinja2.ext.do')
 
-from util import pretty_date
-application.jinja_env.filters['pretty_date'] = pretty_date
+from util import pretty_date_since, full_date
+application.jinja_env.filters['pretty_date'] = pretty_date_since
+application.jinja_env.filters['full_date'] = full_date
 
 # Load config files
 with application.app_context():

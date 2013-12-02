@@ -3,7 +3,7 @@ __author__ = 'HansiHE'
 import datetime
 
 
-def pretty_date(time=False):
+def pretty_date_since(time=False):
     """
     Get a datetime object or a int() Epoch timestamp and return a
     pretty string like 'an hour ago', 'Yesterday', '3 months ago',
@@ -57,3 +57,12 @@ def pretty_date(time=False):
         return "a year ago"
     else:
         return str(day_diff/365) + " years ago"
+
+
+def full_date(time, classes=""): #<span data-tooltip title="{{ alt.last_login }}" class="has-tip {% if alt.last_login < ban_object.time %}alert{% else %}secondary{% endif %} label">{{ alt.last_login|pretty_date }}</span>
+    return '<span data-tooltip title="' + \
+           time.strftime("%b %d %Y - %H:%M") + \
+           '" class="' + \
+           classes + '">' + \
+           pretty_date_since(time) + \
+           '</span>'

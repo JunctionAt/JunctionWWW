@@ -3,6 +3,7 @@ __author__ = 'HansiHE'
 from flask import abort, render_template, request, redirect, url_for
 from .. import bans
 from ..ban_model import Ban, Note, AppealReply, AppealEdit
+from blueprints.alts.alts_model import PlayerIpsModel
 from .. import process_ban
 from blueprints.auth import login_required, current_user
 from flask_wtf import Form
@@ -47,8 +48,14 @@ def view_ban(ban_uid):
 
     can_post = current_user.has_permission("bans.appeal.manage") or (current_user.is_authenticated() and current_user.name.lower() == ban.username.lower())
 
+    alts = None
+    if current_user.has_permission("bans.appeal.alts"):
+        user_ips = PlayerIpsModel.objects(username__iexact=ban.username).first()
+        alts = PlayerIpsModel.objects(ips__in=user_ips.ips, username__ne=ban.username)
+
     return render_template('bans_unified_view.html', ban_id=ban_uid, ban_object=ban, appeal_object=appeal, notes=notes,
-                           reply_form=AppealReplyForm(), edit_form=BanTextEditForm(), replies=replies, can_post=can_post)
+                           reply_form=AppealReplyForm(), edit_form=BanTextEditForm(), replies=replies,
+                           can_post=can_post, alts=alts)
 
 @bans.route('/a/ban/<int:ban_uid>/reply', methods=["POST"])
 @login_required
