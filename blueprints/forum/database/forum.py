@@ -156,7 +156,7 @@ class Post(Document):
         return user.is_authenticated() and (self.author.name == user.name or user.has_permission('forum.edit_posts'))
 
     def get_post_url(self):
-        post_num = len(Post.objects(forum=self.forum, date__lt=self.date))
+        post_num = len(Post.objects(topic=self.topic, date__lt=self.date))
         post_page = math.floor(post_num / POSTS_PER_PAGE) + 1
         return url_for('forum.view_topic', page=post_page, **self.topic.get_url_info()) + "#post-" + str(self.id)
 
