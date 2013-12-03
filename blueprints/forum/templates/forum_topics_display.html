@@ -24,10 +24,11 @@
                     </td>
                     <td>
                         <div class="latest-container">
-                            <img src="{{ topic.author.get_avatar_url() }}">
+                            {% set latest_post = topic.get_last_post() %}
+                            <img src="{{ latest_post.author.get_avatar_url() }}">
                             <div class="post-info">
-                                <a class="post-user player-name" href="{{ topic.author.get_profile_url() }}">{{ topic.author.name }}</a>
-                                <a class="post-date" href="{{ topic.get_last_post().get_post_url() }}">{{ topic.get_last_post().date|full_date|safe }}</a>
+                                <a class="post-user player-name" href="{{ latest_post.author.get_profile_url() }}">{{ latest_post.author.name }}</a>
+                                <a class="post-date" href="{{ latest_post.get_post_url() }}">{{ latest_post.date|full_date|safe }}</a>
                             </div>
                         </div>
                     </td>
