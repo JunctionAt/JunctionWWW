@@ -1,0 +1,17 @@
+{% extends "base_new.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Wiki', 'url': url_for('wiki.display_index')},
+{'title': 'reddit is down'}]
+%}
+
+{% block content %}
+<div class="wiki-reddit-down-container">
+    <div class="row">
+        <div class="small-12 columns text-center">
+            <h2>Our wiki is powered by reddit. They're currently down.</h2>
+            <p>Sorry about that. Once they come back up, you'll be able to enjoy the wiki again.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

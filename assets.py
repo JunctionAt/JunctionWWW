@@ -18,7 +18,7 @@ def assets(app):
                      assets_folder+'js/junction/molecular.js',
                      assets_folder+'js/vendor/jquery.js',
                      assets_folder+'js/vendor/jquery.multi-select.js',
-                     assets_folder+'js/vendor/snowstorm.js',
+                     #assets_folder+'js/vendor/snowstorm.js',
                      assets_folder+'js/foundation/foundation.js',
                      assets_folder+'js/foundation/foundation.topbar.js',
                      assets_folder+'js/foundation/foundation.dropdown.js',

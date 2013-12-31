@@ -54,7 +54,7 @@ def get_wiki_article(wiki_url):
         return match.group(0).split('/', 4)[4]
     def replace_reddit_link(match):
         return 'http://reddit.com'+match.group(0)
-    api_request = requests.get('http://api.reddit.com/r/Junction/wiki/%s' % wiki_url)
+    api_request = requests.get('http://api.reddit.com/r/Junction/wiki/%s' % wiki_url, timeout=1)
     json_data = api_request.json()
     #if json_data.has_key('reason'):
     #    return json_data['reason']
@@ -70,13 +70,19 @@ def get_wiki_article(wiki_url):
 @cache.cached(timeout=20*60)
 @blueprint.route('/wiki/pages/')
 def display_pages():
-    pages = requests.get('http://api.reddit.com/r/Junction/wiki/pages/').json()['data']
-    pages = filter(lambda page: page.find('/')==-1 and not page.startswith('_'), pages)
-    return render_template('wiki_listing.html', links=pages, title="Wiki - pages")
+    try:
+        pages = requests.get('http://api.reddit.com/r/Junction/wiki/pages/', timeout=1).json()['data']
+        pages = filter(lambda page: page.find('/')==-1 and not page.startswith('_'), pages)
+        return render_template('wiki_listing.html', links=pages, title="Wiki - pages")
+    except requests.exceptions.Timeout:
+        return render_template('reddit_down.html', title="Wiki - reddit is down")
 
 @blueprint.route('/wiki/')
 def display_index():
-    return render_template('wiki_page.html', article=get_wiki_article('index'), index=True, title="Wiki")
+    try:
+        return render_template('wiki_page.html', article=get_wiki_article('index'), index=True, title="Wiki")
+    except requests.exceptions.Timeout:
+        return render_template('reddit_down.html', title="Wiki - reddit is down")
 
 @blueprint.route('/wiki/<string:wiki_url>')
 def display_wiki_article(wiki_url):
@@ -84,3 +90,5 @@ def display_wiki_article(wiki_url):
         return render_template('wiki_page.html', article=get_wiki_article(wiki_url), index=False, wiki_url=wiki_url, title="Wiki - " + wiki_url)
     except KeyError:
         abort(404)
+    except requests.exceptions.Timeout:
+        return render_template('reddit_down.html', title="Wiki - reddit is down")
