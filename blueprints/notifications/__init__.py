@@ -42,13 +42,13 @@ def inject_notifications():
     )
 
 
-@login_required
 @blueprint.route('/notifications')
+@login_required
 def notifications_view():
     return render_template('notifications_view.html', title="Notifications", notifications=get_notifications(current_user))
 
-@login_required
 @blueprint.route('/notifications/delete/<string:id>/')
+@login_required
 def notification_delete(id):
     notification = BaseNotification.objects(id=id).first()
     if notification is None:
@@ -62,8 +62,8 @@ def notification_delete(id):
 
     return redirect(url_for('notifications.notifications_view'))
 
-@login_required
 @blueprint.route('/notifications/mark/<string:id>/<string:mark>')
+@login_required
 def notification_mark(id, mark):
     notification = BaseNotification.objects(id=id).first()
     if notification is None:
@@ -83,6 +83,7 @@ def notification_mark(id, mark):
     return redirect(url_for('notifications.notifications_view'))
 
 @blueprint.route('/nsendtest')
+@login_required
 def test_send_notification():
     curr = BaseNotification(receiver=current_user.to_dbref(), sender_type=1, sender_user=current_user.to_dbref(), preview="A testable notification :D", deletable=True, type="test", module="test")
     curr.save()
