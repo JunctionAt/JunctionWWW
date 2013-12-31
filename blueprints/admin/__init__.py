@@ -70,7 +70,8 @@ class Ban_View(ModelView):
     action_disallowed_list = ['delete']
     can_delete = False
     can_edit = True
-    form_excluded_columns = ['time', 'removed_time', 'removed_by', 'active']
+    column_exclude_list = ['appeal']
+    form_excluded_columns = ['appeal', 'time', 'removed_time', 'removed_by', 'active']
 admin.add_view(Ban_View(Ban, endpoint='admin_bans', category='Mongo Bans'))
 
 
