@@ -1,0 +1,40 @@
+{#
+  Putting the format modal in a page...
+  Put
+  <p><a href="#" data-reveal-id="format-help-modal">Formatting help?</a></p>
+  near a textbox or whatever the input is, and put
+  {% include 'format_help_modal.html' %}
+  at the end of the page.
+#}
+<div id="format-help-modal" class="reveal-modal" data-reveal>
+    <h3>Markdown Help</h3>
+    <a class="close-reveal-modal">&#215;</a>
+    <p>Junction uses a version of Markdown for formatting, much like reddit. Here are some basics to get ya started.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>You Type</th>
+                <th>You Get</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>*italics*</td>
+                <td><em>italics</em></td>
+            </tr>
+            <tr>
+                <td>**bold**</td>
+                <td><strong>bold</strong></td>
+            </tr>
+            <tr>
+                <td>[link](https://junction.at)</td>
+                <td><a href="https://junction.at">link</a></td>
+            </tr>
+            <tr>
+                <td>![catz](http://i.imgur.com/FudN96H.jpg)</td>
+                <td><img alt="catz" src="http://i.imgur.com/FudN96H.jpg" width="100px"></td>
+            </tr>
+        </tbody>
+    </table>
+    <p>Too basic? Check out <a href="http://daringfireball.net/projects/markdown/syntax">Markdown's official syntax page</a>.</p>
+</div>

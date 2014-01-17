@@ -8,6 +8,13 @@
 {% endblock %}
 
 {% block forum_content %}
+    {%- if current_user.is_authenticated() and forum_menu_current != 'latest' %}
+    <div class="row">
+        <div class="small-12 columns">
+                <a class="button tiny right" type="submit" href="{{ board.get_post_url() }}">Post New Topic</a>
+        </div>
+    </div>
+    {%- endif %}
     <table class="topic-table">
         <thead>
             <tr>

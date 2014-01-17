@@ -32,17 +32,15 @@
         <div class="small-12 columns">
             <h4 class="left">{{ topic.title }}</h4>
             {%- if current_user.is_authenticated() %}
-                <a class="button tiny right" type="submit" href="#post-reply">Post New Reply</a>
+            <a class="button tiny right" type="submit" href="#post-reply">Post New Reply</a>
             {%- endif %}
         </div>
     </div>
-
     <div class="row">
         <div class="small-12 columns">
             {{ pagination("left") }}
         </div>
     </div>
-
     {%- for post in posts %}
     <div id="post-{{post.id}}" class="row post-container">
         <div class="small-12 columns">
@@ -61,7 +59,7 @@
                                     <a onclick="Editable.set_editable(this)" data-tooltip title="Edit"><i class="fi-page-edit small"></i></a>
                                 {% endif %}
                                 {%- if current_user.is_authenticated() %}
-                                    <a href="#" data-tooltip title="Reply"><i class="fi-arrow-left"></i></a>
+                                    <a href="#post-reply" data-tooltip title="Reply"><i class="fi-arrow-left"></i></a>
                                 {%- endif %}
                             </div>
                             <div>{{ post.content|markdown|safe }}</div>
@@ -70,10 +68,7 @@
                         </div>
                     </div>
                 </div>
-
-
-
-                <!-- <div class="row-fluid nobreak">
+                {#<!-- <div class="row-fluid nobreak">
                         <div class="pull-left">
                             <span>by <a href="{{ post.author.get_profile_url() }}">{{ post.author.name }}</a> {{ post.date|pretty_date }}</span>
                         </div>
@@ -104,18 +99,16 @@
                         </div>
                         <!-- {{ post.id }} -->
                     <!-- </div>
-                </div> -->
+                </div> -->#}
             </div>
         </div>
     </div>
     {%- endfor %}
-
     <div class="row">
         <div class="small-12 columns">
             {{ pagination("left") }}
         </div>
     </div>
-
     {%- if current_user.is_authenticated() %}
     <div class="row">
         <div class="small-12 columns">
@@ -126,11 +119,11 @@
                     <div class="text-field">
                         {{ topic_reply_form.content(placeholder="Body", style="height:200px;", required="", class="text-area") }}
                         <small class="error">Please enter some text.</small>
-                        {% if topic_reply_form.content.errors %}
-                            {% for error in topic_reply_form.content.errors %}
+                        {%- if topic_reply_form.content.errors %}
+                            {%- for error in topic_reply_form.content.errors %}
                                 <small class="error">{{ error }}</small>
-                            {% endfor %}
-                        {% endif %}
+                            {%- endfor %}
+                        {%- endif %}
                     </div>
                     <button type="submit">Submit</button>
                     <p><a href="#" data-reveal-id="format-help-modal">Formatting help?</a></p>
@@ -139,46 +132,14 @@
         </div>
     </div>
     {%- endif %}
-
-    <div id="format-help-modal" class="reveal-modal" data-reveal="">
-        <h3>Markdown Help</h3>
-        <a class="close-reveal-modal">×</a>
-        <p>Junction uses a version of Markdown for formatting, much like reddit. Here are some basics to get ya started.</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>You Type</th>
-                    <th>You Get</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>*italics*</td>
-                    <td><em>italics</em></td>
-                </tr>
-                <tr>
-                    <td>**bold**</td>
-                    <td><strong>bold</strong></td>
-                </tr>
-                <tr>
-                    <td>[link](https://junction.at)</td>
-                    <td><a href="https://junction.at">link</a></td>
-                </tr>
-                <tr>
-                    <td>![catz](http://i.imgur.com/FudN96H.jpg)</td>
-                    <td><img alt="catz" src="http://i.imgur.com/FudN96H.jpg" width="100px"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
+{% include 'format_help_modal.html' %}
 <div class="content-editable-template" data-editable="topic-reply">
     <div class="edit">
         <form method="post" action="">
             {{ topic_reply_form.hidden_tag() }}
             {{ post_edit.content(class="post-edit-textfield") }}
             <button class="button tiny">Edit</button>
-            <a onclick="Editable.set_viewable(this)">Cancel</a>
+            <a class="button tiny alert" onclick="Editable.set_viewable(this)">Cancel</a>
         </form>
     </div>
 </div>

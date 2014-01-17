@@ -4,29 +4,29 @@
 
 {% block content %}
     <div class="forum-container">
+        {% if forum_title %}
         <div class="row">
             <div class="small-12 columns">
-                {% block forum_title %}
-
-                {% endblock %}
+                {%- block forum_title %}
+                {%- endblock %}
             </div>
         </div>
+        {% endif %}
         <div class="row">
             <div class="small-12 medium-8 medium-push-4 large-9 large-push-3 columns">
-                {% block forum_content %}
-
-                {% endblock %}
+                {%- block forum_content %}
+                {%- endblock %}
             </div>
             <div class="forum-side-nav-container show-for-medium-up small-12 medium-4 medium-pull-8 large-3 large-pull-9 columns">
                 <div class="boards-pane">
                     <ul class="forum-nav">
-                        <li class="{% if forum_menu_current == 'latest' %}active{% endif %}"><a href="{{ url_for('forum.view_forum', forum='main') }}">Latest</a></li>
-                        {% for category in forum_categories %}
+                        <li{% if forum_menu_current == 'latest' %} class="active"{% endif %}><a href="{{ url_for('forum.view_forum', forum='main') }}">Latest</a></li>
+                        {%- for category in forum_categories %}
                             <li class="heading">{{ category.name }}</li>
-                            {% for board in category.get_boards() %}
-                                <li class="{% if board.id == forum_menu_current %}active{% endif %}"><a href="{{ board.get_url() }}">{{ board.name }}</a></li>
-                            {% endfor %}
-                        {% endfor %}
+                            {%- for board in category.get_boards() %}
+                                <li{% if board.id == forum_menu_current %} class="active"{% endif %}><a href="{{ board.get_url() }}">{{ board.name }}</a></li>
+                            {%- endfor %}
+                        {%- endfor %}
                     </ul>
                 </div>
             </div>

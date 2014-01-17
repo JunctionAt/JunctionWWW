@@ -38,35 +38,5 @@
         </div>
     </div>
 </form>
-<div id="format-help-modal" class="reveal-modal" data-reveal>
-    <h3>Markdown Help</h3>
-    <a class="close-reveal-modal">&#215;</a>
-    <p>Junction uses a version of Markdown for formatting, much like reddit. Here are some basics to get ya started.</p>
-    <table>
-        <thead>
-            <tr>
-                <th>You Type</th>
-                <th>You Get</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>*italics*</td>
-                <td><em>italics</em></td>
-            </tr>
-            <tr>
-                <td>**bold**</td>
-                <td><strong>bold</strong></td>
-            </tr>
-            <tr>
-                <td>[link](https://junction.at)</td>
-                <td><a href="https://junction.at">link</a></td>
-            </tr>
-            <tr>
-                <td>![catz](http://i.imgur.com/FudN96H.jpg)</td>
-                <td><img alt="catz" src="http://i.imgur.com/FudN96H.jpg" width="100px"></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+{% include 'format_help_modal.html' %}
 {% endblock %}

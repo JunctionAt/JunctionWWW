@@ -42,10 +42,10 @@ def email_pane():
                 current_user.mail_verified = False
                 current_user.save()
                 send_verification_mail()
-                flash('A verification Email has been sent.')
+                flash('A verification email has been sent.')
             elif form.resend.data:
                 send_verification_mail()
-                flash('A verification Email has been sent.')
+                flash('A verification email has been sent.')
         else:
             return render_template('settings_email.html', form=form)
 
