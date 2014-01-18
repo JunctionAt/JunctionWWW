@@ -1,5 +1,0 @@
-authserver has moved to /home/junction/authserver
-runs in a tmux - "python junctionauthserver.py"
-is also a git clone of barneygale's authserver repo, "git pull" to update
-
--william

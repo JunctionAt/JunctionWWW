@@ -1,8 +1,8 @@
 __author__ = 'HansiHE'
 
 from blueprints import (auth, notifications, static_pages, api, avatar,
-                        logs, bans, forum, wiki, admin, modreq, alts,
-                        player_profiles, groups, donations, staff, settings, calendar)
+                        bans, forum, wiki, admin, modreq, alts, player_profiles,
+                        groups, donations, staff, settings, calendar)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
@@ -16,11 +16,8 @@ BLUEPRINTS = [
     # Static pages
     dict(blueprint=static_pages.static_pages),
 
-    # API Doc
+    # API
     dict(blueprint=api.blueprint),
-
-    # Logs
-    dict(blueprint=logs.logs),
 
     # Avatars
     dict(blueprint=avatar.avatar),
@@ -39,7 +36,7 @@ BLUEPRINTS = [
     #                 hide=[
     #                    'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat'
     #                    ]),
-   #             ])),
+    #            ])),
 
     # Player profiles
     dict(blueprint=player_profiles.blueprint),
@@ -54,23 +51,28 @@ BLUEPRINTS = [
     # Bans
     dict(blueprint=bans.bans),
 
+    # Alts
     dict(blueprint=alts.alts),
 
     # Forum
     dict(blueprint=forum.blueprint),
 
-    #Wiki
+    # Wiki
     dict(blueprint=wiki.blueprint),
 
     #Administration stuffs
     #dict(blueprint=admin.blueprint),
 
+    # Donations
     dict(blueprint=donations.blueprint),
 
+    # Our Amazing Staff
     dict(blueprint=staff.blueprint),
 
-    dict(blueprint=calendar.blueprint),
+    # Calendar
+    #dict(blueprint=calendar.blueprint),
 
+    # Account Settings
     dict(blueprint=settings.blueprint)
 
     ]
