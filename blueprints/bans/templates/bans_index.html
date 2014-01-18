@@ -41,7 +41,7 @@
         <ul class="pagination">
             <li{% if not prev %} class="unavailable"{% endif %}><a href="{{ prev or '#' }}">&laquo;</a></li>
             {% for link in links %}
-                <li{% if link['active'] %} class="current"{% endif %}><a href="{{ link['url'] }}">{{ link['num'] }}</a></li>
+                <li{% if not link['active'] %} class="current"{% endif %}><a href="{{ link['url'] }}">{{ link['num'] }}</a></li>
             {% endfor %}
             <li{% if not next %} class="unavailable"{% endif %}><a href="{{ next or '#' }}">&raquo;</a></li>
         </ul>
