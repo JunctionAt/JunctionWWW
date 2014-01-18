@@ -5,6 +5,7 @@ from flask import render_template, abort, url_for
 from flask_login import current_user
 from blueprints.bans.ban_model import Ban
 from blueprints.auth import login_required
+from blueprints.auth.util import require_permissions
 import math
 
 BANS_PER_PAGE = 15
