@@ -56,6 +56,7 @@ def your_bans(page):
 @bans.route('/a/bans/created/', defaults={'page': 1})
 @bans.route('/a/bans/created/<int:page>')
 @login_required
+@require_permissions('bans.create')
 def created_bans(page):
 
     if page == 0:

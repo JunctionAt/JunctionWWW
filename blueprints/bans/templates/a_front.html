@@ -9,48 +9,21 @@
 {% block content %}
 <div class="anathema-front-container">
     <div class="row">
-        <div class="small-12 medium-6 columns">
+        <div class="small-12 medium-4 columns">
             <div class="panel text-center">
-                      {#<a href="{{ url_for('bans.bans_index') }}" class="bans-link-icon">
-                            <i class="icon-circled icon-128 icon-ban-circle"></i>
-                        </a>
-                        <br>#}
-                        <h2><a href="{{ url_for('bans.bans_index') }}">Bans</a></h2>
+                <h2><a href="{{ url_for('bans.bans_index') }}">Bans</a></h2>
             </div>
         </div>
-        {#<div class="small-12 medium-3 columns">
-            <div class="box divcenter">
-                       <a href="" class="bans-link-icon">
-                            <i class="icon-circled icon-128 icon-share-alt"></i>
-                        </a>
-                        <br>
-                        <a href="">Appeals</a>
+        {%- if current_user.has_permission('bans.create') %}
+        <div class="small-12 medium-4 columns">
+            <div class="panel text-center">
+                <h2><a href="{{ url_for('bans.created_bans') }}">Moderators - Bans you've created</a></h2>
             </div>
         </div>
-        <div class="span3">
-            <div class="box divcenter">
-                    {%- if current_user.has_permission('bans.note.view') %}
-                        <a href="{{ url_for('bans.notes_index') }}" class="bans-link-icon">
-                            <i class="icon-circled icon-128 icon-tag"></i>
-                        </a>
-                        <br>
-                        <a href="{{ url_for('bans.notes_index') }}">Notes</a>
-                    {%- else %}
-                        <a class="bans-link-icon">
-                            <i class="icon-circled icon-128 icon-tag" style="background-color: #888;"></i>
-                        </a>
-                        <br>
-                        <a style="color: #888;">Notes</a>
-                    {%- endif %}
-            </div>
-        </div>#}
-        <div class="small-12 medium-6 columns">
+        {%- endif %}
+        <div class="small-12 medium-4 columns">
             <div class="panel text-center">
-                      {#<a href="{{ url_for('bans.your_bans') }}" class="bans-link-icon">
-                            <i class="icon-circled icon-128 icon-edit"></i>
-                        </a>
-                        <br>#}
-                        <h2><a href="{{ url_for('bans.your_bans') }}">Your Infractions</a></h2>
+                <h2><a href="{{ url_for('bans.your_bans') }}">Your Infractions</a></h2>
             </div>
         </div>
     </div>
