@@ -20,11 +20,8 @@
                     <td>{{ key.label }}</td>
                     <td>{{ key.key }}</td>
                     <td>
-                        <a href="#" class="button split tiny">Manage <span data-dropdown="drop"></span></a><br>
-                        <ul id="drop" class="f-dropdown" data-dropdown-content>
-                            <li><a href="{{ url_for('api.api_key_edit', key_id=key.id) }}">Edit</a></li>
-                            <li><a href="#" data-reveal-id="apikey-delete-{{ key.id }}">Delete</a></li>
-                        </ul>
+                        <a class="button tiny" href="{{ url_for('api.api_key_edit', key_id=key.id) }}">Edit</a>
+                        <a class="button tiny alert" href="#" data-reveal-id="apikey-delete-{{ key.id }}">Delete</a>
                     </td>
                 </tr>
             {% endfor %}

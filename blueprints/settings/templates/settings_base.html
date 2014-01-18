@@ -13,11 +13,11 @@
 {% block content %}
 <div class="settings-container">
     <div class="row">
-        <div class="small-12 medium-3 columns">
-            <div class="panel">
-                <ul class="side-nav">
+        <div class="settings-side-nav-container small-12 medium-3 columns">
+            <div class="settings-pane">
+                <ul class="settings-nav">
                     {%- for category, panes in settings_panels_structure.iteritems() %}
-                    <li class="nav-header">{{ category }}</li>
+                    <li class="heading">{{ category }}</li>
                     {%- for name, pane in panes.iteritems() %}
                     <li{% if current_settings_pane == pane['menu_id'] %} class="active"{% endif %}><a href="{{ pane['url']() }}">{{ name }}</a></li>
                     {%- endfor %}

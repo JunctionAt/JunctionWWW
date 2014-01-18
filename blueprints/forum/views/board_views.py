@@ -41,7 +41,7 @@ def view_board(board_id, board_name, page):
     if num_pages < page:
         if page == 1:
             return render_template('forum_topics_display.html', board=board, forum=forum, topics=[], read_topics=[],
-                                   **forum_template_data(forum))
+                                   forum_menu_current=board.id, **forum_template_data(forum))
         abort(404)
 
     # Compile the list of topics we want displayed.

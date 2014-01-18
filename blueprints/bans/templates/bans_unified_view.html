@@ -16,7 +16,7 @@
 <div class="ban-container">
     <div class="row">
         <div class="small-12 columns">
-            <h4>Ban #{{ ban_id }} for <span class="player-name">{{ ban_object.username }}</span></h4>
+            <h4>Ban #{{ ban_id }} for <a href="{{ ban_object.username.get_profile_url() }}"><span class="player-name">{{ ban_object.username }}</span></a></h4>
             <hr>
         </div>
     </div>
@@ -26,29 +26,27 @@
             <div class="panel">
                 <ul class="info-list">
                     <li class="key">User:</li>
-                    <li class="value player-name">{{ ban_object.username }}</li>
+                    <li class="value player-name"><a href="{{ ban_object.username.get_profile_url() }}">{{ ban_object.username }}</a></li>
                     <li class="key">Issuer:</li>
-                    <li class="value player-name">{{ ban_object.issuer }}</li>
+                    <li class="value player-name"><a href="{{ ban_object.issuer.get_profile_url() }}">{{ ban_object.issuer }}</a></li>
                     <li class="key">Date:</li>
                     <li class="value weak">{{ ban_object.time|full_date|safe }}</li>
                 </ul>
             </div>
-
             <h6>Notes:</h6>
             <div class="note">
-                {% if notes %}
-                    {% for note in notes %}
-                        <blockquote>
-                            {{ note.note }}
-                            <cite>{{ note.issuer }}</cite>
-                        </blockquote>
-                    {% endfor %}
-                {% else %}
+                {%- if notes %}
+                {%- for note in notes %}
+                <blockquote>
+                {{ note.note }}
+                <cite><a href="{{ note.issuer.get_profile_url() }}">{{ note.issuer }}</a></cite>
+                </blockquote>
+                {%- endfor %}
+                {%- else %}
                     No notes
-                {% endif %}
+                {%- endif %}
             </div>
-
-            {% if current_user.has_permission("bans.appeal.alts") %}
+            {%- if current_user.has_permission("bans.appeal.alts") %}
                 <br>
                 <h6>Potential Alts:</h6>
                 <div>
@@ -62,14 +60,14 @@
                         <tbody>
                             {% for alt in alts %}
                                 <tr>
-                                    <td><span class="player-name">{{ alt.username }}</span></td>
+                                    <td><a href="{{ alt.username.get_profile_url() }}"><span class="player-name">{{ alt.username }}</span></a></td>
                                     <td>{{ alt.last_login|full_date(classes='alert label' if alt.last_login > ban_object.time else 'secondary label')|safe }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-            {% endif %}
+            {%- endif %}
         </div>
         <div class="small-12 medium-8 medium-pull-4 columns">
             <h6>Reason:</h6>
@@ -81,31 +79,30 @@
                     <span class="ban-text">{{ ban_object.reason }}</span>
                 </div>
             </div>
-
             <h6>Comments:</h6>
-            {% if replies %}
-                {% for reply in replies %}
+            {%- if replies %}
+                {%- for reply in replies %}
                     <div class="appeal-comment">
                         <div class="row">
                             <div class="small-12 medium-3 large-2 columns meta">
                                 <a href="{{ reply.creator.get_profile_url() }}"><span class="player-name">{{ reply.creator.name }}</span></a>
                                 <br>
-                                {% if reply.creator.name|lower == ban_object.username|lower %}
-                                    <span class="secondary label">Banned</span>
-                                {% elif reply.creator.name|lower == ban_object.issuer|lower %}
-                                    <span class="secondary label">Issuer</span>
-                                {% endif %}
+                                {%- if reply.creator.name|lower == ban_object.username|lower %}
+                                <span class="secondary label">Banned</span>
+                                {%- elif reply.creator.name|lower == ban_object.issuer|lower %}
+                                <span class="secondary label">Issuer</span>
+                                {%- endif %}
                             </div>
                             <div class="small-12 medium-9 large-10 columns text">
                                 {{ reply.text|markdown|safe }}
                             </div>
                         </div>
                     </div>
-                {% endfor %}
-            {% else %}
+                {%- endfor %}
+            {%- else %}
                 <span>No replies</span>
-            {% endif %}
-            {% if can_post %}
+            {%- endif %}
+            {%- if can_post %}
                 <div class="row">
                     <div class="small-12 columns">
                         <form class="appeal-response" action="{{ url_for('bans.post_ban_reply', ban_uid=ban_id) }}" method="post" data-abide>
@@ -121,17 +118,16 @@
                         </form>
                     </div>
                 </div>
-            {% endif %}
+            {%- endif %}
         </div>
     </div>
 </div>
-
 <div class="content-editable-template" data-editable="ban-reason">
     <div class="edit">
         <form>
             {{ edit_form.text(class="ban-text") }}
             {{ edit_form.submit(class="button tiny") }}
-            <a onclick="Editable.set_viewable(this)">Cancel</a>
+            <a class="button tiny alert" onclick="Editable.set_viewable(this)">Cancel</a>
         </form>
     </div>
 </div>
