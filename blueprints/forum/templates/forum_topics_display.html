@@ -3,16 +3,20 @@
 {% set title = 'Forum' %}
 {% set breadcrumb_items = [{'title': 'Forums'}, {'title': forum.name, 'url': forum.get_url()}] %}
 
-{% block forum_title %}
-
-{% endblock %}
-
 {% block forum_content %}
-    {%- if current_user.is_authenticated() and forum_menu_current != 'latest' %}
+    {%- if forum_menu_current != 'latest' %}
     <div class="row">
-        <div class="small-12 columns">
-                <a class="button tiny right" type="submit" href="{{ board.get_post_url() }}">Post New Topic</a>
+        <div class="small-12 medium-9 columns">
+            <h2>{{ board.name }}</h2>
+            {%- if board.description %}
+            <p>{{ board.description }}</p>
+            {%- endif %}
         </div>
+        {%- if current_user.is_authenticated() %}
+        <div class="small-12 medium-3 columns">
+            <a class="button tiny right" type="submit" href="{{ board.get_post_url() }}">Post New Topic</a>
+        </div>
+        {%- endif %}
     </div>
     {%- endif %}
     <table class="topic-table">
