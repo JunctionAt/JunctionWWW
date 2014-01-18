@@ -8,9 +8,6 @@
     <div class="row">
         <div class="small-12 columns">
             <h2 class="left">{{ board.name }}</h2>
-            {%- if board.description %}
-            <p class="left">{{ board.description }}</p>
-            {%- endif %}
             {%- if current_user.is_authenticated() %}
             <a class="button tiny right" type="submit" href="{{ board.get_post_url() }}">Post New Topic</a>
             {%- endif %}
