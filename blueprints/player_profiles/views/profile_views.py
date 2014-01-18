@@ -31,8 +31,8 @@ class ProfileTextEditForm(Form):
     submit = SubmitField("Submit")
 
 
+@blueprint.route('/p/<string:name>/edit/', methods=['GET', 'POST'])
 @login_required
-@blueprint.route('/profile/<string:name>/edit/overview/', methods=['GET', 'POST'])
 def profile_text_edit(name):
     if current_user.name != name:
         abort(404)

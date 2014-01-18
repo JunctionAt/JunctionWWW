@@ -1,16 +1,6 @@
 from flask import Blueprint
 
-import base36_filter
-
 blueprint = Blueprint('forum', __name__, template_folder='templates')
-
-#@blueprint.route("/forum/servertime")
-#def time_at_server():
-#    return time.asctime()
-
-#@blueprint.route("/forum/")
-#def index():
-#    return render_template("index.html")
 
 import database.forum
 

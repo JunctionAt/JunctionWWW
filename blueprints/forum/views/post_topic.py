@@ -20,8 +20,8 @@ class PostTopicForm(Form):
     submit = SubmitField("Submit")
 
 
-@login_required
 @blueprint.route('/forum/b/<int:board_id>/<string:board_name>/post/', methods=['GET', 'POST'])
+@login_required
 def post_topic(board_id, board_name):
     board = Board.objects(board_id=board_id).first()
     if board is None:

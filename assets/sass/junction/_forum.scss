@@ -119,6 +119,15 @@
       }
     }
   }
+  .post-reply {
+    .text-area {
+      height: 8rem;
+      resize: vertical;
+    }
+    .submit, p {
+      margin-bottom: 0;
+    }
+  }
 }
 // Board/Topic Post/Reply
 .board-post-container, .topic-reply-container, .reply-edit-container {

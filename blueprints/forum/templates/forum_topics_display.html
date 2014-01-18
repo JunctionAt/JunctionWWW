@@ -1,19 +1,25 @@
 {% extends "forum_base.html" %}
 
-{% set title = 'Forum' %}
-{% set breadcrumb_items = [{'title': 'Forums'}, {'title': forum.name, 'url': forum.get_url()}] %}
+{% set title = 'Forum - ' + board.name if board else 'Forum - Latest Posts' %}
+{% set breadcrumb_items = [
+{'title': 'Forums', 'url': url_for('forum.forum_landing')},
+{'title': forum.name, 'url': forum.get_url()}]
+%}
 
 {% block forum_content %}
-    {%- if forum_menu_current != 'latest' %}
     <div class="row">
         <div class="small-12 columns">
+            {%- if forum_menu_current != 'latest' %}
             <h2 class="left">{{ board.name }}</h2>
             {%- if current_user.is_authenticated() %}
             <a class="button tiny right" type="submit" href="{{ board.get_post_url() }}">Post New Topic</a>
             {%- endif %}
+            {%- else %}
+            <h2>Latest Posts</h2>
+            <p>Want to post? Navigate to one of the boards on the left, or at the bottom if you're on mobile.</p>
+            {%- endif %}
         </div>
     </div>
-    {%- endif %}
     <table class="topic-table">
         <thead>
             <tr>

@@ -1,9 +1,9 @@
 {% extends "base_new.html" %}
 
-{% set title = 'Forum - Post Topic' %}
+{% set title = 'Forum - ' + board.name + ' - Post Topic' %}
 
 {% set breadcrumb_items = [
-{'title': 'Forums'},
+{'title': 'Forums', 'url': url_for('forum.forum_landing')},
 {'title': forum.name, 'url': forum.get_url()},
 {'title': board.name, 'url': board.get_url()},
 {'title': "Post Topic", 'url': board.get_post_url()}]

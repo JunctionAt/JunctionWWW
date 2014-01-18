@@ -1,9 +1,9 @@
 {% extends "forum_base.html" %}
 
-{% set title = 'Forum - View Topic' %}
+{% set title = 'Forum - ' + board.name + ' - ' + topic.title %}
 
 {% set breadcrumb_items = [
-{'title': 'Forums'},
+{'title': 'Forums', 'url': url_for('forum.forum_landing')},
 {'title': forum.name, 'url': forum.get_url()},
 {'title': board.name, 'url': board.get_url()},
 {'title': topic.title, 'url': topic.get_url()}]
@@ -13,16 +13,16 @@
 
 {% macro pagination(class="") %}
     <ul class="pagination {{ class }}">
-        <li class="{% if not prev %}unavailable{% endif %}">
-            <a href="{{ prev or '#' }}">Prev</a>
+        <li{% if not prev %} class="unavailable"{% endif %}>
+            <a href="{{ prev or '#' }}">&laquo;</a>
         </li>
         {%- for link in links %}
-        <li class="{% if link['active'] %}current{% endif %}">
+        <li{% if link['active'] %} class="current"{% endif %}>
             <a href="{{ link['url'] }}">{{ link['num'] }}</a>
         </li>
         {%- endfor %}
-        <li class="{% if not next %}unavailable{% endif %}">
-            <a href="{{ next or '#' }}">Next</a>
+        <li{% if not next %} class="unavailable"{% endif %}>
+            <a href="{{ next or '#' }}">&raquo;</a>
         </li>
     </ul>
 {% endmacro %}
@@ -54,7 +54,7 @@
                     <div class="small-12 medium-9 large-10 columns text content-editable" data-editable="topic-reply">
                         <div class="view">
                             <div class="button-panel">
-                                <a href="#post-{{ post.id }}" data-tooltip title="Permalink"><i class="fi-link"></i></a>
+                              <a href="{{ post.get_permalink_url() }}" data-tooltip title="Permalink"><i class="fi-link"></i></a>
                                 {% if post.can_edit(current_user) %}
                                     <a onclick="Editable.set_editable(this)" data-tooltip title="Edit"><i class="fi-page-edit small"></i></a>
                                 {% endif %}
@@ -112,23 +112,24 @@
     {%- if current_user.is_authenticated() %}
     <div class="row">
         <div class="small-12 columns">
-            <div class="panel" id="post-reply">
-                <label for="content">Reply</label>
-                <form method="post" action="{{ topic.get_post_url() }}" data-abide>
-                    {{ topic_reply_form.hidden_tag() }}
+            <form id="post-reply" class="post-reply" method="post" action="{{ topic.get_post_url() }}" data-abide>
+                {{ topic_reply_form.hidden_tag() }}
+                <fieldset>
+                    <legend>Reply</legend>
                     <div class="text-field">
                         {{ topic_reply_form.content(placeholder="Body", style="height:200px;", required="", class="text-area") }}
                         <small class="error">Please enter some text.</small>
                         {%- if topic_reply_form.content.errors %}
-                            {%- for error in topic_reply_form.content.errors %}
-                                <small class="error">{{ error }}</small>
-                            {%- endfor %}
+                        {%- for error in topic_reply_form.content.errors %}
+                        <small class="error">{{ error }}</small>
+                        {%- endfor %}
                         {%- endif %}
                     </div>
-                    <button type="submit">Submit</button>
-                    <p><a href="#" data-reveal-id="format-help-modal">Formatting help?</a></p>
-                </form>
-            </div>
+                    {{ topic_reply_form.submit(class="button right submit") }}
+                    <br><br><br><br>
+                    <p class="text-right"><a href="#" data-reveal-id="format-help-modal">Formatting help?</a></p>
+                </fieldset>
+            </form>
         </div>
     </div>
     {%- endif %}

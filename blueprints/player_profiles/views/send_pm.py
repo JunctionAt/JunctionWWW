@@ -16,8 +16,8 @@ class ComposePMForm(Form):
     submit = SubmitField("Submit")
 
 
+@blueprint.route('/p/<string:name>/pm/', methods=['GET', 'POST'])
 @login_required
-@blueprint.route('/profile/<string:name>/pm/', methods=['GET', 'POST'])
 def send_pm(name):
     user = User.objects(name=name).first()
     if user is None:

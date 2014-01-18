@@ -161,7 +161,7 @@ class Post(Document):
         return url_for('forum.view_topic', page=post_page, **self.topic.get_url_info()) + "#post-" + str(self.id)
 
     def get_permalink_url(self):
-        return url_for('forum.permalink_post_redirect', post_id=str(self.id), dummy_name=self.topic.name)
+        return url_for('forum.permalink_post_redirect', post_id=str(self.id))
 
 
 def pretty_url_escape(string):

@@ -17,8 +17,8 @@ class TopicReplyForm(Form):
     submit = SubmitField("Submit")
 
 
-@login_required
 @blueprint.route('/forum/t/<int:topic_id>/<string:topic_name>/post/', methods=['GET', 'POST'])
+@login_required
 def post_reply(topic_id, topic_name):
     topic = Topic.objects(topic_url_id=topic_id).first()
     if topic is None:

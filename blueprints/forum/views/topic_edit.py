@@ -19,8 +19,8 @@ class PostEditForm(Form):
     submit = SubmitField("Submit")
 
 
-@login_required
 @blueprint.route('/forum/e/<string:post_id>/', methods=['GET', 'POST'])
+@login_required
 def edit_post(post_id):
     form = PostEditForm(request.form)
 
