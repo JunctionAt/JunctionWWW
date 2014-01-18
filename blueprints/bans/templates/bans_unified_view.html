@@ -6,7 +6,7 @@
 {'title': '#' ~ ban_id}]
 %}
 
-{% set title = "Anathema - Ban #" . ban_id %}
+{% set title = "Anathema - Ban #" + ban_id %}
 
 {% set current_page = 'bans' %}
 
@@ -16,7 +16,7 @@
 <div class="ban-container">
     <div class="row">
         <div class="small-12 columns">
-            <h4>Ban #{{ ban_id }} for <a href="{{ ban_object.username.get_profile_url() }}"><span class="player-name">{{ ban_object.username }}</span></a></h4>
+            <h4>Ban #{{ ban_id }} for <span class="player-name">{{ ban_object.username }}</span></h4>
             <hr>
         </div>
     </div>
@@ -26,9 +26,9 @@
             <div class="panel">
                 <ul class="info-list">
                     <li class="key">User:</li>
-                    <li class="value player-name"><a href="{{ ban_object.username.get_profile_url() }}">{{ ban_object.username }}</a></li>
+                    <li class="value player-name">{{ ban_object.username }}</li>
                     <li class="key">Issuer:</li>
-                    <li class="value player-name"><a href="{{ ban_object.issuer.get_profile_url() }}">{{ ban_object.issuer }}</a></li>
+                    <li class="value player-name">{{ ban_object.issuer }}</li>
                     <li class="key">Date:</li>
                     <li class="value weak">{{ ban_object.time|full_date|safe }}</li>
                 </ul>
@@ -38,8 +38,8 @@
                 {%- if notes %}
                 {%- for note in notes %}
                 <blockquote>
-                {{ note.note }}
-                <cite><a href="{{ note.issuer.get_profile_url() }}">{{ note.issuer }}</a></cite>
+                    {{ note.note }}
+                    <cite>{{ note.issuer }}</cite>
                 </blockquote>
                 {%- endfor %}
                 {%- else %}
@@ -47,26 +47,26 @@
                 {%- endif %}
             </div>
             {%- if current_user.has_permission("bans.appeal.alts") %}
-                <br>
-                <h6>Potential Alts:</h6>
-                <div>
-                    <table class="full-width-table">
-                        <thead>
-                            <tr>
-                                <th width="50%">Username</th>
-                                <th>Last</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for alt in alts %}
-                                <tr>
-                                    <td><a href="{{ alt.username.get_profile_url() }}"><span class="player-name">{{ alt.username }}</span></a></td>
-                                    <td>{{ alt.last_login|full_date(classes='alert label' if alt.last_login > ban_object.time else 'secondary label')|safe }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <br>
+            <h6>Potential Alts:</h6>
+            <div>
+                <table class="full-width-table">
+                    <thead>
+                        <tr>
+                            <th width="50%">Username</th>
+                            <th>Last</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%- for alt in alts %}
+                        <tr>
+                            <td><span class="player-name">{{ alt.username }}</span></td>
+                            <td>{{ alt.last_login|full_date(classes='alert label' if alt.last_login > ban_object.time else 'secondary label')|safe }}</td>
+                        </tr>
+                        {%- endfor %}
+                    </tbody>
+                </table>
+            </div>
             {%- endif %}
         </div>
         <div class="small-12 medium-8 medium-pull-4 columns">
@@ -81,43 +81,44 @@
             </div>
             <h6>Comments:</h6>
             {%- if replies %}
-                {%- for reply in replies %}
-                    <div class="appeal-comment">
-                        <div class="row">
-                            <div class="small-12 medium-3 large-2 columns meta">
-                                <a href="{{ reply.creator.get_profile_url() }}"><span class="player-name">{{ reply.creator.name }}</span></a>
-                                <br>
-                                {%- if reply.creator.name|lower == ban_object.username|lower %}
-                                <span class="secondary label">Banned</span>
-                                {%- elif reply.creator.name|lower == ban_object.issuer|lower %}
-                                <span class="secondary label">Issuer</span>
-                                {%- endif %}
-                            </div>
-                            <div class="small-12 medium-9 large-10 columns text">
-                                {{ reply.text|markdown|safe }}
-                            </div>
-                        </div>
-                    </div>
-                {%- endfor %}
-            {%- else %}
-                <span>No replies</span>
-            {%- endif %}
-            {%- if can_post %}
+            {%- for reply in replies %}
+            <div class="appeal-comment">
                 <div class="row">
-                    <div class="small-12 columns">
-                        <form class="appeal-response" action="{{ url_for('bans.post_ban_reply', ban_uid=ban_id) }}" method="post" data-abide>
-                            {{ reply_form.csrf_token }}
-                            <fieldset>
-                                <legend>Reply</legend>
-                                <div class="text-field">
-                                    {{ reply_form.text(placeholder="Body", required="", class="text-area") }}
-                                    <small class="error">Please enter some text.</small>
-                                </div>
-                                {{ reply_form.submit(class="button right submit") }}
-                            </fieldset>
-                        </form>
+                    <div class="small-12 medium-3 large-2 columns meta">
+                        <a href="{{ reply.creator.get_profile_url() }}"><span class="player-name">{{ reply.creator.name }}</span></a>
+                        <br>
+                        {%- if reply.creator.name|lower == ban_object.username|lower %}
+                        <span class="secondary label">Banned</span>
+                        {%- elif reply.creator.name|lower == ban_object.issuer|lower %}
+                        <span class="secondary label">Issuer</span>
+                        {%- endif %}
+                    </div>
+                    <div class="small-12 medium-9 large-10 columns text">
+                        {{ reply.text|markdown|safe }}
                     </div>
                 </div>
+            </div>
+            {%- endfor %}
+            {%- else %}
+            <span>No replies</span>
+            {%- endif %}
+            {%- if can_post %}
+            <div class="row">
+                <div class="small-12 columns">
+                    <form class="appeal-response" action="{{ url_for('bans.post_ban_reply', ban_uid=ban_id) }}" method="post" data-abide>
+                        {{ reply_form.csrf_token }}
+                        <fieldset>
+                            <legend>Reply</legend>
+                            <div class="text-field">
+                                {{ reply_form.text(placeholder="Body", required="", class="text-area") }}
+                                <small class="error">Please enter some text.</small>
+                            </div>
+                            {{ reply_form.submit(class="button right submit") }}
+                            <p class="text-right"><a href="#" data-reveal-id="format-help-modal">Formatting help?</a></p>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
             {%- endif %}
         </div>
     </div>
@@ -131,6 +132,7 @@
         </form>
     </div>
 </div>
+{% include 'format_help_modal.html' %}
 {% endblock %}
 
 {% block javascript %}
