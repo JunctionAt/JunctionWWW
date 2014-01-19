@@ -69,7 +69,7 @@ def created_bans(page):
     num_pages = int(math.ceil(ban_num / float(BANS_PER_PAGE)))
     if num_pages < page:
         if page==1:
-            return render_template('no_result_bans.html', message="No bans found", view="bans.created_bans", title="Bans you've made")
+            return render_template('no_result_bans.html', message="No bans found.", view="bans.created_bans", title="Bans you've made")
         abort(404)
 
     display_bans = bans.skip((page - 1) * BANS_PER_PAGE).limit(BANS_PER_PAGE)
