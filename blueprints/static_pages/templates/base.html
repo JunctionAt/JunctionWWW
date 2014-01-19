@@ -4,10 +4,10 @@
     <head data-molecules="{{ javascript_molecules|join(' ') }}">
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>{% if title %}Junction - {{ title }}{% else %}Junction{% endif %}</title>
+        <title>Junction{% if title %} - {{ title }}{% endif %}</title>
         <meta name="description" content="The finer sort of Minecraft servers." />
         <meta name="author" content="Junction Minecraft" />
-        <meta name="copyright" content="Junction Minecraft Servers. Copyright (c) 2013" />
+        <meta name="copyright" content="Junction Minecraft Servers. Copyright (c) 2014" />
         {%- assets "css_main" %}
         <link type="text/css" rel="stylesheet" href="{{ ASSET_URL }}">
         {%- endassets %}
@@ -68,8 +68,8 @@
                     </section>
                 </nav>
             </div>
-            {%- if breadcrumb_items %}
             <br>
+            {%- if breadcrumb_items %}
             <div class="row">
                 <div class="small-12 columns">
                     <ul class="breadcrumbs">
@@ -86,7 +86,6 @@
             {%- endif %}
             {%- with messages = get_flashed_messages(with_categories=true) %}
             {%- if messages %}
-            <br>
             <div class="row" style="margin-bottom: 0;">
                 <div class="small-12 columns">
                     {%- for category, message in messages %}
@@ -105,7 +104,6 @@
             {%- endblock %}
             </div>
         </div>
-
         <footer class="contain-to-grid">
             <div class="footer-container">
                 <div class="row">
