@@ -15,7 +15,7 @@ import mongoengine
 from blueprints.auth.user_model import Role_Group, User
 from blueprints.alts.alts_model import IpPlayersModel, PlayerIpsModel
 
-admin = Admin(app=current_app, name='test')
+admin = Admin(app=current_app, name='Admin - Junction')
 
 #Important - https://github.com/SyrusAkbary/Flask-SuperAdmin/blob/master/flask_superadmin/model/base.py
 
@@ -51,8 +51,8 @@ class Forum_Topic_Model(ForumModel):
 class Forum_Post_Model(ForumModel):
     list_display = ('author', 'content', 'date')
     search_fields=('author', 'content')
-#Bans/Alts
 
+#Bans/Alts
 class Ban_Model(BanModel):
     list_display = ('username', 'reason', 'issuer', 'time', 'server', 'active')
     search_fields = ('username', 'reason', 'issuer', 'server', 'active', 'removed_by')
@@ -84,7 +84,6 @@ admin.register(Ban, Ban_Model, category='Mongo.Bans')
 admin.register(Note, Note_Model, category='Mongo.Bans')
 admin.register(PlayerIpsModel, IP_Alt_Model, category='Mongo.Alts')
 admin.register(IpPlayersModel, Username_Alt_Model, category='Mongo.Alts')
-
 
 #Custom Views
 admin.add_view(views.BanLookupView(name='Bans', category='Lookup'))
