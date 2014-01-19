@@ -10,12 +10,14 @@
     <div class="row">
         <div class="small-12 columns">
             {%- if forum_menu_current != 'latest' %}
-            <h2 class="left">{{ board.name }}</h2>
+            <h4 class="left">{{ board.name }}</h4>
             {%- if current_user.is_authenticated() %}
-            <a class="button tiny right" type="submit" href="{{ board.get_post_url() }}">Post New Topic</a>
+            <a class="button tiny right" href="{{ board.get_post_url() }}">Post New Topic</a>
+            {%- else %}
+            <a class="button tiny right disabled" href="#">Sign in to post a topic</a>
             {%- endif %}
             {%- else %}
-            <h2>Latest Posts</h2>
+            <h4>Latest Posts</h4>
             <p>Want to post? Navigate to one of the boards on the left, or at the bottom if you're on mobile.</p>
             {%- endif %}
         </div>

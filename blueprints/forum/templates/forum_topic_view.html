@@ -32,7 +32,9 @@
         <div class="small-12 columns">
             <h4 class="left">{{ topic.title }}</h4>
             {%- if current_user.is_authenticated() %}
-            <a class="button tiny right" type="submit" href="#post-reply">Post New Reply</a>
+            <a class="button tiny right" href="#post-reply">Post New Reply</a>
+            {%- else %}
+            <a class="button tiny right disabled" href="#">Sign in to post a reply</a>
             {%- endif %}
         </div>
     </div>
@@ -48,8 +50,11 @@
                 <div class="row">
                     <div class="small-12 medium-3 large-2 columns meta">
                         <a href="{{ post.author.get_profile_url() }}"><span class="player-name">{{ post.author.name }}</span></a>
-                        <br><br>
-                        <img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}" />
+                        <hr class="show-for-small">
+                        <div class="show-for-medium-up">
+                          <br><br>
+                          <img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}" />
+                        </div>
                     </div>
                     <div class="small-12 medium-9 large-10 columns text content-editable" data-editable="topic-reply">
                         <div class="view">

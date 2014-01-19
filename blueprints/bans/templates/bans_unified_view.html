@@ -73,9 +73,11 @@
             <h6>Reason:</h6>
             <div class="panel content-editable ban-reason" data-editable="ban-reason" id="ban-reason">
                 <div class="view">
+                    {%- if current_user.has_permission("bans.appeal.edit") %}
                     <div class="button-panel">
                         <a onclick="Editable.set_editable(this)"><i class="fi-page-edit small"></i></a>
                     </div>
+                    {%- endif %}
                     <span class="ban-text">{{ ban_object.reason }}</span>
                 </div>
             </div>
