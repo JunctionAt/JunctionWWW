@@ -35,7 +35,8 @@ class User(Document, flask_login.UserMixin, object):
 
     registered = DateTimeField(default=datetime.datetime.utcnow, required=True)
 
-    notifications = ListField(ReferenceField('Notification', dbref=False))
+    #Not currently used
+    #notifications = ListField(ReferenceField('Notification', dbref=False))
 
     #Note for whoever: Most permissions should be added through groups, not adding nodes directly to users.
     #The permissions list should ONLY be used in very specific cases. (Api accounts?)
