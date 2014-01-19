@@ -9,7 +9,7 @@ from blueprints.api import apidoc
 def logout(ext):
     logout_user()
     if ext == 'json': return "", 200
-    flash("Logged out.")
+    flash("Logged out.", category="success")
     return redirect(url_for('auth.login', ext=ext))
 
 

@@ -35,17 +35,17 @@ def email_pane():
         if form.validate():
             if form.update.data:
                 if current_user.mail == form.mail.data and current_user.mail_verified:
-                    flash("This address is already verified with your account.")
+                    flash("This address is already verified with your account.", category="error")
                     return redirect(url_for('settings.email_pane'))
 
                 current_user.mail = form.mail.data
                 current_user.mail_verified = False
                 current_user.save()
                 send_verification_mail()
-                flash('A verification email has been sent.')
+                flash('A verification email has been sent.', category='info')
             elif form.resend.data:
                 send_verification_mail()
-                flash('A verification email has been sent.')
+                flash('A verification email has been sent.', category='info')
         else:
             return render_template('settings_email.html', form=form)
 

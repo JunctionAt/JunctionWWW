@@ -31,7 +31,7 @@ def api_key_add():
     key = ApiKey(owner=current_user.to_dbref(), label=form.label.data)
     key.save()
 
-    flash("Key has been added.")
+    flash("Key has been added.", category="success")
 
     return redirect(url_for('api.api_key_edit', key_id=key.id))
 
@@ -48,7 +48,7 @@ def api_key_delete(key_id):
         abort(401)
 
     key.delete()
-    flash("Key has been deleted.")
+    flash("Key has been deleted.", category="success")
 
     return redirect(url_for('api.api_key_settings_pane'))
 

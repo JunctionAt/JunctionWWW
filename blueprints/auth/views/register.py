@@ -14,8 +14,8 @@ import bcrypt
 @blueprint.route('/register/')
 def register_start():
     if current_user.is_authenticated():
-        flash("You are already logged in. Log out to register another account.")
-        return redirect('/')
+        flash("You are already logged in. Log out to register another account.", category="alert")
+        return redirect(url_for('static_pages.landing_page'))
     return render_template('register_1.html', title="Register")
 
 
@@ -32,11 +32,11 @@ class RegistrationForm(Form):
 @blueprint.route('/register/<string:username>/', methods=['GET', 'POST'])
 def register_pool(username):
     if current_user.is_authenticated():
-        flash("You are already logged in. Log out to register another account.")
-        return redirect('/')
+        flash("You are already logged in. Log out to register another account.", category="alert")
+        return redirect(url_for('static_pages.landing_page'))
 
     if User.objects(name=username).first() is not None:
-        flash("This user is already registered.")
+        flash("This user is already registered.", category="alert")
         return redirect(url_for('auth.login'))
 
     #Is verified
@@ -53,7 +53,7 @@ def register_pool(username):
                     hash=bcrypt.hashpw(form.password.data, bcrypt.gensalt()),
                     mail=form.mail.data)
                 user.save()
-                flash("Registration complete!")
+                flash("Registration complete!", category="success")
                 return redirect(url_for('auth.login'))
             return render_template('register_3.html', username=username, form=form, title="Register")
 

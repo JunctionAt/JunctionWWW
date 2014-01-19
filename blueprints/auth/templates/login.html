@@ -9,32 +9,28 @@
 {% block content %}
 <div class="row">
     <div class="small-10 small-offset-1 medium-8 medium-offset-2 large-6 large-offset-3 columns">
-        <div class="box">
-            <div class="">
-                <h4>Log in to Junction</h4>
-                <hr>
-                <form action="" method="post">
-                    {{ form.hidden_tag() }}
-                    {%- for error_field in form.errors.values() %}
-                    {%- for error in error_field %}
-                    <div class="alert-box alert radius" data-alert>
-                        {{ error }}
-                        <a href="#" class="close">&times;</a>
-                    </div>
-                    {%- endfor %}
-                    {%- endfor %}
-                    {{ form.username(placeholder=form.username.label.text) }}
-                    {{ form.password(placeholder=form.password.label.text) }}
-                    <label class="checkbox">
-                        {{ form.remember() }} {{ form.remember.label.text }}
-                    </label>
-                    <button type="submit">Log in</button>
-                </form>
-                <div class="panel callout radius">
-                    <p>Don't have an account? <a href="{{ url_for('auth.register_start') }}">Create one</a>!</p>
-                    <p>Forgot your password? Contact a tech.</p>
-                </div>
+        <h4>Log in to Junction</h4>
+        <hr>
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            {%- for error_field in form.errors.values() %}
+            {%- for error in error_field %}
+            <div class="alert-box alert radius" data-alert>
+                {{ error }}
+                <a href="#" class="close">&times;</a>
             </div>
+            {%- endfor %}
+            {%- endfor %}
+            {{ form.username(placeholder=form.username.label.text) }}
+            {{ form.password(placeholder=form.password.label.text) }}
+            <label class="checkbox">
+                {{ form.remember() }} {{ form.remember.label.text }}
+            </label>
+            <button type="submit">Log in</button>
+        </form>
+        <div class="panel callout radius">
+            <p>Don't have an account? <a href="{{ url_for('auth.register_start') }}">Create one</a>!</p>
+            <p>Forgot your password? Contact a tech.</p>
         </div>
     </div>
 </div>

@@ -28,7 +28,7 @@ def setpassword():
     if request.method == "POST" and form.validate():
         current_user.hash = bcrypt.hashpw(form.password.data, bcrypt.gensalt())
         current_user.save()
-        flash('Your password has been changed.')
+        flash('Your password has been changed.', category="success")
         return redirect(current_user.get_profile_url()), 303
     return render_template("setpassword_settings_pane.html", form=form, user=current_user, settings_panels_structure=settings_panels_structure, title="Settings - Account - Change Password")
 

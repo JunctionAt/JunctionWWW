@@ -1,6 +1,6 @@
 __author__ = 'HansiHE'
 
-from flask import Blueprint, render_template, send_file, abort, redirect, request
+from flask import Blueprint, render_template, send_file, abort, redirect, request, flash, url_for
 from itsdangerous import URLSafeSerializer
 from blueprints.auth import current_user, login_required
 from donation_model import Transaction, DonationTransaction
@@ -30,6 +30,11 @@ def donate():
         top_donations=donations.order_by('-amount').limit(5).only('gross', 'fee', 'username', 'valid'),
         signed_user=username_signer.dumps(current_user.name) if current_user.is_authenticated() else None
         )
+
+@blueprint.route('/donate/thankyou')
+def donate_thankyou():
+    flash('Thank you for your contribution to the future of Junction!', category='info')
+    return redirect(url_for('donations.donate'))
 
 @cache.memoize(make_name=lambda: "donation_stats_data")
 def get_donations_stats_data():

@@ -36,7 +36,7 @@ def send_pm(name):
         #    data={'text': form.text.data})
         notification.save()
 
-        flash('The PM was sent.')
+        flash('The PM has been successfully sent.', category='success')
 
         return redirect(user.get_profile_url())
 

@@ -30,7 +30,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for topic in topics %}
+            {%- for topic in topics %}
                 <tr>
                     <td>
                         <a class="topic-title" href="{{ topic.get_url() }}">{{ topic.title }}</a>
@@ -38,7 +38,7 @@
                     </td>
                     <td>
                         <div class="latest-container">
-                            {% set latest_post = topic.get_last_post() %}
+                            {%- set latest_post = topic.get_last_post() %}
                             <img src="{{ latest_post.author.get_avatar_url() }}">
                             <div class="post-info">
                                 <a class="post-user player-name" href="{{ latest_post.author.get_profile_url() }}">{{ latest_post.author.name }}</a>
@@ -47,7 +47,7 @@
                         </div>
                     </td>
                 </tr>
-            {% endfor %}
+            {%- endfor %}
         </tbody>
     </table>
 {% endblock %}

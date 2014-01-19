@@ -65,7 +65,7 @@ def login(ext):
         if login_user(user, remember=form.remember.data):
             if ext == 'json':
                 return redirect("/"), 303
-            flash("Logged in!")
+            flash("Logged in!", category="success")
             return redirect(request.args.get("next", '/'))
 
     if ext == 'json':

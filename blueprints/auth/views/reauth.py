@@ -27,6 +27,6 @@ def reauth():
 
         confirm_login()  # Note: Cookies are a bit glitchy with the dev domains it seems, don't panic
 
-        flash(u"Reauthenticated.")
+        flash("Reauthenticated.", category="success")
         return redirect(request.args.get("next", '/'))
     return render_template("reauth.html", form=form, title="Refresh Login")
