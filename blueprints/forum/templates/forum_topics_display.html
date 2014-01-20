@@ -1,6 +1,6 @@
 {% extends "forum_base.html" %}
 
-{% set title = 'Forum - ' + board.name if board else 'Forum - Latest Posts' %}
+{% set title = board.name + ' - Forum' if board else 'Latest Posts - Forum' %}
 {% set breadcrumb_items = [
 {'title': 'Forums', 'url': url_for('forum.forum_landing')},
 {'title': forum.name, 'url': forum.get_url()}]

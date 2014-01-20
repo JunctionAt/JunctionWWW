@@ -1,6 +1,6 @@
 {% extends "forum_base.html" %}
 
-{% set title = 'Forum - ' + board.name + ' - ' + topic.title %}
+{% set title = topic.title + ' - ' + board.name + ' - Forum' %}
 
 {% set breadcrumb_items = [
 {'title': 'Forums', 'url': url_for('forum.forum_landing')},
@@ -52,7 +52,7 @@
                         <a href="{{ post.author.get_profile_url() }}"><span class="player-name">{{ post.author.name }}</span></a>
                         <hr class="show-for-small">
                         <div class="show-for-medium-up">
-                          <br><br>
+                          <br>
                           <img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}" />
                         </div>
                     </div>

@@ -40,4 +40,4 @@ def send_pm(name):
 
         return redirect(user.get_profile_url())
 
-    return render_template('profile_send_pm.html', user=user, form=form, title="Profile - " + user.name + " - Send PM")
+    return render_template('profile_send_pm.html', user=user, form=form, title="Send PM - " + user.name + " - Profile")

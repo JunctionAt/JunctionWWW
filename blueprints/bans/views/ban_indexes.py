@@ -11,7 +11,6 @@ import math
 BANS_PER_PAGE = 15
 PAGINATION_VALUE_RANGE = 3
 
-@bans.route('/appeal', defaults={'page': 1})
 @bans.route('/a/bans/your/', defaults={'page': 1})
 @bans.route('/a/bans/your/<int:page>')
 @login_required

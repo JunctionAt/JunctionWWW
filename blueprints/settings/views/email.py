@@ -52,7 +52,7 @@ def email_pane():
         return redirect(url_for('settings.email_pane'))
 
     form.mail.data = current_user.mail if not form.mail.data else form.mail.data
-    return render_template('settings_email.html', settings_panels_structure=settings_panels_structure, form=form, title="Settings - Account - Email")
+    return render_template('settings_email.html', settings_panels_structure=settings_panels_structure, form=form, title="Email - Account - Settings")
 
 
 DATA_VER = 3

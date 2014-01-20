@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% set title = 'Forum - ' + board.name + ' - ' + topic.title + ' - Edit Reply' %}
+{% set title = 'Edit Reply - ' + topic.title + ' - ' + board.name + ' - Forum' %}
 
 {% set breadcrumb_items = [
 {'title': 'Forums', 'url': url_for('forum.forum_landing')},
@@ -12,6 +12,11 @@
 
 {% block content %}
 <form class="reply-edit-container" method="post" action="" data-abide>
+    <div class="row">
+        <div class="small-12 columns">
+            <h2>Editing reply on topic "{{ topic.title }}"</h2>
+        </div>
+    </div>
     {{ form.hidden_tag() }}
     {%- if form.errors %}
     <div class="row">
@@ -26,7 +31,7 @@
             {%- endfor %}
         </div>
     </div>
-    {% endif %}
+    {%- endif %}
     <div class="row">
         <div class="small-12 columns">
             <label>Content <small>Required</small></label>

@@ -6,6 +6,7 @@
 {% block settings_pane %}
 <div class="panel">
     <h3>Reddit Settings</h3>
+    <small>Reddit can take a few seconds to respond, do not be alarmed if there is a delay. Just wait.</small>
     {%- if reddit_username != None %}
     <p><strong>Reddit username:</strong> <code>{{ reddit_username }}</code></p>
     <form method="post" action="{{ url_for('settings.reddit_unlink') }}">

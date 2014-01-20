@@ -28,7 +28,7 @@ def reddit_pane():
                             reddit_username=reddit_username,
                             flair=flair,
                             settings_panels_structure=settings_panels_structure,
-                            title="Settings - Account - Reddit")
+                            title="Reddit - Account - Settings")
 
 @blueprint.route('/settings/reddit/link', methods=['GET', 'POST'])
 @login_required

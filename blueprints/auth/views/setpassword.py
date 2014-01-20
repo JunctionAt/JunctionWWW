@@ -30,7 +30,7 @@ def setpassword():
         current_user.save()
         flash('Your password has been changed.', category="success")
         return redirect(current_user.get_profile_url()), 303
-    return render_template("setpassword_settings_pane.html", form=form, user=current_user, settings_panels_structure=settings_panels_structure, title="Settings - Account - Change Password")
+    return render_template("setpassword_settings_pane.html", form=form, user=current_user, settings_panels_structure=settings_panels_structure, title="Change Password - Account - Settings")
 
 add_settings_pane(lambda: url_for('auth.setpassword'), "Account", "Change Password", menu_id="setpassword")
 

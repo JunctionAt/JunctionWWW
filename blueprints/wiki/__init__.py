@@ -73,22 +73,22 @@ def display_pages():
     try:
         pages = requests.get('http://api.reddit.com/r/Junction/wiki/pages/', timeout=1).json()['data']
         pages = filter(lambda page: page.find('/')==-1 and not page.startswith('_'), pages)
-        return render_template('wiki_listing.html', links=pages, title="Wiki - pages")
+        return render_template('wiki_listing.html', links=pages, title="All Pages - Wiki")
     except requests.exceptions.Timeout:
-        return render_template('reddit_down.html', title="Wiki - reddit is down")
+        return render_template('reddit_down.html', title="reddit is down - Wiki")
 
 @blueprint.route('/wiki/')
 def display_index():
     try:
         return render_template('wiki_page.html', article=get_wiki_article('index'), index=True, title="Wiki")
     except requests.exceptions.Timeout:
-        return render_template('reddit_down.html', title="Wiki - reddit is down")
+        return render_template('reddit_down.html', title="reddit is down - Wiki")
 
 @blueprint.route('/wiki/<string:wiki_url>')
 def display_wiki_article(wiki_url):
     try:
-        return render_template('wiki_page.html', article=get_wiki_article(wiki_url), index=False, wiki_url=wiki_url, title="Wiki - " + wiki_url)
+        return render_template('wiki_page.html', article=get_wiki_article(wiki_url), index=False, wiki_url=wiki_url, title=wiki_url + " - Wiki")
     except KeyError:
         abort(404)
     except requests.exceptions.Timeout:
-        return render_template('reddit_down.html', title="Wiki - reddit is down")
+        return render_template('reddit_down.html', title="reddit is down - Wiki")

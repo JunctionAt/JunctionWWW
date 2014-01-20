@@ -2,7 +2,7 @@
 
 {% set breadcrumb_items = [
 {'title': 'Wiki', 'url': url_for('wiki.display_index')},
-{'title': 'pages', 'url': url_for('wiki.display_pages')}]
+{'title': 'All Pages', 'url': url_for('wiki.display_pages')}]
 %}
 
 {% block content %}
@@ -10,6 +10,7 @@
     <div class="row">
         <div class="small-12 columns">
             <div class="panel">
+                <h2>All Pages</h2>
                 {%- for link in links %}
                 <p><a href="/wiki/{{ link }}">{{ link }}</a></p>
                 {%- endfor %}

@@ -61,7 +61,7 @@ def avatar_control():
 
     return render_template(
         'avatar_pane.html',
-        title="Settings - Account - Profile Picture",
+        title="Profile Picture - Account - Settings",
         settings_panels_structure=settings_panels_structure,
         avatar_form=form,
         name=current_user.name,
