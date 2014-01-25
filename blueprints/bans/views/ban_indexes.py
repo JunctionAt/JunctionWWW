@@ -140,7 +140,7 @@ def bans_index(page):
 def appeals_index(page):
     if page == 0:
         abort(404)
-    appeals = Ban.objects(__raw__={"appeal.replies": {"$not": {"$size": 0}}}).order_by('-appeal.last')
+    appeals = Ban.objects(__raw__={"appeal.replies.0": {"$exists": 1}}).order_by('-appeal.last')
     appeal_num = len(appeals)
     num_pages = int(math.ceil(appeal_num / float(BANS_PER_PAGE)))
     if num_pages < page:
