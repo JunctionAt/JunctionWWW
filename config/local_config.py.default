@@ -31,3 +31,7 @@ REDDIT_CLIENT_ID = ''
 REDDIT_CLIENT_SECRET = ''
 REDDIT_REDIRECT_URI = 'https://junction.at/settings/reddit/link'
 REDDIT_SUBREDDIT = 'Junction'
+
+#DO NOT ENABLE THIS IF YOUR SERVER IS PUBLICALLY AVAILABLE
+#Gives a python shell in the current flask-context if enabled
+DEBUG_PYTHON_SHELL = False

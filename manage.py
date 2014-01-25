@@ -5,7 +5,7 @@ from flask.ext.script import Manager, Server
 
 manager = Manager(application)
 
-manager.add_command("runserver", Server(host=application.config.get("HOST", "0.0.0.0"), port=application.config.get("PORT", 5000), use_evalex=False))
+manager.add_command("runserver", Server(host=application.config.get("HOST", "0.0.0.0"), port=application.config.get("PORT", 5000), use_evalex=application.config.get("DEBUG_PYTHON_SHELL")))
 
 @manager.command
 def bootstrap_db(confirm=False):
