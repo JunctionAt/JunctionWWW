@@ -56,7 +56,7 @@ class Forum_Post_Model(ForumModel):
 class Ban_Model(BanModel):
     list_display = ('username', 'reason', 'issuer', 'time', 'server', 'active')
     search_fields = ('username', 'reason', 'issuer', 'server', 'active', 'removed_by')
-    fields = ('username', 'issuer', 'server', 'active', 'removed_time', 'removed_by', 'appeal')
+    fields = ('username', 'issuer', 'server', 'active', 'removed_time', 'removed_by')
 
 class Note_Model(BanModel):
     list_display = ('issuer', 'username', 'note', 'server', 'time', 'active')
@@ -64,11 +64,9 @@ class Note_Model(BanModel):
 
 class IP_Alt_Model(AltModel):
     list_display = ('username', 'ips')
-    search_fields=('username', 'ips')
 
 class Username_Alt_Model(AltModel):
     list_display = ('ip', 'usernames')
-    search_fields = ('ip', 'usernames')
 
 #Auth
 admin.register(Role_Group, Role_Group_Model, category='Mongo.Auth')
