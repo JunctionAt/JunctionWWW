@@ -12,8 +12,11 @@
         }
     };
 
+    var to_load;
     if(document.head.getAttribute("data-molecules")) {
-        var to_load = document.head.getAttribute("data-molecules").split(" ");
+        to_load = document.head.getAttribute("data-molecules").split(" ");
+    } else {
+        to_load = [];
     }
 
 })();
