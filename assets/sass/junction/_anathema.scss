@@ -77,11 +77,21 @@
     }
 
     .edit {
-      .appeal-reply-edit-textfield, .ban-reason-edit-textfield {
+      textarea {
+        resize: vertical;
+      }
+      .appeal-reply-edit-textfield {
         min-height: 100px;
+      }
+      .ban-reason-edit-textfield {
+        min-height: 16px;
       }
     }
 
+  }
+
+  .ban-reason .edit .button {
+    margin-bottom: 0;
   }
 }
 
