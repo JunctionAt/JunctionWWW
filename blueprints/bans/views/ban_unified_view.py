@@ -118,12 +118,12 @@ def ban_reason_edit(ban_uid):
 def appeal_reply_edit(appeal_reply_id):
     edit_form = AppealReplyTextEditForm(request.form)
 
-    if not (current_user.has_permission("bans.appeal.manage") or (current_user.is_authenticated() and current_user.name.lower() == ban.username.lower())):
-        abort(403)
-
     appeal_reply = AppealReply.objects(id=appeal_reply_id).first()
     if appeal_reply is None:
         abort(404)
+
+    if not (current_user.has_permission("bans.appeal.manage") or (current_user.is_authenticated() and current_user == appeal_reply.creator)):
+        abort(403)
 
     if request.method == "POST" and edit_form.validate():
         appeal_reply.text = edit_form.text.data
