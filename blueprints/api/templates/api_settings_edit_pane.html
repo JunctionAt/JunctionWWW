@@ -4,14 +4,14 @@
 {% set current_settings_pane = "api_keys" %}
 
 {% block settings_pane %}
-<div class="panel">
+<div class="panel api-key-edit-container">
     <form method="post" action=".">
         {{ form.hidden_tag() }}
         <label>Key</label>
         <p><code>{{ key.key }}</code></p>
         {{ form.label.label }}
         {{ form.label }}
-        {{ form.acl(id='api-key-acl-select') }}
+        {{ form.acl(id='api-key-acl-select', class='permission-selector') }}
         {{ form.submit(class="button") }}
     </form>
 </div>
