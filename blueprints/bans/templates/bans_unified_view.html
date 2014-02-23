@@ -73,7 +73,7 @@
             <h6>Reason:</h6>
             <div class="panel content-editable ban-reason" data-editable="ban-reason" id="ban-reason">
                 <div class="view">
-                    {%- if (current_user.has_permission("bans.appeal.edit") or (current_user.is_authenticated() and current_user.name.lower() == ban.username.lower())) %}
+                    {%- if current_user.has_permission("bans.appeal.edit") %}
                     <div class="button-panel">
                         <a onclick="Editable.set_editable(this)" data-tooltip title="Edit"><i class="fi-page-edit small"></i></a>
                     </div>
@@ -97,7 +97,7 @@
                     </div>
                     <div class="small-12 medium-9 large-10 columns text content-editable" data-editable="appeal-reply">
                         <div class="view" style="position: relative;">
-                            {%- if current_user.has_permission("bans.appeal.edit") %}
+                            {%- if (current_user.has_permission("bans.appeal.edit") or (current_user.is_authenticated() and current_user == reply.creator)) %}
                             <div class="button-panel">
                                 <a onclick="Editable.set_editable(this)" data-tooltip title="Edit"><i class="fi-page-edit small"></i></a>
                             </div>
