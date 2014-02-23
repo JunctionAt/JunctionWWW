@@ -44,7 +44,7 @@ def view_ban(ban_uid):
     #            appeal.save()
 
     replies = AppealReply.objects(ban=ban).order_by('+created')
-    notes = Note.objects(username=ban.username, active=True)
+    notes = Note.objects(username__iexact=ban.username, active=True)
 
     can_post = current_user.has_permission("bans.appeal.manage") or (current_user.is_authenticated() and current_user.name.lower() == ban.username.lower())
 
