@@ -30,12 +30,31 @@ def verify_ip_address(addr):
 class Alts(Resource):
 
     get_parser = RequestParser()
-    get_parser.add_argument("username", type=str, required=True, help="username cannot be blank")
-    get_parser.add_argument("ip", type=str, required=True, help="ip cannot be blank")
+    get_parser.add_argument("username", type=str, required=True, help="a username must be provided")
 
-    @require_api_key(access_tokens=['anathema.alts.update'])
-    def post(self):
+    @require_api_key(access_tokens=['anathema.alts.get'])
+    def get(self):
         args = self.get_parser.parse_args()
+
+        if not validate_username(args["username"]):
+            return {'error': [{"message": "username is not valid"}]}
+        username = args["username"]
+
+        alts = []
+        user_ips = PlayerIpsModel.objects(username__iexact=username).first()
+        if user_ips:
+            alt_objects = PlayerIpsModel.objects(ips__in=user_ips.ips, username__not__iexact=username)
+            for alt_object in alt_objects:
+                alts.append({"alt": alt_object.username, "last_login": str(alt_object.last_login)})
+        return {'alts': alts}
+
+    post_parser = RequestParser()
+    post_parser.add_argument("username", type=str, required=True, help="username cannot be blank")
+    post_parser.add_argument("ip", type=str, required=True, help="ip cannot be blank")
+
+    @require_api_key(access_tokens=['anathema.alts.post'])
+    def post(self):
+        args = self.post_parser.parse_args()
 
         if not validate_username(args["username"]):
             return {'error': [{"message": "username is not valid"}]}
@@ -61,4 +80,6 @@ class Alts(Resource):
 
 
 rest_api.add_resource(Alts, '/anathema/alts')
-register_api_access_token('anathema.alts.update', permission="api.anathema.alts.update")
+
+register_api_access_token('anathema.alts.get', permission="api.anathema.alts.get")
+register_api_access_token('anathema.alts.post', permission="api.anathema.alts.post")
