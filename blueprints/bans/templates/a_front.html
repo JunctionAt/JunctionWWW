@@ -11,28 +11,34 @@
     <div class="row">
         <div class="small-12 medium-4 columns">
             <div class="panel text-center">
-                <h2><a href="{{ url_for('bans.bans_index') }}">Bans</a></h2>
-            </div>
-        </div>
-        {%- if current_user.has_permission('bans.create') %}
-        <div class="small-12 medium-4 columns">
-            <div class="panel text-center">
-                <h2><a href="{{ url_for('bans.created_bans') }}">Bans you've made</a></h2>
-            </div>
-        </div>
-        {%- endif %}
-        <div class="small-12 medium-4 columns">
-            <div class="panel text-center">
                 <h2><a href="{{ url_for('bans.your_bans') }}">Your Infractions</a></h2>
             </div>
         </div>
-    </div>
-    <div class="row">
+        <div class="small-12 medium-4 columns">
+            <div class="panel text-center">
+                <h2><a href="{{ url_for('bans.bans_index') }}">Bans</a></h2>
+            </div>
+        </div>
         <div class="small-12 medium-4 columns">
             <div class="panel text-center">
                 <h2><a href="{{url_for('bans.appeals_index')}}">Appeals</a></h2>
             </div>
         </div>
     </div>
+    {%- if current_user.has_permission('bans.create') %}
+
+    <div class="row">
+        <div class="small-12 medium-4 columns">
+            <div class="panel text-center">
+                <h2><a href="{{url_for('bans.notes_index')}}">Notes</a></h2>
+            </div>
+        </div>
+        <div class="small-12 medium-4 columns">
+            <div class="panel text-center">
+                <h2><a href="{{ url_for('bans.created_bans') }}">Bans you've made</a></h2>
+            </div>
+        </div>
+    </div>
+    {%- endif %}
 </div>
 {% endblock %}

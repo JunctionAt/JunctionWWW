@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Anathema', 'url': url_for('bans.a_front')},
+{'title': base_title, 'url': url_for(view)}]
+%}
+
+{% set title = base_title + " - Anathema" %}
+
+{% set current_page = 'notes' %}
+
+{% block content %}
+<div class="row">
+    <div class="small-12 columns">
+        <h4>{{ base_title }}</h4>
+        <table class="full-width-table">
+            <thead>
+                <tr>
+                    <th>Note</th>
+                    <th>Message</th>
+                    <th>Username</th>
+                    <th>Server</th>
+                    <th>Issuer</th>
+                    <th width="140px">Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%- for note in notes %}
+                <tr>
+                    <td><a href="">{{ note.uid }}</a></td>
+                    <td>{{ note.username }}</td>
+                    <td>{{ note.note }}</td>
+                    <td>{{ note.server }} </td>
+                    <td>{{ note.issuer }}</td>
+                    <td>{{ note.time|full_date|safe }}</td>
+                </tr>
+                {%- endfor %}
+            </tbody>
+        </table>
+
+        <ul class="pagination">
+            <li{% if not prev %} class="unavailable"{% endif %}><a href="{{ prev or '#' }}">&laquo;</a></li>
+            {% for link in links %}
+                <li{% if not link['active'] %} class="current"{% endif %}><a href="{{ link['url'] }}">{{ link['num'] }}</a></li>
+            {% endfor %}
+            <li{% if not next %} class="unavailable"{% endif %}><a href="{{ next or '#' }}">&raquo;</a></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
