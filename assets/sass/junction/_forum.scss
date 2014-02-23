@@ -80,10 +80,19 @@
       &:hover .button-panel {
         display: block !important;
       }
+
+      .user-info-box-container {
+        width: 115%;
+      }
+
+      .user-info-box-container-small {
+        width: 100%;
+      }
+
       .text {
-        @media #{$medium-up} {
+        /* @media #{$medium-up} {
           border-left: 1px #d9d9d9 solid;
-        }
+        } */
         min-height: 3rem;
         overflow: visible;
 

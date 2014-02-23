@@ -1,5 +1,5 @@
 ipaddress
-praw==2.1.8
+praw==2.1.12
 Flask==0.10.1
 Flask-Admin==1.0.7
 Flask-Assets==0.8

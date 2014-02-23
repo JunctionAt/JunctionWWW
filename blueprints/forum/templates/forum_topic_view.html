@@ -27,6 +27,8 @@
     </ul>
 {% endmacro %}
 
+{% import 'user_info_box.html' as user_info_box %}
+
 {% block forum_content %}
     <div class="row">
         <div class="small-12 columns">
@@ -49,12 +51,18 @@
             <div class="post-pane">
                 <div class="row">
                     <div class="small-12 medium-3 large-2 columns meta">
-                        <a href="{{ post.author.get_profile_url() }}"><span class="player-name">{{ post.author.name }}</span></a>
+                        <div class="user-info-box-container-small show-for-small-only">
+                            {{ user_info_box.user_info(post.author, type="mobile") }}
+                        </div>
+                        <div class="user-info-box-container show-for-medium-up">
+                            {{ user_info_box.user_info(post.author, type="desktop", arrow="right") }}
+                        </div>
+                        {# <a href="{{ post.author.get_profile_url() }}"><span class="player-name">{{ post.author.name }}</span></a>
                         <hr class="show-for-small">
                         <div class="show-for-medium-up">
                           <br>
                           <img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}" />
-                        </div>
+                        </div> #}
                     </div>
                     <div class="small-12 medium-9 large-10 columns text content-editable" data-editable="topic-reply">
                         <div class="view">

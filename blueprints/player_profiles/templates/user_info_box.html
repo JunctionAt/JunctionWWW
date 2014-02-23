@@ -1,0 +1,19 @@
+{% macro user_info(user, type="desktop", arrow="none") %}
+
+    <div class="user-info-box {{ type }} clearfix">
+
+        <div class="user-avatar-container">
+            <img src="{{ user.get_avatar_url() }}">
+        </div>
+
+        <div class="user-description">
+            <a href="{{ user.get_profile_url() }}"><span class="player-name">{{ user.name }}</span></a>
+        </div>
+
+        {% if arrow != "none" %}
+            <span class="arrow-{{ arrow }}"><span></span></span>
+        {% endif %}
+
+    </div>
+
+{% endmacro %}
