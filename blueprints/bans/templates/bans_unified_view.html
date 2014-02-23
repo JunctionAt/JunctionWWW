@@ -73,18 +73,18 @@
             <h6>Reason:</h6>
             <div class="panel content-editable ban-reason" data-editable="ban-reason" id="ban-reason">
                 <div class="view">
-                    {%- if current_user.has_permission("bans.appeal.edit") %}
+                    {%- if (current_user.has_permission("bans.appeal.edit") or (current_user.is_authenticated() and current_user.name.lower() == ban.username.lower())) %}
                     <div class="button-panel">
-                        <a onclick="Editable.set_editable(this)"><i class="fi-page-edit small"></i></a>
+                        <a onclick="Editable.set_editable(this)" data-tooltip title="Edit"><i class="fi-page-edit small"></i></a>
                     </div>
                     {%- endif %}
-                    <span class="ban-text">{{ ban_object.reason }}</span>
+                    <div class="ban-text">{{ ban_object.reason }}</div>
                 </div>
             </div>
             <h6>Comments:</h6>
             {%- if replies %}
             {%- for reply in replies %}
-            <div class="appeal-comment">
+            <div id="reply-{{ reply.id }}" class="appeal-comment">
                 <div class="row">
                     <div class="small-12 medium-3 large-2 columns meta">
                         <a href="{{ reply.creator.get_profile_url() }}"><span class="player-name">{{ reply.creator.name }}</span></a>
@@ -95,8 +95,17 @@
                         <span class="secondary label">Issuer</span>
                         {%- endif %}
                     </div>
-                    <div class="small-12 medium-9 large-10 columns text">
-                        {{ reply.text|markdown|safe }}
+                    <div class="small-12 medium-9 large-10 columns text content-editable" data-editable="appeal-reply">
+                        <div class="view" style="position: relative;">
+                            {%- if current_user.has_permission("bans.appeal.edit") %}
+                            <div class="button-panel">
+                                <a onclick="Editable.set_editable(this)" data-tooltip title="Edit"><i class="fi-page-edit small"></i></a>
+                            </div>
+                            {%- endif %}
+                            <div>{{ reply.text|markdown|safe }}</div>
+                            <div class="raw-markdown" style="display: none;">{{ reply.text }}</div>
+                            <div class="appeal-reply-id" style="display: none;">{{ reply.id }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -128,9 +137,20 @@
 </div>
 <div class="content-editable-template" data-editable="ban-reason">
     <div class="edit">
-        <form>
-            {{ edit_form.text(class="ban-text") }}
+      <form method="post" action="{{ url_for('bans.ban_reason_edit', ban_uid=ban_id) }}" data-abide>
+            {{ edit_form.hidden_tag() }}
+            {{ edit_form.text(class="ban-reason-edit-textfield", required="") }}
             {{ edit_form.submit(class="button tiny") }}
+            <a class="button tiny alert" onclick="Editable.set_viewable(this)">Cancel</a>
+      </form>
+    </div>
+</div>
+<div class="content-editable-template" data-editable="appeal-reply">
+    <div class="edit">
+        <form method="post" action="" data-abide>
+            {{ reply_edit_form.hidden_tag() }}
+            {{ reply_edit_form.text(class="appeal-reply-edit-textfield", required="") }}
+            {{ reply_edit_form.submit(class="button tiny") }}
             <a class="button tiny alert" onclick="Editable.set_viewable(this)">Cancel</a>
         </form>
     </div>
@@ -143,7 +163,13 @@
         $(document).ready(function() {
             Editable.handlers["ban-reason"] = {
                 enable: function(element) {
-                    element.find(".edit .ban-text").val(element.find(".view .ban-text").text())
+                    element.find(".edit .ban-reason-edit-textfield").val(element.find(".view .ban-text").text())
+                }
+            };
+            Editable.handlers["appeal-reply"] = {
+                enable: function(element) {
+                    element.find(".edit .appeal-reply-edit-textfield").val(element.find(".view .raw-markdown").text());
+                    element.find(".edit form").attr("action", "{{ url_for('bans.appeal_reply_edit', appeal_reply_id="appeal_reply_id_placeholder") }}".replace("appeal_reply_id_placeholder", element.find(".view .appeal-reply-id").text()));
                 }
             }
         });
