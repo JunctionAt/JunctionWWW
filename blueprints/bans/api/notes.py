@@ -135,6 +135,6 @@ class Notes(Resource):
 
 rest_api.add_resource(Notes, '/anathema/notes')
 
-register_api_access_token('anathema.notes.get')
+register_api_access_token('anathema.notes.get', permission='api.anathema.notes.get')
 register_api_access_token('anathema.notes.post', permission='api.anathema.notes.post')
 
