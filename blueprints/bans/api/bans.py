@@ -76,7 +76,7 @@ class Bans(Resource):
     get_parser.add_argument("scope", type=str, default="local", choices=["local", "global", "full"])
 
     def validate_get(self, args):
-        if not args.get("username") and not args.get("id"):
+        if not (args.get("username") and validate_username(args.get("username"))) and not args.get("id"):
             return {'error': [{"message": "a id or a username must be provided"}]}
 
         if args.get("id") and args.get("scope") != "local":
