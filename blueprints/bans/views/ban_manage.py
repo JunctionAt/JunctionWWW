@@ -38,7 +38,7 @@ def unban(ban_uid):
 
         if form.validate():
             ban.removed_time = form.date.data
-            ban.removed_by = 'auto_' + current_user.name
+            ban.removed_by = current_user.name
             ban.save()
             flash("Ban will be lifted on specified date.", category='success')
             return redirect(url_for('bans.view_ban', ban_uid=ban_uid))
