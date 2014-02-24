@@ -2,7 +2,7 @@ __author__ = 'HansiHE'
 
 from flask import abort, render_template, request, redirect, url_for, flash
 from .. import bans
-from ..ban_model import Ban, Note, AppealReply
+from ..ban_model import Ban, Note, AppealReply, AppealEdit
 from blueprints.alts.alts_model import PlayerIpsModel
 from blueprints.auth import login_required, current_user
 from flask_wtf import Form
@@ -45,9 +45,16 @@ def view_ban(ban_uid):
         if user_ips:
             alts = PlayerIpsModel.objects(ips__in=user_ips.ips, username__not__iexact=ban.username)
 
+    unlock_time_form = AppealUnlockTimeForm()
+    if appeal.unlock_time:
+        unlock_time_form.date.data = appeal.unlock_time
+    unban_time_form = BanUnbanTimeForm()
+    if ban.removed_time:
+        unban_time_form.date.data = ban.removed_time
+
     return render_template('bans_unified_view.html', ban_id=ban_uid, ban_object=ban, appeal_object=appeal, notes=notes,
                            reply_form=AppealReplyForm(), edit_form=BanReasonEditForm(), reply_edit_form=AppealReplyTextEditForm(),
-                           unlock_time_form=AppealUnlockTimeForm(), unban_time_form=BanUnbanTimeForm(), replies=replies,
+                           unlock_time_form=unlock_time_form, unban_time_form=unban_time_form, replies=replies,
                            can_post=can_post, alts=alts)
 
 @bans.route('/a/ban/<int:ban_uid>/reply', methods=["POST"])
