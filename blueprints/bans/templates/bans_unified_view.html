@@ -12,6 +12,8 @@
 
 {% set javascript_molecules = ["editable"] %}
 
+{% import 'user_info_box.html' as user_info_box %}
+
 {% block content %}
 <div class="ban-container">
     <div class="row">
@@ -160,11 +162,16 @@
             <h6>Comments:</h6>
             {%- if replies %}
             {%- for reply in replies %}
+
             <div id="reply-{{ reply.id }}" class="appeal-comment">
                 <div class="row">
                     <div class="small-12 medium-3 large-2 columns meta">
-                        <a href="{{ reply.creator.get_profile_url() }}"><span class="player-name">{{ reply.creator.name }}</span></a>
-                        <br>
+                        <div class="user-info-box-container-small show-for-small-only">
+                            {{ user_info_box.user_info(reply.creator, type="mobile") }}
+                        </div>
+                        <div class="user-info-box-container show-for-medium-up">
+                            {{ user_info_box.user_info(reply.creator, type="desktop", arrow="right") }}
+                        </div>
                         {%- if reply.creator.name|lower == ban_object.username|lower %}
                         <span class="secondary label">Banned</span>
                         {%- elif reply.creator.name|lower == ban_object.issuer|lower %}
