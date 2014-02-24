@@ -2,7 +2,7 @@ __author__ = 'williammck'
 
 from flask import abort, request, redirect, url_for, flash
 from .. import bans
-from ..ban_model import Ban, AppealEdit
+from ..ban_model import Ban, AppealEdit, AppealReply
 from blueprints.auth import login_required, current_user
 from flask_wtf import Form
 from wtforms import TextAreaField, SubmitField
