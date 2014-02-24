@@ -82,7 +82,7 @@
     <div class="row">
         <div class="small-12 columns">
             <div class="alert-box radius" data-alert>
-                This ban {% if not ban_object.active %}was lifted by {{ ban_object.removed_by }} {% else %}will be lifted {% endif %}{{ ban_object.removed_time|full_date|safe }}.
+                This ban {% if not ban_object.active %}was lifted by {{ ban_object.removed_by }} {% else %}will be lifted {% endif %}{% if ban_object.removed_time %}{{ ban_object.removed_time|full_date|safe }}{% else %}Unknown{% endif %}.
             </div>
         </div>
     </div>
