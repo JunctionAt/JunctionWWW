@@ -19,9 +19,9 @@ def get_local_bans(username=None, uid=None, active=None):
     query = dict()
 
     if username is not None:
-        query['username'] = re.compile(username, re.IGNORECASE)
+        query['username__iexact'] = re.compile(username, re.IGNORECASE)
     if uid is not None:
-        query['uid'] = uid
+        query['uid__iexact'] = uid
     if active is not None:
         query['active'] = active
 
@@ -76,7 +76,7 @@ class Bans(Resource):
     get_parser.add_argument("scope", type=str, default="local", choices=["local", "global", "full"])
 
     def validate_get(self, args):
-        if not args.get("username") and not args.get("id"):
+        if not (args.get("username") and validate_username(args.get("username"))) and not args.get("id"):
             return {'error': [{"message": "a id or a username must be provided"}]}
 
         if args.get("id") and args.get("scope") != "local":
