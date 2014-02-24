@@ -40,8 +40,6 @@ def view_ban(ban_uid):
     if ban is None:
         abort(404)
 
-    process_ban(ban)
-
     appeal = ban.appeal
 
     #if appeal:
