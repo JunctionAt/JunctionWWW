@@ -1,13 +1,15 @@
 __author__ = 'HansiHE'
 
-from flask import abort, render_template, request, redirect, url_for
+from flask import abort, render_template, request, redirect, url_for, flash
 from .. import bans
-from ..ban_model import Ban, Note, AppealReply, AppealEdit
+from ..ban_model import Ban, Note, AppealReply
 from blueprints.alts.alts_model import PlayerIpsModel
 from blueprints.auth import login_required, current_user
 from flask_wtf import Form
 from wtforms import TextAreaField, SubmitField
 from wtforms.validators import Required, Length
+from .ban_editing import BanReasonEditForm, AppealReplyTextEditForm
+from .ban_manage import BanUnbanTimeForm, AppealUnlockTimeForm
 import datetime
 
 
@@ -16,20 +18,6 @@ class AppealReplyForm(Form):
         Required(message="Some content is required."),
         Length(min=1, max=5000, message="Content must be between 1 and 5000 characters long.")])
     submit = SubmitField('Post')
-
-
-class AppealReplyTextEditForm(Form):
-    text = TextAreaField('Text', validators=[
-        Required(message="Some content is required."),
-        Length(min=1, max=5000, message="Content must be between 1 and 5000 characters long.")])
-    submit = SubmitField('Edit')
-
-
-class BanReasonEditForm(Form):
-    text = TextAreaField('Ban Reason', validators=[
-        Required(message="Some content is required."),
-        Length(min=1, max=5000, message="Content must be between 1 and 5000 characters long.")])
-    submit = SubmitField('Edit')
 
 
 @bans.route('/a/ban/<int:ban_uid>', methods=['GET'])
@@ -41,16 +29,15 @@ def view_ban(ban_uid):
 
     appeal = ban.appeal
 
-    #if appeal:
-    #    if appeal.state == 1:
-    #        if appeal.unlock_time and appeal.unlock_time < datetime.datetime.utcnow():
-    #            appeal.state = 0
-    #            appeal.save()
+    if ban.appeal.state == 'closed_time':
+        if ban.appeal.unlock_time and ban.appeal.unlock_time < datetime.datetime.utcnow():
+            ban.appeal.state = 'open'
+            ban.save()
 
     replies = AppealReply.objects(ban=ban).order_by('+created')
     notes = Note.objects(username__iexact=ban.username, active=True)
 
-    can_post = current_user.has_permission("bans.appeal.manage") or (current_user.is_authenticated() and current_user.name.lower() == ban.username.lower())
+    can_post = current_user.has_permission("bans.appeal.manage") or (current_user.is_authenticated() and current_user.name.lower() == ban.username.lower() and ban.appeal.state == 'open')
 
     alts = []
     if current_user.has_permission("bans.appeal.alts"):
@@ -60,7 +47,8 @@ def view_ban(ban_uid):
 
     return render_template('bans_unified_view.html', ban_id=ban_uid, ban_object=ban, appeal_object=appeal, notes=notes,
                            reply_form=AppealReplyForm(), edit_form=BanReasonEditForm(), reply_edit_form=AppealReplyTextEditForm(),
-                           replies=replies, can_post=can_post, alts=alts)
+                           unlock_time_form=AppealUnlockTimeForm(), unban_time_form=BanUnbanTimeForm(), replies=replies,
+                           can_post=can_post, alts=alts)
 
 @bans.route('/a/ban/<int:ban_uid>/reply', methods=["POST"])
 @login_required
@@ -71,7 +59,7 @@ def post_ban_reply(ban_uid):
     if ban is None:
         abort(404)
 
-    if not (current_user.has_permission("bans.appeal.manage") or (current_user.is_authenticated() and current_user.name.lower() == ban.username.lower())):
+    if not (current_user.has_permission("bans.appeal.manage") or (current_user.is_authenticated() and current_user.name.lower() == ban.username.lower() and ban.appeal.state == 'open')):
         abort(403)
 
     appeal = ban.appeal
@@ -92,38 +80,3 @@ def post_ban_reply(ban_uid):
             appeal.last = datetime.datetime.utcnow()
             ban.save()
             return redirect(url_for('bans.view_ban', ban_uid=ban_uid))
-
-@bans.route('/a/ban/<int:ban_uid>/edit', methods=["POST"])
-@login_required
-def ban_reason_edit(ban_uid):
-    edit_form = BanReasonEditForm(request.form)
-
-    if not current_user.has_permission("bans.appeal.manage"):
-        abort(403)
-
-    ban = Ban.objects(uid=ban_uid).first()
-    if ban is None:
-        abort(404)
-
-    if request.method == "POST" and edit_form.validate():
-        ban.reason = edit_form.text.data
-        ban.save()
-        return redirect(url_for('bans.view_ban', ban_uid=ban_uid))
-
-@bans.route('/a/appeals/reply/<string:appeal_reply_id>/edit', methods=["POST"])
-@login_required
-def appeal_reply_edit(appeal_reply_id):
-    edit_form = AppealReplyTextEditForm(request.form)
-
-    appeal_reply = AppealReply.objects(id=appeal_reply_id).first()
-    if appeal_reply is None:
-        abort(404)
-
-    if not (current_user.has_permission("bans.appeal.manage") or (current_user.is_authenticated() and current_user == appeal_reply.creator)):
-        abort(403)
-
-    if request.method == "POST" and edit_form.validate():
-        appeal_reply.text = edit_form.text.data
-        appeal_reply.edits.append(AppealEdit(text=edit_form.text.data, user=current_user.to_dbref()))
-        appeal_reply.save()
-        return redirect(url_for('bans.view_ban', ban_uid=appeal_reply.ban.uid))

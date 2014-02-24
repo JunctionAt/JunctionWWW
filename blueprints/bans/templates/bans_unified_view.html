@@ -20,6 +20,82 @@
             <hr>
         </div>
     </div>
+    {%- if current_user.has_permission('bans.appeal.manage') %}
+    <div class="row">
+        <div class="small-12 columns">
+            <h6>Controls</h6>
+            <div class="panel">
+                <h5>Appeal</h5>
+                <div class="row">
+                    {%- if appeal_object.state != 'closed_forever' %}
+                    <h6 class="columns">Close until specific date</h6>
+                    <form action="{{ url_for('bans.close_appeal', ban_uid=ban_id) }}" class="small-12 medium-8 columns" method="post" data-abide>
+                        {{ unlock_time_form.csrf_token }}
+                        <div class="row">
+                            <div class="small-6 columns">
+                                {{ unlock_time_form.date(pattern="date", placeholder="YYYY-MM-DD") }}
+                                <small class="error">Please type in a date in the form of YYYY-MM-DD</small>
+                            </div>
+                            <div class="small-6 columns">
+                                {{ unlock_time_form.submit(class="button tiny") }}
+                            </div>
+                        </div>
+                    </form>
+                    {%- endif %}
+                    <div class="small-12 medium-4 columns">
+                        {%- if appeal_object.state != 'open' %}
+                        <a href="{{ url_for('bans.open_appeal', ban_uid=ban_id) }}" class="button tiny">Open appeal</a>
+                        {%- endif %}
+                        {%- if appeal_object.state != 'closed_forever' %}
+                        <a href="{{ url_for('bans.close_appeal', ban_uid=ban_id) }}" class="button tiny alert">Close appeal</a>
+                        {%- endif %}
+                    </div>
+                </div>
+                <h5>Ban</h5>
+                {%- if ban_object.active %}
+                <h6>Unban on specific date</h6>
+                <div class="row">
+                    <form action="{{ url_for('bans.unban', ban_uid=ban_id) }}" class="small-12 medium-8 columns" method="post" data-abide>
+                        {{ unban_time_form.csrf_token }}
+                        <div class="row">
+                            <div class="small-6 columns">
+                                {{ unban_time_form.date(pattern="date", placeholder="YYYY-MM-DD") }}
+                                <small class="error">Please type in a date in the form of YYYY-MM-DD</small>
+                            </div>
+                            <div class="small-6 columns">
+                                {{ unban_time_form.submit(class="button tiny") }}
+                            </div>
+                        </div>
+                    </form>
+                    <div class="small-12 medium-4 columns">
+                        <a href="{{ url_for('bans.unban', ban_uid=ban_id) }}" class="button tiny alert">Unban now</a>
+                    </div>
+                </div>
+                {%- else %}
+                <h6>Ban has been lifted, nothing to do here!</h6>
+                {%- endif %}
+            </div>
+        </div>
+    </div>
+    {%- endif %}
+    {%- if ban_object.removed_time or not ban_object.active %}
+    <div class="row">
+        <div class="small-12 columns">
+            <div class="alert-box radius" data-alert>
+                This ban {% if not ban_object.active %}was lifted by {{ ban_object.removed_by }} {% else %}will be lifted {% endif %}{{ ban_object.removed_time|full_date|safe }}.
+            </div>
+        </div>
+    </div>
+    {%- endif %}
+    {%- if appeal_object.state != 'open' %}
+    <div class="row">
+        <div class="small-12 columns">
+            <div class="alert-box radius" data-alert>
+                This appeal{% if appeal_object.state == 'closed_time' %} will be re-opened {{ appeal_object.unlock_time|full_date|safe }}{% else %} has been closed{% endif %}.
+            </div>
+        </div>
+    </div>
+    {%- endif %}
     <div class="row">
         <div class="small-12 medium-4 medium-push-8 columns">
             <h6>Info:</h6>
