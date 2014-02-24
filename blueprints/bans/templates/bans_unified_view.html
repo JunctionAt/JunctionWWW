@@ -82,15 +82,6 @@
         </div>
     </div>
     {%- endif %}
-    {%- if ban_object.removed_time or not ban_object.active %}
-    <div class="row">
-        <div class="small-12 columns">
-            <div class="alert-box radius" data-alert>
-                This ban {% if not ban_object.active %}was lifted by {{ ban_object.removed_by }} {% else %}will be lifted {% endif %}{% if ban_object.removed_time %}{{ ban_object.removed_time|full_date|safe }}{% else %}Unknown{% endif %}.
-            </div>
-        </div>
-    </div>
-    {%- endif %}
     {%- if appeal_object.state != 'open' %}
     <div class="row">
         <div class="small-12 columns">
@@ -111,6 +102,10 @@
                     <li class="value player-name">{{ ban_object.issuer }}</li>
                     <li class="key">Date:</li>
                     <li class="value weak">{{ ban_object.time|full_date|safe }}</li>
+                    {% if ban_object.removed_time or not ban_object.active or true %}
+                        <li class="key">Lifted:</li>
+                        <li class="value weak">{{ ban_object.removed_time|full_date|safe }} by <span class="player-name">{{ ban_object.removed_by or "<unknown>" }}</span></li>
+                    {% endif %}
                 </ul>
             </div>
             <h6>Notes:</h6>
