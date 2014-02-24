@@ -4,7 +4,6 @@ from flask import abort, render_template, request, redirect, url_for
 from .. import bans
 from ..ban_model import Ban, Note, AppealReply, AppealEdit
 from blueprints.alts.alts_model import PlayerIpsModel
-from .. import process_ban
 from blueprints.auth import login_required, current_user
 from flask_wtf import Form
 from wtforms import TextAreaField, SubmitField
