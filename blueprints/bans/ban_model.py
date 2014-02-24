@@ -58,6 +58,18 @@ class Ban(Document):
 
     appeal = EmbeddedDocumentField('Appeal', required=True, default=Appeal())
 
+    def __init__(self, *args, **kwargs):
+        super(Ban, self).__init__(*args, **kwargs)
+        self._process_ban()
+
+    def _process_ban(self):
+        if not self.active:
+            return False
+        if self.removed_time is not None and self.removed_time < datetime.datetime.utcnow():
+            self.update(set__active=False)
+            return False
+        return True
+
     def get_time(self):
         return self.time.strftime("%s")
 
