@@ -103,7 +103,7 @@
                     <li class="value player-name">{{ ban_object.issuer }}</li>
                     <li class="key">Date:</li>
                     <li class="value weak">{{ ban_object.time|full_date|safe }}</li>
-                    {% if ban_object.removed_time or not ban_object.active or true %}
+                    {% if ban_object.removed_time or not ban_object.active %}
                         <li class="key">Lifted:</li>
                         <li class="value weak">{{ ban_object.removed_time|full_date|safe if ban_object.removed_time else "<unknown>" }} by <span class="player-name">{{ ban_object.removed_by or "<unknown>" }}</span></li>
                     {% endif %}
