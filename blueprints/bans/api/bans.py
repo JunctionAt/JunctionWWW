@@ -19,9 +19,9 @@ def get_local_bans(username=None, uid=None, active=None):
     query = dict()
 
     if username is not None:
-        query['username__iexact'] = re.compile(username, re.IGNORECASE)
+        query['username'] = re.compile(username, re.IGNORECASE)
     if uid is not None:
-        query['uid__iexact'] = uid
+        query['uid'] = uid
     if active is not None:
         query['active'] = active
 
