@@ -56,7 +56,7 @@ class Ban(Document):
     removed_time = DateTimeField()
     removed_by = StringField()
 
-    appeal = EmbeddedDocumentField('Appeal', required=True, default=Appeal())
+    appeal = EmbeddedDocumentField('Appeal', required=True, default=Appeal)
 
     def __init__(self, *args, **kwargs):
         super(Ban, self).__init__(*args, **kwargs)
