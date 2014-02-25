@@ -1,8 +1,8 @@
 __author__ = 'HansiHE'
 
 from blueprints import (auth, notifications, static_pages, api, avatar,
-                        bans, forum, wiki, admin, modreq, alts, player_profiles,
-                        groups, donations, staff, settings, calendar)
+                        bans, forum, wiki, modreq, alts, player_profiles,
+                        groups, donations, staff, settings, calendar, servers, admin)
 
 # Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
