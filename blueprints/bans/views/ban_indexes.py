@@ -1,7 +1,7 @@
 __author__ = 'HansiHE'
 
 from .. import bans
-from flask import render_template, abort, url_for
+from flask import render_template, abort, url_for, request
 from flask_login import current_user
 from blueprints.bans.ban_model import Ban, Note
 from blueprints.auth import login_required
@@ -29,7 +29,10 @@ class Index(object):
     def __call__(self, *args, **kwargs):
         return self.call(*args, **kwargs)
 
-    def call(self, page):
+    def get_route_data(self):
+        return {}
+
+    def call(self, page, **kwargs):
         if page == 0:
             abort(404)
 
@@ -39,6 +42,8 @@ class Index(object):
                 iter_query[key] = value()
             else:
                 iter_query[key] = value
+
+        route_data = self.get_route_data()
 
         appeals = self.model.objects(**iter_query).order_by(*self.order_by)
         appeal_num = len(appeals)
@@ -50,15 +55,15 @@ class Index(object):
 
         display_appeals = appeals.skip((page - 1) * BANS_PER_PAGE).limit(BANS_PER_PAGE)
 
-        next_page = url_for(self.endpoint_name, page=page+1) if page < num_pages \
+        next_page = url_for(self.endpoint_name, page=page+1, **route_data) if page < num_pages \
             else None
-        prev_page = url_for(self.endpoint_name, page=page-1) if page > 1 and not num_pages == 1 \
+        prev_page = url_for(self.endpoint_name, page=page-1, **route_data) if page > 1 and not num_pages == 1 \
             else None
 
         links = []
         for page_mod in range(-min(PAGINATION_VALUE_RANGE, page - 1), min(PAGINATION_VALUE_RANGE, num_pages-page) + 1):
             num = page + page_mod
-            links.append({'num': num, 'url': url_for(self.endpoint_name, page=num), 'active': num != page})
+            links.append({'num': num, 'url': url_for(self.endpoint_name, page=num, **route_data), 'active': num != page})
 
         return render_template(
             self.results_template,
@@ -89,6 +94,15 @@ created_bans.order_by = ['-time']
 
 bans.add_url_rule('/a/bans/created/', 'created_bans', created_bans, defaults={'page': 1})
 bans.add_url_rule('/a/bans/created/<int:page>', 'created_bans', created_bans)
+
+
+user_bans = Index(Ban, 'user_bans', "Bans for", "No bans found.", 'no_result_bans.html', 'bans_index.html')
+user_bans.query = {"username": lambda: request.view_args['username']}
+user_bans.order_by = ['-time']
+user_bans.get_route_data = lambda: dict(username=request.view_args['username'])
+
+bans.add_url_rule('/a/bans/user/<string:username>/', 'user_bans', user_bans, defaults={'page': 1})
+bans.add_url_rule('/a/bans/user/<string:username>/<int:page>', 'user_bans', user_bans)
 
 
 bans_index = Index(Ban, 'bans_index', "All Bans", "No bans found.", 'no_result_bans.html', 'bans_index.html')
