@@ -91,6 +91,7 @@
 
   .user-description {
     padding: 5px;
+    overflow-wrap: break-word;
   }
 
   @include user-info-arrow("arrow-right", "right");
