@@ -14,6 +14,7 @@ reddit_oauth.set_oauth_app_info(current_app.config.get('REDDIT_CLIENT_ID'), curr
                                 current_app.config.get('REDDIT_REDIRECT_URI'))
 
 def get_flair(reddit_username):
+    reddit_oauth.login(current_app.config.get('REDDIT_BOT_USERNAME'), current_app.config.get('REDDIT_BOT_PASSWORD'))
     for flair_item in reddit_oauth.get_subreddit(subreddit).get_flair_list():
         if flair_item['user'] == reddit_username:
             flair = flair_item['flair_text']
@@ -56,6 +57,7 @@ def reddit_unlink():
     reddit_username = current_user.reddit_username
     if reddit_username != None:
         if get_flair(reddit_username) != None:
+            reddit_oauth.login(current_app.config.get('REDDIT_BOT_USERNAME'), current_app.config.get('REDDIT_BOT_PASSWORD'))
             reddit_oauth.get_subreddit(subreddit).set_flair(reddit_username)
             flash('Your flair has been unset on /r/%s.' % subreddit, category='success')
         current_user.reddit_username = None
