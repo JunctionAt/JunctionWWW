@@ -125,7 +125,7 @@
                     {%- for note in notes %}
                         <blockquote>
                             {{ note.note }}
-                            <cite>{{ user_dropdown(note.issuer) }}</cite>
+                            <cite>{{ note.issuer }}</cite>
                         </blockquote>
                     {%- endfor %}
                 {%- else %}
@@ -146,7 +146,7 @@
                     <tbody>
                         {%- for alt in alts %}
                         <tr>
-                            <td><span class="player-name">{{ alt.username }}</span></td>
+                            <td>{{ user_dropdown(alt.username) }}</td>
                             <td>{{ alt.last_login|full_date(classes='alert label' if alt.last_login > ban_object.time else 'secondary label')|safe }}</td>
                         </tr>
                         {%- endfor %}
