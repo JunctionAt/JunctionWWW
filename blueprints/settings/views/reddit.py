@@ -23,6 +23,7 @@ def get_flair(reddit_username):
 @login_required
 def reddit_pane():
     reddit_username = current_user.reddit_username
+    reddit_oauth.login(current_app.config.get('REDDIT_BOT_USERNAME'), current_app.config.get('REDDIT_BOT_PASSWORD'))
     flair = get_flair(current_user.reddit_username)
     return render_template('settings_reddit.html', current_user=current_user,
                             reddit_username=reddit_username,
