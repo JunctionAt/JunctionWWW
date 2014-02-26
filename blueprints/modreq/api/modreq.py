@@ -67,7 +67,7 @@ class ModReq(Resource):
         if not any([args.get("username"), args.get("status"), args.get("server"), args.get("id")]):
             return {'error': [{"message": "an id, a server, a status, or a username must be provided"}]}
 
-    @require_api_key(access_tokens=['modreq.get'])
+    @require_api_key(required_access_tokens=['modreq.get'])
     @endpoint()
     def get(self):
         args = self.get_parser.parse_args()
