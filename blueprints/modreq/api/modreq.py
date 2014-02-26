@@ -92,7 +92,7 @@ class ModReq(Resource):
         if args.get("location") and len(args.get("location")) > 100:
             return {'error': [{"message": "the location must be below 100 characters long"}]}
 
-    @require_api_key(access_tokens=['modreq.add'])
+    @require_api_key(required_access_tokens=['modreq.add'])
     @endpoint()
     def post(self):
         args = self.post_parser.parse_args()
@@ -122,7 +122,7 @@ class ModReqClaim(Resource):
             if not validate_username(args.get("handled_by")):
                 return {'error': [{"message": "handled_by must be a valid minecraft username"}]}
 
-    @require_api_key(access_tokens=['modreq.claim'])
+    @require_api_key(required_access_tokens=['modreq.claim'])
     @endpoint()
     def post(self, modreq_id):
         args = self.post_parser.parse_args()
@@ -163,7 +163,7 @@ class ModReqDone(Resource):
         if not args.get("handledBy") or not args.get("id"):
             return {'error': [{"message": "an id and a handledBy must be provided"}]}
 
-    @require_api_key(access_tokens=['modreq.done'])
+    @require_api_key(required_access_tokens=['modreq.done'])
     @endpoint()
     def post(self, modreq_id):
         args = self.post_parser.parse_args()

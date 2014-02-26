@@ -36,7 +36,7 @@ class IpUsernameVerification(Resource):
     put_parser.add_argument("username", type=str, required=True)
     put_parser.add_argument("ip", type=str, required=True)
 
-    @require_api_key(access_tokens=[add_api_username_verification_token])
+    @require_api_key(required_access_tokens=[add_api_username_verification_token])
     def put(self):
         args = self.put_parser.parse_args()
 

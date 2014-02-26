@@ -8,11 +8,11 @@ from blueprints.api import register_api_access_token
 
 class ApiTest(Resource):
 
-    @require_api_key(access_tokens=['api.test'])
+    @require_api_key(required_access_tokens=['api.test'])
     def get(self):
         return {'success': True}
 
-    @require_api_key(access_tokens=['api.test'])
+    @require_api_key(required_access_tokens=['api.test'])
     def post(self):
         return {'success': True}
 

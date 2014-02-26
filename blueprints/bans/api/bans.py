@@ -85,7 +85,7 @@ class Bans(Resource):
         if args.get("active") == "False" and args.get("scope") != "local":
             return {'error': [{"message": "query for non active bans can only be used in local scope"}]}
 
-    @require_api_key(access_tokens=['anathema.bans.get'], asuser_must_be_registered=False)
+    @require_api_key(required_access_tokens=['anathema.bans.get'], asuser_must_be_registered=False)
     def get(self):
         args = self.get_parser.parse_args()
         validate_args = self.validate_get(args)
@@ -123,7 +123,7 @@ class Bans(Resource):
         if args.get("server") and len(args.get("server")) > 10:
             return {'error': [{"message": "the location must be below 100 characters long"}]}
 
-    @require_api_key(access_tokens=['anathema.bans.post'], asuser_must_be_registered=False)
+    @require_api_key(required_access_tokens=['anathema.bans.post'], asuser_must_be_registered=False)
     def post(self):
         args = self.post_parser.parse_args()
         validate_args = self.validate_post(args)
@@ -152,7 +152,7 @@ class Bans(Resource):
         if not args.get("username") and not args.get("id"):
             return {"message": "a id or a username must be provided"}
 
-    @require_api_key(access_tokens=['anathema.bans.delete'], asuser_must_be_registered=False)
+    @require_api_key(required_access_tokens=['anathema.bans.delete'], asuser_must_be_registered=False)
     def delete(self):
         args = self.delete_parser.parse_args()
         validate_args = self.validate_delete(args)

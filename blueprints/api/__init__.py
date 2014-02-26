@@ -3,6 +3,7 @@ __author__ = 'HansiHE'
 from . import docs, apikey_model
 from flask import request, Blueprint
 from blueprints.api.apikey_model import ApiKey
+from blueprints.auth import current_user
 from blueprints.auth.user_model import User
 from blueprints.auth.util import validate_username
 from functools import wraps
@@ -18,10 +19,21 @@ def register_api_access_token(token, description=None, link=None, permission=Non
     access_tokens[token] = dict(token=token, description=description, link=link, permission=permission)
 
 
-def require_api_key(access_tokens=list(), asuser_must_be_registered=True): # I know, not a word
+def require_api_key(required_access_tokens=list(), allow_user_permission=False, asuser_must_be_registered=True):
     def init(func):
         @wraps(func)
         def wrap(*args, **kwargs):
+
+            # If allow_user_permission is True, make sure the user has the appropriate permissions.
+            if allow_user_permission:
+                allowed = True
+                for token in required_access_tokens:
+                    if not current_user.has_permission(access_tokens[token]['permission']):
+                        allowed = False
+                if allowed:
+                    request.api_user = current_user
+                    request.api_user_name = current_user.name
+                    return func(*args, **kwargs)
 
             # Check and obtain API key from DB
             try:
@@ -30,7 +42,7 @@ def require_api_key(access_tokens=list(), asuser_must_be_registered=True): # I k
                 return {'error': [{'message': "no/invalid ApiKey header provided", 'identifier': "apikey_not_provided"}]}
             if key is None:
                 return {'error': [{'message': "no/invalid ApiKey header provided", 'identifier': "apikey_not_provided"}]}
-            for access in access_tokens:
+            for access in required_access_tokens:
                 if access not in key.access:
                     return {'error': [{'message': "api key doesn't have access to '%s'" % access, 'identifier': "permission#%s" % access}]}
 
@@ -45,6 +57,7 @@ def require_api_key(access_tokens=list(), asuser_must_be_registered=True): # I k
                 if not validate_username(username):
                     return {'error': [{'message': "the AsUser username is not a valid minecraft username", 'identifier': "asuser_username_not_valid"}]}
 
+                # Obtain user from db
                 user = User.objects(name=username).first()
                 if user is None and asuser_must_be_registered:
                     return {'error': [{'message': "the user specified in the AsUser header wasn't found", 'identifier': "asuser_not_found"}]}

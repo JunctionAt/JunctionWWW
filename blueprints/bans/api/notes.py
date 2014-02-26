@@ -78,7 +78,7 @@ class Notes(Resource):
         if args.get("active") == "False" and args.get("scope") != "local":
             return {'error': [{"message": "query for non active bans can only be used in local scope"}]}
 
-    @require_api_key(access_tokens=['anathema.notes.get'], asuser_must_be_registered=False)
+    @require_api_key(required_access_tokens=['anathema.notes.get'], asuser_must_be_registered=False)
     def get(self):
         args = self.get_parser.parse_args()
         validate_args = self.validate_get(args)
@@ -117,7 +117,7 @@ class Notes(Resource):
         if args.get("server") and len(args.get("server")) > 10:
             return {'error': [{"message": "the location must be below 10 characters long"}]}
 
-    @require_api_key(access_tokens=['anathema.notes.post'], asuser_must_be_registered=False)
+    @require_api_key(required_access_tokens=['anathema.notes.post'], asuser_must_be_registered=False)
     def post(self):
         args = self.post_parser.parse_args()
         validate_args = self.validate_post(args)

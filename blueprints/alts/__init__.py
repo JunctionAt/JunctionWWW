@@ -32,7 +32,7 @@ class Alts(Resource):
     get_parser = RequestParser()
     get_parser.add_argument("username", type=str, required=True, help="a username must be provided")
 
-    @require_api_key(access_tokens=['anathema.alts.get'])
+    @require_api_key(required_access_tokens=['anathema.alts.get'], allow_user_permission=True)
     def get(self):
         args = self.get_parser.parse_args()
 
@@ -52,7 +52,7 @@ class Alts(Resource):
     post_parser.add_argument("username", type=str, required=True, help="username cannot be blank")
     post_parser.add_argument("ip", type=str, required=True, help="ip cannot be blank")
 
-    @require_api_key(access_tokens=['anathema.alts.post'])
+    @require_api_key(required_access_tokens=['anathema.alts.post'])
     def post(self):
         args = self.post_parser.parse_args()
 
