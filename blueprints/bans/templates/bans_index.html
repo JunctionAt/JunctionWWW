@@ -2,7 +2,7 @@
 
 {% set breadcrumb_items = [
 {'title': 'Anathema', 'url': url_for('bans.a_front')},
-{'title': base_title, 'url': url_for(view)}]
+{'title': base_title}]
 %}
 
 {% set title = base_title + " - Anathema" %}
@@ -25,7 +25,7 @@
                 </tr>
             </thead>
             <tbody>
-                {%- for ban in bans %}
+                {%- for ban in objects %}
                 <tr>
                     <td><a href="{{ url_for('bans.view_ban', ban_uid=ban.uid) }}">{{ ban.uid }}</a></td>
                     <td>{{ ban.reason }}</td>

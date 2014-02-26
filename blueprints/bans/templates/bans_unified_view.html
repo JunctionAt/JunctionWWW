@@ -14,6 +14,14 @@
 
 {% import 'user_info_box.html' as user_info_box %}
 
+{% macro user_dropdown(username) %}
+    <a href="#" data-dropdown="user-dropdown-{{ username }}" class="player-name">{{ username }}</a>
+    <ul id="user-dropdown-{{ username }}" class="f-dropdown" data-dropdown-content>
+        <li><a href="{{ url_for('player_profiles.profile_view', name=username) }}">Profile</a></li>
+        <li><a href="{{ url_for('bans.user_bans', username=username) }}">Bans</a></li>
+    </ul>
+{% endmacro %}
+
 {% block content %}
 <div class="ban-container">
     <div class="row">
@@ -114,14 +122,14 @@
             <h6>Notes:</h6>
             <div class="note">
                 {%- if notes %}
-                {%- for note in notes %}
-                <blockquote>
-                    {{ note.note }}
-                    <cite>{{ note.issuer }}</cite>
-                </blockquote>
-                {%- endfor %}
+                    {%- for note in notes %}
+                        <blockquote>
+                            {{ note.note }}
+                            <cite>{{ note.issuer }}</cite>
+                        </blockquote>
+                    {%- endfor %}
                 {%- else %}
-                No notes
+                    No notes
                 {%- endif %}
             </div>
             {%- if current_user.has_permission("bans.appeal.alts") %}
@@ -138,7 +146,7 @@
                     <tbody>
                         {%- for alt in alts %}
                         <tr>
-                            <td><span class="player-name">{{ alt.username }}</span></td>
+                            <td>{{ user_dropdown(alt.username) }}</td>
                             <td>{{ alt.last_login|full_date(classes='alert label' if alt.last_login > ban_object.time else 'secondary label')|safe }}</td>
                         </tr>
                         {%- endfor %}

@@ -26,7 +26,7 @@
                 </tr>
             </thead>
             <tbody>
-                {%- for ban in appeals %}
+                {%- for ban in objects %}
                 <tr>
                     <td><a href="{{ url_for('bans.view_ban', ban_uid=ban.uid) }}">{{ ban.uid }}</a></td>
                     <td>{{ ban.reason }}</td>
