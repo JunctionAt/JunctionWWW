@@ -202,7 +202,7 @@ class ModReqElevate(Resource):
         if not args.get("group"):# need group verification logic!
             return {'error': [{"message": "invalid group"}]}
 
-    @require_api_key(access_tokens=['modreq.elevate'])
+    @require_api_key(required_access_tokens=['modreq.elevate'])
     @endpoint()
     def post(self, modreq_id):
         args = self.post_parser.parse_args()
