@@ -5,11 +5,14 @@ import datetime
 class ModReq(Document):
 
     uid = SequenceField(unique=True)
+    server = StringField(required=True)
     username = StringField(required=True)
     request = StringField(required=True)
     location = StringField(required=True)
-    status = StringField(required=True, choices=["open", "claimed", "closed"])
+    status = StringField(required=True, choices=["open", "elevated", "claimed", "closed"])
     time = DateTimeField(required=True, default=datetime.datetime.utcnow)
+
+    elevated_group = StringField()
 
     handled_by = StringField()
     close_message = StringField()
