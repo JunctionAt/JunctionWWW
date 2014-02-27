@@ -27,8 +27,13 @@ Molecular.register("alts_graph", function() {
             $.ajax({
                 dataType: "json",
                 url: "/api/anathema/alts",
-                data: {"username": username_input_field.val()},
+                data: {"username": origin},
                 success: function(data) {
+                    if(data.error != undefined) {
+                        alert("Api error: " + data.error[0].message);
+                        return
+                    }
+
                     var alt_list = data.alts;
 
                     var origin_node = findNode(origin);
@@ -152,6 +157,12 @@ Molecular.register("alts_graph", function() {
 
             force.start();
         };
+
+        if(graph_preload_players != undefined) {
+            for(var i in graph_preload_players) {
+                loadPlayer(graph_preload_players[i]);
+            }
+        }
 
         force.start();
 

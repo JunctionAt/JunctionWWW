@@ -3,6 +3,16 @@
 {% set javascript_molecules = ["alts_graph"] %}
 
 {% block content %}
+    <script type="text/javascript">
+        graph_preload_players = [
+            {% for player in preload %}
+                "{{ player }}"
+                {% if not loop.last %}
+                    ,
+                {% endif %}
+            {% endfor %}
+        ]
+    </script>
     <style>
         .player-node-name {
             font-size: 0.6em;

@@ -5,5 +5,6 @@ from flask import render_template
 
 
 @alts.route("/alts/graph/")
-def graph_lookup_view():
-    return render_template("graph_view.html")
+@alts.route("/alts/graph/<string:player>")
+def graph_lookup_view(player=None):
+    return render_template("graph_view.html", preload=[player] if player else [])
