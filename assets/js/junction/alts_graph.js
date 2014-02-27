@@ -11,18 +11,28 @@ Molecular.register("alts_graph", function() {
         var username_input_field = $("#username-input");
         var username_input_button = $("#username-button");
         username_input_button.click(function() {
+            loadPlayer(username_input_field.val());
+        });
+
+        var loadedPlayers = [];
+
+        var loadPlayer = function(username) {
+            var origin = username.toLowerCase();
+
+            if ($.inArray(origin, loadedPlayers)) {
+                return
+            }
+            loadedPlayers.push(origin);
+
             $.ajax({
                 dataType: "json",
                 url: "/api/anathema/alts",
                 data: {"username": username_input_field.val()},
                 success: function(data) {
                     var alt_list = data.alts;
-                    var origin = username_input_field.val().toLowerCase();
 
                     if(findNode(origin) == null) {
                         addNode(origin);
-                    } else {
-                        return
                     }
 
                     for(var i=0; i<alt_list.length; i++) {
@@ -31,13 +41,15 @@ Molecular.register("alts_graph", function() {
                         if (findNode(name) == null) {
                             addNode(name);
                         }
-                        addLink(origin, name);
+                        if (findLink(origin, name) == null && findLink(name, origin) == null) {
+                            addLink(origin, name);
+                        }
                     }
 
                     update();
                 }
             })
-        });
+        };
 
         var force = d3.layout.force()
             .gravity(.05)
@@ -83,6 +95,14 @@ Molecular.register("alts_graph", function() {
             links.push({"source":findNode(source),"target":findNode(target)});
         };
 
+        var findLink = function (source, target) {
+            for (var i in links) {
+                if (links[i]["source"]["id"] === source && links[i]["target"]["id"] === target) {
+                    return links[i];
+                }
+            }
+        }
+
         var update = function () {
             var link = svg.selectAll("line.link")
                 .data(links, function(d) { return d.source.id + "-" + d.target.id });
@@ -99,7 +119,10 @@ Molecular.register("alts_graph", function() {
 
             var nodeEnter = node.enter().append("g")
                 .attr("class", "node")
-                .call(force.drag);
+                .call(force.drag)
+                .on("click", function(d) {
+                    loadPlayer(d.id)
+                });
             nodeEnter.append("circle")
                 .attr("r", 5)
                 .style("fill", "#357a00" );
