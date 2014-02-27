@@ -34,7 +34,7 @@ Molecular.register("alts_graph", function() {
                     var origin_node = findNode(origin);
 
                     if(origin_node == null) {
-                        addNode(origin);
+                        origin_node = addNode(origin);
                     }
                     origin_node.queried = true;
 
@@ -63,7 +63,9 @@ Molecular.register("alts_graph", function() {
             links = force.links();
 
         var addNode = function (id) {
-            nodes.push({"id": id, "queried": false});
+            var node = {"id": id, "queried": false};
+            nodes.push(node);
+            return node;
         };
 
         var findNode = function(id) {
