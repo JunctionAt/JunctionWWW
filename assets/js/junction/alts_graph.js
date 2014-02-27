@@ -19,7 +19,7 @@ Molecular.register("alts_graph", function() {
         var loadPlayer = function(username) {
             var origin = username.toLowerCase();
 
-            if ($.inArray(origin, loadedPlayers)) {
+            if ($.inArray(origin, loadedPlayers) > -1) {
                 return
             }
             loadedPlayers.push(origin);
