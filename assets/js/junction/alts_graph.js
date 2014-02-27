@@ -31,9 +31,12 @@ Molecular.register("alts_graph", function() {
                 success: function(data) {
                     var alt_list = data.alts;
 
-                    if(findNode(origin) == null) {
+                    var origin_node = findNode(origin);
+
+                    if(origin_node == null) {
                         addNode(origin);
                     }
+                    origin_node.queried = true;
 
                     for(var i=0; i<alt_list.length; i++) {
                         var alt = alt_list[i];
@@ -60,7 +63,7 @@ Molecular.register("alts_graph", function() {
             links = force.links();
 
         var addNode = function (id) {
-            nodes.push({"id":id});
+            nodes.push({"id": id, "queried": false});
         };
 
         var findNode = function(id) {
@@ -125,7 +128,7 @@ Molecular.register("alts_graph", function() {
                 });
             nodeEnter.append("circle")
                 .attr("r", 5)
-                .style("fill", "#357a00" );
+                .style("fill", function(d) { if(d.queried) {return "#357a00";} else {return "#7A0000";} });
             nodeEnter.append("text")
                 .attr("class", "player-node-name")
                 .attr("dx", "8px")
