@@ -19,14 +19,16 @@
     <ul id="user-dropdown-{{ username }}" class="f-dropdown" data-dropdown-content>
         <li><a href="{{ url_for('player_profiles.profile_view', name=username) }}">Profile</a></li>
         <li><a href="{{ url_for('bans.user_bans', username=username) }}">Bans</a></li>
+        <li><a href="{{ url_for('alts.graph_lookup_view', player=username) }}">Graph Alts</a></li>
     </ul>
 {% endmacro %}
 
 {% block content %}
 <div class="ban-container">
     <div class="row">
-        <div class="small-12 columns">
-            <h4>Ban #{{ ban_id }} for <span class="player-name">{{ ban_object.username }}</span></h4>
+        <div class="small-12 columns clearfix">
+            <h4 class="left">Ban #{{ ban_id }} for <span class="player-name">{{ ban_object.username }}</span></h4>
+            <a class="left" style="line-height: 42px; margin-left: 8px;" data-tooltip title="Graph Alts" href="{{ url_for('alts.graph_lookup_view', player=ban_object.username) }}"><i class="fi-share"></i></a>
             <hr>
         </div>
     </div>
