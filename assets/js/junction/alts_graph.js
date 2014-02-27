@@ -111,10 +111,13 @@ Molecular.register("alts_graph", function() {
                     return links[i];
                 }
             }
-        }
+        };
+
+        var linksGroup = svg.append("g");
+        var nodesGroup = svg.append("g");
 
         var update = function () {
-            var link = svg.selectAll("line.link")
+            var link = linksGroup.selectAll("line.link")
                 .data(links, function(d) { return d.source.id + "-" + d.target.id });
 
             link.enter().insert("line")
@@ -124,7 +127,7 @@ Molecular.register("alts_graph", function() {
             link.exit().remove();
 
 
-            var node = svg.selectAll("g.node")
+            var node = nodesGroup.selectAll("g.node")
                 .data(nodes, function(d) { return d.id; });
 
             var nodeEnter = node.enter().append("g")
