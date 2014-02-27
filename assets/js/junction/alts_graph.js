@@ -122,6 +122,8 @@ Molecular.register("alts_graph", function() {
             var node = svg.selectAll("g.node")
                 .data(nodes, function(d) { return d.id; });
 
+            node.style("fill", function(d) { if(d.queried) {return "#357a00";} else {return "#7A0000";} });
+
             var nodeEnter = node.enter().append("g")
                 .attr("class", "node")
                 .call(force.drag)
@@ -129,8 +131,7 @@ Molecular.register("alts_graph", function() {
                     loadPlayer(d.id)
                 });
             nodeEnter.append("circle")
-                .attr("r", 5)
-                .style("fill", function(d) { if(d.queried) {return "#357a00";} else {return "#7A0000";} });
+                .attr("r", 5);
             nodeEnter.append("text")
                 .attr("class", "player-node-name")
                 .attr("dx", "8px")
