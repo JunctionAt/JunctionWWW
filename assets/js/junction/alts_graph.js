@@ -17,7 +17,7 @@ Molecular.register("alts_graph", function() {
                 data: {"username": username_input_field.val()},
                 success: function(data) {
                     var alt_list = data.alts;
-                    var origin = username_input_field.val();
+                    var origin = username_input_field.val().toLowerCase();
 
                     if(findNode(origin) == null) {
                         addNode(origin);
@@ -26,11 +26,12 @@ Molecular.register("alts_graph", function() {
                     }
 
                     for(var i=0; i<alt_list.length; i++) {
-                        var val = alt_list[i];
-                        if (findNode(val) == null) {
-                            addNode(val);
+                        var alt = alt_list[i];
+                        var name = alt.alt.toLowerCase();
+                        if (findNode(name) == null) {
+                            addNode(name);
                         }
-                        addLink(origin, val);
+                        addLink(origin, name);
                     }
 
                     update();
