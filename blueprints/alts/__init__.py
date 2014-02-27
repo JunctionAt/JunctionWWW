@@ -10,7 +10,10 @@ import re
 from flask.ext.restful.reqparse import RequestParser
 from blueprints.base import rest_api
 
-alts = admin = Blueprint('alts', __name__, template_folder='templates')
+alts = Blueprint('alts', __name__, template_folder='templates')
+
+
+import views.graph_lookup_view
 
 
 def validate_username(username):

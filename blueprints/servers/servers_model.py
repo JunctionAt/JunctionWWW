@@ -35,6 +35,10 @@ class Server(Document):
     def get_server(cls, fid):
         return cls.objects(server_id=fid.split(":")[0]).first()
 
+    @classmethod
+    def get_server_revision(cls, fid):
+        return cls.get_server(fid).get_revision(fid)
+
     def get_revision(self, fid):
         rev_id = fid.split(":")[1]
         for revision in self.revisions:

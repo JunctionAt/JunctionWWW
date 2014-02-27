@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% set javascript_molecules = ["alts_graph"] %}
+
+{% block content %}
+    <style>
+        .player-node-name {
+            font-size: 0.6em;
+        }
+    </style>
+
+    <div class="row">
+        <div class="small-4 columns">
+            <div class="row collapse" id="user-add-form">
+                <div class="small-8 columns">
+                    <input id="username-input" type="text" placeholder="Username">
+                </div>
+                <div class="small-4 columns">
+                    <a href="#" class="button postfix" id="username-button">Add</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="small-12 columns">
+            <div id="graph-container">
+                <svg id="graph"></svg>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    {%- assets "js_graphs" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {%- endassets %}
+{% endblock %}

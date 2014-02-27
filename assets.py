@@ -33,3 +33,8 @@ def assets(app):
                      assets_folder+'js/junction/editable.js')
     js_main = Bundle(js_base, filters=None if app.debug else 'rjsmin', output='js/gen/app.%(version)s.js')
     environment.register('js_main', js_main)
+
+    js_graphs = Bundle(assets_folder+'js/vendor/d3.js',
+                       assets_folder+'js/junction/alts_graph.js',
+                       filters=None if app.debug else 'rjsmin', output='js/gen/graphs.%(version)s.js')
+    environment.register('js_graphs', js_graphs)
