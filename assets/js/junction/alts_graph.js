@@ -60,7 +60,7 @@ Molecular.register("alts_graph", function() {
         };
 
         var force = d3.layout.force()
-            .gravity(.05)
+            .gravity(.02)
             .distance(100)
             .charge(-100)
             .size([600, 400]);
