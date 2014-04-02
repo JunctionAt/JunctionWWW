@@ -35,7 +35,8 @@ def setpassword():
 add_settings_pane(lambda: url_for('auth.setpassword'), "Account", "Change Password", menu_id="setpassword")
 
 
-@blueprint.route("/profile/<string:name>/resetpassword")
+@blueprint.route("/p/<string:name>/resetpassword")
+@login_required
 def reset_password(name):
     if not current_user.has_permission('auth.reset_password'):
         abort(403)

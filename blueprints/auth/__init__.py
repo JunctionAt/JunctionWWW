@@ -62,6 +62,10 @@ login_manager.login_view = "auth.login"
 login_manager.login_message = u"Please log in to access this page."
 login_manager.login_message_category = "info"
 login_manager.refresh_view = "auth.reauth"
+login_manager.needs_refresh_message = (
+    u"To protect your account, please reauthenticate to access this page."
+)
+login_manager.needs_refresh_message_category = "info"
 
 
 # noinspection PyShadowingBuiltins

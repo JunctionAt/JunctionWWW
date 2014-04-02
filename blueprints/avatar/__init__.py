@@ -99,7 +99,7 @@ def get_avatar(name):
 @login_required
 def set_mc_face_as_avatar_request(username):
     if not current_user.has_permission("avatar.reset"):
-        abort(401)
+        abort(403)
     return str(set_mc_face_as_avatar(username))
 
 
@@ -127,7 +127,7 @@ def get_mc_face(name):
 
     response = requests.get(mc_skin_url % name)
 
-    print(response.headers['content-type'])
+    #print(response.headers['content-type'])
 
     if not (response.headers['content-type'] == 'application/octet-stream' or
             response.headers['content-type'] == 'image/png'):
