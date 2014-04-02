@@ -2,6 +2,14 @@
 
 {% set javascript_molecules = ["alts_graph"] %}
 
+{% block css %}
+        <style>
+            .player-node-name {
+                font-size: 0.6em;
+            }
+        </style>
+{% endblock %}
+
 {% block content %}
     <script type="text/javascript">
         graph_preload_players = [
@@ -13,11 +21,6 @@
             {% endfor %}
         ]
     </script>
-    <style>
-        .player-node-name {
-            font-size: 0.6em;
-        }
-    </style>
 
     <div class="row">
         <div class="small-4 columns">
@@ -44,4 +47,13 @@
     {%- assets "js_graphs" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {%- endassets %}
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $('#username-input').keypress(function(e) {
+                    if (e.keyCode == 13) {
+                      $('#username-button').click();
+                    }
+                });
+            });
+        </script>
 {% endblock %}
