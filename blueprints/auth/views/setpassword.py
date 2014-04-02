@@ -3,7 +3,7 @@ __author__ = 'HansiHE'
 from flask_wtf import Form
 from wtforms import PasswordField
 from wtforms.validators import Required, Length, EqualTo
-from flask_login import fresh_login_required, current_user, abort
+from flask_login import fresh_login_required, current_user, abort, login_required
 from flask import request, flash, redirect, url_for, render_template
 from werkzeug.datastructures import MultiDict
 from blueprints.auth.user_model import User
