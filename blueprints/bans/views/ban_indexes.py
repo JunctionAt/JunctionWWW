@@ -80,7 +80,7 @@ class Index(object):
 BANS_PER_PAGE = 15
 PAGINATION_VALUE_RANGE = 3
 
-your_bans = Index(Ban, 'your_bans', "Your bans", "You have no bans.", 'no_result_bans.html', 'bans_index.html')
+your_bans = Index(Ban, 'your_bans', "Your bans", "You have no bans.", 'no_result_bans.html', 'bans_index.html', login_required)
 your_bans.query = {"username": lambda: current_user.name}
 your_bans.order_by = ['-time']
 
