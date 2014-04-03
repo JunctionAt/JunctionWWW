@@ -119,9 +119,6 @@ class Topic(Document):
     def get_last_post(self):
         return Post.objects(topic=self).order_by('-date').first()
 
-    def get_pretty_date(self):
-        return pretty_date(self.date)
-
 
 class PostEdit(EmbeddedDocument):
     author = ReferenceField(User, dbref=False)
@@ -149,9 +146,6 @@ class Post(Document):
         'indexes': ['topic', 'author']
     }
 
-    def get_pretty_date(self):
-        return pretty_date(self.date)
-
     def can_edit(self, user):
         return user.is_authenticated() and (self.author.name == user.name or user.has_permission('forum.edit_posts'))
 
@@ -167,6 +161,3 @@ class Post(Document):
 def pretty_url_escape(string):
     chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 "
     return ''.join([s for s in string if s in chars]).replace(" ", "_")
-
-def pretty_date(date):
-    return date.strftime("%d %b, %Y")

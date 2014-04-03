@@ -6,6 +6,7 @@ from blueprints.base import rest_api
 from flask.ext.restful import Resource
 from flask.ext.restful.reqparse import RequestParser
 from ..modreq_model import ModReq as ModReqModel
+from blueprints.servers.servers_model import Server
 import re
 from blueprints.auth.util import validate_username
 import datetime
@@ -59,13 +60,17 @@ class ModReq(Resource):
     get_parser.add_argument("username", type=str)
 
     def validate_get(self, args):
-        if args.get("username") and not validate_username(args.get("username")):
-            return {'error': [{"message": "invalid username"}]}
-
-        # need server logic
-
         if not any([args.get("username"), args.get("status"), args.get("server"), args.get("id")]):
             return {'error': [{"message": "an id, a server, a status, or a username must be provided"}]}
+
+        if args.get("id") and not ModReqModel.objects(uid=args.get("id")):
+            return {'error': [{"message": "invalid id"}]}
+
+        if args.get("server") and not Server.objects(name=args.get("server")).first():
+            return {'error': [{"message": "invalid server"}]}
+
+        if args.get("username") and not validate_username(args.get("username")):
+            return {'error': [{"message": "invalid username"}]}
 
     @require_api_key(required_access_tokens=['modreq.get'])
     @endpoint()
@@ -94,15 +99,17 @@ class ModReq(Resource):
         if args.get("username") and not validate_username(args.get("username")):
             return {'error': [{"message": "invalid username"}]}
 
-        # need server logic
-
         if args.get("request") and len(args.get("request")) > 1000:
             return {'error': [{"message": "the request must be below 1000 characters long"}]}
 
-        if args.get("server") and len(args.get("server")) > 10:
-            return {'error': [{"message": "the server must be below 10 characters long"}]}
+        if args.get("server") and not Server.objects(name=args.get("server")).first():
+            return {'error': [{"message": "invalid server"}]}
 
-        if args.get("location") and len(args.get("location")) > 100:
+        if args.get("location") and len(args.get("location")) > 100:# need a better way to validate location
+                                                                    # world,x,y,z,pitch,yaw is what we want
+                                                                    # x, y, and z are doubles
+                                                                    # pitch and yaw are floats
+                                                                    # world should only be world, world_nether, or world_the_end
             return {'error': [{"message": "the location must be below 100 characters long"}]}
 
     @require_api_key(required_access_tokens=['modreq.add'])
@@ -129,7 +136,7 @@ class ModReqClaim(Resource):
     post_parser.add_argument("handled_by", type=str)
 
     def validate_post(self, args):
-        if args.get("claim"):
+        if args.get("claim") == True:
             if not args.get("handled_by"):
                 return {'error': [{"message": "handled_by must be provided when claim=true"}]}
 
@@ -150,12 +157,12 @@ class ModReqClaim(Resource):
         modreq = ModReqModel.objects(uid=modreq_id).first()
 
         if claim:
-            pass
+            modreq.status = "claimed"
+            modreq.handled_by = handled_by
         else:
-            pass
+            modreq.status = "open"
+            modreq.handled_by = ""
 
-        modreq.status = "claimed"
-        modreq.handled_by = handled_by
         modreq.save()
 
         return {'modreq': construct_modreq_data(modreq)}
@@ -210,12 +217,11 @@ class ModReqElevate(Resource):
         if validate_args:
             return validate_args, 400
 
-        group = args.get("group")
+        elevate_group = args.get("group")
 
         modreq = ModReqModel.objects(uid=modreq_id).first()
 
-        modreq.status = "elevated"
-        modreq.group = group
+        modreq.elevate_group = group
         modreq.save()
 
         return {'modreq': construct_modreq_data(modreq)}

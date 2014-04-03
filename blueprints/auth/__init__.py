@@ -109,13 +109,7 @@ class ApiUser:
         return True
 
 
-def get_blueprint():
+blueprint = Blueprint('auth', __name__, template_folder='templates')
 
-    global blueprint
-    if blueprint is None:
-        blueprint = Blueprint('auth', __name__, template_folder='templates')
-
-        from views import login, logout, reauth, setpassword, register, add_api_account
-        from api import register, groups
-
-    return blueprint
+from views import login, logout, reauth, setpassword, register, add_api_account
+from api import register, groups

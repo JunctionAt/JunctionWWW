@@ -8,7 +8,7 @@ from blueprints import (auth, notifications, static_pages, api, avatar,
 BLUEPRINTS = [
 
     # Authentication
-    dict(blueprint=auth.get_blueprint()),
+    dict(blueprint=auth.blueprint),
 
     # Notifications
     dict(blueprint=notifications.blueprint),

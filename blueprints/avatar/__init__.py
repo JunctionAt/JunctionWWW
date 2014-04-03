@@ -69,10 +69,6 @@ def avatar_control():
     )
 
 
-def set_mc_face_as_avatar(user):
-    return set_avatar(user, get_mc_face(user))
-
-
 def get_avatar_url(name):
     return url_for('avatar.get_avatar', name=name)
 
@@ -100,7 +96,7 @@ def get_avatar(name):
 def set_mc_face_as_avatar_request(username):
     if not current_user.has_permission("avatar.reset"):
         abort(403)
-    return str(set_mc_face_as_avatar(username))
+    return str(set_avatar(user, get_mc_face(user)))
 
 
 def set_avatar(name, image):
