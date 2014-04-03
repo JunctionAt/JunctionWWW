@@ -9,31 +9,16 @@
 
 {% block content %}
 <div class="profile-container">
-    {# {%- if current_user.is_authenticated() and user.name != current_user.name %}
-    <div class="row">
-        <div class="small-12 columns">
-            <a class="button" href="{{ profile.get_send_pm_url() }}">Send PM</a>
-        </div>
-    </div>
-    {%- elif current_user.is_authenticated() %}
-    <div class="row">
-        <div class="small-12 columns">
-            <a class="button" href="{{ profile.get_edit_text_url() }}">Edit profile text</a>
-            <a class="button" href="{{ url_for('avatar.avatar_control') }}">Edit avatar</a>
-            <a class="button" href="{{ url_for('auth.setpassword') }}">Change password</a>
-        </div>
-    </div>
-    {%- endif %} #}
     <div class="row">
         <div class="small-12 columns">
             <ul class="button-group">
-                {% if current_user.is_authenticated() and user.name == current_user.name %}
-                    <li><a class="button tiny" href="{{ profile.get_edit_text_url() }}">Edit profile text</a></li>
-                    <li><a class="button tiny" href="{{ url_for('avatar.avatar_control') }}">Edit avatar</a></li>
-                    <li><a class="button tiny" href="{{ url_for('auth.setpassword') }}">Change password</a></li>
-                {% elif current_user.is_authenticated() %}
-                    <li><a class="button tiny" href="{{ profile.get_send_pm_url() }}">Send PM</a></li>
-                {% endif %}
+                {%- if current_user.is_authenticated() and user.name == current_user.name %}
+                <li><a class="button tiny" href="{{ profile.get_edit_text_url() }}">Edit profile text</a></li>
+                <li><a class="button tiny" href="{{ url_for('avatar.avatar_control') }}">Edit avatar</a></li>
+                <li><a class="button tiny" href="{{ url_for('auth.setpassword') }}">Change password</a></li>
+                {%- elif current_user.is_authenticated() %}
+                <li><a class="button tiny" href="{{ profile.get_send_pm_url() }}">Send PM</a></li>
+                {%- endif %}
             </ul>
         </div>
     </div>
@@ -57,7 +42,6 @@
         <div class="small-12 medium-9 columns">
             <dl class="tabs" data-tab>
                 <dd class="active"><a href="#overview">Overview</a></dd>
-                {#<dd><a href="#stats">Stats</a></dd>#}
                 <dd><a href="#forum">Forum</a></dd>
             </dl>
             <div class="panel">
@@ -65,31 +49,28 @@
                     <div class="content active" id="overview">
                         {{ profile.profile_text|markdown|safe }}
                     </div>
-                    {#<div class="content" id="stats">
-                        <p>This isn't made yet :(</p>
-                    </div>#}
                     <div class="content" id="forum">
-                            <div class="small-12 medium-6 columns forum-totals">
-                                    <h3>Stats</h3>
-                                    <span>Total Topics: {{ forum_info.topic_num }}</span>
+                        <div class="small-12 medium-6 columns forum-totals">
+                            <h3>Stats</h3>
+                            <span>Total Topics: {{ forum_info.topic_num }}</span>
+                            <div class="clear"></div>
+                            <span>Total Posts: {{ forum_info.post_num }}</span>
+                        </div>
+                        <div class="small-12 medium-6 columns">
+                            <h3>Recent Activity</h3>
+                            <ul>
+                                {%- for activity in forum_info.forum_activity %}
+                                {%- set activity_topic = activity.topic %}
+                                <li>
+                                    <strong>{% if activity.is_op %}New Topic{% else %}New Reply{% endif %}</strong>
                                     <div class="clear"></div>
-                                    <span>Total Posts: {{ forum_info.post_num }}</span>
-                            </div>
-                            <div class="small-12 medium-6 columns">
-                                    <h3>Recent Activity</h3>
-                                    <ul>
-                                        {%- for activity in forum_info.forum_activity %}
-                                        {%- set activity_topic = activity.topic %}
-                                        <li>
-                                            <strong>{% if activity.is_op %}New Topic{% else %}New Reply{% endif %}</strong>
-                                            <div class="clear"></div>
-                                            <a href="{{ activity_topic.get_url() }}">{{ activity_topic.title }}</a>
-                                            <div class="clear"></div>
-                                            <p>{{ activity.content|truncate(length=100, killwords=False, end="...") }}</p>
-                                        </li>
-                                        {%- endfor %}
-                                    </ul>
-                            </div>
+                                    <a href="{{ activity_topic.get_url() }}">{{ activity_topic.title }}</a>
+                                    <div class="clear"></div>
+                                    <p>{{ activity.content|truncate(length=100, killwords=False, end="...") }}</p>
+                                </li>
+                                {%- endfor %}
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>

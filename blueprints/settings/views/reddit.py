@@ -3,15 +3,17 @@ __author__ = 'williammck'
 from flask import render_template, request, url_for, flash, redirect, current_app
 from blueprints.base import csrf
 from blueprints.auth import current_user, login_required
-import praw, hashlib, os
+import hashlib
+import os
+import praw
 from .. import blueprint
 from . import add_settings_pane, settings_panels_structure
 
 subreddit = current_app.config.get('REDDIT_SUBREDDIT')
-
 reddit_oauth = praw.Reddit('https://Junction.at reddit OAuth | /u/JunctionBot subreddit flair bot')
 reddit_oauth.set_oauth_app_info(current_app.config.get('REDDIT_CLIENT_ID'), current_app.config.get('REDDIT_CLIENT_SECRET'),
                                 current_app.config.get('REDDIT_REDIRECT_URI'))
+
 
 def get_flair(reddit_username):
     reddit_oauth.login(current_app.config.get('REDDIT_BOT_USERNAME'), current_app.config.get('REDDIT_BOT_PASSWORD'))
@@ -19,6 +21,7 @@ def get_flair(reddit_username):
         if flair_item['user'] == reddit_username:
             flair = flair_item['flair_text']
             return flair
+
 
 @blueprint.route('/settings/reddit')
 @login_required
@@ -30,6 +33,7 @@ def reddit_pane():
                             flair=flair,
                             settings_panels_structure=settings_panels_structure,
                             title="Reddit - Account - Settings")
+
 
 @blueprint.route('/settings/reddit/link', methods=['GET', 'POST'])
 @login_required
@@ -50,6 +54,7 @@ def reddit_link():
         flash('Unable to link your username. Did you make sure to click accept?', category='alert')
         return redirect(url_for('settings.reddit_pane'))
 
+
 @blueprint.route('/settings/reddit/unlink', methods=['POST'])
 @login_required
 @csrf.exempt
@@ -67,6 +72,7 @@ def reddit_unlink():
     else:
         flash('You must have a username linked to do that.', category='alert')
         return redirect(url_for('settings.reddit_pane'))
+
 
 @blueprint.route('/settings/reddit/set_flair', methods=['POST'])
 @login_required
@@ -87,6 +93,7 @@ def reddit_set_flair():
         flash('You must have a username linked to do that.', category='alert')
         return redirect(url_for('settings.reddit_pane'))
 
+
 @blueprint.route('/settings/reddit/unset_flair', methods=['POST'])
 @login_required
 @csrf.exempt
@@ -100,5 +107,6 @@ def reddit_unset_flair():
     else:
         flash('You must have a username linked to do that.', category='alert')
         return redirect(url_for('settings.reddit_pane'))
+
 
 add_settings_pane(lambda: url_for('settings.reddit_pane'), "Account", "Reddit")
