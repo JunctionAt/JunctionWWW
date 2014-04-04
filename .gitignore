@@ -12,3 +12,5 @@ static/js/gen/
 #pycharm
 .idea
 
+#vagrant
+.vagrant
