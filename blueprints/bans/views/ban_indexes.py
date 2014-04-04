@@ -80,7 +80,7 @@ class Index(object):
 BANS_PER_PAGE = 15
 PAGINATION_VALUE_RANGE = 3
 
-your_bans = Index(Ban, 'your_bans', "Your bans", "You have no bans.", 'no_result_bans.html', 'bans_index.html', login_required)
+your_bans = Index(Ban, 'your_bans', "Your Bans", "You have no bans.", 'no_result_bans.html', 'bans_index.html', login_required)
 your_bans.query = {"username": lambda: current_user.name}
 your_bans.order_by = ['-time']
 
@@ -88,7 +88,7 @@ bans.add_url_rule('/a/bans/your/', 'your_bans', your_bans, defaults={'page': 1})
 bans.add_url_rule('/a/bans/your/<int:page>', 'your_bans', your_bans)
 
 
-created_bans = Index(Ban, 'created_bans', "Bans you've made", "No bans found.", 'no_result_bans.html', 'bans_index.html')
+created_bans = Index(Ban, 'created_bans', "Bans you've made", "No bans found.", 'no_result_bans.html', 'bans_index.html', require_permissions('bans.create'))
 created_bans.query = {"issuer": lambda: current_user.name}
 created_bans.order_by = ['-time']
 
@@ -96,7 +96,7 @@ bans.add_url_rule('/a/bans/created/', 'created_bans', created_bans, defaults={'p
 bans.add_url_rule('/a/bans/created/<int:page>', 'created_bans', created_bans)
 
 
-user_bans = Index(Ban, 'user_bans', "Bans for", "No bans found.", 'no_result_bans.html', 'bans_index.html')
+user_bans = Index(Ban, 'user_bans', "Bans for user", "No bans found.", 'no_result_bans.html', 'bans_index.html')
 user_bans.query = {"username": lambda: request.view_args['username']}
 user_bans.order_by = ['-time']
 user_bans.get_route_data = lambda: dict(username=request.view_args['username'])

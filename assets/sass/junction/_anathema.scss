@@ -56,6 +56,15 @@
       display: block !important;
     }
 
+    .meta {
+      .user-info-box-container {
+        width: 115%;
+      }
+      .user-info-box-container-small {
+        width: 100%;
+      }
+    }
+
     .view {
       position: relative;
 
@@ -92,9 +101,6 @@
       }
     }
 
-    .user-info-box-container {
-        width: 112%;
-    }
 
   }
 }

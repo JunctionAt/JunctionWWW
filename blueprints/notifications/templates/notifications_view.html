@@ -21,11 +21,13 @@
 {%- macro render_tools(notification) %}
 {%- if notification._cls == 'BaseNotification.BasePlayerSenderNotification.PMNotification' %}
 <a href="{{ url_for('player_profiles.send_pm', name=notification.sender_user) }}" title="Reply"><i class="fi-mail"></i></a>
+{%- endif %}
 {%- if not notification.read %}
 <a href="{{ url_for('notifications.notification_mark', id=notification.id, mark='read') }}" title="Mark as read"><i class="fi-checkbox"></i></a>
 {#%- else %}
 <a href="{{ url_for('notifications.notification_mark', id=notification.id, mark='unread') }}" title="Mark as unread"><i class="icon-envelope-alt"></i></a>#}
 {%- endif %}
+{%- if notification.deletable %}
 <a href="{{ url_for('notifications.notification_delete', id=notification.id) }}" title="Delete"><i class="fi-x"></i></a>
 {%- endif %}
 {%- endmacro %}
@@ -63,7 +65,7 @@
                                 {{ render_sender(notification) }}
                             </td>
                             <td>
-                                {{ notification.date.strftime("%H:%M %d %b %y") }}
+                                {{ notification.date|full_date|safe }}
                             </td>
                             <td>
                                 {{ render_tools(notification) }}

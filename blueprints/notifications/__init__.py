@@ -5,7 +5,7 @@ from blueprints.auth import login_required
 from flask_login import current_user
 import json
 import markdown
-from notification_model import BaseNotification
+from notification_model import BaseNotification, PMNotification
 
 
 blueprint = Blueprint('notifications', __name__, template_folder='templates')
@@ -85,6 +85,6 @@ def notification_mark(id, mark):
 @blueprint.route('/nsendtest')
 @login_required
 def test_send_notification():
-    curr = BaseNotification(receiver=current_user.to_dbref(), sender_type=1, sender_user=current_user.to_dbref(), preview="A testable notification :D", deletable=True, type="test", module="test")
+    curr = PMNotification(receiver=current_user.name, sender=current_user.name, message="A testable notification :D", deletable=True, source="test")
     curr.save()
     return 'yep'

@@ -1,4 +1,4 @@
-{% macro user_info(user, type="desktop", arrow="none") %}
+{% macro user_info(user, type="desktop", arrow="none", date="none") %}
     <div class="user-info-box {{ type }} clearfix">
         <div class="user-avatar-container">
             <img src="{{ user.get_avatar_url() }}">
@@ -8,6 +8,9 @@
         </div>
         {%- if arrow != "none" %}
         <span class="arrow-{{ arrow }}"><span></span></span>
+        {%- endif %}
+        {%- if date != "none" %}
+        <span class="date">{{ date|full_date|safe }}</span>
         {%- endif %}
     </div>
 {% endmacro %}

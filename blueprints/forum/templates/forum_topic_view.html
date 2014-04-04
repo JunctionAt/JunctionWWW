@@ -52,10 +52,10 @@
                 <div class="row">
                     <div class="small-12 medium-3 large-2 columns meta">
                         <div class="user-info-box-container-small show-for-small-only">
-                            {{ user_info_box.user_info(post.author, type="mobile") }}
+                            {{ user_info_box.user_info(post.author, type="mobile", date=post.date) }}
                         </div>
                         <div class="user-info-box-container show-for-medium-up">
-                            {{ user_info_box.user_info(post.author, type="desktop", arrow="right") }}
+                            {{ user_info_box.user_info(post.author, type="desktop", arrow="right", date=post.date) }}
                         </div>
                     </div>
                     <div class="small-12 medium-9 large-10 columns text content-editable" data-editable="topic-reply">

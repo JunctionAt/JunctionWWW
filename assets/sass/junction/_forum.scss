@@ -81,12 +81,13 @@
         display: block !important;
       }
 
-      .user-info-box-container {
-        width: 115%;
-      }
-
-      .user-info-box-container-small {
-        width: 100%;
+      .meta {
+        .user-info-box-container {
+          width: 115%;
+        }
+        .user-info-box-container-small {
+          width: 100%;
+        }
       }
 
       .text {

@@ -181,10 +181,10 @@
                 <div class="row">
                     <div class="small-12 medium-3 large-2 columns meta">
                         <div class="user-info-box-container-small show-for-small-only">
-                            {{ user_info_box.user_info(reply.creator, type="mobile") }}
+                            {{ user_info_box.user_info(reply.creator, type="mobile", date=reply.created) }}
                         </div>
                         <div class="user-info-box-container show-for-medium-up">
-                            {{ user_info_box.user_info(reply.creator, type="desktop", arrow="right") }}
+                            {{ user_info_box.user_info(reply.creator, type="desktop", arrow="right", date=reply.created) }}
                         </div>
                         {%- if reply.creator.name|lower == ban_object.username|lower %}
                         <span class="secondary label">Banned</span>

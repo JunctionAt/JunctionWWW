@@ -71,6 +71,10 @@
     .user-description {
       border-top: solid 1px #d9d9d9;
     }
+    .date {
+      display: block;
+      border-top: solid 1px #d9d9d9;
+    }
   }
   &.mobile {
     .user-avatar-container {
@@ -79,6 +83,9 @@
     }
     .user-description {
       float: left;
+    }
+    .date {
+      float: right;
     }
   }
 
@@ -92,6 +99,12 @@
   .user-description {
     padding: 5px;
     overflow-wrap: break-word;
+  }
+
+  .date {
+    font-size: 0.8rem;
+    color: #555555;
+    padding: 5px;
   }
 
   @include user-info-arrow("arrow-right", "right");
