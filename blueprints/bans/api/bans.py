@@ -120,8 +120,8 @@ class Bans(Resource):
         if args.get("reason") and len(args.get("reason")) > 1000:
             return {'error': [{"message": "the reason must be below 1000 characters long"}]}
 
-        if args.get("server") and len(args.get("server")) > 10:
-            return {'error': [{"message": "the location must be below 100 characters long"}]}
+        if args.get("server") and len(args.get("server")) > 100:
+            return {'error': [{"message": "the server field must be below 100 characters long"}]}
 
     @require_api_key(required_access_tokens=['anathema.bans.post'], asuser_must_be_registered=False)
     def post(self):
