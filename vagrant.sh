@@ -17,7 +17,7 @@ if ! grep -q "\`ruby -e 'puts Gem.user_dir'\`/bin" /home/vagrant/.bashrc ; then
 fi
 
 echo "Enabling mongo.."
-systemctl start mongodb
+systemctl enable mongodb
 
 echo "Attempting to create convenience symlink.."
 user_run ln -s /www-src/ /home/vagrant/
