@@ -19,7 +19,9 @@
                     ,
                 {% endif %}
             {% endfor %}
-        ]
+        ];
+
+        csrf_token = "{{ csrf_token }}"
     </script>
 
     <div class="row">

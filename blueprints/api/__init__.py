@@ -19,21 +19,45 @@ def register_api_access_token(token, description=None, link=None, permission=Non
     access_tokens[token] = dict(token=token, description=description, link=link, permission=permission)
 
 
+import flask_wtf.csrf as csrf
+
+
+def _check_user_permission(required_tokens, user):
+    if "CSRF" not in request.headers:
+        return False
+    if not csrf.validate_csrf(request.headers.get("CSRF")):
+        return False
+
+    print("ya")
+
+    for token in required_tokens:
+        print(token)
+        print(access_tokens[token])
+        if not user.has_permission(access_tokens[token]['permission']):
+            return False
+
+    print("yaa")
+    request.api_user = current_user
+    request.api_user_name = current_user.name
+    return True
+
+
 def require_api_key(required_access_tokens=list(), allow_user_permission=False, asuser_must_be_registered=True):
+    """
+
+    :param required_access_tokens:
+    :param allow_user_permission: Allow users to use this by simply having the right permissions. This requires that a CSRF header is sent with a valid CSRF token.
+    :param asuser_must_be_registered:
+    :return:
+    """
+
     def init(func):
         @wraps(func)
         def wrap(*args, **kwargs):
 
             # If allow_user_permission is True, make sure the user has the appropriate permissions.
-            if allow_user_permission:
-                allowed = True
-                for token in required_access_tokens:
-                    if not current_user.has_permission(access_tokens[token]['permission']):
-                        allowed = False
-                if allowed:
-                    request.api_user = current_user
-                    request.api_user_name = current_user.name
-                    return func(*args, **kwargs)
+            if allow_user_permission and _check_user_permission(required_access_tokens, current_user):
+                return func(*args, **kwargs)
 
             # Check and obtain API key from DB
             try:

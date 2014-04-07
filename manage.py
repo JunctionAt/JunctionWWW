@@ -77,5 +77,19 @@ def destroy_ban(ban_id):
 
     print("ban deleted")
 
+@manager.option('-u', dest="username", required=True)
+@manager.option('-r', dest="role", required=True)
+def add_role(username, role):
+    from blueprints.auth.user_model import User
+
+    user = User.objects(name=username).first()
+    if user is None:
+        print("no user was found with that name")
+
+    user.roles.append(role)
+    user.save()
+
+    print("success!")
+
 if __name__ == "__main__":
     manager.run()

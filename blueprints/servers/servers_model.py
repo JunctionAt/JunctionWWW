@@ -55,3 +55,6 @@ class Server(Document):
             if revision.rev_id in rev_ids:
                 raise ValidationError("Duplicate revision id in Server db document")
             rev_ids += revision.rev_id
+
+    def __str__(self):
+        return self.server_id

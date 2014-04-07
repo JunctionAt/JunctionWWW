@@ -41,8 +41,8 @@ class LoginForm(Form):
     #     raise ValidationError('Invalid username or password.')
 
 
-from blueprints.base import csrf
-@csrf.exempt
+#from blueprints.base import csrf
+#@csrf.exempt
 @blueprint.route("/login", defaults=dict(ext='html'), methods=("GET", "POST"))
 def login(ext):
     if current_user.is_authenticated():

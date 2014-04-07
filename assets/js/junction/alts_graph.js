@@ -28,6 +28,7 @@ Molecular.register("alts_graph", function() {
                 dataType: "json",
                 url: "/api/anathema/alts",
                 data: {"username": origin},
+                headers: {"CSRF": csrf_token},
                 success: function(data) {
                     if(data.error != undefined) {
                         alert("Api error: " + data.error[0].message);

@@ -1,7 +1,7 @@
 __author__ = 'williammck'
 
 from flask import render_template, request, url_for, flash, redirect, current_app
-from blueprints.base import csrf
+#from blueprints.base import csrf
 from blueprints.auth import current_user, login_required
 import hashlib
 import os
@@ -37,7 +37,7 @@ def reddit_pane():
 
 @blueprint.route('/settings/reddit/link', methods=['GET', 'POST'])
 @login_required
-@csrf.exempt
+#@csrf.exempt
 def reddit_link():
     if request.method == 'POST':
         state = hashlib.md5(os.urandom(24)).hexdigest()
@@ -57,7 +57,7 @@ def reddit_link():
 
 @blueprint.route('/settings/reddit/unlink', methods=['POST'])
 @login_required
-@csrf.exempt
+#@csrf.exempt
 def reddit_unlink():
     reddit_username = current_user.reddit_username
     if reddit_username != None:
@@ -76,7 +76,7 @@ def reddit_unlink():
 
 @blueprint.route('/settings/reddit/set_flair', methods=['POST'])
 @login_required
-@csrf.exempt
+#@csrf.exempt
 def reddit_set_flair():
     username = current_user.name
     reddit_username = current_user.reddit_username
@@ -96,7 +96,7 @@ def reddit_set_flair():
 
 @blueprint.route('/settings/reddit/unset_flair', methods=['POST'])
 @login_required
-@csrf.exempt
+#@csrf.exempt
 def reddit_unset_flair():
     reddit_username = current_user.reddit_username
     if reddit_username != None:

@@ -6,6 +6,7 @@ from flask.ext.mail import Mail
 from flask_wtf import CsrfProtect
 from flask.ext.markdown import Markdown
 from api_hack import RestfulApiCsrf
+from flask_restful import Api
 
 cache = Cache(current_app, config={'CACHE_TYPE': 'simple'})
 
@@ -15,8 +16,8 @@ mail = Mail(current_app)
 
 admin = Admin(current_app)
 
-csrf = CsrfProtect(current_app)
+#csrf = CsrfProtect(current_app)
 
-rest_api = RestfulApiCsrf(current_app, prefix="/api", csrf=csrf)
+rest_api = Api(current_app, prefix="/api")#RestfulApiCsrf(current_app, prefix="/api", csrf=csrf)
 
 markdown = Markdown(current_app, safe_mode="escape")
