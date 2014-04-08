@@ -8,6 +8,7 @@ from blueprints.base import rest_api
 from ..ban_model import Ban
 import re
 from blueprints.auth.util import validate_username
+from blueprints.servers.servers_model import Server
 import datetime
 
 
@@ -120,8 +121,8 @@ class Bans(Resource):
         if args.get("reason") and len(args.get("reason")) > 1000:
             return {'error': [{"message": "the reason must be below 1000 characters long"}]}
 
-        if args.get("server") and len(args.get("server")) > 100:
-            return {'error': [{"message": "the server field must be below 100 characters long"}]}
+        if args.get("server") and Server.verify_fid(args.get("server")): #len(args.get("server")) > 100:
+            return {'error': [{"message": "the server field must be a valid fid"}]}
 
     @require_api_key(required_access_tokens=['anathema.bans.post'], asuser_must_be_registered=False)
     def post(self):

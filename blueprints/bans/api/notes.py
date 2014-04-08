@@ -6,6 +6,7 @@ from flask.ext.restful.reqparse import RequestParser
 from blueprints.api import require_api_key, register_api_access_token, datetime_format
 from blueprints.base import rest_api
 from blueprints.auth.util import validate_username
+from blueprints.servers.servers_model import Server
 from ..ban_model import Note
 import re
 import datetime
@@ -114,7 +115,7 @@ class Notes(Resource):
         if args.get("note") and len(args.get("note")) > 1000:
             return {'error': [{"message": "the note must be below 1000 characters long"}]}
 
-        if args.get("server") and len(args.get("server")) > 10:
+        if args.get("server") and Server.verify_fid(args.get("server")): #len(args.get("server")) > 10:
             return {'error': [{"message": "the location must be below 10 characters long"}]}
 
     @require_api_key(required_access_tokens=['anathema.notes.post'], asuser_must_be_registered=False)
