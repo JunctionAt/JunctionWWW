@@ -1,6 +1,4 @@
 from flask import Blueprint
-from ban_model import Ban, Note
-from datetime import datetime
 
 bans = Blueprint('bans', __name__, template_folder="templates")
 

@@ -1,8 +1,8 @@
 from mongoengine import *
-
-from blueprints.auth.user_model import User
 from datetime import datetime
 from flask import url_for
+
+from models.user_model import User
 
 
 class Forum(Document):

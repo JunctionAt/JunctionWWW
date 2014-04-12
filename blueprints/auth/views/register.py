@@ -1,14 +1,14 @@
 __author__ = 'HansiHE'
 
-from .. import blueprint
 from flask import render_template, request, abort, redirect, url_for, flash
-from ..user_model import ConfirmedUsername
-from blueprints.auth import login_required, current_user
-from blueprints.auth.user_model import User
 from flask.ext.wtf import Form
 from wtforms import TextField, PasswordField, SubmitField
 from wtforms.validators import Email, Required, Length, EqualTo, Optional
 import bcrypt
+
+from .. import blueprint
+from models.user_model import ConfirmedUsername, User
+from blueprints.auth import login_required, current_user
 
 
 @blueprint.route('/register/')

@@ -5,12 +5,11 @@ from wtforms import PasswordField
 from wtforms.validators import Required, Length, EqualTo
 from flask_login import fresh_login_required, current_user, abort, login_required
 from flask import request, flash, redirect, url_for, render_template
-from werkzeug.datastructures import MultiDict
-from blueprints.auth.user_model import User
 import random
-
-from .. import blueprint
 import bcrypt
+
+from models.user_model import User
+from .. import blueprint
 from blueprints.settings.views import add_settings_pane, settings_panels_structure
 
 

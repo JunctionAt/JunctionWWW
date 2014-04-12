@@ -1,8 +1,9 @@
 __author__ = 'HansiHE'
 
-from .. import blueprint
-from ..donation_model import PaymentTransaction
 from flask import render_template
+
+from .. import blueprint
+from models.donation_model import PaymentTransaction
 
 
 @blueprint.route('/donate/payments')

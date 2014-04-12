@@ -2,7 +2,8 @@
 #from blueprints.base import Base, session, db
 from mongoengine import *
 import datetime
-from blueprints.auth.user_model import User
+
+from models.user_model import User
 
 
 class AppealEdit(EmbeddedDocument):

@@ -1,14 +1,16 @@
 __author__ = 'HansiHE'
 
 from flask import url_for, render_template, request, redirect, abort, flash
-from blueprints.settings.views import add_settings_pane, settings_panels_structure
-from .. import blueprint
-from blueprints.auth import login_required, current_user
-from ..apikey_model import ApiKey
 from flask_wtf import Form
 from wtforms import TextField, StringField, SelectMultipleField, SubmitField
 from wtforms.validators import Length
+
+from blueprints.settings.views import add_settings_pane, settings_panels_structure
+from .. import blueprint
+from blueprints.auth import login_required, current_user
+from models.apikey_model import ApiKey
 from .. import access_tokens
+
 
 @blueprint.route('/settings/api')
 @login_required

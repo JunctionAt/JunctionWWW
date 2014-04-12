@@ -1,12 +1,12 @@
-from blueprints.base import admin
 from flask.ext.superadmin import ModelAdmin
-from blueprints.auth import current_user
 
-from blueprints.auth.user_model import Role_Group, User
-from blueprints.forum.database.forum import Forum, Category, Board, Topic, Post
-from blueprints.bans.ban_model import Ban, AppealReply, Note
-from blueprints.alts.alts_model import IpPlayersModel, PlayerIpsModel
-from blueprints.servers.servers_model import Server
+from blueprints.base import admin
+from blueprints.auth import current_user
+from models.user_model import Role_Group, User
+from models.forum_model import Forum, Category, Board, Topic, Post
+from models.ban_model import Ban, AppealReply, Note
+from models.alts_model import IpPlayersModel, PlayerIpsModel
+from models.servers_model import Server
 
 
 def permission_model(permission):

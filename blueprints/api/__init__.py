@@ -1,12 +1,14 @@
 __author__ = 'HansiHE'
 
-from . import docs, apikey_model
 from flask import request, Blueprint
-from blueprints.api.apikey_model import ApiKey
-from blueprints.auth import current_user
-from blueprints.auth.user_model import User
-from blueprints.auth.util import validate_username
 from functools import wraps
+
+from . import docs
+from models.apikey_model import ApiKey
+from blueprints.auth import current_user
+from models.user_model import User
+from blueprints.auth.util import validate_username
+
 
 datetime_format = "%I:%M %d/%m/%Y %p"
 

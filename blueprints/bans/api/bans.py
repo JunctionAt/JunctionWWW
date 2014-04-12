@@ -3,13 +3,14 @@ __author__ = 'HansiHE'
 from flask import request
 from flask.ext.restful import Resource
 from flask.ext.restful.reqparse import RequestParser
+import re
+import datetime
+
 from blueprints.api import require_api_key, register_api_access_token, datetime_format
 from blueprints.base import rest_api
-from ..ban_model import Ban
-import re
+from models.ban_model import Ban
 from blueprints.auth.util import validate_username
-from blueprints.servers.servers_model import Server
-import datetime
+from models.servers_model import Server
 
 
 class InvalidDataException(Exception):

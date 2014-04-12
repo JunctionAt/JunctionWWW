@@ -1,15 +1,16 @@
 __author__ = 'HansiHE'
 
-from .. import blueprint
 from flask import render_template, abort, request, redirect
-from blueprints.auth.user_model import User
-from blueprints.forum.database.forum import Post, Topic
-from ..database.profile import PlayerProfile
-from ..badges import render_badges
-from blueprints.auth import current_user, login_required
 from flask_wtf import Form
 from wtforms import TextAreaField, SubmitField
 from wtforms.validators import Length
+
+from .. import blueprint
+from models.user_model import User
+from models.forum_model import Post, Topic
+from models.profile_model import PlayerProfile
+from ..badges import render_badges
+from blueprints.auth import current_user, login_required
 
 
 @blueprint.route('/p/<string:name>/')

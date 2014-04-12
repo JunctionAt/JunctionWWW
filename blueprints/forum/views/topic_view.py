@@ -1,11 +1,11 @@
 __author__ = 'HansiHE'
 
 from flask import render_template, redirect, abort, url_for
+import math
 
 from .. import blueprint
-from ..database.forum import Topic, Post
+from models.forum_model import Topic, Post
 from post_reply import TopicReplyForm
-import math
 from blueprints.auth import current_user
 from topic_edit import PostEditForm
 from ..forum_util import forum_template_data

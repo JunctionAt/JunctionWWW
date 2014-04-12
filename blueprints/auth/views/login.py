@@ -1,20 +1,15 @@
 __author__ = 'HansiHE'
 
-import re
-
-from flask import request, render_template, redirect, url_for, flash, abort
+from flask import request, render_template, redirect, flash, abort
 from flask_login import login_user, login_required
 from flask_wtf import Form
-from wtforms import TextField, PasswordField, BooleanField, ValidationError
+from wtforms import TextField, PasswordField, BooleanField
 from wtforms.validators import *
 from werkzeug.datastructures import MultiDict
 
-import bcrypt
-from blueprints.auth.user_model import User
 from blueprints.auth import current_user
 from blueprints.api import apidoc
 from .. import blueprint
-
 from blueprints.auth.util import authenticate_user, LoginException
 
 

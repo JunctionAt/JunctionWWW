@@ -1,12 +1,13 @@
 __author__ = 'HansiHE'
 
-from wtforms import ValidationError
 import bcrypt
 import re
-from blueprints.auth.user_model import User
-from blueprints.auth import current_user
 from flask import abort
 from functools import wraps
+
+from models.user_model import User
+from blueprints.auth import current_user
+
 
 
 # class Login(object):

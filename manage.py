@@ -1,7 +1,11 @@
+from models import forum_model
+
 __author__ = 'HansiHE'
 
-from app import application
 from flask.ext.script import Manager, Server
+
+from app import application
+
 
 manager = Manager(application)
 
@@ -21,14 +25,13 @@ def bootstrap_db(confirm=False):
         exit(-1)
 
     # Bootstrap forums
-    from blueprints.forum.database import forum
 
-    forum_main = forum.Forum(name="Test Forum", identifier="main").save()
-    forum_category1 = forum.Category(name="Test Category 2", description="Test description #1", order=1, forum=forum_main).save()
-    forum_category1_board1 = forum.Board("A Testboard", desctiption="Omg a boord", categories=[forum_category1], forum=forum_main).save()
-    forum_category1_board2 = forum.Board("Another board", description="Wat", categories=[forum_category1], forum=forum_main).save()
-    forum_category2 = forum.Category(name="Test Category 2", description="Test description #2", order=2, forum=forum_main).save()
-    forum_category1_board1 = forum.Board("Another Testboard", description="A shitty board", categories=[forum_category2], forum=forum_main).save()
+    forum_main = forum_model.Forum(name="Test Forum", identifier="main").save()
+    forum_category1 = forum_model.Category(name="Test Category 2", description="Test description #1", order=1, forum=forum_main).save()
+    forum_category1_board1 = forum_model.Board("A Testboard", desctiption="Omg a boord", categories=[forum_category1], forum=forum_main).save()
+    forum_category1_board2 = forum_model.Board("Another board", description="Wat", categories=[forum_category1], forum=forum_main).save()
+    forum_category2 = forum_model.Category(name="Test Category 2", description="Test description #2", order=2, forum=forum_main).save()
+    forum_category1_board1 = forum_model.Board("Another Testboard", description="A shitty board", categories=[forum_category2], forum=forum_main).save()
 
     print("Success! A basic DB is now up and running.")
 
@@ -39,7 +42,7 @@ def dev_verify_ip_username(ip, username):
     """
     Verifies a ip with a username. Useful for registering users in a dev environment without the need for a minecraft client/auth server
     """
-    from blueprints.auth.user_model import ConfirmedUsername
+    from models.user_model import ConfirmedUsername
 
     ConfirmedUsername(username=username, ip=ip).save()
 
@@ -54,8 +57,6 @@ def print_routes():
 
 @manager.option('-b', dest="ban_id", required=True)
 def destroy_ban(ban_id):
-    from blueprints.bans import appeal_model, ban_model
-
     ban = ban_model.Ban.objects(uid=int(ban_id)).first()
 
     if ban is None:
@@ -80,7 +81,7 @@ def destroy_ban(ban_id):
 @manager.option('-u', dest="username", required=True)
 @manager.option('-r', dest="role", required=True)
 def add_role(username, role):
-    from blueprints.auth.user_model import User
+    from models.user_model import User
 
     user = User.objects(name=username).first()
     if user is None:

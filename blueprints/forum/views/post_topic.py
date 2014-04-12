@@ -7,7 +7,7 @@ from wtforms.validators import Required, Length
 
 from .. import blueprint
 from blueprints.auth import login_required, current_user
-from ..database.forum import Board, Topic, TopicEdit, Post, PostEdit
+from models.forum_model import Board, Topic, TopicEdit, Post, PostEdit
 
 
 class PostTopicForm(Form):

@@ -1,14 +1,15 @@
 __author__ = 'HansiHE'
 
-from flask import Blueprint, request, render_template, abort, send_file, flash, redirect, url_for
-from blueprints.auth import login_required
-from alts_model import PlayerIpsModel, IpPlayersModel
+from flask import Blueprint
 from flask.ext.restful import Resource
-from blueprints.api import require_api_key, register_api_access_token, datetime_format
 import ipaddress
 import re
 from flask.ext.restful.reqparse import RequestParser
+
+from models.alts_model import PlayerIpsModel, IpPlayersModel
+from blueprints.api import require_api_key, register_api_access_token
 from blueprints.base import rest_api
+
 
 alts = Blueprint('alts', __name__, template_folder='templates')
 

@@ -1,11 +1,12 @@
 __author__ = 'HansiHE'
 
-from .. import blueprint
 from flask_wtf import Form
 from wtforms import TextAreaField, DateField, SubmitField, FloatField
 from flask import request, render_template, redirect, url_for, abort
+
+from .. import blueprint
 from blueprints.auth import login_required, current_user
-from ..donation_model import PaymentTransaction
+from models.donation_model import PaymentTransaction
 
 
 class PaymentAddForm(Form):

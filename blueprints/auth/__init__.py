@@ -19,8 +19,9 @@ multiple requests.
 from functools import wraps
 from flask_login import current_user, login_user, login_required as __login_required__, LoginManager, AnonymousUserMixin
 from flask import request, current_app, abort, Blueprint
-from user_model import User
 import re
+
+from models.user_model import User
 
 
 def login_required(f):
@@ -48,7 +49,6 @@ def login_required(f):
     return decorated
 
 import bcrypt
-from blueprints.api import apidoc
 
 
 subpath = ''

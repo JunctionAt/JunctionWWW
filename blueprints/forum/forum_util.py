@@ -1,9 +1,10 @@
 __author__ = 'HansiHE'
 
-from .database.forum import Category
 import math
 from flask import abort
 from mongoengine import QuerySet
+
+from models.forum_model import Category
 
 
 def forum_template_data(forum):

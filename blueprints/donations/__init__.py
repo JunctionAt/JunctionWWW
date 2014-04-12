@@ -1,11 +1,12 @@
 __author__ = 'HansiHE'
 
-from flask import Blueprint, render_template, send_file, abort, redirect, request, flash, url_for
+from flask import Blueprint, render_template, redirect, flash, url_for
 from itsdangerous import URLSafeSerializer
-from blueprints.auth import current_user, login_required
-from donation_model import Transaction, DonationTransaction
+
+from blueprints.auth import current_user
+from models.donation_model import Transaction, DonationTransaction
 from blueprints.base import cache
-from wtforms import Form, DateField
+
 
 blueprint = Blueprint('donations', __name__,
                          template_folder='templates')

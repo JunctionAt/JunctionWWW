@@ -1,14 +1,15 @@
 __author__ = 'HansiHE'
 
-from .. import blueprint
-from ..database.forum import Post, PostEdit
 from flask import abort, render_template, request, redirect
 from flask_wtf import Form
 from wtforms import TextAreaField, SubmitField
 from wtforms.validators import Required, Length
-from blueprints.auth import current_user
 from datetime import datetime
 from bson.objectid import ObjectId
+
+from .. import blueprint
+from models.forum_model import Post, PostEdit
+from blueprints.auth import current_user
 from blueprints.auth import login_required
 
 

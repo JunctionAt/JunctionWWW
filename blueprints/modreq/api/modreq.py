@@ -1,20 +1,19 @@
 __author__ = 'williammck'
 
-from flask import request
-from blueprints.api import require_api_key, register_api_access_token, datetime_format, endpoint
-from blueprints.base import rest_api
 from flask.ext.restful import Resource
 from flask.ext.restful.reqparse import RequestParser
-from ..modreq_model import ModReq as ModReqModel
-from blueprints.servers.servers_model import Server
 import re
-from blueprints.auth.util import validate_username
 import datetime
 
-from flask.ext.wtf import Form
-from wtforms.fields import StringField, BooleanField
+from blueprints.api import require_api_key, register_api_access_token, datetime_format, endpoint
+from blueprints.base import rest_api
+from models.modreq_model import ModReq as ModReqModel
+from models.servers_model import Server
+from blueprints.auth.util import validate_username
+
+
+
 #from wtforms.validators import
-from blueprints.form_validators import RequiredIf
 
 
 def get_modreqs(uid=None, server=None, status=None, username=None):

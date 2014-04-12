@@ -1,16 +1,17 @@
 __author__ = 'HansiHE'
 
-from flask import abort, render_template, request, redirect, url_for, flash
-from .. import bans
-from ..ban_model import Ban, Note, AppealReply, AppealEdit
-from blueprints.alts.alts_model import PlayerIpsModel
-from blueprints.auth import login_required, current_user
+from flask import abort, render_template, request, redirect, url_for
 from flask_wtf import Form
 from wtforms import TextAreaField, SubmitField
 from wtforms.validators import Required, Length
+import datetime
+
+from .. import bans
+from models.ban_model import Ban, Note, AppealReply, AppealEdit
+from models.alts_model import PlayerIpsModel
+from blueprints.auth import login_required, current_user
 from .ban_editing import BanReasonEditForm, AppealReplyTextEditForm
 from .ban_manage import BanUnbanTimeForm, AppealUnlockTimeForm
-import datetime
 
 
 class AppealReplyForm(Form):

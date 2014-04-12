@@ -8,7 +8,7 @@ def test_user_player_uuid():
     NAME2 = "anotherName"
 
     with app.application.app_context():
-        import blueprints.auth.player_model as player_model
+        import models.player_model as player_model
         player_uuid = player_model.MinecraftPlayer()
         player_uuid.uuid = "91f06d8db0854964ab020f32795f2fd9"
 

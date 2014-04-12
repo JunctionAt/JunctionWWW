@@ -2,7 +2,8 @@ __author__ = 'HansiHE'
 
 from mongoengine import Document, UUIDField, StringField, ReferenceField, BooleanField, ListField
 from uuid import uuid4
-from blueprints.auth.user_model import User
+
+from models.user_model import User
 
 
 class ApiKey(Document):

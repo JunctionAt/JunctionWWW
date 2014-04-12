@@ -1,8 +1,6 @@
 __author__ = 'HansiHE'
 
-from flask import Blueprint, request, render_template, abort, send_file, flash, redirect, url_for, current_app
-from blueprints.auth import login_required
-from avatar_model import Avatar
+from flask import Blueprint, request, render_template, abort, send_file, redirect, url_for
 from flask_login import current_user
 from flask_wtf import Form
 from wtforms import FileField, SubmitField
@@ -10,13 +8,14 @@ import StringIO
 import requests
 from PIL import Image
 import re
-import os
 import mongoengine
 from datetime import datetime
 import flask
+
+from blueprints.auth import login_required
+from models.avatar_model import Avatar
 from blueprints.settings.views import settings_panels_structure
 
-from base64 import decodestring
 
 avatar = Blueprint('avatar', __name__, template_folder='templates')
 

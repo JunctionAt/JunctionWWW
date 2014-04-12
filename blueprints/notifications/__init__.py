@@ -1,11 +1,10 @@
 __author__ = 'HansiHE'
 
-from flask import Blueprint, request, render_template, abort, send_file, flash, redirect, url_for, current_app
-from blueprints.auth import login_required
+from flask import Blueprint, render_template, abort, redirect, url_for, current_app
 from flask_login import current_user
-import json
-import markdown
-from notification_model import BaseNotification, PMNotification
+
+from blueprints.auth import login_required
+from models.notification_model import BaseNotification
 
 
 blueprint = Blueprint('notifications', __name__, template_folder='templates')

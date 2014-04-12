@@ -1,9 +1,11 @@
 __author__ = 'HansiHE'
 
 from flask import render_template
-from .. import blueprint
-from blueprints.auth.user_model import User, Role_Group
 from random import shuffle
+
+from .. import blueprint
+from models.user_model import User, Role_Group
+
 
 listings = [
     {"id": "moderator", "name": "Moderators", "description":
