@@ -53,9 +53,7 @@ def register_pool(username):
 
         elif request.method == "POST":
             if form.validate():
-                player = MinecraftPlayer(uuid=auth_check.uuid)
-                player.checkin_mcname(auth_check.username)
-                player.save()
+                player = MinecraftPlayer.find_or_create_player(auth_check.uuid, auth_check.username)
                 user = User(
                     name=username,
                     hash=bcrypt.hashpw(form.password.data, bcrypt.gensalt()),

@@ -50,3 +50,15 @@ class MinecraftPlayer(Document):
             mcname_obj = PlayerName()
             mcname_obj.mcname = mcname
             self.seen_mcnames.append(mcname_obj)  # and add a new history object.
+
+    @classmethod
+    def find_or_create_player(cls, uuid, mcname):
+        player = MinecraftPlayer.objects(uuid=uuid).first()
+        if not player:
+            player = MinecraftPlayer(uuid=uuid)
+
+        player.checkin_mcname(mcname)
+
+        player.save()
+
+        return player
