@@ -53,9 +53,8 @@ def get_uuid(*name, **kwargs):
     return p
 
 def lookup_uuid(username):
-    res = \
-        get_uuid(username)
+    res = get_uuid(username)
     for result in res:
-        if result.get(u"name", None) == username:
+        if result.get(u"name", None).lower() == username.lower():
             return result.get(u"id", None)
     return None
