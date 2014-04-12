@@ -1,3 +1,4 @@
+#!/bin/sh
 function user_run { runuser -l vagrant -c "$*"; }
 
 echo "Installing packages.."
@@ -16,7 +17,8 @@ if ! grep -q "\`ruby -e 'puts Gem.user_dir'\`/bin" /home/vagrant/.bashrc ; then
     echo "PATH=\"\`ruby -e 'puts Gem.user_dir'\`/bin:\$PATH\"" | user_run tee -a /home/vagrant/.bashrc
 fi
 
-echo "Enabling mongo.."
+echo "Setting up mongo.."
+sed -i "s/^\(bind_ip\s*=\s*\).*$/\10\.0\.0\.0/" /etc/mongodb.conf
 systemctl enable mongodb
 
 echo "Attempting to create convenience symlink.."
