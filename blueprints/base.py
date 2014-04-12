@@ -1,23 +1,10 @@
-from flask import current_app
-from flask.ext.cache import Cache
-from mongoengine import connect
-from flask.ext.superadmin import Admin
-from flask.ext.mail import Mail
-from flask_wtf import CsrfProtect
-from flask.ext.markdown import Markdown
-from api_hack import RestfulApiCsrf
-from flask_restful import Api
+from werkzeug.local import LocalProxy
+from . import extension_access
 
-cache = Cache(current_app, config={'CACHE_TYPE': 'simple'})
-
-mongo = connect("pf")
-
-mail = Mail(current_app)
-
-admin = Admin(current_app)
-
-#csrf = CsrfProtect(current_app)
-
-rest_api = Api(current_app, prefix="/api")#RestfulApiCsrf(current_app, prefix="/api", csrf=csrf)
-
-markdown = Markdown(current_app, safe_mode="escape")
+# Mostly for backwards compatibility
+cache = LocalProxy(lambda: getattr(extension_access, "cache", None))
+mongo = LocalProxy(lambda: getattr(extension_access, "mongo", None))
+mail = LocalProxy(lambda: getattr(extension_access, "mail", None))
+admin = LocalProxy(lambda: getattr(extension_access, "admin", None))
+rest_api = LocalProxy(lambda: getattr(extension_access, "rest_api", None))
+markdown = LocalProxy(lambda: getattr(extension_access, "markdown", None))

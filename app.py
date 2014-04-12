@@ -1,6 +1,5 @@
 from flask import Flask, request
 from reverse_proxied import ReverseProxied
-from os import pathsep
 from assets import assets
 
 # Setup App
@@ -15,6 +14,28 @@ application.jinja_env.add_extension('jinja2.ext.do')
 from util import pretty_date_since, full_date
 application.jinja_env.filters['pretty_date'] = pretty_date_since
 application.jinja_env.filters['full_date'] = full_date
+
+
+from flask import current_app
+from flask.ext.cache import Cache
+from mongoengine import connect
+from flask.ext.superadmin import Admin
+from flask.ext.mail import Mail
+from flaskext.markdown import Markdown
+from flask_restful import Api
+
+
+class ExtensionAccessObject(object):
+    def __init__(self):
+        self.cache = Cache(current_app, config={'CACHE_TYPE': 'simple'})
+        self.mongo = connect("pf")
+        self.mail = Mail(current_app)
+        self.admin = Admin(current_app)
+        self.rest_api = Api(current_app, prefix="/api")
+        self.markdown = Markdown(current_app, safe_mode="escape")
+
+with application.app_context():
+    application.extension_access_object = ExtensionAccessObject()
 
 # Load config files
 with application.app_context():
@@ -36,11 +57,6 @@ try:
 except IOError:
     application.config['version_hash'] = "DEVELOP"
 
-# Setup exceptional
-#if application.config.has_key("EXCEPTIONAL_API_KEY"):
-#    from flask.ext.exceptional import Exceptional
-#    exceptional = Exceptional(application)
-
 # Setup airbrake/errbit
 if application.config.get('AIRBRAKE_ENABLED', True):
     from airbrake import AirbrakeErrorHandler
@@ -59,23 +75,7 @@ if application.config.get('AIRBRAKE_ENABLED', True):
         handler.emit(exception)
     got_request_exception.connect(log_exception, sender=application)
 
-# Error page
-#@application.errorhandler(500)
-#def internal_error(error):
-    #handler = AirbrakeErrorHandler(
-    #    api_key="97ed9107d2d204537f07080f85315281",
-    #    api_url="http://errbit.junction.at/notifier_api/v2/notices",
-    #    env_name=application.config['version_hash'],
-    #    request_url=request.url,
-    #    request_path=request.path,
-    #    request_method=request.method,
-    #    request_args=request.args,
-    #    request_headers=request.headers)
-    #handler.emit(error)
-
-    #return "Something went wrong. :( Staff have been notified, and are working on the issue. Please check back later.", 500
-    #return str(error)
-
+# Assets
 assets(application)
 
 # Load debug stuffs
