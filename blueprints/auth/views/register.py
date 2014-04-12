@@ -43,7 +43,7 @@ def register_pool(username):
         return redirect(url_for('auth.login'))
 
     #Is verified
-    if check_authenticated_ip(username, request.remote_addr):
+    if check_authenticated_ip(request.remote_addr, username=username):
         form = RegistrationForm(request.form)
 
         if request.method == "GET":
