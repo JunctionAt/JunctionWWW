@@ -81,10 +81,3 @@ def notification_mark(id, mark):
     notification.save()
 
     return redirect(url_for('notifications.notifications_view'))
-
-@blueprint.route('/nsendtest')
-@login_required
-def test_send_notification():
-    curr = PMNotification(receiver=current_user.name, sender=current_user.name, message="A testable notification :D", deletable=True, source="test")
-    curr.save()
-    return 'yep'
