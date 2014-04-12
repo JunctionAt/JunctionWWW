@@ -32,6 +32,20 @@ class Server(Document):
     revisions = ListField(EmbeddedDocumentField(ServerRevision), required=True)
 
     @classmethod
+    def verify_fid(cls, fid):
+        if fid.count(":") is not 1:
+            return False
+
+        split = fid.split(":")
+        if len(split[0]) < 1 or len(split[1]) < 1:
+            return False
+
+        if not Server.server_id.validate(split[0]) or not ServerRevision.validate(split[1]):
+            return False
+
+        return True
+
+    @classmethod
     def get_server(cls, fid):
         return cls.objects(server_id=fid.split(":")[0]).first()
 
