@@ -8,11 +8,11 @@ def test_user_player_uuid():
     NAME2 = "anotherName"
 
     with app.application.app_context():
-        import blueprints.auth.user_model as user_model
-        player_uuid = user_model.PlayerUUID()
-        player_uuid.uuid = "1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a"
+        import blueprints.auth.player_model as player_model
+        player_uuid = player_model.MinecraftPlayer()
+        player_uuid.uuid = "91f06d8db0854964ab020f32795f2fd9"
 
-        # Set initial name
+        # Check in initial name
         player_uuid.checkin_mcname(NAME1)
         player_uuid.validate()
         assert player_uuid.mcname == NAME1
