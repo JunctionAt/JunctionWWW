@@ -28,7 +28,7 @@ class User(Document, flask_login.UserMixin, object):
     # noinspection PyShadowingBuiltins
     hash = StringField(required=True)
 
-    minecraft_player = ReferenceField("MinecraftPlayer")
+    minecraft_player = ReferenceField("MinecraftPlayer", required=True)
 
     mail = StringField()
     mail_verified = BooleanField(default=False)
