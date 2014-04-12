@@ -1,9 +1,7 @@
-from models import forum_model
-
 __author__ = 'HansiHE'
 
 from flask.ext.script import Manager, Server
-
+from models import forum_model, ban_model
 from app import application
 
 
@@ -38,15 +36,16 @@ def bootstrap_db(confirm=False):
 
 @manager.option('-i', '--ip', dest="ip", default="127.0.0.1")
 @manager.option('-u', '--username', dest="username", required=True)
-def dev_verify_ip_username(ip, username):
+@manager.option('-d', '--uuid', dest="uuid", required=True)
+def dev_verify_ip_username(ip, username, uuid):
     """
     Verifies a ip with a username. Useful for registering users in a dev environment without the need for a minecraft client/auth server
     """
     from models.user_model import ConfirmedUsername
 
-    ConfirmedUsername(username=username, ip=ip).save()
+    ConfirmedUsername(username=username, ip=ip, uuid=uuid).save()
 
-    print("Success! You can now register the user %s from %s" % (username, ip))
+    print("Success! You can now register the user %s, %s from %s" % (username, uuid, ip))
 
 
 @manager.command
