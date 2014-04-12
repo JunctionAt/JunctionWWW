@@ -1,3 +1,5 @@
+from blueprints import uuid_utils
+
 __author__ = 'HansiHE'
 
 from flask import render_template, request, abort, redirect, url_for, flash
@@ -9,6 +11,7 @@ import bcrypt
 from .. import blueprint
 from models.user_model import ConfirmedUsername, User
 from blueprints.auth import login_required, current_user
+from blueprints.auth.util import check_authenticated_ip
 
 
 @blueprint.route('/register/')
@@ -40,7 +43,7 @@ def register_pool(username):
         return redirect(url_for('auth.login'))
 
     #Is verified
-    if check_authenticated(username, request.remote_addr):
+    if check_authenticated_ip(username, request.remote_addr):
         form = RegistrationForm(request.form)
 
         if request.method == "GET":
@@ -67,25 +70,7 @@ def register_pool(username):
 
 @blueprint.route('/api/check_auth/<string:username>/')
 def check_authenticated_req(username):
-    return "YES" if check_authenticated(username, request.remote_addr) else "NO"
-
-
-def check_authenticated(username, ip):
-    return ConfirmedUsername.objects(ip=str(ip), username__iexact=username).first() is not None
-
-
-@login_required
-@blueprint.route('/api/confirm_auth/<string:username>/<string:ip>/')
-def confirm_auth_req(username, ip):
-    if not current_user.has_permission('auth.confirm_auth'):
-        abort(403)
-    confirm_auth(username, ip)
-    return "Success"
-
-
-def confirm_auth(username, ip):
-    confirmed = ConfirmedUsername(ip=ip, username=username)
-    confirmed.save()
+    return "YES" if check_authenticated_ip(request.remote_addr, username=username) else "NO"
 
 
 @blueprint.route('/ip')

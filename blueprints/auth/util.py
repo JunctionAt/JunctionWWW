@@ -5,7 +5,7 @@ import re
 from flask import abort
 from functools import wraps
 
-from models.user_model import User
+from models.user_model import User, ConfirmedUsername
 from blueprints.auth import current_user
 
 
@@ -76,3 +76,15 @@ def validate_username(username):
     if 2 <= len(username) <= 16 and re.match(r'^[A-Za-z0-9_]+$', username):
         return True
     return False
+
+
+def check_authenticated_ip(ip, uuid=None, username=None):
+    opt = dict()
+    opt.update(dict(uuid=uuid) if uuid is not None else dict())
+    opt.update(dict(username__iexact=username) if username is not None else dict())
+    return ConfirmedUsername.objects(ip=str(ip), **opt).first() is not None
+    #TODO: Check time
+
+def add_authenticated_ip(username, uuid, ip):
+    confirmed = ConfirmedUsername(ip=ip, username=username, uuid=uuid)
+    confirmed.save()

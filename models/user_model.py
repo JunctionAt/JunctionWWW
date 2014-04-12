@@ -117,4 +117,6 @@ class ConfirmedUsername(Document):
 
     username = StringField(required=True)
     ip = StringField(required=True)
+    uuid = UUIDField(required=True)
+
     created = DateTimeField(required=True, default=datetime.datetime.utcnow)
