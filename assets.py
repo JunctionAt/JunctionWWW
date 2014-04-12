@@ -38,3 +38,5 @@ def assets(app):
                        assets_folder+'js/junction/alts_graph.js',
                        filters=None, output='js/gen/graphs.%(version)s.js')
     environment.register('js_graphs', js_graphs)
+
+    return environment
