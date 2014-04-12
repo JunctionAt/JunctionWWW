@@ -4,6 +4,8 @@ PAYPAL_IPN_DEBUG_MODE = True # If true, use the paypal ipn test server instead o
 PORT = 8080 # For debug mode
 HOST = '0.0.0.0' # For debug mode
 
+MONGO_DB = "pf"
+
 SECRET_KEY = "" # Set to something long, random and unguessable. This is what protects sessions and more.
 
 UPLOAD_FOLDER = "/tmp/www/uploads"
