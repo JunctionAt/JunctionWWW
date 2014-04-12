@@ -22,11 +22,57 @@ class Role_Group(Document):
         return self.name
 
 
+class PlayerUUIDName(EmbeddedDocument):
+    mcname = StringField(required=True, min_length=3, max_length=16)
+
+    start_date = DateTimeField(required=True, default=datetime.datetime.utcnow)
+    end_date = DateTimeField(required=True, default=datetime.datetime.utcnow)
+
+
+class PlayerUUID(EmbeddedDocument):
+
+    uuid = UUIDField(required=True, unique=True, binary=False)
+    mcname = StringField(required=True, min_length=3, max_length=16)
+
+    seen_mcnames = ListField(EmbeddedDocumentField(PlayerUUIDName))
+
+    def find_seen_mcname(self, mcname):
+        """
+        Searches all seen mcnames for all occurrences of the provided username.
+        :param mcname:
+        :return: A ordered (newest first) list of PlayerUUIDName objects representing the seen mcnames and its date
+        ranges.
+        """
+        mcnames = list()
+        for seen_mcname in self.seen_mcnames:
+            if seen_mcname.mcname == mcname:
+                mcnames.append(seen_mcname)
+        mcnames.sort(key=lambda x: x.start_date, reverse=True)
+        return mcnames
+
+    def checkin_mcname(self, mcname):
+        """
+        Updates the UUID with the provided username. This should normally only be called on server login.
+        :param mcname: Ingame username
+        """
+        if self.mcname is not None and mcname.lower() == self.mcname.lower():  # If the name is already current...
+            mcname_obj = self.find_seen_mcname(mcname)[0]
+            mcname_obj.end_date = datetime.datetime.utcnow()  # update last seen...
+            mcname_obj.mcname = mcname  # and username casing.
+        else:  # Else if the username isn't current...
+            self.mcname = mcname  # set current username...
+            mcname_obj = PlayerUUIDName()
+            mcname_obj.mcname = mcname
+            self.seen_mcnames.append(mcname_obj)  # and add a new history object.
+
+
 class User(Document, flask_login.UserMixin, object):
 
     name = StringField(required=True, unique=True)
     # noinspection PyShadowingBuiltins
     hash = StringField(required=True)
+
+    minecraft_user = EmbeddedDocumentField(PlayerUUID)
 
     mail = StringField()
     mail_verified = BooleanField(default=False)
@@ -42,8 +88,6 @@ class User(Document, flask_login.UserMixin, object):
     #The permissions list should ONLY be used in very specific cases. (Api accounts?)
     role_groups = ListField(ReferenceField(Role_Group, dbref=False))
     roles = ListField(StringField())
-
-    api_account = BooleanField(default=False)
 
     meta = {
         'collection': 'users',
