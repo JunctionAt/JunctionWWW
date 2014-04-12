@@ -24,8 +24,9 @@ class ExtensionAccessObject(object):
         self.assets = assets(current_app)
 
 
-def construct_application():
+def construct_application(config_override=None):
     # Setup App
+    if not config_override: config_override = dict()
     application = Flask(__name__)
 
     # Setup Extensions
@@ -42,6 +43,7 @@ def construct_application():
     with application.app_context():
         from config import local_config
         application.config.from_object(local_config)
+        application.config.from_object(config_override)
 
     with application.app_context():
         application.extension_access_object = ExtensionAccessObject()
