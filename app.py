@@ -48,8 +48,6 @@ with application.app_context():
 for blueprint in application.config["BLUEPRINTS"]:
     application.register_blueprint(**blueprint)
 
-from blueprints import base
-
 # Read the git hash from a file. This should be set by the deploy script
 try:
     with open('version_hash', 'r') as version_file:
