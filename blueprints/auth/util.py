@@ -77,13 +77,17 @@ def validate_username(username):
         return True
     return False
 
-
+import datetime
 def check_authenticated_ip(ip, uuid=None, username=None):
+
+    time_check = datetime.datetime.utcnow() - datetime.timedelta(minutes=15)
+
     opt = dict()
     opt.update(dict(uuid=uuid) if uuid is not None else dict())
     opt.update(dict(username__iexact=username) if username is not None else dict())
-    return ConfirmedUsername.objects(ip=str(ip), **opt).first() is not None
-    #TODO: Check time
+
+    return ConfirmedUsername.objects(ip=str(ip), created__gt=time_check, **opt).order_by('-created').first()
+
 
 def add_authenticated_ip(username, uuid, ip):
     confirmed = ConfirmedUsername(ip=ip, username=username, uuid=uuid)

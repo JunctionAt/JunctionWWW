@@ -9,7 +9,8 @@ from wtforms.validators import Email, Required, Length, EqualTo, Optional
 import bcrypt
 
 from .. import blueprint
-from models.user_model import ConfirmedUsername, User
+from models.user_model import User
+from models.player_model import MinecraftPlayer
 from blueprints.auth import login_required, current_user
 from blueprints.auth.util import check_authenticated_ip
 
@@ -43,7 +44,8 @@ def register_pool(username):
         return redirect(url_for('auth.login'))
 
     #Is verified
-    if check_authenticated_ip(request.remote_addr, username=username):
+    auth_check = check_authenticated_ip(request.remote_addr, username=username)
+    if auth_check:
         form = RegistrationForm(request.form)
 
         if request.method == "GET":
@@ -51,10 +53,14 @@ def register_pool(username):
 
         elif request.method == "POST":
             if form.validate():
+                player = MinecraftPlayer(uuid=auth_check.uuid)
+                player.checkin_mcname(auth_check.username)
+                player.save()
                 user = User(
                     name=username,
                     hash=bcrypt.hashpw(form.password.data, bcrypt.gensalt()),
-                    mail=form.mail.data)
+                    mail=form.mail.data,
+                    minecraft_player=player)
                 user.save()
                 flash("Registration complete!", category="success")
                 return redirect(url_for('auth.login'))

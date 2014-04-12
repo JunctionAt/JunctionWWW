@@ -1,11 +1,13 @@
 __author__ = 'hansihe'
 
-from mongoengine import Document, UUIDField, StringField, EmbeddedDocument, EmbeddedDocumentField, DateTimeField, ListField
+from mongoengine import Document, UUIDField, StringField, EmbeddedDocument, EmbeddedDocumentField, DateTimeField, ListField, BooleanField
 import datetime
 
 
 class PlayerName(EmbeddedDocument):
     mcname = StringField(required=True, min_length=3, max_length=16)
+
+    before_uuid_update = BooleanField(default=False)
 
     start_date = DateTimeField(required=True, default=datetime.datetime.utcnow)
     end_date = DateTimeField(required=True, default=datetime.datetime.utcnow)
