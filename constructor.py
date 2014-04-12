@@ -16,7 +16,7 @@ from assets import assets
 class ExtensionAccessObject(object):
     def __init__(self):
         self.cache = Cache(current_app, config={'CACHE_TYPE': 'simple'})
-        self.mongo = connect("pf")
+        self.mongo = connect(current_app.config["MONGO_DB"])
         self.mail = Mail(current_app)
         self.admin = Admin(current_app)
         self.rest_api = Api(current_app, prefix="/api")
@@ -26,7 +26,6 @@ class ExtensionAccessObject(object):
 
 def construct_application(config_override=None):
     # Setup App
-    if not config_override: config_override = dict()
     application = Flask(__name__)
 
     # Setup Extensions
