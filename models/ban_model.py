@@ -46,9 +46,14 @@ class Appeal(EmbeddedDocument):
 
 
 class Ban(Document):
+    """
+    Issuer should be stored as a user, target as player.
+    """
     uid = SequenceField(unique=True)
-    issuer = StringField(required=True)
+
+    issuer_old = StringField(required=True)
     username = StringField(required=True)
+
     reason = StringField(required=True)
     server = StringField(required=True)
     time = DateTimeField(default=datetime.datetime.utcnow)

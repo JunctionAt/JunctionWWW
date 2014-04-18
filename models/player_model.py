@@ -53,7 +53,7 @@ class MinecraftPlayer(Document):
 
     @classmethod
     def find_or_create_player(cls, uuid, mcname):
-        player = MinecraftPlayer.objects(uuid=uuid).first()
+        player = MinecraftPlayer.find_player(uuid)
         if not player:
             player = MinecraftPlayer(uuid=uuid)
 
@@ -62,3 +62,7 @@ class MinecraftPlayer(Document):
         player.save()
 
         return player
+
+    @classmethod
+    def find_player(cls, uuid):
+        return MinecraftPlayer.objects(uuid=uuid).first()
