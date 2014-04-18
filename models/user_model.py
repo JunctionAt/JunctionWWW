@@ -3,6 +3,12 @@ import datetime
 
 from mongoengine import *
 from flask import url_for
+from player_model import MinecraftPlayer
+
+
+class NonWritableUUIDField(UUIDField):
+    def __set__(self, instance, value):
+        raise AttributeError("This UUID field should never be written to.")
 
 
 class Role_Group(Document):
@@ -28,7 +34,12 @@ class User(Document, flask_login.UserMixin, object):
     # noinspection PyShadowingBuiltins
     hash = StringField(required=True)
 
-    minecraft_player = ReferenceField("MinecraftPlayer", required=True)
+    # Since the primary of the MinecraftPlayer collection is a UUID, we can make a second field here
+    # with the same db_field. This will make the field possible to query without actually fetching
+    # any data from the MinecraftPlayer collection. (You cannot write the UUID directly, bad things would
+    # happen if a document with that UUID didn't exist in the MinecraftPlayer collection)
+    minecraft_player = ReferenceField("MinecraftPlayer", db_field="minecraft_player", required=True)
+    minecraft_player_uuid = NonWritableUUIDField(db_field="minecraft_player", unique=True)
 
     mail = StringField()
     mail_verified = BooleanField(default=False)
@@ -96,6 +107,18 @@ class User(Document, flask_login.UserMixin, object):
 
     def get_avatar_url(self):
         return url_for('avatar.get_avatar', name=self.name)
+
+    @classmethod
+    def get_user_by_uuid(cls, uuid):
+        return User.objects(minecraft_player_uuid=uuid).first()
+
+    @classmethod
+    def get_user_by_username(cls, username):
+        return User.objects(name=username).first()
+
+    @classmethod
+    def get_user_by_mcname(cls, mcname):
+        return User.objects(minecraft_player=MinecraftPlayer.objects(mcname=mcname).first()).first()  # phew
 
 
 #class Token(Document):
