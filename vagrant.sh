@@ -20,6 +20,7 @@ fi
 echo "Setting up mongo.."
 sed -i "s/^\(bind_ip\s*=\s*\).*$/\10\.0\.0\.0/" /etc/mongodb.conf
 systemctl enable mongodb
+systemctl start mongodb
 
 echo "Attempting to create convenience symlink.."
 user_run ln -s /www-src/ /home/vagrant/
