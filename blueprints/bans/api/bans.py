@@ -110,9 +110,9 @@ class Bans(Resource):
         return {'bans': bans}
 
     post_parser = RequestParser()
-    post_parser.add_argument("username", type=str, required=True) # Username to ban
-    post_parser.add_argument("reason", type=str, required=True) # A optional reason for the ban
-    post_parser.add_argument("server", type=str, required=True) # A optional server/interface where the ban was made
+    post_parser.add_argument("username", type=str, required=True)  # Username to ban
+    post_parser.add_argument("reason", type=str, required=True)  # A optional reason for the ban
+    post_parser.add_argument("server", type=str, required=True)  # A optional server/interface where the ban was made
     # Issuer is provided in as_user
 
     def validate_post(self, args):
