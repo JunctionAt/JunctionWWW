@@ -51,7 +51,7 @@ class Ban(Document):
     """
     uid = SequenceField(unique=True)
 
-    issuer_old = StringField(required=True)
+    issuer = StringField(required=True, db_field="issuer_old")
     username = StringField(required=True)
 
     reason = StringField(required=True)
