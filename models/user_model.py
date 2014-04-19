@@ -29,7 +29,7 @@ class User(Document, flask_login.UserMixin, object):
     # noinspection PyShadowingBuiltins
     hash = StringField(required=True)
 
-    minecraft_player = ReferenceField("MinecraftPlayer", db_field="minecraft_player")
+    minecraft_player = ReferenceField("MinecraftPlayer", db_field="minecraft_player", dbref=False)
 
     mail = StringField()
     mail_verified = BooleanField(default=False)
