@@ -1,3 +1,6 @@
+from blueprints import uuid_utils
+from models.player_model import MinecraftPlayer
+
 __author__ = 'HansiHE'
 
 from flask import request
@@ -111,6 +114,7 @@ class Bans(Resource):
 
     post_parser = RequestParser()
     post_parser.add_argument("username", type=str, required=True)  # Username to ban
+    post_parser.add_argument("uuid", type=str)
     post_parser.add_argument("reason", type=str, required=True)  # A optional reason for the ban
     post_parser.add_argument("server", type=str, required=True)  # A optional server/interface where the ban was made
     # Issuer is provided in as_user
@@ -136,12 +140,15 @@ class Bans(Resource):
         username = args.get("username")
         reason = args.get("reason")
         source = args.get("server")
+        uuid = args.get("uuid") or uuid_utils.lookup_uuid(username)  # TODO: Remove on 1.8
+
+        player = MinecraftPlayer.find_or_create_player(uuid, username)
 
         if len(Ban.objects(username=username, active=True)) > 0:
             return {
                 'error': [{'message': "the user is already banned", 'identifier': "anathema.bans.add:user_already_exists"}]}
 
-        ban = Ban(issuer_old=issuer, username=username, reason=reason, server=source).save()
+        ban = Ban(issuer_old=issuer, target=player, username=username, reason=reason, server=source).save()
 
         return {'ban': construct_local_ban_data(ban)}
 
