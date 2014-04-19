@@ -51,7 +51,7 @@ class Ban(Document):
     """
     uid = SequenceField(unique=True)
 
-    target = ReferenceField('MinecraftPlayer', required=True)
+    target = ReferenceField('MinecraftPlayer')
     issuer = ReferenceField('User', db_field="issuer")
 
     issuer_old = StringField(required=True, db_field="issuer_old")

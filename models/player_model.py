@@ -17,7 +17,7 @@ class MinecraftPlayer(Document):
     """
 
     """
-    uuid = UUIDField(primary_key=True, unique=True, required=True)
+    uuid = UUIDField(binary=False, primary_key=True, unique=True, required=True)
     mcname = StringField(min_length=3, max_length=16, required=True)
 
     seen_mcnames = ListField(EmbeddedDocumentField(PlayerName))
