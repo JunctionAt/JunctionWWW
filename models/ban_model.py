@@ -52,9 +52,9 @@ class Ban(Document):
     uid = SequenceField(unique=True)
 
     target = ReferenceField('MinecraftPlayer')
-    issuer_new = ReferenceField('User', db_field="issuer")
+    issuer = ReferenceField('User', db_field="issuer")
 
-    issuer = StringField(required=True, db_field="issuer_old")
+    issuer_old = StringField(required=True, db_field="issuer_old")
     username = StringField(required=True)
 
     reason = StringField(required=True)
@@ -87,7 +87,7 @@ class Ban(Document):
 
     meta = {
         'collection': 'bans',
-        'indexed': ['uid', 'issuer', 'username', 'appeal']
+        'indexed': ['uid', 'issuer_old', 'username', 'appeal']
     }
 
 

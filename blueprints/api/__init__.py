@@ -1,3 +1,5 @@
+from models.player_model import MinecraftPlayer
+
 __author__ = 'HansiHE'
 
 from flask import request, Blueprint
@@ -73,24 +75,34 @@ def require_api_key(required_access_tokens=list(), allow_user_permission=False, 
                     return {'error': [{'message': "api key doesn't have access to '%s'" % access, 'identifier': "permission#%s" % access}]}
 
             # Check for the AsUser header, apply stuff to context
-            if 'AsUser' in request.headers:
+            if 'AsUser' in request.headers or 'AsPlayer' in request.headers:
                 if 'api.as_user' not in key.access:
-                    return {'error': [{'message': "api key doesn't have access to 'api.as_user', required for using the AsUser header", 'identifier': "permission#api.as_user"}]}
+                    return {'error': [{'message': "api key doesn't have access to 'api.as_user', required for using the AsUser and AsPlayer headers", 'identifier': "permission#api.as_user"}]}
 
-                username = request.headers['AsUser']
+                if 'AsUser' in request.headers:
+                    username = request.headers['AsUser']
 
-                # Make sure the username format is valid
-                if not validate_username(username):
-                    return {'error': [{'message': "the AsUser username is not a valid minecraft username", 'identifier': "asuser_username_not_valid"}]}
+                    # Obtain user from db
+                    user = User.get_user_by_username(username)
+                    if user is None and asuser_must_be_registered:
+                        return {'error': [{'message': "the user specified in the AsUser header wasn't found", 'identifier': "asuser_not_found"}]}
 
-                # Obtain user from db
-                user = User.objects(name=username).first()
-                if user is None and asuser_must_be_registered:
-                    return {'error': [{'message': "the user specified in the AsUser header wasn't found", 'identifier': "asuser_not_found"}]}
+                    request.api_user = user
+                    request.api_user_name = username
+                elif 'AsPlayer' in request.headers:
+                    uuid = request.headers['AsPlayer']
 
-                request.api_user = user
-                request.api_user_name = username
+                    player = MinecraftPlayer.find_player(uuid)
+                    if player is None:
+                        return {'error': [{'message': "player uuid specified in AsPlayer header is not registered in database (has not logged in?)", 'identifier': "player_uuid_not_found"}]}
 
+                    user = User.get_user_by_uuid(player)
+                    if user is None and asuser_must_be_registered:
+                        return {'error': [{'message': "the uuid specified in the AsPlayer field is not owned by a website user", 'identifier': "asuser_not_found"}]}
+
+                    request.api_user = user
+                    request.api_user_name = user.name
+                    request.api_player = player
             else:
                 request.api_user = key.owner
                 request.api_user_name = key.owner.name

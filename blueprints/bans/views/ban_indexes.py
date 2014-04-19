@@ -90,7 +90,7 @@ bans.add_url_rule('/a/bans/your/<int:page>', 'your_bans', your_bans)
 
 
 created_bans = Index(Ban, 'created_bans', "Bans you've made", "No bans found.", 'no_result_bans.html', 'bans_index.html', require_permissions('bans.create'))
-created_bans.query = {"issuer": lambda: current_user.name}
+created_bans.query = {"issuer_old": lambda: current_user.name}
 created_bans.order_by = ['-time']
 
 bans.add_url_rule('/a/bans/created/', 'created_bans', created_bans, defaults={'page': 1})

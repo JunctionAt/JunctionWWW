@@ -38,7 +38,7 @@ def get_local_bans(username=None, uid=None, active=None):
 
 def construct_local_ban_data(ban):
     return dict(
-        id=ban.uid, issuer=ban.issuer, username=ban.username, reason=ban.reason,
+        id=ban.uid, issuer_old=ban.issuer, username=ban.username, reason=ban.reason,
         server=ban.server,
         time=ban.time.strftime(datetime_format) if ban.time is not None else None,
         active=ban.active,
@@ -141,7 +141,7 @@ class Bans(Resource):
             return {
                 'error': [{'message': "the user is already banned", 'identifier': "anathema.bans.add:user_already_exists"}]}
 
-        ban = Ban(issuer=issuer, username=username, reason=reason, server=source).save()
+        ban = Ban(issuer_old=issuer, username=username, reason=reason, server=source).save()
 
         return {'ban': construct_local_ban_data(ban)}
 

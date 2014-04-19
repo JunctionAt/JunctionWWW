@@ -116,7 +116,7 @@
                     <li class="key">User:</li>
                     <li class="value player-name">{{ ban_object.username }}</li>
                     <li class="key">Issuer:</li>
-                    <li class="value player-name">{{ ban_object.issuer }}</li>
+                    <li class="value player-name">{{ ban_object.issuer_old }}</li>
                     <li class="key">Date:</li>
                     <li class="value weak">{{ ban_object.time|full_date|safe }}</li>
                     {% if ban_object.removed_time or not ban_object.active %}
@@ -188,7 +188,7 @@
                         </div>
                         {%- if reply.creator.name|lower == ban_object.username|lower %}
                         <span class="secondary label">Banned</span>
-                        {%- elif reply.creator.name|lower == ban_object.issuer|lower %}
+                        {%- elif reply.creator.name|lower == ban_object.issuer_old|lower %}
                         <span class="secondary label">Issuer</span>
                         {%- endif %}
                     </div>
