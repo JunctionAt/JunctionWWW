@@ -31,7 +31,7 @@ class MinecraftPlayer(Document):
         """
         mcnames = list()
         for seen_mcname in self.seen_mcnames:
-            if seen_mcname.mcname == mcname:
+            if seen_mcname.mcname.lower() == mcname.lower():
                 mcnames.append(seen_mcname)
         mcnames.sort(key=lambda x: x.start_date, reverse=True)
         return mcnames
