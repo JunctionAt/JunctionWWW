@@ -4,6 +4,16 @@ from mongoengine import Document, UUIDField, StringField, EmbeddedDocument, Embe
 import datetime
 
 
+def validate_uuid(uuid):
+    if len(uuid) != 32:
+        return False
+    try:
+        int(uuid, 16)
+    except ValueError:
+        return False
+    return True
+
+
 class PlayerName(EmbeddedDocument):
     mcname = StringField(required=True, min_length=3, max_length=16)
 
@@ -17,7 +27,7 @@ class MinecraftPlayer(Document):
     """
 
     """
-    uuid = StringField(primary_key=True, unique=True, required=True)
+    uuid = StringField(primary_key=True, unique=True, required=True, validation=validate_uuid)
     mcname = StringField(min_length=3, max_length=16, required=True)
 
     seen_mcnames = ListField(EmbeddedDocumentField(PlayerName))
