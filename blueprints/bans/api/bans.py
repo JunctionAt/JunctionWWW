@@ -96,7 +96,7 @@ class Bans(Resource):
         if player is not None:
             return player.uuid
 
-    @require_api_key(required_access_tokens=['anathema.bans.get'], asuser_must_be_registered=False)
+    @require_api_key(required_access_tokens=['anathema.bans.get'])
     def get(self):
         args = self.get_parser.parse_args()
         validate_args = self.validate_get(args)
@@ -120,7 +120,7 @@ class Bans(Resource):
 
     post_parser = RequestParser()
     post_parser.add_argument("username", type=str, required=True)  # Username to ban
-    post_parser.add_argument("uuid", type=str)
+    post_parser.add_argument("uuid", type=str)  # TODO: Make required when our shit is updated
     post_parser.add_argument("reason", type=str, required=True)  # A optional reason for the ban
     post_parser.add_argument("server", type=str, required=True)  # A optional server/interface where the ban was made
     # Issuer is provided in as_user
@@ -142,6 +142,8 @@ class Bans(Resource):
         if validate_args:
             return validate_args
 
+
+
         issuer = request.api_user
         username = args.get("username")
         reason = args.get("reason")
@@ -154,7 +156,7 @@ class Bans(Resource):
             return {
                 'error': [{'message': "the user is already banned", 'identifier': "anathema.bans.add:user_already_exists"}]}
 
-        ban = Ban(issuer=issuer, issuer_old=issuer.name, target=player, username=username, reason=reason, server=source).save()
+        ban = Ban(issuer=issuer, issuer_old=issuer.name, target=player, username=player.mcname, reason=reason, server=source).save()
 
         return {'ban': construct_local_ban_data(ban)}
 

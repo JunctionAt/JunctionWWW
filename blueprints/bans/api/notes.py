@@ -1,3 +1,6 @@
+from blueprints import uuid_utils
+from models.player_model import MinecraftPlayer
+
 __author__ = 'zifnab06'
 
 from flask import request
@@ -65,9 +68,10 @@ def get_notes(username=None, uid=None, active=None, scope="local"):
 
 class Notes(Resource):
     get_parser = RequestParser()
-    get_parser.add_argument("username", type=str)
+    get_parser.add_argument("username", type=str)  # TODO: Temporary
+    get_parser.add_argument("uuid", type=str)
     get_parser.add_argument("id", type=int)
-    get_parser.add_argument("scope", type=str, default="local", choices=["local", "global", "full"])
+    get_parser.add_argument("active", type=str, default="true", choices=["true", "false", "none"])
     get_parser.add_argument("scope", type=str, default="local", choices=["local", "global", "full"])
 
     def validate_get(self, args):
@@ -80,7 +84,7 @@ class Notes(Resource):
         if args.get("active") == "False" and args.get("scope") != "local":
             return {'error': [{"message": "query for non active bans can only be used in local scope"}]}
 
-    @require_api_key(required_access_tokens=['anathema.notes.get'], asuser_must_be_registered=False)
+    @require_api_key(required_access_tokens=['anathema.notes.get'])
     def get(self):
         args = self.get_parser.parse_args()
         validate_args = self.validate_get(args)
@@ -106,6 +110,7 @@ class Notes(Resource):
 
     post_parser = RequestParser()
     post_parser.add_argument("username", type=str, required=True) #username to add note to
+    post_parser.add_argument("uuid", type=str)  # TODO: Make required when our shit is updated
     post_parser.add_argument("note", type=str, required=True) #required note mesasge
     post_parser.add_argument("server", type=str, required=True) #required server note was made on
 
@@ -119,19 +124,22 @@ class Notes(Resource):
         if args.get("server") and Server.verify_fid(args.get("server")): #len(args.get("server")) > 10:
             return {'error': [{"message": "the location must be below 10 characters long"}]}
 
-    @require_api_key(required_access_tokens=['anathema.notes.post'], asuser_must_be_registered=False)
+    @require_api_key(required_access_tokens=['anathema.notes.post'])
     def post(self):
         args = self.post_parser.parse_args()
         validate_args = self.validate_post(args)
         if validate_args:
             return validate_args
 
-        issuer = request.api_user_name
+        issuer = request.api_user
         username = args.get("username")
         note = args.get("note")
         source = args.get("server")
+        uuid = args.get("uuid") or uuid_utils.lookup_uuid(username)  # TODO: Remove on 1.8
 
-        note = Note(issuer=issuer, username=username, note=note, server=source).save()
+        player = MinecraftPlayer.find_or_create_player(uuid, username)
+
+        note = Note(issuer=issuer, issuer_old=issuer.name, target=player, username=player.mcname, note=note, server=source).save()
         return {'note': construct_local_note_data(note)}
 
 
