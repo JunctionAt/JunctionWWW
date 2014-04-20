@@ -93,8 +93,13 @@ class Ban(Document):
 
 class Note(Document):
     uid = SequenceField(unique=True)
-    issuer = StringField(required=True)
+
+    target = ReferenceField('MinecraftPlayer', dbref=False, required=True)
+    issuer = ReferenceField('User', db_field="issuer", dbref=False, required=True)
+
+    issuer_old = StringField(required=True, db_field="issuer_old")
     username = StringField(required=True)
+
     note = StringField(required=True)
     server = StringField(required=True)
     time = DateTimeField(default=datetime.datetime.utcnow)
