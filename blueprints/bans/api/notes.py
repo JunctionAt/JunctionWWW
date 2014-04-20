@@ -39,11 +39,11 @@ def get_local_notes(uuid=None, uid=None, active=None):
 
 def construct_local_note_data(note):
     return dict(
-        id = note.uid, issuer = note.issuer, username = note.username,
-        server = note.server,
-        time = note.time.strftime(datetime_format) if note.time is not None else None,
-        active = note.active,
-        note = note.note
+        id=note.uid, issuer=note.issuer.name, username=note.target.mcname,
+        server=note.server,
+        time=note.time.strftime(datetime_format) if note.time is not None else None,
+        active=note.active,
+        note=note.note
     )
 
 def get_global_notes(uuid):
