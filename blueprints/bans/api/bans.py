@@ -20,11 +20,11 @@ class InvalidDataException(Exception):
     pass
 
 
-def get_local_bans(username=None, uid=None, active=None):
+def get_local_bans(uuid=None, uid=None, active=None):
     query = dict()
 
-    if username is not None:
-        query['username'] = re.compile(username, re.IGNORECASE)
+    if uuid is not None:
+        query['target'] = uuid
     if uid is not None:
         query['uid'] = uid
     if active is not None:
@@ -49,11 +49,11 @@ def construct_local_ban_data(ban):
         remove_user=ban.removed_by, source='local')
 
 
-def get_global_bans(username):
+def get_global_bans(uuid):
     return [] #Not implemented
 
 
-def get_bans(username=None, uid=None, active=None, scope="local"):
+def get_bans(uuid=None, uid=None, active=None, scope="local"):
     """
 
     :param username:
@@ -66,29 +66,35 @@ def get_bans(username=None, uid=None, active=None, scope="local"):
     bans_raw = list()
 
     if scope == 'local' or scope == 'full':
-        bans_raw += get_local_bans(username=username, uid=uid, active=active)
+        bans_raw += get_local_bans(uuid=uuid, uid=uid, active=active)
     elif scope == 'global' or scope == 'full':
-        bans_raw += get_global_bans(username=username)
+        bans_raw += get_global_bans(uuid=uuid)
 
     return bans_raw
 
 
 class Bans(Resource):
     get_parser = RequestParser()
-    get_parser.add_argument("username", type=str)
+    get_parser.add_argument("username", type=str)  # TODO: Temporary
+    get_parser.add_argument("uuid", type=str)
     get_parser.add_argument("id", type=int)
     get_parser.add_argument("active", type=str, default="true", choices=["true", "false", "none"])
     get_parser.add_argument("scope", type=str, default="local", choices=["local", "global", "full"])
 
     def validate_get(self, args):
         if not (args.get("username") and validate_username(args.get("username"))) and not args.get("id"):
-            return {'error': [{"message": "a id or a username must be provided"}]}
+            return {'error': [{"message": "an id or a uuid must be provided"}]}
 
         if args.get("id") and args.get("scope") != "local":
             return {'error': [{"message": "query by id can only be used in local scope"}]}
 
         if args.get("active") == "False" and args.get("scope") != "local":
             return {'error': [{"message": "query for non active bans can only be used in local scope"}]}
+
+    def temp_get_uuid_from_mcname(self, mcname):  #TODO: Remove
+        player = MinecraftPlayer.objects(mcname__iexact=mcname).first()
+        if player is not None:
+            return player.uuid
 
     @require_api_key(required_access_tokens=['anathema.bans.get'], asuser_must_be_registered=False)
     def get(self):
@@ -97,7 +103,7 @@ class Bans(Resource):
         if validate_args:
             return validate_args
 
-        username = args.get("username")
+        uuid = args.get("uuid") or self.temp_get_uuid_from_mcname(args.get("username"))
         uid = args.get("id")
         active_str = args.get("active")
         active = None
@@ -108,7 +114,7 @@ class Bans(Resource):
                 active = False
         scope = args.get("scope")
 
-        bans = get_bans(username, uid, active, scope)
+        bans = get_bans(uuid, uid, active, scope)
 
         return {'bans': bans}
 
@@ -129,14 +135,14 @@ class Bans(Resource):
         if args.get("server") and Server.verify_fid(args.get("server")): #len(args.get("server")) > 100:
             return {'error': [{"message": "the server field must be a valid fid"}]}
 
-    @require_api_key(required_access_tokens=['anathema.bans.post'], asuser_must_be_registered=False)
+    @require_api_key(required_access_tokens=['anathema.bans.post'])
     def post(self):
         args = self.post_parser.parse_args()
         validate_args = self.validate_post(args)
         if validate_args:
             return validate_args
 
-        issuer = request.api_user_name
+        issuer = request.api_user
         username = args.get("username")
         reason = args.get("reason")
         source = args.get("server")
@@ -148,7 +154,7 @@ class Bans(Resource):
             return {
                 'error': [{'message': "the user is already banned", 'identifier': "anathema.bans.add:user_already_exists"}]}
 
-        ban = Ban(issuer_old=issuer, target=player, username=username, reason=reason, server=source).save()
+        ban = Ban(issuer=issuer, issuer_old=issuer.name, target=player, username=username, reason=reason, server=source).save()
 
         return {'ban': construct_local_ban_data(ban)}
 
