@@ -6,7 +6,7 @@ import datetime
 
 class PlayerIpsModel(mongoengine.Document):
 
-    player = mongoengine.ReferenceField('MinecraftPlayer', dbref=False)
+    player = mongoengine.ReferenceField('MinecraftPlayer', dbref=False, required=True)
     username = mongoengine.StringField(required=True, unique=True)
     ips = mongoengine.ListField(mongoengine.StringField(), required=True)
 
@@ -28,7 +28,7 @@ class IpPlayersModel(mongoengine.Document):
 
     ip = mongoengine.StringField(required=True, unique=True)
     usernames = mongoengine.ListField(mongoengine.StringField(), required=True)
-    players = mongoengine.ListField(mongoengine.ReferenceField('MinecraftPlayer', dbref=False))
+    players = mongoengine.ListField(mongoengine.ReferenceField('MinecraftPlayer', dbref=False), required=True)
 
     last_login = mongoengine.DateTimeField(required=True, default=datetime.datetime.utcnow())
 
