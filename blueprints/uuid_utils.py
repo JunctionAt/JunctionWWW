@@ -58,3 +58,10 @@ def lookup_uuid(username):
         if result.get(u"name", None).lower() == username.lower():
             return result.get(u"id", None)
     return None
+
+def lookup_uuid_name(username):
+    res = get_uuid(username)
+    for result in res:
+        if result.get(u"name", None).lower() == username.lower():
+            return result.get(u"id", None), result.get(u"name")
+    return None
