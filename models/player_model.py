@@ -4,16 +4,6 @@ from mongoengine import Document, UUIDField, StringField, EmbeddedDocument, Embe
 import datetime
 
 
-def validate_uuid(uuid):
-    if len(uuid) != 32:
-        return False
-    try:
-        int(uuid, 16)
-    except ValueError:
-        return False
-    return True
-
-
 class PlayerName(EmbeddedDocument):
     mcname = StringField(required=True, min_length=3, max_length=16)
 
