@@ -6,7 +6,7 @@ import datetime
 
 class PlayerIpsModel(mongoengine.Document):
 
-    player = mongoengine.ReferenceField('MinecraftPlayer', dbref=False, unique=True)
+    player = mongoengine.ReferenceField('MinecraftPlayer', dbref=False)
     username = mongoengine.StringField(required=True, unique=True)
     ips = mongoengine.ListField(mongoengine.StringField(), required=True)
 
