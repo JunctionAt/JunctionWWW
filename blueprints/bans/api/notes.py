@@ -18,11 +18,11 @@ from models.ban_model import Note
 class InvalidDataException(Exception):
     pass
 
-def get_local_notes(username=None, uid=None, active=None):
+def get_local_notes(uuid=None, uid=None, active=None):
     query = dict()
 
-    if username is not None:
-        query['username'] = re.compile(username, re.IGNORECASE)
+    if uuid is not None:
+        query['target'] = uuid
     if uid is not None:
         query['uid'] = uid
     if active is not None:
@@ -46,10 +46,10 @@ def construct_local_note_data(note):
         note = note.note
     )
 
-def get_global_notes(username):
+def get_global_notes(uuid):
     return [] #NYI
 
-def get_notes(username=None, uid=None, active=None, scope="local"):
+def get_notes(uuid=None, uid=None, active=None, scope="local"):
     """
     :param username:
     :param uid:
@@ -60,9 +60,9 @@ def get_notes(username=None, uid=None, active=None, scope="local"):
     notes_raw = list()
 
     if scope == 'local' or scope == 'full':
-        notes_raw += get_local_notes(username=username, uid=uid, active=active)
+        notes_raw += get_local_notes(uuid=uuid, uid=uid, active=active)
     elif scope == 'global' or scope == 'full':
-        notes_raw += get_global_notes(username=username)
+        notes_raw += get_global_notes(uuid=uuid)
 
     return notes_raw
 
@@ -75,7 +75,7 @@ class Notes(Resource):
     get_parser.add_argument("scope", type=str, default="local", choices=["local", "global", "full"])
 
     def validate_get(self, args):
-        if not args.get("username") and not args.get("id"):
+        if not args.get("username") and not args.get("id") and not args.get("uuid"):
             return {'error': [{"message": "an id or a username must be provided"}]}
 
         if args.get("id" and args.get("scope" != "local")):
@@ -84,6 +84,11 @@ class Notes(Resource):
         if args.get("active") == "False" and args.get("scope") != "local":
             return {'error': [{"message": "query for non active bans can only be used in local scope"}]}
 
+    def temp_get_uuid_from_mcname(self, mcname):  #TODO: Remove
+        player = MinecraftPlayer.objects(mcname__iexact=mcname).first()
+        if player is not None:
+            return player.uuid
+
     @require_api_key(required_access_tokens=['anathema.notes.get'])
     def get(self):
         args = self.get_parser.parse_args()
@@ -91,8 +96,8 @@ class Notes(Resource):
         if validate_args:
             return validate_args
 
-        username = args.get("username")
         uid = args.get("id")
+        uuid = args.get("uuid") or self.temp_get_uuid_from_mcname(args.get("username"))
 
         active_str = args.get("active")
         active = None
@@ -104,7 +109,7 @@ class Notes(Resource):
 
         scope = args.get("scope")
 
-        notes = get_notes(username, uid, active, scope)
+        notes = get_notes(uuid, uid, active, scope)
 
         return {'notes': notes}
 
