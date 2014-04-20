@@ -95,7 +95,7 @@ class Note(Document):
     uid = SequenceField(unique=True)
 
     target = ReferenceField('MinecraftPlayer', dbref=False, required=True)
-    issuer = ReferenceField('User', db_field="issuer", dbref=False, required=True)
+    issuer = ReferenceField('User', db_field="issuer", dbref=False)
 
     issuer_old = StringField(required=True, db_field="issuer_old")
     username = StringField(required=True)
