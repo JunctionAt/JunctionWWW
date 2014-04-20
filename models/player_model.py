@@ -1,3 +1,5 @@
+from blueprints import uuid_utils
+
 __author__ = 'hansihe'
 
 from mongoengine import Document, UUIDField, StringField, EmbeddedDocument, EmbeddedDocumentField, DateTimeField, ListField, BooleanField
@@ -62,11 +64,13 @@ class MinecraftPlayer(Document):
             self.seen_mcnames.append(mcname_obj)  # and add a new history object.
 
     @classmethod
-    def find_or_create_player(cls, uuid, mcname):
+    def find_or_create_player(cls, uuid, mcname=None):
         player = MinecraftPlayer.find_player(uuid)
         if not player:
             player = MinecraftPlayer(uuid=uuid)
 
+        if mcname is None:
+            mcname = uuid_utils.lookup_name(uuid)
         player.checkin_mcname(mcname)
 
         player.save()

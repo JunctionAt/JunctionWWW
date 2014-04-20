@@ -68,26 +68,20 @@ def get_notes(uuid=None, uid=None, active=None, scope="local"):
 
 class Notes(Resource):
     get_parser = RequestParser()
-    get_parser.add_argument("username", type=str)  # TODO: Temporary
-    get_parser.add_argument("uuid", type=str)
+    get_parser.add_argument("uuid", type=uuid_utils.uuid_type)
     get_parser.add_argument("id", type=int)
     get_parser.add_argument("active", type=str, default="true", choices=["true", "false", "none"])
     get_parser.add_argument("scope", type=str, default="local", choices=["local", "global", "full"])
 
     def validate_get(self, args):
-        if not args.get("username") and not args.get("id") and not args.get("uuid"):
-            return {'error': [{"message": "an id or a username must be provided"}]}
+        if not args.get("id") and not args.get("uuid"):
+            return {'error': [{"message": "an id or a uuid must be provided"}]}
 
-        if args.get("id" and args.get("scope" != "local")):
+        if args.get("id") and args.get("scope" != "local"):
             return {'error': [{"message": "query by id can only be used in local scope"}]}
 
         if args.get("active") == "False" and args.get("scope") != "local":
             return {'error': [{"message": "query for non active bans can only be used in local scope"}]}
-
-    def temp_get_uuid_from_mcname(self, mcname):  #TODO: Remove
-        player = MinecraftPlayer.objects(mcname__iexact=mcname).first()
-        if player is not None:
-            return player.uuid
 
     @require_api_key(required_access_tokens=['anathema.notes.get'])
     def get(self):
@@ -97,7 +91,7 @@ class Notes(Resource):
             return validate_args
 
         uid = args.get("id")
-        uuid = args.get("uuid") or self.temp_get_uuid_from_mcname(args.get("username"))
+        uuid = args.get("uuid")
 
         active_str = args.get("active")
         active = None
@@ -114,15 +108,11 @@ class Notes(Resource):
         return {'notes': notes}
 
     post_parser = RequestParser()
-    post_parser.add_argument("username", type=str, required=True) #username to add note to
-    post_parser.add_argument("uuid", type=str)  # TODO: Make required when our shit is updated
-    post_parser.add_argument("note", type=str, required=True) #required note mesasge
+    post_parser.add_argument("uuid", type=uuid_utils.uuid_type, required=True)
+    post_parser.add_argument("note", type=str, required=True) #required note message
     post_parser.add_argument("server", type=str, required=True) #required server note was made on
 
     def validate_post(selfself, args):
-        if args.get("username") and not validate_username(args.get("username")):
-            return {'error': [{"message": "invalid username"}]}
-
         if args.get("note") and len(args.get("note")) > 1000:
             return {'error': [{"message": "the note must be below 1000 characters long"}]}
 
@@ -137,12 +127,11 @@ class Notes(Resource):
             return validate_args
 
         issuer = request.api_user
-        username = args.get("username")
         note = args.get("note")
         source = args.get("server")
-        uuid = args.get("uuid") or uuid_utils.lookup_uuid(username)  # TODO: Remove on 1.8
+        uuid = args.get("uuid")
 
-        player = MinecraftPlayer.find_or_create_player(uuid, username)
+        player = MinecraftPlayer.find_or_create_player(uuid)
 
         note = Note(issuer=issuer, issuer_old=issuer.name, target=player, username=player.mcname, note=note, server=source).save()
         return {'note': construct_local_note_data(note)}

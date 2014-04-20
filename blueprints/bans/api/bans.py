@@ -75,14 +75,13 @@ def get_bans(uuid=None, uid=None, active=None, scope="local"):
 
 class Bans(Resource):
     get_parser = RequestParser()
-    get_parser.add_argument("username", type=str)  # TODO: Temporary
-    get_parser.add_argument("uuid", type=str)
+    get_parser.add_argument("uuid", type=uuid_utils.uuid_type)
     get_parser.add_argument("id", type=int)
     get_parser.add_argument("active", type=str, default="true", choices=["true", "false", "none"])
     get_parser.add_argument("scope", type=str, default="local", choices=["local", "global", "full"])
 
     def validate_get(self, args):
-        if not (args.get("username") and validate_username(args.get("username"))) and not args.get("id") and not args.get("uuid"):
+        if not args.get("id") and not args.get("uuid"):
             return {'error': [{"message": "an id or a uuid must be provided"}]}
 
         if args.get("id") and args.get("scope") != "local":
@@ -91,11 +90,6 @@ class Bans(Resource):
         if args.get("active") == "False" and args.get("scope") != "local":
             return {'error': [{"message": "query for non active bans can only be used in local scope"}]}
 
-    def temp_get_uuid_from_mcname(self, mcname):  #TODO: Remove
-        player = MinecraftPlayer.objects(mcname__iexact=mcname).first()
-        if player is not None:
-            return player.uuid
-
     @require_api_key(required_access_tokens=['anathema.bans.get'])
     def get(self):
         args = self.get_parser.parse_args()
@@ -103,7 +97,7 @@ class Bans(Resource):
         if validate_args:
             return validate_args
 
-        uuid = args.get("uuid") or self.temp_get_uuid_from_mcname(args.get("username"))
+        uuid = args.get("uuid")
         uid = args.get("id")
         active_str = args.get("active")
         active = None
@@ -119,16 +113,12 @@ class Bans(Resource):
         return {'bans': bans}
 
     post_parser = RequestParser()
-    post_parser.add_argument("username", type=str, required=True)  # Username to ban
-    post_parser.add_argument("uuid", type=str)  # TODO: Make required when our shit is updated
+    post_parser.add_argument("uuid", type=uuid_utils.uuid_type, required=True)
     post_parser.add_argument("reason", type=str, required=True)  # A optional reason for the ban
     post_parser.add_argument("server", type=str, required=True)  # A optional server/interface where the ban was made
     # Issuer is provided in as_user
 
     def validate_post(self, args):
-        if args.get("username") and not validate_username(args.get("username")):
-            return {'error': [{"message": "invalid username"}]}
-
         if args.get("reason") and len(args.get("reason")) > 1000:
             return {'error': [{"message": "the reason must be below 1000 characters long"}]}
 
@@ -142,17 +132,14 @@ class Bans(Resource):
         if validate_args:
             return validate_args
 
-
-
         issuer = request.api_user
-        username = args.get("username")
         reason = args.get("reason")
         source = args.get("server")
-        uuid = args.get("uuid") or uuid_utils.lookup_uuid(username)  # TODO: Remove on 1.8
+        uuid = args.get("uuid")
 
-        player = MinecraftPlayer.find_or_create_player(uuid, username)
+        player = MinecraftPlayer.find_or_create_player(uuid)
 
-        if len(Ban.objects(username=username, active=True)) > 0:
+        if len(Ban.objects(target=player, active=True)) > 0:
             return {
                 'error': [{'message': "the user is already banned", 'identifier': "anathema.bans.add:user_already_exists"}]}
 
@@ -162,28 +149,28 @@ class Bans(Resource):
 
 
     delete_parser = RequestParser()
-    delete_parser.add_argument("username", type=str)
+    delete_parser.add_argument("uuid", type=uuid_utils.uuid_type)
     delete_parser.add_argument("id", type=int)
 
     def validate_delete(self, args):
-        if not args.get("username") and not args.get("id"):
-            return {"message": "a id or a username must be provided"}
+        if not args.get("uuid") and not args.get("id"):
+            return {"message": "a id or a uuid must be provided"}
 
-    @require_api_key(required_access_tokens=['anathema.bans.delete'], asuser_must_be_registered=False)
+    @require_api_key(required_access_tokens=['anathema.bans.delete'])
     def delete(self):
         args = self.delete_parser.parse_args()
         validate_args = self.validate_delete(args)
         if validate_args:
             return validate_args
 
-        remover = request.api_user_name
-        username = args.get("username")
+        remover = request.api_user.name
+        uuid = args.get("uuid")
         uid = args.get("id")
 
         query = dict(active=True)
 
-        if username:
-            query["username"] = username
+        if uuid:
+            query["target"] = uuid
         if uid:
             query["uid"] = uid
 

@@ -1,6 +1,7 @@
 # Shamelessly stolen from https://github.com/Thezomg/mcapi/
 
 ## Based on Java from https://github.com/Mojang/AccountsClient/
+from flask.ext.restful.reqparse import Argument
 
 import requests
 import json
@@ -65,3 +66,21 @@ def lookup_uuid_name(username):
         if result.get(u"name", None).lower() == username.lower():
             return result.get(u"id", None), result.get(u"name")
     return None
+
+def lookup_name(uuid):
+    res = get_profile(uuid)
+    return res.get(u'name')
+
+def validate_uuid(uuid):
+    if len(uuid) != 32:
+        return False
+    try:
+        int(uuid, 16)
+    except ValueError:
+        return False
+    return True
+
+def uuid_type(value):
+    if not validate_uuid(value):
+        raise TypeError("'%s' is not a valid uuid" % value)
+    return value
