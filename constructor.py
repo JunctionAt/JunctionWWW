@@ -68,7 +68,9 @@ def construct_application(config_override=None):
         from airbrake import AirbrakeErrorHandler
         from flask.signals import got_request_exception
 
+        @got_request_exception.connect_via(application)
         def log_exception(sender, exception, **extra):
+            print("EXCEPTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             handler = AirbrakeErrorHandler(
                 api_key=application.config['AIRBRAKE_API_KEY'],
                 api_url=application.config['AIRBRAKE_API_URL'],
@@ -79,7 +81,6 @@ def construct_application(config_override=None):
                 request_args=request.args,
                 request_headers=request.headers)
             handler.emit(exception)
-        got_request_exception.connect(log_exception, sender=application)
 
     # Load debug stuffs
     if application.config['DEBUG']:
