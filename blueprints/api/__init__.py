@@ -32,15 +32,12 @@ def _check_user_permission(required_tokens, user):
     if not csrf.validate_csrf(request.headers.get("CSRF")):
         return False
 
-    print("ya")
-
     for token in required_tokens:
         print(token)
         print(access_tokens[token])
         if not user.has_permission(access_tokens[token]['permission']):
             return False
 
-    print("yaa")
     request.api_user = current_user
     request.api_user_name = current_user.name
     return True
