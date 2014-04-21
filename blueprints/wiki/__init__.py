@@ -31,7 +31,7 @@ class RedditSucksException(Exception): pass
 @cache.memoize(timeout=20*60)
 def get_wiki_article(wiki_url):
     try:
-        api_request = requests.get('http://api.reddit.com/r/Junction/wiki/%s' % wiki_url, timeout=1)
+        api_request = requests.get('http://api.reddit.com/r/Junction/wiki/%s' % wiki_url, timeout=3)
     except requests.RequestException:
         raise RedditSucksException()
 
@@ -50,7 +50,7 @@ def get_wiki_article(wiki_url):
 @cache.memoize(timeout=20*60)
 def get_wiki_pages():
     try:
-        api_request = requests.get('http://api.reddit.com/r/Junction/wiki/pages/', timeout=1)
+        api_request = requests.get('http://api.reddit.com/r/Junction/wiki/pages/', timeout=3)
     except requests.RequestException:
         raise RedditSucksException()
 
