@@ -1,3 +1,5 @@
+from blueprints.uuid_utils import NoSuchUserException
+
 __author__ = 'hansihe'
 
 from blueprints.api import require_api_key, register_api_access_token
@@ -30,11 +32,17 @@ class UUIDApi(Resource):
         mcname = args.get("name")
 
         if uuid:
-            player = MinecraftPlayer.find_or_create_player(uuid)
+            try:
+                player = MinecraftPlayer.find_or_create_player(uuid)
+            except NoSuchUserException, e:
+                return {'error': [{"message": e.message}]}
             return {'uuid': player.uuid, 'name': player.mcname}
 
         if mcname:
-            uuid, mcname = uuid_utils.lookup_uuid_name(mcname)
+            try:
+                uuid, mcname = uuid_utils.lookup_uuid_name(mcname)
+            except NoSuchUserException, e:
+                return {'error': [{"message": e.message}]}
             player = MinecraftPlayer.find_or_create_player(uuid, mcname)
             return {'uuid': player.uuid, 'name': player.mcname}
 
