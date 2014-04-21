@@ -19,7 +19,7 @@ class UUIDApi(Resource):
         if (not args.get("uuid") and not args.get("name")) or (args.get("uuid") and args.get("name")):
             return {'error': [{"message": "you must either query for a uuid or a name"}]}
 
-    #@require_api_key(required_access_tokens=['uuid.get'], allow_user_permission=True)
+    @require_api_key(required_access_tokens=['uuid.get'], allow_user_permission=True)
     def get(self):
         args = self.get_parser.parse_args()
         validate_args = self.validate_get(args)
@@ -34,11 +34,7 @@ class UUIDApi(Resource):
             return {'uuid': player.uuid, 'name': player.mcname}
 
         if mcname:
-            try:
-                uuid, mcname = uuid_utils.lookup_uuid_name(mcname)
-            except Exception, e:
-                e.message += " | uuid lookup from mcname failed"
-                raise e
+            uuid, mcname = uuid_utils.lookup_uuid_name(mcname)
             player = MinecraftPlayer.find_or_create_player(uuid, mcname)
             return {'uuid': player.uuid, 'name': player.mcname}
 
