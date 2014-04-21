@@ -34,7 +34,7 @@ class IpPlayersModel(mongoengine.Document):
         self.update(set__last_login=datetime.datetime.utcnow())
 
     def update_last_login_and_add_entry(self, entry):
-        self.update(set__last_login=datetime.datetime.utcnow(), add_to_set__usernames=entry.mcname, add_to_set__players=entry)
+        self.update(set__last_login=datetime.datetime.utcnow(), add_to_set__players=entry)
 
     meta = {
         'collection': 'ip_player_relationships',
