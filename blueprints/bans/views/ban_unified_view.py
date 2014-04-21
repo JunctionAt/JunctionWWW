@@ -44,7 +44,7 @@ def view_ban(ban_uid):
     if current_user.has_permission("bans.appeal.alts"):
         user_ips = PlayerIpsModel.objects(player=ban.target).first()
         if user_ips:
-            alts = PlayerIpsModel.objects(ips__in=user_ips.ips, player__not=ban.target.uuid)
+            alts = PlayerIpsModel.objects(ips__in=user_ips.ips, player__ne=ban.target)
 
     unlock_time_form = AppealUnlockTimeForm()
     if appeal.unlock_time:
