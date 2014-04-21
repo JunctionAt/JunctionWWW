@@ -72,7 +72,7 @@ class MinecraftPlayer(Document):
         if mcname is None:
             mcname = uuid_utils.lookup_name(uuid)
             if mcname is None:
-                raise LookupError("could not lookup mcname from uuid %s" % uuid)
+                raise LookupError("could not lookup mcname from uuid '%s'" % uuid)
         player.checkin_mcname(mcname)
 
         player.save()

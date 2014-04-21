@@ -61,19 +61,19 @@ def lookup_uuid(username):
     for result in res:
         if result.get(u"name", None).lower() == username.lower():
             return result.get(u"id", None)
-    raise NoSuchUserException("Username: " % username)
+    raise NoSuchUserException("no user exists with the username '%s'" % username)
 
 def lookup_uuid_name(username):
     res = get_uuid(username)
     for result in res:
         if result.get(u"name", None).lower() == username.lower():
             return result.get(u"id", None), result.get(u"name")
-    raise NoSuchUserException("Username: " % username)
+    raise NoSuchUserException("no user exists with the username '%s'" % username)
 
 def lookup_name(uuid):
     res = get_profile(uuid)
     if not res.get(u'name'):
-        raise NoSuchUserException("Username: " % uuid)
+        raise NoSuchUserException("no user exists with the uuid '%s'" % uuid)
     return res.get(u'name')
 
 def validate_uuid(uuid):
