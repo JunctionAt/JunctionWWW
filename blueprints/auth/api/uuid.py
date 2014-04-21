@@ -18,7 +18,7 @@ class UUIDApi(Resource):
     get_parser.add_argument("name", type=str)
 
     def validate_get(self, args):
-        if (not args.get("uuid") and not args.get("name")) or (args.get("uuid") and args.get("name")):
+        if not args.get("uuid") and not args.get("name"):
             return {'error': [{"message": "you must either query for a uuid or a name"}]}
 
     @require_api_key(required_access_tokens=['uuid.get'], allow_user_permission=True)
