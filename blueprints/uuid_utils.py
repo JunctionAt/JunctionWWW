@@ -5,6 +5,7 @@ from flask.ext.restful.reqparse import Argument
 
 import requests
 import json
+from requests.exceptions import ConnectionError
 
 AGENT = "minecraft"
 PROFILE_URL = "https://api.mojang.com/profiles/page/{page}"
@@ -58,6 +59,8 @@ def get_uuid(*name, **kwargs):
 
 def lookup_uuid(username):
     res = get_uuid(username)
+    if not res:
+        raise ConnectionError()
     for result in res:
         if result.get(u"name", None).lower() == username.lower():
             return result.get(u"id", None)
@@ -65,6 +68,8 @@ def lookup_uuid(username):
 
 def lookup_uuid_name(username):
     res = get_uuid(username)
+    if not res:
+        raise ConnectionError()
     for result in res:
         if result.get(u"name", None).lower() == username.lower():
             return result.get(u"id", None), result.get(u"name")
@@ -72,6 +77,8 @@ def lookup_uuid_name(username):
 
 def lookup_name(uuid):
     res = get_profile(uuid)
+    if not res:
+        raise ConnectionError()
     if not res.get(u'name'):
         raise NoSuchUserException("no user exists with the uuid '%s'" % uuid)
     return res.get(u'name')

@@ -1,3 +1,4 @@
+from requests.exceptions import ConnectionError
 from blueprints.uuid_utils import NoSuchUserException
 
 __author__ = 'hansihe'
@@ -36,6 +37,8 @@ class UUIDApi(Resource):
                 player = MinecraftPlayer.find_or_create_player(uuid)
             except NoSuchUserException, e:
                 return {'error': [{"message": e.message}]}
+            except ConnectionError:
+                return {'error': [{"message": "failed to contact mojang"}]}
             return {'uuid': player.uuid, 'name': player.mcname}
 
         if mcname:
@@ -43,6 +46,8 @@ class UUIDApi(Resource):
                 uuid, mcname = uuid_utils.lookup_uuid_name(mcname)
             except NoSuchUserException, e:
                 return {'error': [{"message": e.message}]}
+            except ConnectionError:
+                return {'error': [{"message": "failed to contact mojang"}]}
             player = MinecraftPlayer.find_or_create_player(uuid, mcname)
             return {'uuid': player.uuid, 'name': player.mcname}
 
