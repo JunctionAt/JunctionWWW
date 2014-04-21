@@ -70,17 +70,34 @@ def construct_application(config_override=None):
 
         @got_request_exception.connect_via(application)
         def log_exception(sender, exception, **extra):
-            print("EXCEPTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             handler = AirbrakeErrorHandler(
                 api_key=application.config['AIRBRAKE_API_KEY'],
                 api_url=application.config['AIRBRAKE_API_URL'],
                 env_name=application.config['version_hash'],
+                env_variables={'type': 'caught'},
                 request_url=request.url,
                 request_path=request.path,
                 request_method=request.method,
                 request_args=request.args,
                 request_headers=request.headers)
             handler.emit(exception)
+        def log_error(exception):
+            handler = AirbrakeErrorHandler(
+                api_key=application.config['AIRBRAKE_API_KEY'],
+                api_url=application.config['AIRBRAKE_API_URL'],
+                env_name=application.config['version_hash'],
+                env_variables={'type': 'logged'},
+                request_url=request.url,
+                request_path=request.path,
+                request_method=request.method,
+                request_args=request.args,
+                request_headers=request.headers)
+            handler.emit(exception)
+        application.log_error = log_error
+    else:
+        def dummy_log_error(exception):
+            print(exception)
+        application.log_error = dummy_log_error
 
     # Load debug stuffs
     if application.config['DEBUG']:
