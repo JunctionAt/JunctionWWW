@@ -29,9 +29,9 @@
 <div class="ban-container">
     <div class="row">
         <div class="small-12 columns clearfix">
-            <h4 class="left">Ban #{{ ban_id }} for <span class="player-name">{{ ban_object.username }}</span></h4>
+            <h4 class="left">Ban #{{ ban_id }} for <span class="player-name">{{ ban_object.target.mcname }}</span></h4>
             {% if current_user.has_permission('alts.graph') %}
-                <a class="left" style="line-height: 42px; margin-left: 8px;" data-tooltip title="Graph Alts" href="{{ url_for('alts.graph_lookup_view', player=ban_object.username) }}"><i class="fi-share"></i></a>
+                <a class="left" style="line-height: 42px; margin-left: 8px;" data-tooltip title="Graph Alts" href="{{ url_for('alts.graph_lookup_view', player=ban_object.target.mcname) }}"><i class="fi-share"></i></a>
             {% endif %}
             <hr>
         </div>
@@ -114,9 +114,9 @@
             <div class="panel">
                 <ul class="info-list">
                     <li class="key">User:</li>
-                    <li class="value player-name">{{ ban_object.username }}</li>
+                    <li class="value player-name">{{ ban_object.target.mcname }}</li>
                     <li class="key">Issuer:</li>
-                    <li class="value player-name">{{ ban_object.issuer_old }}</li>
+                    <li class="value player-name">{{ ban_object.issuer.name }}</li>
                     <li class="key">Date:</li>
                     <li class="value weak">{{ ban_object.time|full_date|safe }}</li>
                     {% if ban_object.removed_time or not ban_object.active %}
@@ -131,7 +131,7 @@
                     {%- for note in notes %}
                         <blockquote>
                             {{ note.note }}
-                            <cite>{{ note.issuer }}</cite>
+                            <cite>{{ note.issuer.name }}</cite>
                         </blockquote>
                     {%- endfor %}
                 {%- else %}
@@ -152,7 +152,7 @@
                     <tbody>
                         {%- for alt in alts %}
                         <tr>
-                            <td>{{ user_dropdown(alt.username) }}</td>
+                            <td>{{ user_dropdown(alt.player.mcname) }}</td>
                             <td>{{ alt.last_login|full_date(classes='alert label' if alt.last_login > ban_object.time else 'secondary label')|safe }}</td>
                         </tr>
                         {%- endfor %}
@@ -186,9 +186,9 @@
                         <div class="user-info-box-container show-for-medium-up">
                             {{ user_info_box.user_info(reply.creator, type="desktop", arrow="right", date=reply.created) }}
                         </div>
-                        {%- if reply.creator.name|lower == ban_object.username|lower %}
+                        {%- if reply.creator.name|lower == ban_object.target.mcname|lower %}
                         <span class="secondary label">Banned</span>
-                        {%- elif reply.creator.name|lower == ban_object.issuer_old|lower %}
+                        {%- elif reply.creator.name|lower == ban_object.issuer.name|lower %}
                         <span class="secondary label">Issuer</span>
                         {%- endif %}
                     </div>

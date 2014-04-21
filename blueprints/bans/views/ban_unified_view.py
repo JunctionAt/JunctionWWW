@@ -36,15 +36,15 @@ def view_ban(ban_uid):
             ban.save()
 
     replies = AppealReply.objects(ban=ban).order_by('+created')
-    notes = Note.objects(username__iexact=ban.username, active=True)
+    notes = Note.objects(target=ban.target, active=True)
 
     can_post = current_user.has_permission("bans.appeal.manage") or (current_user.is_authenticated() and current_user.name.lower() == ban.username.lower() and ban.appeal.state == 'open')
 
     alts = []
     if current_user.has_permission("bans.appeal.alts"):
-        user_ips = PlayerIpsModel.objects(username__iexact=ban.username).first()
+        user_ips = PlayerIpsModel.objects(player=ban.target).first()
         if user_ips:
-            alts = PlayerIpsModel.objects(ips__in=user_ips.ips, username__not__iexact=ban.username)
+            alts = PlayerIpsModel.objects(ips__in=user_ips.ips, player__not=ban.target)
 
     unlock_time_form = AppealUnlockTimeForm()
     if appeal.unlock_time:
