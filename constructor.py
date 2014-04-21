@@ -1,3 +1,5 @@
+from werkzeug.exceptions import ClientDisconnected
+
 __author__ = 'hansihe'
 
 from flask import Flask, request
@@ -70,6 +72,8 @@ def construct_application(config_override=None):
 
         @got_request_exception.connect_via(application)
         def log_exception(sender, exception, **extra):
+            if isinstance(exception, (ClientDisconnected, )):
+                return
             handler = AirbrakeErrorHandler(
                 api_key=application.config['AIRBRAKE_API_KEY'],
                 api_url=application.config['AIRBRAKE_API_URL'],
