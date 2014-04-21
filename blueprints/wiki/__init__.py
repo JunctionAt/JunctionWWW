@@ -69,6 +69,7 @@ def display_pages():
     try:
         return render_template('wiki_listing.html', links=get_wiki_pages(), title="All Pages - Wiki")
     except RedditSucksException:
+        cache.delete_memoized('get_wiki_pages')
         return render_template('reddit_down.html', title="reddit is down - Wiki")
 
 @blueprint.route('/wiki/')
@@ -76,6 +77,7 @@ def display_index():
     try:
         return render_template('wiki_page.html', article=get_wiki_article('index'), index=True, title="Wiki")
     except RedditSucksException:
+        cache.delete_memoized('get_wiki_article', 'index')
         return render_template('reddit_down.html', title="reddit is down - Wiki")
 
 @blueprint.route('/wiki/<string:wiki_url>')
@@ -85,4 +87,5 @@ def display_wiki_article(wiki_url):
     except KeyError:
         abort(404)
     except RedditSucksException:
+        cache.delete_memoized('get_wiki_article', wiki_url)
         return render_template('reddit_down.html', title="reddit is down - Wiki")
