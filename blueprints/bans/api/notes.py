@@ -30,6 +30,9 @@ def get_local_notes(uuid=None, uid=None, active=None):
 
     notes_data = Note.objects(**query)
 
+    if notes_data is None:
+        return []
+
     notes_response = []
 
     for note_data in notes_data:
