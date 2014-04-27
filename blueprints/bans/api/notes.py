@@ -30,9 +30,6 @@ def get_local_notes(uuid=None, uid=None, active=None):
 
     notes_data = Note.objects(**query)
 
-    if notes_data is None:
-        return []
-
     notes_response = []
 
     for note_data in notes_data:
@@ -42,7 +39,7 @@ def get_local_notes(uuid=None, uid=None, active=None):
 
 def construct_local_note_data(note):
     return dict(
-        id=note.uid, issuer=note.issuer.name, username=note.target.mcname,
+        id=note.uid, issuer=note.issuer_old, username=note.target.mcname,  # TODO: Change issuer to issuer_old when we resolve issues about users not in the db being issuers
         server=note.server,
         time=note.time.strftime(datetime_format) if note.time is not None else None,
         active=note.active,
