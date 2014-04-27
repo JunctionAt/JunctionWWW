@@ -1,6 +1,3 @@
-from blueprints import uuid_utils
-from models.player_model import MinecraftPlayer
-
 __author__ = 'HansiHE'
 
 from flask import Blueprint
@@ -10,8 +7,10 @@ import re
 from flask.ext.restful.reqparse import RequestParser
 
 from models.alts_model import PlayerIpsModel, IpPlayersModel
-from blueprints.api import require_api_key, register_api_access_token
+from blueprints.api import require_api_key, register_api_access_token, datetime_format
 from blueprints.base import rest_api
+from blueprints import uuid_utils
+from models.player_model import MinecraftPlayer
 
 
 alts = Blueprint('alts', __name__, template_folder='templates')
@@ -49,7 +48,7 @@ class Alts(Resource):
         if user_ips:
             alt_objects = PlayerIpsModel.objects(ips__in=user_ips.ips, player__ne=uuid)
             for alt_object in alt_objects:
-                alts.append({"player": {"name": alt_object.player.mcname, "uuid": alt_object.player.uuid}, "last_login": str(alt_object.last_login)})
+                alts.append({"player": {"name": alt_object.player.mcname, "uuid": alt_object.player.uuid}, "last_login": alt_object.last_login.strftime(datetime_format)})
         return {'alts': alts}
 
     post_parser = RequestParser()
