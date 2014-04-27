@@ -49,7 +49,7 @@ class Alts(Resource):
         if user_ips:
             alt_objects = PlayerIpsModel.objects(ips__in=user_ips.ips, player__ne=uuid)
             for alt_object in alt_objects:
-                alts.append({"name": alt_object.player.mcname, "uuid": alt_object.player.uuid, "last_login": str(alt_object.last_login)})
+                alts.append({"player": {"name": alt_object.player.mcname, "uuid": alt_object.player.uuid}, "last_login": str(alt_object.last_login)})
         return {'alts': alts}
 
     post_parser = RequestParser()
