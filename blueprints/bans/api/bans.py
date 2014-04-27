@@ -42,7 +42,7 @@ def get_local_bans(uuid=None, uid=None, active=None):
 def construct_local_ban_data(ban):
     return dict(
         id=ban.uid, issuer=ban.issuer.name, username=ban.target.mcname, reason=ban.reason,
-        target=dict(name=ban.target.name, uuid=ban.target.uuid),
+        target=dict(name=ban.target.mcname, uuid=ban.target.uuid),
         server=ban.server,
         time=ban.time.strftime(datetime_format) if ban.time is not None else None,
         active=ban.active,
