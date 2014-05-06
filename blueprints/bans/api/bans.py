@@ -177,6 +177,9 @@ class Bans(Resource):
 
         ban = Ban.objects(**query).first()
 
+        if ban is None:
+            return {'error': [{'message': "no active bans found"}]}
+
         ban.active = False
         ban.removed_by = remover
         ban.removed_time = datetime.datetime.utcnow()
