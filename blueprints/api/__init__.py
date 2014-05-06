@@ -38,6 +38,7 @@ def _check_user_permission(required_tokens, user):
         if not user.has_permission(access_tokens[token]['permission']):
             return False
 
+    request.api_user_method = "browser_session"
     request.api_user = current_user
     request.api_user_name = current_user.name
     return True
@@ -84,6 +85,7 @@ def require_api_key(required_access_tokens=list(), allow_user_permission=False, 
                     if user is None and asuser_must_be_registered:
                         return {'error': [{'message': "the user specified in the AsUser header wasn't found", 'identifier': "asuser_not_found"}]}
 
+                    request.api_user_method = 'as_user'
                     request.api_user = user
                     request.api_user_name = username
                 elif 'AsPlayer' in request.headers:
@@ -97,10 +99,12 @@ def require_api_key(required_access_tokens=list(), allow_user_permission=False, 
                     if user is None and asuser_must_be_registered:
                         return {'error': [{'message': "the uuid specified in the AsPlayer field is not owned by a website user", 'identifier': "asuser_not_found"}]}
 
+                    request.api_user_method = 'as_player'
                     request.api_user = user
-                    request.api_user_name = user.name
+                    request.api_user_name = user.name if user is not None else None
                     request.api_player = player
             else:
+                request.api_user_method = 'key_owner'
                 request.api_user = key.owner
                 request.api_user_name = key.owner.name
 
