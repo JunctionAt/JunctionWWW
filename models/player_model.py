@@ -1,3 +1,4 @@
+from uuid import UUID
 from blueprints import uuid_utils
 
 __author__ = 'hansihe'
@@ -29,7 +30,7 @@ class MinecraftPlayer(Document):
     """
 
     """
-    uuid = StringField(primary_key=True, unique=True, required=True, validation=validate_uuid)
+    uuid = StringField(primary_key=True, unique=True, required=True)
     mcname = StringField(min_length=3, max_length=16, required=True)
 
     seen_mcnames = ListField(EmbeddedDocumentField(PlayerName))
