@@ -8,6 +8,9 @@ import datetime
 
 
 def validate_uuid(uuid):
+    if isinstance(uuid, UUID):
+        return True
+
     if len(uuid) != 32:
         return False
     try:
@@ -30,7 +33,7 @@ class MinecraftPlayer(Document):
     """
 
     """
-    uuid = StringField(primary_key=True, unique=True, required=True)
+    uuid = StringField(primary_key=True, unique=True, required=True, validation=validate_uuid)
     mcname = StringField(min_length=3, max_length=16, required=True)
 
     seen_mcnames = ListField(EmbeddedDocumentField(PlayerName))
