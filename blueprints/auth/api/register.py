@@ -23,7 +23,7 @@ class IpUsernameVerification(Resource):
 
         result = check_authenticated_ip(request.remote_addr, username=args.get("username"), uuid=args.get("uuid"))
 
-        return {'verified': result}
+        return {'verified': result is not None}
 
     put_parser = RequestParser()
     put_parser.add_argument("username", type=str, required=True)
