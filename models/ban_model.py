@@ -86,7 +86,7 @@ class Ban(Document):
         return self.id
 
     def __str__(self):
-    	return 'Ban #' + self.uid
+    	return 'Ban #{0}'.format(self.uid)
 
     meta = {
         'collection': 'bans',
