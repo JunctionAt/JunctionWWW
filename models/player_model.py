@@ -38,6 +38,9 @@ class MinecraftPlayer(Document):
 
     seen_mcnames = ListField(EmbeddedDocumentField(PlayerName))
 
+    def __str__(self):
+        return 'UUID {0} - {1}'.format(self.uuid, self.mcname)
+
     def find_seen_mcname(self, mcname):
         """
         Searches all seen mcnames for all occurrences of the provided username.

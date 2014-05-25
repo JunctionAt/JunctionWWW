@@ -85,6 +85,9 @@ class Ban(Document):
     def __repr__(self):
         return self.id
 
+    def __str__(self):
+    	return 'Ban #' + self.uid
+
     meta = {
         'collection': 'bans',
         'indexed': ['uid', 'issuer_old', 'username', 'appeal']
