@@ -4,8 +4,8 @@ __author__ = 'HansiHE'
 
 from flask import render_template, request, abort, redirect, url_for, flash
 from flask.ext.wtf import Form
-from wtforms import TextField, PasswordField, SubmitField
-from wtforms.validators import Email, Required, Length, EqualTo, Optional
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import Email, InputRequired, Length, EqualTo, Optional
 import bcrypt
 
 from .. import blueprint
@@ -24,9 +24,9 @@ def register_start():
 
 
 class RegistrationForm(Form):
-    mail = TextField("Email", validators=[Optional(), Email()])
+    mail = StringField("Email", validators=[Optional(), Email()])
     password = PasswordField("Password", validators=[
-        Required("Please enter a password."),
+        InputRequired("Please enter a password."),
         Length(min=8, message="The password needs to be longer then 6 characters.")])
     password_repeat = PasswordField("Repeat Password", validators=[
         EqualTo('password', "The passwords must match.")])

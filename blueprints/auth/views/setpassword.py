@@ -2,7 +2,7 @@ __author__ = 'HansiHE'
 
 from flask_wtf import Form
 from wtforms import PasswordField
-from wtforms.validators import Required, Length, EqualTo
+from wtforms.validators import InputRequired, Length, EqualTo
 from flask_login import fresh_login_required, current_user, abort, login_required
 from flask import request, flash, redirect, url_for, render_template
 import random
@@ -15,7 +15,7 @@ from blueprints.settings.views import add_settings_pane, settings_panels_structu
 
 class SetPasswordForm(Form):
     password = PasswordField('New Password', [
-        Required("You need to enter a password."),
+        InputRequired("You need to enter a password."),
         Length(min=8, message="The password is too short.")])
     password_match = PasswordField('Verify Password', [EqualTo('password', message="The passwords didn't match.")])
 

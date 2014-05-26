@@ -85,6 +85,7 @@ def construct_application(config_override=None):
                 request_args=request.args,
                 request_headers=request.headers)
             handler.emit(exception)
+
         def log_error(exception):
             handler = AirbrakeErrorHandler(
                 api_key=application.config['AIRBRAKE_API_KEY'],

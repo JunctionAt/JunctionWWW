@@ -21,13 +21,17 @@ listings = [
         "These players were former Junction staff members and have left to play as a normal player."},
 ]
 
+
 @blueprint.route('/staff/')
 def view_staff():
     listings_data = dict()
     for listing in listings:
-        data = User.objects(role_groups__in=[Role_Group.objects(name=listing["id"]).first()]).only('name')
+        data = User.objects(
+            role_groups__in=[Role_Group.objects(name=listing["id"]).first()]
+        ).only('name')
         data = list(data)
         shuffle(data)
         listings_data[listing["id"]] = data
 
-    return render_template('staff_view_staff.html', data=listings_data, listings=listings, title="Staff")
+    return render_template('staff_view_staff.html', data=listings_data,
+                           listings=listings, title="Staff")

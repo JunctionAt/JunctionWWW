@@ -3,7 +3,7 @@ __author__ = 'williammck'
 from flask import abort, request, redirect, url_for, flash
 from flask_wtf import Form
 from wtforms import DateField, SubmitField
-from wtforms.validators import Required
+from wtforms.validators import InputRequired
 import datetime
 
 from .. import bans
@@ -13,12 +13,12 @@ from blueprints.auth import login_required, current_user
 
 class AppealUnlockTimeForm(Form):
     date = DateField('Appeal Unlock Date', validators=[
-        Required(message="A date is required.")])
+        InputRequired(message="A date is required.")])
     submit = SubmitField('Set')
 
 class BanUnbanTimeForm(Form):
     date = DateField('Unban Date', validators=[
-        Required(message="A date is required.")])
+        InputRequired(message="A date is required.")])
     submit = SubmitField('Set')
 
 @bans.route('/a/ban/<int:ban_uid>/unban', methods=["GET", "POST"])

@@ -3,7 +3,7 @@ __author__ = 'HansiHE'
 from flask import request, render_template, redirect, flash, abort
 from flask_login import login_user, login_required
 from flask_wtf import Form
-from wtforms import TextField, PasswordField, BooleanField
+from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import *
 from werkzeug.datastructures import MultiDict
 
@@ -14,9 +14,9 @@ from blueprints.auth.util import authenticate_user, LoginException
 
 
 class LoginForm(Form):
-    username = TextField('Minecraft Name', [Required("A username is required."),
+    username = StringField('Minecraft Name', [InputRequired("A username is required."),
                                             Length(min=2, max=16, message="Invalid username length.")])
-    password = PasswordField('Junction Password', validators=[Required("A password is required."),
+    password = PasswordField('Junction Password', validators=[InputRequired("A password is required."),
                                                               Length(min=8, message="The password is too short.")])
     remember = BooleanField('Remember Me', [Optional()], default=True)
 

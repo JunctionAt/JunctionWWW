@@ -3,7 +3,7 @@ __author__ = 'williammck'
 from flask import abort, request, redirect, url_for
 from flask_wtf import Form
 from wtforms import TextAreaField, SubmitField
-from wtforms.validators import Required, Length
+from wtforms.validators import InputRequired, Length
 
 from .. import bans
 from models.ban_model import Ban, AppealEdit, AppealReply
@@ -12,13 +12,13 @@ from blueprints.auth import login_required, current_user
 
 class AppealReplyTextEditForm(Form):
     text = TextAreaField('Text', validators=[
-        Required(message="Some content is required."),
+        InputRequired(message="Some content is required."),
         Length(min=1, max=5000, message="Content must be between 1 and 5000 characters long.")])
     submit = SubmitField('Edit')
 
 class BanReasonEditForm(Form):
     text = TextAreaField('Ban Reason', validators=[
-        Required(message="Some content is required."),
+        InputRequired(message="Some content is required."),
         Length(min=1, max=5000, message="Content must be between 1 and 5000 characters long.")])
     submit = SubmitField('Edit')
 

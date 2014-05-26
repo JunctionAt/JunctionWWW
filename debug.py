@@ -19,8 +19,8 @@ def setup_env():
         'flask_debugtoolbar.panels.timer.TimerDebugPanel',
         'flask_debugtoolbar.panels.profiler.ProfilerDebugPanel',
         'flask_debugtoolbar.panels.request_vars.RequestVarsDebugPanel',
-        #'flask_debugtoolbar.panels.template.TemplateDebugPanel',
-        #'flask_debugtoolbar.panels.versions.VersionDebugPanel',
+        # 'flask_debugtoolbar.panels.template.TemplateDebugPanel',
+        # 'flask_debugtoolbar.panels.versions.VersionDebugPanel',
         'flask.ext.mongoengine.panels.MongoDebugPanel',
         )
 
