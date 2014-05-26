@@ -38,8 +38,11 @@ class MinecraftPlayer(Document):
 
     seen_mcnames = ListField(EmbeddedDocumentField(PlayerName))
 
-    def __str__(self):
+    def __repr__(self):
         return '{0} - {1}'.format(self.mcname, self.uuid)
+
+    def __str__(self):
+        return self.mcname
 
     def find_seen_mcname(self, mcname):
         """
