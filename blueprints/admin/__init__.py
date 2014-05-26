@@ -74,6 +74,7 @@ admin.register(AppealReply, AppealReplyModel, category='Anathema', endpoint='adm
 # Alts
 class IpPlayersAdminModel(permission_model('alts')):
     list_display = ['ip', 'players', 'last_login']
+    search_fields = ['ip']
     can_edit = False
     can_create = False
     can_delete = False
@@ -81,6 +82,7 @@ admin.register(IpPlayersModel, IpPlayersAdminModel, name='IP -> Players', catego
 
 class PlayerIpsAdminModel(permission_model('alts')):
     list_display = ['player', 'ips', 'last_login']
+    search_fields = ['player']
     can_edit = False
     can_create = False
     can_delete = False
