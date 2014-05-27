@@ -1,0 +1,23 @@
+{% extends "settings_base.html" %}
+
+{% set current_settings_path = [{'title': "Account"}, {'title': "Two-Factor Auth", 'url': url_for('settings.tfa_pane')}, {'title': "Enable", 'url': url_for('settings.tfa_enable')}] %}
+{% set current_settings_pane = "Two-Factor Auth" %}
+
+{% block settings_pane %}
+<div class="panel">
+    <h3>Enable Two-Factor Auth</h3>
+    <p>Scan the QR code from your authenticator app, then enter a verification
+    code to confirm everything's worked.</p>
+    <p>Alternatively, enter the key directly (I'm sorry about your evening):</p>
+    <p><code>{{ secret }}</code></p>
+    <p class="text-center">
+    <img class="tfa-pane tfa-large" src="{{ url_for('settings.tfa_qrcode', small=False) }}">
+    <img class="tfa-pane tfa-small" src="{{ url_for('settings.tfa_qrcode', small=True) }}">
+    </p>
+    <form method="post" action="">
+        {{ form.hidden_tag() }}
+        {{ form.code(placeholder=form.code.label.text) }}
+        <button type="submit">Enable Two-Factor Authentication</button>
+    </form>
+</div>
+{% endblock %}

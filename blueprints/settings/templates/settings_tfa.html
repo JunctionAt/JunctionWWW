@@ -1,0 +1,22 @@
+{% extends "settings_base.html" %}
+
+{% set current_settings_path = [{'title': "Account"}, {'title': "Two-Factor Auth", 'url': url_for('settings.tfa_pane')}] %}
+{% set current_settings_pane = "Two-Factor Auth" %}
+
+{% block settings_pane %}
+<div class="panel">
+    <h3>Two-Factor Auth Settings</h3>
+    {% if current_user.tfa %}
+    <p><strong>Two-Factor Auth is enabled</strong></p>
+    <form method="post" action="{{ url_for('settings.tfa_disable') }}">
+        <div style="display:none;">
+            <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
+        </div>
+        <button class="alert" type="submit">Disable</button>
+    </form>
+    {% else %}
+    <p><strong>Two-Factor Auth is not yet enabled</strong></p>
+    <a href="{{ url_for('settings.tfa_enable') }}" class="button">Enable</a>
+    {% endif %}
+</div>
+{% endblock %}

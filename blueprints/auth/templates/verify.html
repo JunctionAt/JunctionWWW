@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% set breadcrumb_items = [
+{'title': 'Verify login', 'url': url_for('auth.verify')}]
+%}
+
+{% set current_page = 'profile' %}
+
+{% block content %}
+<div class="row">
+    <div class="small-10 small-offset-1 medium-8 medium-offset-2 large-6 large-offset-3 columns">
+        <h4>Verify login</h4>
+        <hr>
+	<p>You have activated two-factor authentication. Please enter the
+	verification code from your device.</p>
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            {%- for error_field in form.errors.values() %}
+            {%- for error in error_field %}
+            <div class="alert-box alert radius" data-alert>
+                {{ error }}
+                <a href="#" class="close">&times;</a>
+            </div>
+            {%- endfor %}
+            {%- endfor %}
+            {{ form.code(placeholder=form.code.label.text) }}
+            <button type="submit">Verify login</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

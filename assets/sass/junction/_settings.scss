@@ -32,6 +32,19 @@
     }
   }
 
+img.tfa-pane {
+  border: 1px solid #d9d9d9;
+}
+
+@media (min-width: 435px) {
+  .tfa-small { display: none; }
+}
+
+@media (max-width: 434px) {
+  .tfa-large { display: none; }
+}
+
+
 // API Settings
 .api-settings-container {
   .button {

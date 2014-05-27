@@ -28,6 +28,11 @@ class User(Document, flask_login.UserMixin, object):
     # noinspection PyShadowingBuiltins
     hash = StringField(required=True)
 
+    tfa = BooleanField(default=False)
+    tfa_method = StringField()
+    tfa_secret = StringField()
+    tfa_info = DictField()
+
     mail = StringField()
     mail_verified = BooleanField(default=False)
 

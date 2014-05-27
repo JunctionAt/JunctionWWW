@@ -2,7 +2,7 @@ __author__ = 'HansiHE'
 
 import re
 
-from flask import request, render_template, redirect, url_for, flash, abort
+from flask import request, render_template, redirect, url_for, flash, abort, session
 from flask_login import login_user, login_required
 from flask_wtf import Form
 from wtforms import TextField, PasswordField, BooleanField, ValidationError
@@ -25,24 +25,8 @@ class LoginForm(Form):
                                                               Length(min=8, message="The password is too short.")])
     remember = BooleanField('Remember Me', [Optional()], default=True)
 
-    #validate_password = Login(message="Invalid username or password.")
-
-    # def validate_password(self, field):
-    #     if reduce(lambda errors, (name, field): errors or len(field.errors), self._fields.iteritems(), False):
-    #         return
-    #     try:
-    #         self.user = User.objects(name=re.compile(self.username.data, re.IGNORECASE)).first()
-    #         if self.user is None:
-    #             raise KeyError
-    #         if self.user.hash == bcrypt.hashpw(self.password.data, self.user.hash):
-    #             return
-    #     except KeyError:
-    #         pass
-    #     raise ValidationError('Invalid username or password.')
-
 
 from blueprints.base import csrf
-@csrf.exempt
 @blueprint.route("/login", defaults=dict(ext='html'), methods=("GET", "POST"))
 def login(ext):
     if current_user.is_authenticated():
@@ -57,10 +41,11 @@ def login(ext):
             form.errors["login"] = [e.message]
             return render_template("login.html", form=form, title="Login")
 
-        #if not user.verified:
-        #    if ext == 'json': abort(403)
-        #    flash(u"Please check your mail.")
-        #    return redirect(url_for('auth.login', ext='html'))
+        if user.tfa:
+            session['tfa-logged-in'] = True
+            session['tfa-user'] = user.name
+            session['tfa-remember'] = form.remember.data
+            return redirect(url_for('auth.verify')), 303
 
         if login_user(user, remember=form.remember.data):
             if ext == 'json':
