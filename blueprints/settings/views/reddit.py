@@ -1,12 +1,11 @@
 __author__ = 'williammck'
 
-from flask import render_template, request, url_for, flash, redirect
-from flask import current_app
-# from blueprints.base import csrf
+from flask import render_template, request, url_for, flash, redirect, current_app
 from blueprints.auth import current_user, login_required
 import hashlib
 import os
 import praw
+
 from .. import blueprint
 from . import add_settings_pane, settings_panels_structure
 
@@ -69,8 +68,7 @@ def reddit_link():
         flash('Reddit username successfully linked.', category='success')
         return redirect(url_for('settings.reddit_pane'))
     except:
-        flash('Unable to link your username. Did you make sure to click accept?',
-              category='alert')
+        flash('Unable to link your username. Did you make sure to click accept?', category='alert')
         return redirect(url_for('settings.reddit_pane'))
 
 
@@ -82,8 +80,7 @@ def reddit_unlink():
     if reddit_username is not None:
         if get_flair(reddit_username) is not None:
             r_bot().get_subreddit(subreddit).set_flair(reddit_username)
-            flash('Your flair has been unset on /r/%s.' % subreddit,
-                  category='success')
+            flash('Your flair has been unset on /r/%s.' % subreddit, category='success')
         current_user.reddit_username = None
         current_user.save()
         flash('Reddit username successfully unlinked.', category='success')
@@ -101,14 +98,11 @@ def reddit_set_flair():
     reddit_username = current_user.reddit_username
     if reddit_username is not None:
         if username.lower() != reddit_username.lower():
-            r_bot().get_subreddit(subreddit).set_flair(reddit_username,
-                                                       username)
-            flash('Your flair has been set on /r/%s.' % subreddit,
-                  category='success')
+            r_bot().get_subreddit(subreddit).set_flair(reddit_username, username)
+            flash('Your flair has been set on /r/%s.' % subreddit, category='success')
             return redirect(url_for('settings.reddit_pane'))
         else:
-            flash('Your usernames are the same, so no flair is needed.',
-                  category='info')
+            flash('Your usernames are the same, so no flair is needed.', category='info')
             return redirect(url_for('settings.reddit_pane'))
     else:
         flash('You must have a username linked to do that.', category='alert')
@@ -122,8 +116,7 @@ def reddit_unset_flair():
     reddit_username = current_user.reddit_username
     if reddit_username is not None:
         r_bot().get_subreddit(subreddit).set_flair(reddit_username)
-        flash('Your flair has been unset on /r/%s.' % subreddit,
-              category='success')
+        flash('Your flair has been unset on /r/%s.' % subreddit, category='success')
         return redirect(url_for('settings.reddit_pane'))
     else:
         flash('You must have a username linked to do that.', category='alert')

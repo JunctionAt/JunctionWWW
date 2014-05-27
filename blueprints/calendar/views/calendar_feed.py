@@ -1,9 +1,11 @@
 __author__ = 'HansiHE'
 
 from flask import request, abort
-from .. import blueprint
 import datetime
 import json
+
+from .. import blueprint
+
 
 @blueprint.route('/calendar/<string:calendar_name>/<string:feed_name>.json')
 def calendar_feed(calendar_name, feed_name):

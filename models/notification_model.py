@@ -6,7 +6,6 @@ import datetime
 from models.user_model import User
 
 
-
 # Notification inheritance tree:
 #
 # BaseNotification
@@ -66,6 +65,7 @@ class PMNotification(BasePlayerSenderNotification):
 
     def render_notification(self):
         return self.message
+
 
 class BaseCustomSenderNotification(BaseNotification):
     pass

@@ -32,9 +32,9 @@ def send_pm(name):
 
         notification = PMNotification(receiver=user.name, sender=current_user.name,
                                       source="Website", message=form.text.data)
-        #    receiver=user.to_dbref(), sender_type=1, sender_user=current_user.to_dbref(),
-        #    preview="PM from %s" % current_user.name, deletable=True, type="pm", module="pm", render_type=1,
-        #    data={'text': form.text.data})
+        # receiver=user.to_dbref(), sender_type=1, sender_user=current_user.to_dbref(),
+        # preview="PM from %s" % current_user.name, deletable=True, type="pm", module="pm", render_type=1,
+        # data={'text': form.text.data})
         notification.save()
 
         flash('The PM has been successfully sent.', category='success')

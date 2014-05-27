@@ -1,5 +1,3 @@
-#from flask import Flask
-#from blueprints.base import Base, session, db
 from mongoengine import *
 import datetime
 
@@ -38,7 +36,7 @@ class Appeal(EmbeddedDocument):
     replies = ListField(ReferenceField(AppealReply, dbref=False))
     last = DateTimeField(default=datetime.datetime.utcnow, required=True)
 
-    #0:open - 1:hard closed for timeframe - 2:hard closed forever
+    # 0:open - 1:hard closed for timeframe - 2:hard closed forever
     state = StringField(choices=["open", "closed_time", "closed_forever"], required=True, default="open")
 
     unlock_time = DateTimeField()
@@ -86,7 +84,7 @@ class Ban(Document):
         return self.id
 
     def __str__(self):
-    	return 'Ban #{0}'.format(self.uid)
+        return 'Ban #{0}'.format(self.uid)
 
     meta = {
         'collection': 'bans',
@@ -108,13 +106,13 @@ class Note(Document):
     time = DateTimeField(default=datetime.datetime.utcnow)
     active = BooleanField(default=True)
 
-    def get_time (self):
+    def get_time(self):
         return self.time.strftime("%s")
 
-    def __repr__ (self):
+    def __repr__(self):
         return self.id
 
     meta = {
         'collection': 'notes',
-        'indexed': [ 'uid', 'issuer', 'username' ]
+        'indexed': ['uid', 'issuer', 'username']
     }

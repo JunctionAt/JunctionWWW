@@ -1,9 +1,7 @@
 import flask_login
-import datetime
-import re
-
 from mongoengine import *
 from flask import url_for
+from datetime import datetime
 
 
 class Role_Group(Document):
@@ -36,14 +34,14 @@ class User(Document, flask_login.UserMixin, object):
 
     reddit_username = StringField()
 
-    registered = DateTimeField(default=datetime.datetime.utcnow, required=True)
+    registered = DateTimeField(default=datetime.utcnow, required=True)
 
-    #Not currently used
-    #notifications = ListField(ReferenceField('Notification', dbref=False))
+    # Not currently used
+    # notifications = ListField(ReferenceField('Notification', dbref=False))
 
-    #Note for whoever: Most permissions should be added through groups, not adding nodes directly to users.
-    #The permissions list should ONLY be used in very specific cases. (Api accounts?)
-    #TODO: Refactor permissions into some PermissionHolder class. It can be used by both the User and ApiKey model.
+    # Note for whoever: Most permissions should be added through groups, not adding nodes directly to users.
+    # The permissions list should ONLY be used in very specific cases. (Api accounts?)
+    # TODO: Refactor permissions into some PermissionHolder class. It can be used by both the User and ApiKey model.
     role_groups = ListField(ReferenceField(Role_Group, dbref=False))
     roles = ListField(StringField())
 
@@ -79,7 +77,7 @@ class User(Document, flask_login.UserMixin, object):
 
     def has_permission(self, perm_node):
         node = unicode(perm_node)
-        #print node
+        # print node
         for permission in self.permissions:
             if permission.startswith(u"-"):
                 if permission.endswith(u"*"):
@@ -123,28 +121,13 @@ class User(Document, flask_login.UserMixin, object):
         return User.objects(name=username).first()
 
 
-#class Token(Document):
-#
-#    token = StringField(required=True)
-#    name = StringField(required=True)
-#    # noinspection PyShadowingBuiltins
-#    hash = StringField(required=True)
-#    mail = StringField()
-#    ip = StringField(required=True)
-#    expires = DateTimeField(required=True)
-#
-#    meta = {
-#        'collection': 'tokens'
-#    }
-
-
 class ConfirmedUsername(Document):
 
     username = StringField(required=True)
     ip = StringField(required=True)
     uuid = UUIDField(required=True)
 
-    created = DateTimeField(required=True, default=datetime.datetime.utcnow)
+    created = DateTimeField(required=True, default=datetime.utcnow)
 
 
 def validate_username(username):

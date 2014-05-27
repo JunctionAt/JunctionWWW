@@ -1,5 +1,6 @@
 import time
 
+
 def getbans(user):
     """ 
     Should return a dict containing info about the user.
@@ -15,7 +16,8 @@ def getbans(user):
           -   ...
     """
     time.sleep(2)
-    return {"bancount" : 0}
+    return {"bancount": 0}
+
 
 def getipbans(ip):
     """
@@ -31,7 +33,8 @@ def getipbans(ip):
               - O string : server
           -   ...
     """
-    return {"bancount" : 0}
+    return {"bancount": 0}
+
 
 def getnotes(user):
     """
@@ -48,7 +51,8 @@ def getnotes(user):
               - O string : note
           -   ...
     """
-    return {"notecount" : 0}
+    return {"notecount": 0}
+
 
 def fulllookup(user):
     """
@@ -81,5 +85,5 @@ def fulllookup(user):
               - O string : note
           -   ...
     """
-    return {"bancount" : 0, "altcount" : 0, "notecount" : 0}
+    return {"bancount": 0, "altcount": 0, "notecount": 0}
 

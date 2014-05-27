@@ -37,8 +37,7 @@ def post_reply(topic_id, topic_name):
         if not form.validate():
             return render_template('forum_post_reply.html', forum=forum, board=board, topic=topic, form=form)
 
-        post = Post(author=current_user.to_dbref(), content=form.content.data, topic=topic,
-                    forum=forum)
+        post = Post(author=current_user.to_dbref(), content=form.content.data, topic=topic, forum=forum)
         post_edit = PostEdit(author=post.author, content=post.content, date=post.date)
         post.edits.append(post_edit)
         post.save()

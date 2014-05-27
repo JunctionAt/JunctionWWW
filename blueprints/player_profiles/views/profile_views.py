@@ -53,7 +53,6 @@ def profile_text_edit(name):
 
 
 class ForumInfo(object):
-
     def __init__(self, user):
         posts_raw = Post.objects(author=user.to_dbref()).order_by('-date')
         self.post_num = len(posts_raw)

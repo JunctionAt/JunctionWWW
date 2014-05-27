@@ -41,23 +41,23 @@ def pretty_date_since(time=False):
     if day_diff < 7:
         return str(day_diff) + " days ago"
     if day_diff < 31:
-        num = day_diff/7
+        num = day_diff / 7
         if num == 1:
             return "a week ago"
         else:
             return str(num) + " weeks ago"
     if day_diff < 365:
-        num = day_diff/30
+        num = day_diff / 30
         if num == 1:
             return "a month ago"
         else:
-            return str(day_diff/30) + " months ago"
+            return str(day_diff / 30) + " months ago"
 
-    num = day_diff/365
+    num = day_diff / 365
     if num == 1:
         return "a year ago"
     else:
-        return str(day_diff/365) + " years ago"
+        return str(day_diff / 365) + " years ago"
 
 
 def full_date(time, classes=""):  # <span data-tooltip title="{{ alt.last_login }}" class="has-tip {% if alt.last_login < ban_object.time %}alert{% else %}secondary{% endif %} label">{{ alt.last_login|pretty_date }}</span>

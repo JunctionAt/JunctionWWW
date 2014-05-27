@@ -1,17 +1,19 @@
 __author__ = 'HansiHE'
 
-from .. import blueprint, login_required
-from flask import request, flash, redirect, render_template, session, current_app, abort
-from flask_login import confirm_login, login_fresh, current_user, user_needs_refresh, login_url
+from flask import request, flash, redirect, render_template
+from flask_login import confirm_login, current_user
 from flask_wtf import Form
 from wtforms import PasswordField
 from wtforms.validators import InputRequired, Length
+
+from .. import blueprint, login_required
 from blueprints.auth.util import authenticate_user, LoginException
 
 
 class ReAuthForm(Form):
-    password = PasswordField('Junction Password', validators=[InputRequired("A password is required."),
-                                                              Length(min=8, message="The password is too short.")])
+    password = PasswordField('Junction Password',
+                             [InputRequired("A password is required."),
+                              Length(min=8, message="The password is too short.")])
 
 
 @blueprint.route("/reauth", methods=["GET", "POST"])

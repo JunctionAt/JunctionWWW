@@ -1,7 +1,7 @@
-import time
 import requests
 
 #If a feature is unsupported, return None
+
 
 def getbans(user):
     """ 
@@ -17,11 +17,11 @@ def getbans(user):
               - O string : server	
           -   ...
     """
-    response = {"bancount" : 0, "bans" : []}
+    response = {"bancount": 0, "bans": []}
 
     r = requests.get("http://minebans.com/feed/player_bans.json?player_name=%s" % (user,))
     if r.status_code != requests.codes.ok:
-      return {"error" : "HTTP ERROR: "+r.status_code}
+        return {"error": "HTTP ERROR: " + r.status_code}
     j = r.json
     for ban in j:
         convban = {'reason': "%s: %s" % (ban['reason'], ban['long_reason']), 'server': ban['server_name'],
@@ -30,6 +30,7 @@ def getbans(user):
         response['bancount'] += 1
     print response
     return response
+
 
 def getipbans(ip):
     """
@@ -47,6 +48,7 @@ def getipbans(ip):
     """
     return None
 
+
 def getnotes(user):
     """
     Should return a dict containing notes for the user.
@@ -63,6 +65,7 @@ def getnotes(user):
           -   ...
     """
     return None
+
 
 def fulllookup(user):
     """

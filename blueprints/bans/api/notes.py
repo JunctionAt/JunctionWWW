@@ -6,17 +6,16 @@ __author__ = 'zifnab06'
 from flask import request
 from flask.ext.restful import Resource
 from flask.ext.restful.reqparse import RequestParser
-import re
 
 from blueprints.api import require_api_key, register_api_access_token, datetime_format
 from blueprints.base import rest_api
-from blueprints.auth.util import validate_username
 from models.servers_model import Server
 from models.ban_model import Note
 
 
 class InvalidDataException(Exception):
     pass
+
 
 def get_local_notes(uuid=None, uid=None, active=None):
     query = dict()
@@ -37,6 +36,7 @@ def get_local_notes(uuid=None, uid=None, active=None):
 
     return notes_response
 
+
 def construct_local_note_data(note):
     return dict(
         id=note.uid, issuer=note.issuer_old, username=note.target.mcname,  # TODO: Change issuer to issuer_old when we resolve issues about users not in the db being issuers
@@ -47,8 +47,10 @@ def construct_local_note_data(note):
         note=note.note
     )
 
+
 def get_global_notes(uuid):
-    return [] #NYI
+    return []  # NYI
+
 
 def get_notes(uuid=None, uid=None, active=None, scope="local"):
     """
@@ -66,6 +68,7 @@ def get_notes(uuid=None, uid=None, active=None, scope="local"):
         notes_raw += get_global_notes(uuid=uuid)
 
     return notes_raw
+
 
 class Notes(Resource):
     get_parser = RequestParser()
@@ -110,15 +113,15 @@ class Notes(Resource):
 
     post_parser = RequestParser()
     post_parser.add_argument("uuid", type=uuid_utils.uuid_type, required=True)
-    post_parser.add_argument("note", type=str, required=True) #required note message
-    post_parser.add_argument("server", type=str, required=True) #required server note was made on
+    post_parser.add_argument("note", type=str, required=True)
+    post_parser.add_argument("server", type=str, required=True)
 
-    def validate_post(selfself, args):
+    def validate_post(self, args):
         if args.get("note") and len(args.get("note")) > 1000:
             return {'error': [{"message": "the note must be below 1000 characters long"}]}
 
-        if args.get("server") and Server.verify_fid(args.get("server")): #len(args.get("server")) > 10:
-            return {'error': [{"message": "the location must be below 10 characters long"}]}
+        if args.get("server") and Server.verify_fid(args.get("server")):
+            return {'error': [{"message": "the server field must be a valid fid"}]}
 
     @require_api_key(required_access_tokens=['anathema.notes.post'])
     def post(self):

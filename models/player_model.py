@@ -1,9 +1,8 @@
-from uuid import UUID
-from blueprints import uuid_utils
-
 __author__ = 'hansihe'
 
-from mongoengine import Document, UUIDField, StringField, EmbeddedDocument, EmbeddedDocumentField, DateTimeField, ListField, BooleanField
+from uuid import UUID
+from blueprints import uuid_utils
+from mongoengine import Document, StringField, EmbeddedDocument, EmbeddedDocumentField, DateTimeField, ListField, BooleanField
 import datetime
 
 

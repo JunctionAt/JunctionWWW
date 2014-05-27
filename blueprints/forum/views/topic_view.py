@@ -51,10 +51,8 @@ def view_topic(topic_id, topic_name, page):
     display_posts = posts.skip((page - 1) * POSTS_PER_PAGE).limit(POSTS_PER_PAGE)
 
     # Find the links we want for the next/prev buttons if applicable.
-    next_page = url_for('forum.view_topic', page=page + 1, **topic.get_url_info()) if page < num_pages \
-        else None
-    prev_page = url_for('forum.view_topic', page=page - 1, **topic.get_url_info()) if page > 1 and not num_pages == 1 \
-        else None
+    next_page = url_for('forum.view_topic', page=page + 1, **topic.get_url_info()) if page < num_pages else None
+    prev_page = url_for('forum.view_topic', page=page - 1, **topic.get_url_info()) if page > 1 and not num_pages == 1 else None
 
     # Mash together a list of what pages we want linked to in the pagination bar.
     links = []
@@ -71,6 +69,8 @@ def view_topic(topic_id, topic_name, page):
 
 
 from markupsafe import Markup, text_type
+
+
 def markdown_escape(s):
     """Convert the characters &, <, >, ' and " in string s to HTML-safe
     sequences.  Use this if you need to display text that might contain
@@ -79,11 +79,11 @@ def markdown_escape(s):
     if hasattr(s, '__html__'):
         return s.__html__().replace('&gt;', '>')
     return Markup(text_type(s)
-        .replace('&', '&amp;')
-        .replace('>', '&gt;')
-        .replace('<', '&lt;')
-        .replace("'", '&#39;')
-        .replace('"', '&#34;')
+                  .replace('&', '&amp;')
+                  .replace('>', '&gt;')
+                  .replace('<', '&lt;')
+                  .replace("'", '&#39;')
+                  .replace('"', '&#34;')
     )
 
 #@blueprint.route('/f/ulastpost')

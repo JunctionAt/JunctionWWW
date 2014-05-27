@@ -21,8 +21,7 @@ def setup_env():
         'flask_debugtoolbar.panels.request_vars.RequestVarsDebugPanel',
         # 'flask_debugtoolbar.panels.template.TemplateDebugPanel',
         # 'flask_debugtoolbar.panels.versions.VersionDebugPanel',
-        'flask.ext.mongoengine.panels.MongoDebugPanel',
-        )
+        'flask.ext.mongoengine.panels.MongoDebugPanel')
 
     from flask_debugtoolbar import DebugToolbarExtension
     toolbar = DebugToolbarExtension(application)

@@ -179,7 +179,6 @@ class Post(Document):
         return '{0} - {1}'.format(self.author, self.content)
 
 
-
 def pretty_url_escape(string):
     chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 "
     return ''.join([s for s in string if s in chars]).replace(" ", "_")

@@ -1,9 +1,9 @@
-import time
 import requests
 
 #If a feature is unsupported, return None
 
 apikey = '9eadd4b46859e9b54a93880e9e3506dd'
+
 
 def getbans(user):
     """ 
@@ -19,7 +19,7 @@ def getbans(user):
               - O string : server	
           -   ...
     """
-    response = {"bancount" : 0, "bans" : []}
+    response = {"bancount": 0, "bans": []}
 
     r = requests.get("http://www.mcbouncer.com/api/getBans/%s/%s/0/-1" % (apikey, user,))
     j = r.json
@@ -28,6 +28,7 @@ def getbans(user):
         response['bans'].append(convban)
         response['bancount'] += 1
     return response
+
 
 def getipbans(ip):
     """
@@ -45,6 +46,7 @@ def getipbans(ip):
     """
     return None
 
+
 def getnotes(user):
     """
     Should return a dict containing notes for the user.
@@ -60,7 +62,7 @@ def getnotes(user):
               - O string : note
           -   ...
     """
-    response = {"notecount" : 0, "notes" : []}
+    response = {"notecount": 0, "notes": []}
 
     r = requests.get("http://www.mcbouncer.com/api/getNotes/%s/%s/0/-1" % (apikey, user,))
     j = r.json
@@ -69,6 +71,7 @@ def getnotes(user):
         response['notes'].append(convnote)
         response['notecount'] += 1
     return response
+
 
 def fulllookup(user):
     """

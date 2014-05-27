@@ -16,10 +16,12 @@ class AppealUnlockTimeForm(Form):
         InputRequired(message="A date is required.")])
     submit = SubmitField('Set')
 
+
 class BanUnbanTimeForm(Form):
     date = DateField('Unban Date', validators=[
         InputRequired(message="A date is required.")])
     submit = SubmitField('Set')
+
 
 @bans.route('/a/ban/<int:ban_uid>/unban', methods=["GET", "POST"])
 @login_required
@@ -45,7 +47,9 @@ def unban(ban_uid):
             flash("Ban will be lifted on specified date.", category='success')
             return redirect(url_for('bans.view_ban', ban_uid=ban_uid))
         else:
-            flash("Unban date form failed to validate. Make sure you're typing in the right data.", category='alert')
+            flash(
+                "Unban date form failed to validate. Make sure you're typing in the right data.",
+                category='alert')
             return redirect(url_for('bans.view_ban', ban_uid=ban_uid))
 
     ban.active = False
@@ -54,6 +58,7 @@ def unban(ban_uid):
     ban.save()
     flash("Ban has been lifted.", category='success')
     return redirect(url_for('bans.view_ban', ban_uid=ban_uid))
+
 
 @bans.route('/a/ban/<int:ban_uid>/close_appeal', methods=["GET", "POST"])
 @login_required
@@ -79,13 +84,16 @@ def close_appeal(ban_uid):
             flash("Appeal closed until specified date.", category='success')
             return redirect(url_for('bans.view_ban', ban_uid=ban_uid))
         else:
-            flash("Appeal unlock date form failed to validate. Make sure you're typing in the right data.", category='alert')
+            flash(
+                "Appeal unlock date form failed to validate. Make sure you're typing in the right data.",
+                category='alert')
             return redirect(url_for('bans.view_ban', ban_uid=ban_uid))
 
     ban.appeal.state = 'closed_forever'
     ban.save()
     flash("Appeal has been closed.", category='success')
     return redirect(url_for('bans.view_ban', ban_uid=ban_uid))
+
 
 @bans.route('/a/ban/<int:ban_uid>/open_appeal')
 @login_required

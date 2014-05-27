@@ -23,7 +23,7 @@ mc_skin_url = 'http://s3.amazonaws.com/MinecraftSkins/%s.png'
 
 
 class AvatarForm(Form):
-    image = FileField('New avatar', validators=[ ])
+    image = FileField('New avatar', validators=[])
     upload_button = SubmitField('Upload')
     mc_skin_button = SubmitField('Get skin face')
 
@@ -48,7 +48,7 @@ def avatar_control():
             except IOError:
                 return 'invalid image'
 
-            read_img = read_img.resize((128, 128), Image.NEAREST) #TODO: Might want to change this for teh lookz
+            read_img = read_img.resize((128, 128), Image.NEAREST)  # TODO: Might want to change this for teh lookz
             out_image = StringIO.StringIO()
             read_img.save(out_image, "PNG")
             out_image.seek(0)
@@ -95,7 +95,7 @@ def get_avatar(name):
 def set_mc_face_as_avatar_request(username):
     if not current_user.has_permission("avatar.reset"):
         abort(403)
-    return str(set_avatar(user, get_mc_face(user)))
+    return str(set_avatar(username, get_mc_face(username)))
 
 
 def set_avatar(name, image):
