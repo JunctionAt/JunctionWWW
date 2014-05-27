@@ -5,8 +5,7 @@ import requests
 from itsdangerous import BadData, BadPayload, BadSignature
 
 from . import blueprint
-from models.donation_model import DonationTransaction, \
-    DonationTransactionStatus, TransactionLog
+from models.donation_model import DonationTransaction, DonationTransactionStatus, TransactionLog
 from . import username_signer
 
 
@@ -92,8 +91,7 @@ def process_transaction(data):
 
     transaction_status = DonationTransactionStatus()
     transaction_status.status = data["payment_status"]
-    transaction_status.reason = data.get("pending_reason", None) or data.get(
-        "reason_code", None)
+    transaction_status.reason = data.get("pending_reason", None) or data.get("reason_code", None)
     transaction_status.valid = validate_transaction(data)
     transaction_status.gross = float(data.get("mc_gross", 0))
     transaction_status.fee = float(data.get("mc_fee", 0))
@@ -108,8 +106,7 @@ def process_transaction(data):
 
 
 def validate_transaction(data):
-    return data["payment_status"] in ["Canceled_Reversal", "Completed",
-                                      "Pending", "Processed"]
+    return data["payment_status"] in ["Canceled_Reversal", "Completed", "Pending", "Processed"]
 
 
 class InvalidResponseError(Exception):

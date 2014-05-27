@@ -48,7 +48,7 @@
                             {%- if appeal_object.state != 'closed_forever' %}
                             <h6 class="columns">Close until specific date</h6>
                             <form action="{{ url_for('bans.close_appeal', ban_uid=ban_id) }}" class="small-12 medium-8 columns" method="post" data-abide>
-                                {{ unlock_time_form.csrf_token }}
+                                {{ unlock_time_form.hidden_tag() }}
                                 <div class="row">
                                     <div class="small-6 columns">
                                         {{ unlock_time_form.date(pattern="date", placeholder="YYYY-MM-DD") }}
@@ -74,7 +74,7 @@
                         <h6>Unban on specific date</h6>
                         <div class="row">
                             <form action="{{ url_for('bans.unban', ban_uid=ban_id) }}" class="small-12 medium-8 columns" method="post" data-abide>
-                                {{ unban_time_form.csrf_token }}
+                                {{ unban_time_form.hidden_tag() }}
                                 <div class="row">
                                     <div class="small-6 columns">
                                         {{ unban_time_form.date(pattern="date", placeholder="YYYY-MM-DD") }}
@@ -214,7 +214,7 @@
             <div class="row">
                 <div class="small-12 columns">
                     <form class="appeal-response" action="{{ url_for('bans.post_ban_reply', ban_uid=ban_id) }}" method="post" data-abide>
-                        {{ reply_form.csrf_token }}
+                        {{ reply_form.hidden_tag() }}
                         <fieldset>
                             <legend>Reply</legend>
                             <div class="text-field">
