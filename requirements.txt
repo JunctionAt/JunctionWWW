@@ -23,6 +23,7 @@ docutils==0.11
 flask-mongoengine==0.7.0
 itsdangerous==0.23
 mongoengine==0.8.4
+oath==1.2
 py-bcrypt==0.4
 pymongo==2.6.2
 requests==2.0.0
