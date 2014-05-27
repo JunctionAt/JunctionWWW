@@ -32,6 +32,11 @@ def login(ext):
     if current_user.is_authenticated():
         return redirect(request.args.get("next", '/'))
 
+    if session['tfa-logged-in'] == True:
+        del session['tfa-logged-in']
+        del session['tfa-user']
+        del session['tfa-remember']
+
     form = LoginForm(MultiDict(request.json) or request.form)
 
     if request.method == "POST" and form.validate():
