@@ -16,6 +16,16 @@ from StringIO import StringIO
 from urllib import quote, urlencode
 
 
+def _totp_url():
+    return 'otpauth://totp/{issuer}:{account}?{params}'.format(
+        issuer='Junction',
+        account=quote(current_user.name),
+        params=urlencode({
+            'issuer': 'Junction',
+            'secret': session['tfa-new-secret']
+        }))
+
+
 class TOTPSetupForm(Form):
     code = TextField('Verification Code', [Required("The verification code is required."),
                                            Length(min=6, max=6, message="Invalid code length.")])
@@ -68,15 +78,15 @@ def tfa_enable():
         else:
             abort(401)
     else:
-        # bad
-        pass
+        abort(403)
 
     text = session['tfa-new-secret']
     readable = ' '.join(text[i:i+4] for i in range(0, len(text), 4))
 
     return render_template('settings_tfa_enable.html', current_user=current_user,
                            settings_panels_structure=settings_panels_structure,
-                           secret=readable, form=form, title="TFA - Account - Settings")
+                           secret=readable, form=form, title="TFA - Account - Settings",
+                           totp_url=_totp_url())
 
 
 @blueprint.route('/settings/tfa/qrcode.png', defaults={'small': False})
@@ -85,13 +95,7 @@ def tfa_enable():
 def tfa_qrcode(small):
     if session.get('tfa-new-method', None) != 'TOTP':
         abort(401)
-    url = 'otpauth://totp/{issuer}:{account}?{params}'.format(
-            issuer='Junction',
-            account=quote(current_user.name),
-            params=urlencode({
-                'issuer': 'Junction',
-                'secret': session['tfa-new-secret']
-            }))
+    url = _totp_url()
     if small:
         qr = qrcode.make(url, box_size=4, border=4,
                          error_correction=qrcode.constants.ERROR_CORRECT_L)
