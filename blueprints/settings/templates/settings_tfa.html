@@ -9,9 +9,7 @@
     {% if current_user.tfa %}
     <p><strong>Two-Factor Auth is enabled</strong></p>
     <form method="post" action="{{ url_for('settings.tfa_disable') }}">
-        <div style="display:none;">
-            <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
-        </div>
+        {{ form.hidden_tag() }}
         <button class="alert" type="submit">Disable</button>
     </form>
     {% else %}

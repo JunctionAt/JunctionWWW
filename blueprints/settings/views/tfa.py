@@ -1,4 +1,3 @@
-from blueprints.base import csrf
 from blueprints.auth import current_user, login_required
 from flask import abort, render_template, request, url_for, flash, redirect, current_app, session, send_file, Response
 from flask_wtf import Form
@@ -21,14 +20,18 @@ class TOTPSetupForm(Form):
     code = TextField('Verification Code', [Required("The verification code is required."),
                                            Length(min=6, max=6, message="Invalid code length.")])
 
+class TOTPDisableForm(Form):
+    pass
+
 
 @blueprint.route('/settings/tfa')
 @login_required
 def tfa_pane():
+    form = TOTPDisableForm(request.form)
     enabled = current_user.tfa
     return render_template('settings_tfa.html', current_user=current_user,
                             settings_panels_structure=settings_panels_structure,
-                            title="TFA - Account - Settings")
+                            form=form, title="TFA - Account - Settings")
 
 
 @blueprint.route('/settings/tfa/enable', methods=['GET', 'POST'])
@@ -102,9 +105,11 @@ def tfa_qrcode(small):
 @blueprint.route('/settings/tfa/disable', methods=['POST'])
 @login_required
 def tfa_disable():
-    current_user.tfa = False
-    current_user.tfa_secret = ''
-    current_user.save()
+    form = TOTPDisableForm(request.form)
+    if form.validate():
+        current_user.tfa = False
+        current_user.tfa_secret = ''
+        current_user.save()
     return redirect(url_for('settings.tfa_pane')), 303
 
 

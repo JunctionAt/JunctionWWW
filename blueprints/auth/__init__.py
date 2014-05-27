@@ -111,5 +111,5 @@ class ApiUser:
 
 blueprint = Blueprint('auth', __name__, template_folder='templates')
 
-from views import login, logout, reauth, setpassword, register, add_api_account
+from views import login, logout, reauth, setpassword, register, add_api_account, verify
 from api import register, groups, uuid, me

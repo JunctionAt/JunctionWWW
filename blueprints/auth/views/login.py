@@ -1,7 +1,5 @@
 __author__ = 'HansiHE'
 
-import re
-
 from flask import request, render_template, redirect, url_for, flash, abort, session
 from flask_login import login_user, login_required
 from flask_wtf import Form
@@ -19,20 +17,19 @@ from blueprints.auth.util import authenticate_user, LoginException
 
 
 class LoginForm(Form):
-    username = TextField('Minecraft Name', [Required("A username is required."),
+    username = TextField('Minecraft Name', [InputRequired("A username is required."),
                                             Length(min=2, max=16, message="Invalid username length.")])
-    password = PasswordField('Junction Password', validators=[Required("A password is required."),
+    password = PasswordField('Junction Password', validators=[InputRequired("A password is required."),
                                                               Length(min=8, message="The password is too short.")])
     remember = BooleanField('Remember Me', [Optional()], default=True)
 
 
-from blueprints.base import csrf
 @blueprint.route("/login", defaults=dict(ext='html'), methods=("GET", "POST"))
 def login(ext):
     if current_user.is_authenticated():
         return redirect(request.args.get("next", '/'))
 
-    if session['tfa-logged-in'] == True:
+    if session.get('tfa-logged-in', False) == True:
         del session['tfa-logged-in']
         del session['tfa-user']
         del session['tfa-remember']
