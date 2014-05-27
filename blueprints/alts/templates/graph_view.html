@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% set javascript_molecules = ["alts_graph"] %}
+
+{% block css %}
+        <style>
+            .player-node-name {
+                font-size: 0.6em;
+            }
+        </style>
+{% endblock %}
+
+{% block content %}
+    <script type="text/javascript">
+        graph_preload_players = [
+            {% for player in preload %}
+                "{{ player }}"
+                {% if not loop.last %}
+                    ,
+                {% endif %}
+            {% endfor %}
+        ];
+
+        csrf_token = "{{ csrf_token }}"
+    </script>
+
+    <div class="row">
+        <div class="small-4 columns">
+            <div class="row collapse" id="user-add-form">
+                <div class="small-8 columns">
+                    <input id="username-input" type="text" placeholder="Username">
+                </div>
+                <div class="small-4 columns">
+                    <a href="#" class="button postfix" id="username-button">Add</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="small-12 columns">
+            <div id="graph-container">
+                <svg id="graph"></svg>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    {%- assets "js_graphs" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {%- endassets %}
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $('#username-input').keypress(function(e) {
+                    if (e.keyCode == 13) {
+                      $('#username-button').click();
+                    }
+                });
+            });
+        </script>
+{% endblock %}

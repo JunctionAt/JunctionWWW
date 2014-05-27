@@ -1,8 +1,6 @@
 __author__ = 'HansiHE'
 
-from flask import Blueprint, request, render_template, abort, send_file, flash, redirect, url_for, current_app
-from blueprints.auth import login_required
-from avatar_model import Avatar
+from flask import Blueprint, request, render_template, abort, send_file, redirect, url_for
 from flask_login import current_user
 from flask_wtf import Form
 from wtforms import FileField, SubmitField
@@ -10,13 +8,14 @@ import StringIO
 import requests
 from PIL import Image
 import re
-import os
 import mongoengine
 from datetime import datetime
 import flask
+
+from blueprints.auth import login_required
+from models.avatar_model import Avatar
 from blueprints.settings.views import settings_panels_structure
 
-from base64 import decodestring
 
 avatar = Blueprint('avatar', __name__, template_folder='templates')
 
@@ -69,10 +68,6 @@ def avatar_control():
     )
 
 
-def set_mc_face_as_avatar(user):
-    return set_avatar(user, get_mc_face(user))
-
-
 def get_avatar_url(name):
     return url_for('avatar.get_avatar', name=name)
 
@@ -99,8 +94,8 @@ def get_avatar(name):
 @login_required
 def set_mc_face_as_avatar_request(username):
     if not current_user.has_permission("avatar.reset"):
-        abort(401)
-    return str(set_mc_face_as_avatar(username))
+        abort(403)
+    return str(set_avatar(user, get_mc_face(user)))
 
 
 def set_avatar(name, image):
@@ -127,7 +122,7 @@ def get_mc_face(name):
 
     response = requests.get(mc_skin_url % name)
 
-    print(response.headers['content-type'])
+    #print(response.headers['content-type'])
 
     if not (response.headers['content-type'] == 'application/octet-stream' or
             response.headers['content-type'] == 'image/png'):

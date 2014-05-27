@@ -3,16 +3,16 @@ __author__ = 'HansiHE'
 from flask import render_template, request, redirect, abort
 from flask_wtf import Form
 from wtforms import TextAreaField, SubmitField
-from wtforms.validators import Required, Length
+from wtforms.validators import InputRequired, Length
 
 from .. import blueprint
 from blueprints.auth import current_user, login_required
-from ..database.forum import Topic, Post, PostEdit
+from models.forum_model import Topic, Post, PostEdit
 
 
 class TopicReplyForm(Form):
     content = TextAreaField("Content", validators=[
-        Required(message="Some content is required."),
+        InputRequired(message="Some content is required."),
         Length(min=1, max=5000, message="Content must be between 1 and 5000 characters long.")])
     submit = SubmitField("Submit")
 

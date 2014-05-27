@@ -25,10 +25,16 @@
     @include panel($padding: 8px);
 
     .meta {
+      .label {
+        margin-top: 5px;
+      }
 
+      .ban-reason .edit .button {
+        margin-bottom: 0;
+      }
     }
     .text {
-      border-left: 1px #d9d9d9 solid;
+      /* border-left: 1px #d9d9d9 solid; */
       min-height: 3rem;
     }
   }
@@ -43,24 +49,66 @@
     }
   }
 
-  .ban-reason {
+  .ban-reason, .appeal-comment {
     position: relative;
 
     &:hover .button-panel {
       display: block !important;
     }
 
-    .button-panel {
-      position: absolute;
-      top: 0;
-      right: 0;
-      display: none;
-      background-color: #e2e2e2;
-      padding: 3px;
-
-      a {
-        padding: 3px;
+    .meta {
+      .user-info-box-container {
+        width: 115%;
+      }
+      .user-info-box-container-small {
+        width: 100%;
       }
     }
+
+    .view {
+      position: relative;
+
+      .button-panel {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 0;
+        a {
+          color: rgba(0, 0, 0, 0.3);
+          &:hover {
+            color: rgba(0, 0, 0, 0.5);
+          }
+        }
+      }
+
+      .raw-markdown {
+        display: none;
+      }
+      .appeal-reply-id, .ban-id {
+        display: none;
+      }
+    }
+
+    .edit {
+      textarea {
+        resize: vertical;
+      }
+      .appeal-reply-edit-textfield {
+        min-height: 100px;
+      }
+      .ban-reason-edit-textfield {
+        min-height: 16px;
+      }
+    }
+
+
   }
+}
+
+//A FRONT
+.anathema-front-container {
+    a {
+        font-size: 0.8em;
+    }
+
 }

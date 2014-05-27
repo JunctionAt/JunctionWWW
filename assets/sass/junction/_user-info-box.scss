@@ -1,0 +1,116 @@
+// Styles for the macro at blueprints/player_profiles/user_info_box.html
+
+@mixin user-info-arrow($name, $direction) {
+  .#{$name} {
+    position: absolute;
+    border: 10px solid transparent;
+    display: block;
+
+    span {
+      position: absolute;
+      border: 10px solid transparent;
+      display: block;
+    }
+
+    @if $direction == 'up' {
+      left: 8px;
+      top: -10px;
+      border-bottom-color: #d9d9d9;
+      border-top: none;
+      span {
+        top: 1px;
+        left: -10px;
+        border-bottom-color: #f8f8f8;
+        border-top: none;
+      }
+    } @else if $direction == 'right' {
+      top: 8px;
+      right: -10px;
+      border-left-color: #d9d9d9;
+      border-right: none;
+      span {
+        top: -10px;
+        left: -11px;
+        border-left-color: #f8f8f8;
+        border-right: none;
+      }
+    } @else if $direction == 'down' {
+      left: 8px;
+      bottom: -10px;
+      border-top-color: #d9d9d9;
+      border-bottom: none;
+      span {
+        top: -11px;
+        left: -10px;
+        border-top-color: #f8f8f8;
+        border-bottom: none;
+      }
+    } @else if $direction == 'left' {
+      top: 8px;
+      left: -10px;
+      border-right-color: #d9d9d9;
+      border-left: none;
+      span {
+        top: -10px;
+        right: -11px;
+        border-right-color: #f8f8f8;
+        border-left: none;
+      }
+    }
+  }
+}
+
+.user-info-box {
+  width: 100%;
+  border: solid 1px #d9d9d9; //TODO: pull colors from settings
+  border-radius: 2px;
+  background-color: #f8f8f8;
+  position: relative;
+
+  &.desktop {
+    .user-description {
+      border-top: solid 1px #d9d9d9;
+    }
+    .date {
+      display: block;
+      border-top: solid 1px #d9d9d9;
+    }
+  }
+  &.mobile {
+    .user-avatar-container {
+      width: rem-calc(50);
+      float: left;
+    }
+    .user-description {
+      float: left;
+    }
+    .date {
+      float: right;
+    }
+  }
+
+  .user-avatar-container {
+    margin: 3px;
+    img {
+      border-radius: 1px;
+    }
+  }
+
+  .user-description {
+    padding: 5px;
+    overflow-wrap: break-word;
+  }
+
+  .date {
+    font-size: 0.8rem;
+    color: #555555;
+    padding: 5px;
+  }
+
+  @include user-info-arrow("arrow-right", "right");
+  @include user-info-arrow("arrow-left", "left");
+  @include user-info-arrow("arrow-up", "up");
+  @include user-info-arrow("arrow-down", "down");
+
+}
+

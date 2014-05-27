@@ -1,6 +1,7 @@
 __author__ = 'HansiHE'
 
 import datetime
+import arrow
 
 
 def pretty_date_since(time=False):
@@ -59,10 +60,11 @@ def pretty_date_since(time=False):
         return str(day_diff/365) + " years ago"
 
 
-def full_date(time, classes=""): #<span data-tooltip title="{{ alt.last_login }}" class="has-tip {% if alt.last_login < ban_object.time %}alert{% else %}secondary{% endif %} label">{{ alt.last_login|pretty_date }}</span>
+def full_date(time, classes=""):  # <span data-tooltip title="{{ alt.last_login }}" class="has-tip {% if alt.last_login < ban_object.time %}alert{% else %}secondary{% endif %} label">{{ alt.last_login|pretty_date }}</span>
+    pretty_time = arrow.get(time).humanize()
     return '<span data-tooltip title="' + \
            time.strftime("%b %d %Y - %H:%M") + \
            '" class="' + \
            classes + '">' + \
-           pretty_date_since(time) + \
+           pretty_time + \
            '</span>'

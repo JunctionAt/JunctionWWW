@@ -1,21 +1,23 @@
-DEBUG = True # If true, proper error pages are shown, and reloading is enabled.
-PAYPAL_IPN_DEBUG_MODE = True # If true, use the paypal ipn test server instead of the production one.
+DEBUG = True  # If true, proper error pages are shown, and reloading is enabled.
+PAYPAL_IPN_DEBUG_MODE = True  # If true, use the paypal ipn test server instead of the production one.
 
-PORT = 8080 # For debug mode
-HOST = '0.0.0.0' # For debug mode
+PORT = 8080  # For debug mode
+HOST = '0.0.0.0'  # For debug mode
 
-SECRET_KEY = "" # Set to something long, random and unguessable. This is what protects sessions and more.
+MONGO_DB = "pf"
+
+SECRET_KEY = ""  # Set to something long, random and unguessable. This is what protects sessions and more.
 
 UPLOAD_FOLDER = "/tmp/www/uploads"
 
-DEFAULT_FORUM = 'main' # The forum that should be linked from the front page
-DEFAULT_CALENDAR = 'main' # The calendar that should be linked from the front page
+DEFAULT_FORUM = 'main'  # The forum that should be linked from the front page
+DEFAULT_CALENDAR = 'main'  # The calendar that should be linked from the front page
 
 # Apis
 
 # Airbrake (errbit)
 AIRBRAKE_ENABLED = True
-AIRBRAKE_ENV_NAME = "develop" # The name of the environment. This should be "develop", or "production" or whatever you like
+AIRBRAKE_ENV_NAME = "develop"  # The name of the environment. This should be "develop", or "production" or whatever you like
 AIRBRAKE_API_URL = ''
 AIRBRAKE_API_KEY = ''
 
@@ -32,6 +34,6 @@ REDDIT_CLIENT_SECRET = ''
 REDDIT_REDIRECT_URI = 'https://junction.at/settings/reddit/link'
 REDDIT_SUBREDDIT = 'Junction'
 
-#DO NOT ENABLE THIS IF YOUR SERVER IS PUBLICALLY AVAILABLE
-#Gives a python shell in the current flask-context if enabled
+# DO NOT ENABLE THIS IF YOUR SERVER IS PUBLICALLY AVAILABLE
+# Gives a python shell in the current flask-context if enabled
 DEBUG_PYTHON_SHELL = False

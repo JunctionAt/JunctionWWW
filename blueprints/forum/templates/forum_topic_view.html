@@ -27,6 +27,8 @@
     </ul>
 {% endmacro %}
 
+{% import 'user_info_box.html' as user_info_box %}
+
 {% block forum_content %}
     <div class="row">
         <div class="small-12 columns">
@@ -49,11 +51,11 @@
             <div class="post-pane">
                 <div class="row">
                     <div class="small-12 medium-3 large-2 columns meta">
-                        <a href="{{ post.author.get_profile_url() }}"><span class="player-name">{{ post.author.name }}</span></a>
-                        <hr class="show-for-small">
-                        <div class="show-for-medium-up">
-                          <br>
-                          <img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}" />
+                        <div class="user-info-box-container-small show-for-small-only">
+                            {{ user_info_box.user_info(post.author, type="mobile", date=post.date) }}
+                        </div>
+                        <div class="user-info-box-container show-for-medium-up">
+                            {{ user_info_box.user_info(post.author, type="desktop", arrow="right", date=post.date) }}
                         </div>
                     </div>
                     <div class="small-12 medium-9 large-10 columns text content-editable" data-editable="topic-reply">
@@ -73,38 +75,6 @@
                         </div>
                     </div>
                 </div>
-                {#<!-- <div class="row-fluid nobreak">
-                        <div class="pull-left">
-                            <span>by <a href="{{ post.author.get_profile_url() }}">{{ post.author.name }}</a> {{ post.date|pretty_date }}</span>
-                        </div>
-                        <div class="pull-right">
-                            <a href="#post-{{ post.id }}">permalink</a>
-                            {%- if current_user.is_authenticated() %}
-                            <a class="quote-link" href="#">quote</a>
-                            {%- endif %}
-                            {%- if post.can_edit(current_user) %}
-                            <a class="edit-link" href="{{ url_for('forum.edit_post', post_id=post.id) }}">edit</a>
-                            {%- endif %}
-                        </div>
-                </div>
-                <div class="row-fluid" style="margin-bottom: 0;">
-
-                    <div class="span2 forum-post-left"><img src="{{ url_for('avatar.get_avatar', name=post.author.name) }}" /></div>
-                    <div class="span10 forum-post-right">
-                        <div class="forum-post-rendered">{{ post.content|markdown|safe }}</div>
-                        <div class="forum-post-raw">{{ post.content|escape }}</div>
-                        <div class="forum-post-edit">
-                            <form action="{{ url_for('forum.edit_post', post_id=post.id) }}" method="post">
-                                {{ topic_reply_form.hidden_tag() }}
-                                <div class="widget">
-                                    <textarea name="content"></textarea>
-                                </div>
-                                <button class="btn btn-theme" type="submit">Submit</button>
-                            </form>
-                        </div>
-                        <!-- {{ post.id }} -->
-                    <!-- </div>
-                </div> -->#}
             </div>
         </div>
     </div>

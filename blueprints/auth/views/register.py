@@ -1,14 +1,18 @@
+from blueprints import uuid_utils
+
 __author__ = 'HansiHE'
 
-from .. import blueprint
 from flask import render_template, request, abort, redirect, url_for, flash
-from ..user_model import ConfirmedUsername
-from blueprints.auth import login_required, current_user
-from blueprints.auth.user_model import User
 from flask.ext.wtf import Form
-from wtforms import TextField, PasswordField, SubmitField
-from wtforms.validators import Email, Required, Length, EqualTo, Optional
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import Email, InputRequired, Length, EqualTo, Optional
 import bcrypt
+
+from .. import blueprint
+from models.user_model import User
+from models.player_model import MinecraftPlayer
+from blueprints.auth import login_required, current_user
+from blueprints.auth.util import check_authenticated_ip
 
 
 @blueprint.route('/register/')
@@ -20,9 +24,9 @@ def register_start():
 
 
 class RegistrationForm(Form):
-    mail = TextField("Email", validators=[Optional(), Email()])
+    mail = StringField("Email", validators=[Optional(), Email()])
     password = PasswordField("Password", validators=[
-        Required("Please enter a password."),
+        InputRequired("Please enter a password."),
         Length(min=8, message="The password needs to be longer then 6 characters.")])
     password_repeat = PasswordField("Repeat Password", validators=[
         EqualTo('password', "The passwords must match.")])
@@ -40,7 +44,8 @@ def register_pool(username):
         return redirect(url_for('auth.login'))
 
     #Is verified
-    if check_authenticated(username, request.remote_addr):
+    auth_check = check_authenticated_ip(request.remote_addr, username=username)
+    if auth_check:
         form = RegistrationForm(request.form)
 
         if request.method == "GET":
@@ -48,10 +53,13 @@ def register_pool(username):
 
         elif request.method == "POST":
             if form.validate():
+                uuid = auth_check.uuid.hex
+                player = MinecraftPlayer.find_or_create_player(uuid, auth_check.username)
                 user = User(
                     name=username,
                     hash=bcrypt.hashpw(form.password.data, bcrypt.gensalt()),
-                    mail=form.mail.data)
+                    mail=form.mail.data,
+                    minecraft_player=player)
                 user.save()
                 flash("Registration complete!", category="success")
                 return redirect(url_for('auth.login'))
@@ -67,25 +75,7 @@ def register_pool(username):
 
 @blueprint.route('/api/check_auth/<string:username>/')
 def check_authenticated_req(username):
-    return "YES" if check_authenticated(username, request.remote_addr) else "NO"
-
-
-def check_authenticated(username, ip):
-    return ConfirmedUsername.objects(ip=str(ip), username__iexact=username).first() is not None
-
-
-@login_required
-@blueprint.route('/api/confirm_auth/<string:username>/<string:ip>/')
-def confirm_auth_req(username, ip):
-    if not current_user.has_permission('auth.confirm_auth'):
-        abort(403)
-    confirm_auth(username, ip)
-    return "Success"
-
-
-def confirm_auth(username, ip):
-    confirmed = ConfirmedUsername(ip=ip, username=username)
-    confirmed.save()
+    return "YES" if check_authenticated_ip(request.remote_addr, username=username) else "NO"
 
 
 @blueprint.route('/ip')

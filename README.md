@@ -1,6 +1,17 @@
 # Junction.at WWW
 How to get a local dev environment for the Junction.at website up and running... *For Dummies*
 
+## New way with Vagrant
+
+ * Install VirtualBox
+ * Install Vagrant
+ * Navigate to the root of this project, run 'vagrant up'
+ * Sit back and enjoy while your vm is being downloaded and set up
+ * When it's done, type 'vagrant ssh' to get a shell
+ * Cd to ~/www-src/
+ * Run 'python2 manage.py runserver'
+ * Done!
+
 ## First steps
 Make sure you have everything installed. Best to do this in a virtualenv so you don't have to install Python packages globally. Of course, we're assuming you already have Python, pip, and virtualenv installed. You do, right? Right?
 

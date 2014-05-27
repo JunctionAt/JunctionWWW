@@ -1,10 +1,11 @@
 __author__ = 'hansihe'
 
-from blueprints.api import require_api_key, register_api_access_token
 from flask.ext.restful import Resource
-from ..user_model import User
-from blueprints.base import rest_api
 from mongoengine import Q
+
+from blueprints.api import register_api_access_token
+from models.user_model import User
+from blueprints.base import rest_api
 
 
 class GroupList(Resource):

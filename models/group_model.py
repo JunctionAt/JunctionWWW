@@ -1,7 +1,8 @@
 __author__ = 'HansiHE'
 
 from mongoengine import Document, EmbeddedDocument, StringField, ListField, ReferenceField
-from blueprints.auth.user_model import User
+
+from models.user_model import User
 
 
 class GroupMember(EmbeddedDocument):

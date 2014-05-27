@@ -19,8 +19,9 @@ multiple requests.
 from functools import wraps
 from flask_login import current_user, login_user, login_required as __login_required__, LoginManager, AnonymousUserMixin
 from flask import request, current_app, abort, Blueprint
-from user_model import User
 import re
+
+from models.user_model import User
 
 
 def login_required(f):
@@ -48,7 +49,6 @@ def login_required(f):
     return decorated
 
 import bcrypt
-from blueprints.api import apidoc
 
 
 subpath = ''
@@ -62,6 +62,10 @@ login_manager.login_view = "auth.login"
 login_manager.login_message = u"Please log in to access this page."
 login_manager.login_message_category = "info"
 login_manager.refresh_view = "auth.reauth"
+login_manager.needs_refresh_message = (
+    u"To protect your account, please reauthenticate to access this page."
+)
+login_manager.needs_refresh_message_category = "info"
 
 
 # noinspection PyShadowingBuiltins
@@ -105,12 +109,7 @@ class ApiUser:
         return True
 
 
-def get_blueprint():
-    global blueprint
-    if blueprint is None:
-        blueprint = Blueprint('auth', __name__, template_folder='templates')
+blueprint = Blueprint('auth', __name__, template_folder='templates')
 
-        from views import login, verify, logout, reauth, setpassword, register, add_api_account
-        from api import register, groups
-
-    return blueprint
+from views import login, logout, reauth, setpassword, register, add_api_account
+from api import register, groups, uuid, me

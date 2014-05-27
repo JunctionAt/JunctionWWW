@@ -1,8 +1,9 @@
 __author__ = 'HansiHE'
 
 from flask import abort, redirect
+
 from .. import blueprint
-from ..database.forum import Post
+from models.forum_model import Post
 
 
 @blueprint.route('/forum/p/<string:post_id>', defaults={'dummy_name': ""})

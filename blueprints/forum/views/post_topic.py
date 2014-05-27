@@ -2,20 +2,20 @@ __author__ = 'HansiHE'
 
 from flask import render_template, request, redirect, abort
 from flask_wtf import Form
-from wtforms import TextField, TextAreaField, SubmitField
-from wtforms.validators import Required, Length
+from wtforms import StringField, TextAreaField, SubmitField
+from wtforms.validators import InputRequired, Length
 
 from .. import blueprint
 from blueprints.auth import login_required, current_user
-from ..database.forum import Board, Topic, TopicEdit, Post, PostEdit
+from models.forum_model import Board, Topic, TopicEdit, Post, PostEdit
 
 
 class PostTopicForm(Form):
-    title = TextField("Title", validators=[
-        Required(message="A title is required."),
+    title = StringField("Title", validators=[
+        InputRequired(message="A title is required."),
         Length(min=3, max=80, message="A title must be between 3 and 30 characters.")])
     content = TextAreaField("Content", validators=[
-        Required(message="Some content is required."),
+        InputRequired(message="Some content is required."),
         Length(min=1, max=5000, message="Content must be between 1 and 5000 characters long.")])
     submit = SubmitField("Submit")
 

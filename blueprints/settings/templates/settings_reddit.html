@@ -6,7 +6,6 @@
 {% block settings_pane %}
 <div class="panel">
     <h3>Reddit Settings</h3>
-    <small>Reddit can take a few seconds to respond, do not be alarmed if there is a delay. Just wait.</small>
     {%- if reddit_username != None %}
     <p><strong>Reddit username:</strong> <code>{{ reddit_username }}</code></p>
     <form method="post" action="{{ url_for('settings.reddit_unlink') }}">
@@ -16,13 +15,11 @@
     <p>You can't set your subreddit flair, as your usernames are the same!</p>
     {%- elif flair != None %}
     <p><strong>Subreddit flair:</strong> <code>{{ flair }}</code></p>
-    <p><small>Setting flair takes a few seconds, please click the button only once.</small></p>
     <form method="post" action="{{ url_for('settings.reddit_unset_flair') }}">
        <button class="alert" type="submit">Unset your subreddit flair</button>
     </form>
     {%- else %}
     <p><strong>Subreddit flair:</strong> not set</p>
-    <p><small>Setting flair takes a few seconds, please click the button only once.</small></p>
     <form method="post" action="{{ url_for('settings.reddit_set_flair') }}">
         <button type="submit">Set your subreddit flair</button>
     </form>
@@ -34,4 +31,14 @@
     </form>
     {%- endif %}
 </div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+    $(document).ready(function() {
+        $("form").submit(function() {
+            $("button", this).attr("disabled", true);
+        });
+    });
+</script>
 {% endblock %}

@@ -1,9 +1,9 @@
 __author__ = 'HansiHE'
 
-from wtforms.validators import Required
+from wtforms.validators import InputRequired
 
 
-class RequiredIf(Required):
+class RequiredIf(InputRequired):
     # a validator which makes a field required if
     # another field is set and has a truthy value
 
@@ -14,6 +14,7 @@ class RequiredIf(Required):
     def __call__(self, form, field):
         other_field = form._fields.get(self.other_field_name)
         if other_field is None:
-            raise Exception('no field named "%s" in form' % self.other_field_name)
+            raise Exception('no field named "%s" in form'
+                            % self.other_field_name)
         if bool(other_field.data):
             super(RequiredIf, self).__call__(form, field)

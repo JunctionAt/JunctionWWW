@@ -12,38 +12,130 @@
 
 {% set javascript_molecules = ["editable"] %}
 
+{% import 'user_info_box.html' as user_info_box %}
+
+{% macro user_dropdown(username) %}
+    <a href="#" data-dropdown="user-dropdown-{{ username }}" class="player-name">{{ username }}</a>
+    <ul id="user-dropdown-{{ username }}" class="f-dropdown" data-dropdown-content>
+        <li><a href="{{ url_for('player_profiles.profile_view', name=username) }}">Profile</a></li>
+        <li><a href="{{ url_for('bans.user_bans', username=username) }}">Bans</a></li>
+        {% if current_user.has_permission('alts.graph') %}
+            <li><a href="{{ url_for('alts.graph_lookup_view', player=username) }}">Graph Alts</a></li>
+        {% endif %}
+    </ul>
+{% endmacro %}
+
 {% block content %}
 <div class="ban-container">
     <div class="row">
-        <div class="small-12 columns">
-            <h4>Ban #{{ ban_id }} for <span class="player-name">{{ ban_object.username }}</span></h4>
+        <div class="small-12 columns clearfix">
+            <h4 class="left">Ban #{{ ban_id }} for <span class="player-name">{{ ban_object.target.mcname }}</span></h4>
+            {% if current_user.has_permission('alts.graph') %}
+                <a class="left" style="line-height: 42px; margin-left: 8px;" data-tooltip title="Graph Alts" href="{{ url_for('alts.graph_lookup_view', player=ban_object.target.mcname) }}"><i class="fi-share"></i></a>
+            {% endif %}
             <hr>
         </div>
     </div>
+    {%- if current_user.has_permission('bans.appeal.manage') %}
+    <div class="row">
+        <div class="small-12 columns">
+            <dl class="accordion" data-accordion>
+                <dd>
+                    <a href="#controls">Controls</a>
+                    <div id="controls" class="content">
+                        <h5>Appeal</h5>
+                        <div class="row">
+                            {%- if appeal_object.state != 'closed_forever' %}
+                            <h6 class="columns">Close until specific date</h6>
+                            <form action="{{ url_for('bans.close_appeal', ban_uid=ban_id) }}" class="small-12 medium-8 columns" method="post" data-abide>
+                                {{ unlock_time_form.csrf_token }}
+                                <div class="row">
+                                    <div class="small-6 columns">
+                                        {{ unlock_time_form.date(pattern="date", placeholder="YYYY-MM-DD") }}
+                                        <small class="error">Please type in a date in the form of YYYY-MM-DD</small>
+                                    </div>
+                                    <div class="small-6 columns">
+                                        {{ unlock_time_form.submit(class="button tiny") }}
+                                    </div>
+                                </div>
+                            </form>
+                            {%- endif %}
+                            <div class="small-12 medium-4 columns">
+                                {%- if appeal_object.state != 'open' %}
+                                <a href="{{ url_for('bans.open_appeal', ban_uid=ban_id) }}" class="button tiny">Open appeal</a>
+                                {%- endif %}
+                                {%- if appeal_object.state != 'closed_forever' %}
+                                <a href="{{ url_for('bans.close_appeal', ban_uid=ban_id) }}" class="button tiny alert">Close appeal</a>
+                                {%- endif %}
+                            </div>
+                        </div>
+                        <h5>Ban</h5>
+                        {%- if ban_object.active %}
+                        <h6>Unban on specific date</h6>
+                        <div class="row">
+                            <form action="{{ url_for('bans.unban', ban_uid=ban_id) }}" class="small-12 medium-8 columns" method="post" data-abide>
+                                {{ unban_time_form.csrf_token }}
+                                <div class="row">
+                                    <div class="small-6 columns">
+                                        {{ unban_time_form.date(pattern="date", placeholder="YYYY-MM-DD") }}
+                                        <small class="error">Please type in a date in the form of YYYY-MM-DD</small>
+                                    </div>
+                                    <div class="small-6 columns">
+                                        {{ unban_time_form.submit(class="button tiny") }}
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="small-12 medium-4 columns">
+                                <a href="{{ url_for('bans.unban', ban_uid=ban_id) }}" class="button tiny alert">Unban now</a>
+                            </div>
+                        </div>
+                        {%- else %}
+                        <h6>Ban has been lifted, nothing to do here!</h6>
+                        {%- endif %}
+                    </div>
+                </dd>
+            </dl>
+            <br>
+        </div>
+    </div>
+    {%- endif %}
+    {%- if appeal_object.state != 'open' %}
+    <div class="row">
+        <div class="small-12 columns">
+            <div class="alert-box radius" data-alert>
+                This appeal{% if appeal_object.state == 'closed_time' %} will be re-opened {{ appeal_object.unlock_time|full_date|safe }}{% else %} has been closed{% endif %}.
+            </div>
+        </div>
+    </div>
+    {%- endif %}
     <div class="row">
         <div class="small-12 medium-4 medium-push-8 columns">
             <h6>Info:</h6>
             <div class="panel">
                 <ul class="info-list">
                     <li class="key">User:</li>
-                    <li class="value player-name">{{ ban_object.username }}</li>
+                    <li class="value player-name">{{ ban_object.target.mcname }}</li>
                     <li class="key">Issuer:</li>
-                    <li class="value player-name">{{ ban_object.issuer }}</li>
+                    <li class="value player-name">{{ ban_object.issuer.name }}</li>
                     <li class="key">Date:</li>
                     <li class="value weak">{{ ban_object.time|full_date|safe }}</li>
+                    {% if ban_object.removed_time or not ban_object.active %}
+                        <li class="key">Lifted:</li>
+                        <li class="value weak">{{ ban_object.removed_time|full_date|safe if ban_object.removed_time else "<unknown>" }} by <span class="player-name">{{ ban_object.removed_by or "<unknown>" }}</span></li>
+                    {% endif %}
                 </ul>
             </div>
             <h6>Notes:</h6>
             <div class="note">
                 {%- if notes %}
-                {%- for note in notes %}
-                <blockquote>
-                    {{ note.note }}
-                    <cite>{{ note.issuer }}</cite>
-                </blockquote>
-                {%- endfor %}
+                    {%- for note in notes %}
+                        <blockquote>
+                            {{ note.note }}
+                            <cite>{{ note.issuer.name }}</cite>
+                        </blockquote>
+                    {%- endfor %}
                 {%- else %}
-                No notes
+                    No notes
                 {%- endif %}
             </div>
             {%- if current_user.has_permission("bans.appeal.alts") %}
@@ -60,7 +152,7 @@
                     <tbody>
                         {%- for alt in alts %}
                         <tr>
-                            <td><span class="player-name">{{ alt.username }}</span></td>
+                            <td>{{ user_dropdown(alt.player.mcname) }}</td>
                             <td>{{ alt.last_login|full_date(classes='alert label' if alt.last_login > ban_object.time else 'secondary label')|safe }}</td>
                         </tr>
                         {%- endfor %}
@@ -75,28 +167,42 @@
                 <div class="view">
                     {%- if current_user.has_permission("bans.appeal.edit") %}
                     <div class="button-panel">
-                        <a onclick="Editable.set_editable(this)"><i class="fi-page-edit small"></i></a>
+                        <a onclick="Editable.set_editable(this)" data-tooltip title="Edit"><i class="fi-page-edit small"></i></a>
                     </div>
                     {%- endif %}
-                    <span class="ban-text">{{ ban_object.reason }}</span>
+                    <div class="ban-text">{{ ban_object.reason }}</div>
                 </div>
             </div>
             <h6>Comments:</h6>
             {%- if replies %}
             {%- for reply in replies %}
-            <div class="appeal-comment">
+
+            <div id="reply-{{ reply.id }}" class="appeal-comment">
                 <div class="row">
                     <div class="small-12 medium-3 large-2 columns meta">
-                        <a href="{{ reply.creator.get_profile_url() }}"><span class="player-name">{{ reply.creator.name }}</span></a>
-                        <br>
-                        {%- if reply.creator.name|lower == ban_object.username|lower %}
+                        <div class="user-info-box-container-small show-for-small-only">
+                            {{ user_info_box.user_info(reply.creator, type="mobile", date=reply.created) }}
+                        </div>
+                        <div class="user-info-box-container show-for-medium-up">
+                            {{ user_info_box.user_info(reply.creator, type="desktop", arrow="right", date=reply.created) }}
+                        </div>
+                        {%- if reply.creator.name|lower == ban_object.target.mcname|lower %}
                         <span class="secondary label">Banned</span>
-                        {%- elif reply.creator.name|lower == ban_object.issuer|lower %}
+                        {%- elif reply.creator.name|lower == ban_object.issuer.name|lower %}
                         <span class="secondary label">Issuer</span>
                         {%- endif %}
                     </div>
-                    <div class="small-12 medium-9 large-10 columns text">
-                        {{ reply.text|markdown|safe }}
+                    <div class="small-12 medium-9 large-10 columns text content-editable" data-editable="appeal-reply">
+                        <div class="view" style="position: relative;">
+                            {%- if (current_user.has_permission("bans.appeal.edit") or (current_user.is_authenticated() and current_user == reply.creator)) %}
+                            <div class="button-panel">
+                                <a onclick="Editable.set_editable(this)" data-tooltip title="Edit"><i class="fi-page-edit small"></i></a>
+                            </div>
+                            {%- endif %}
+                            <div>{{ reply.text|markdown|safe }}</div>
+                            <div class="raw-markdown" style="display: none;">{{ reply.text }}</div>
+                            <div class="appeal-reply-id" style="display: none;">{{ reply.id }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -128,9 +234,20 @@
 </div>
 <div class="content-editable-template" data-editable="ban-reason">
     <div class="edit">
-        <form>
-            {{ edit_form.text(class="ban-text") }}
+      <form method="post" action="{{ url_for('bans.ban_reason_edit', ban_uid=ban_id) }}" data-abide>
+            {{ edit_form.hidden_tag() }}
+            {{ edit_form.text(class="ban-reason-edit-textfield", required="") }}
             {{ edit_form.submit(class="button tiny") }}
+            <a class="button tiny alert" onclick="Editable.set_viewable(this)">Cancel</a>
+      </form>
+    </div>
+</div>
+<div class="content-editable-template" data-editable="appeal-reply">
+    <div class="edit">
+        <form method="post" action="" data-abide>
+            {{ reply_edit_form.hidden_tag() }}
+            {{ reply_edit_form.text(class="appeal-reply-edit-textfield", required="") }}
+            {{ reply_edit_form.submit(class="button tiny") }}
             <a class="button tiny alert" onclick="Editable.set_viewable(this)">Cancel</a>
         </form>
     </div>
@@ -143,7 +260,13 @@
         $(document).ready(function() {
             Editable.handlers["ban-reason"] = {
                 enable: function(element) {
-                    element.find(".edit .ban-text").val(element.find(".view .ban-text").text())
+                    element.find(".edit .ban-reason-edit-textfield").val(element.find(".view .ban-text").text())
+                }
+            };
+            Editable.handlers["appeal-reply"] = {
+                enable: function(element) {
+                    element.find(".edit .appeal-reply-edit-textfield").val(element.find(".view .raw-markdown").text());
+                    element.find(".edit form").attr("action", "{{ url_for('bans.appeal_reply_edit', appeal_reply_id="appeal_reply_id_placeholder") }}".replace("appeal_reply_id_placeholder", element.find(".view .appeal-reply-id").text()));
                 }
             }
         });

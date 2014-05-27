@@ -1,5 +1,6 @@
 import flask_login
 import datetime
+import re
 
 from mongoengine import *
 from flask import url_for
@@ -33,6 +34,8 @@ class User(Document, flask_login.UserMixin, object):
     tfa_secret = StringField()
     tfa_info = DictField()
 
+    minecraft_player = ReferenceField("MinecraftPlayer", db_field="minecraft_player", dbref=False, required=True)
+
     mail = StringField()
     mail_verified = BooleanField(default=False)
 
@@ -45,15 +48,20 @@ class User(Document, flask_login.UserMixin, object):
 
     #Note for whoever: Most permissions should be added through groups, not adding nodes directly to users.
     #The permissions list should ONLY be used in very specific cases. (Api accounts?)
+    #TODO: Refactor permissions into some PermissionHolder class. It can be used by both the User and ApiKey model.
     role_groups = ListField(ReferenceField(Role_Group, dbref=False))
     roles = ListField(StringField())
 
-    api_account = BooleanField(default=False)
-
     meta = {
         'collection': 'users',
-        'indexed': ['name']
+        'indexed': ['name', 'minecraft_player']
     }
+
+    def validate(self, clean=True):
+        if not validate_username(self.name):
+            raise ValidationError("Username could not be validated.")
+
+        return super(User, self).validate(clean)
 
     def get_id(self):
         return self.name
@@ -102,6 +110,23 @@ class User(Document, flask_login.UserMixin, object):
     def get_avatar_url(self):
         return url_for('avatar.get_avatar', name=self.name)
 
+    @classmethod
+    def get_user_by_uuid(cls, uuid):
+        """
+        You can pass this either a string UUID or a MinecraftPlayer document instance. It will return the user
+        owning the Minecraft account. Keep in mind that not every player is registered in our database, and
+        this may very well return None.
+        """
+        return User.objects(minecraft_player=uuid).first()
+
+    @classmethod
+    def get_user_by_username(cls, username):
+        """
+        This takes a junction username, and returns the User document with that name. Returns null if no
+        user has this username.
+        """
+        return User.objects(name=username).first()
+
 
 #class Token(Document):
 #
@@ -122,4 +147,12 @@ class ConfirmedUsername(Document):
 
     username = StringField(required=True)
     ip = StringField(required=True)
+    uuid = UUIDField(required=True)
+
     created = DateTimeField(required=True, default=datetime.datetime.utcnow)
+
+
+def validate_username(username):
+    if 2 <= len(username) <= 16 and re.match(r'^[A-Za-z0-9_]+$', username):
+        return True
+    return False

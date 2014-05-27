@@ -1,8 +1,8 @@
 from mongoengine import *
-
-from blueprints.auth.user_model import User
 from datetime import datetime
 from flask import url_for
+
+from models.user_model import User
 
 
 class Forum(Document):
@@ -16,6 +16,9 @@ class Forum(Document):
 
     def get_url(self):
         return url_for('forum.view_forum', forum=self.identifier)
+
+    def __str__(self):
+        return self.name
 
 
 class Category(Document):
@@ -33,6 +36,9 @@ class Category(Document):
 
     def get_boards(self):
         return Board.objects(categories__in=[self])
+
+    def __str__(self):
+        return self.name
 
 
 class Board(Document):
@@ -66,6 +72,9 @@ class Board(Document):
     def get_last(self):
         return Topic.objects(board=self).order_by('-date').first()
 
+    def __str__(self):
+        return self.name
+
 
 class TopicEdit(EmbeddedDocument):
 
@@ -73,6 +82,9 @@ class TopicEdit(EmbeddedDocument):
     title = StringField()
     date = DateTimeField()
     announcement = BooleanField(default=False)
+
+    def __str__(self):
+        return '{0} - {1}'.format(self.author, self.title)
 
 
 class Topic(Document):
@@ -119,14 +131,17 @@ class Topic(Document):
     def get_last_post(self):
         return Post.objects(topic=self).order_by('-date').first()
 
-    def get_pretty_date(self):
-        return pretty_date(self.date)
+    def __str__(self):
+        return '{0} - {1}'.format(self.author, self.title)
 
 
 class PostEdit(EmbeddedDocument):
     author = ReferenceField(User, dbref=False)
     content = StringField()
     date = DateTimeField()
+
+    def __str__(self):
+        return '{0} - {1}'.format(self.author, self.content)
 
 import math
 POSTS_PER_PAGE = 20
@@ -149,9 +164,6 @@ class Post(Document):
         'indexes': ['topic', 'author']
     }
 
-    def get_pretty_date(self):
-        return pretty_date(self.date)
-
     def can_edit(self, user):
         return user.is_authenticated() and (self.author.name == user.name or user.has_permission('forum.edit_posts'))
 
@@ -163,10 +175,11 @@ class Post(Document):
     def get_permalink_url(self):
         return url_for('forum.permalink_post_redirect', post_id=str(self.id))
 
+    def __str__(self):
+        return '{0} - {1}'.format(self.author, self.content)
+
+
 
 def pretty_url_escape(string):
     chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 "
     return ''.join([s for s in string if s in chars]).replace(" ", "_")
-
-def pretty_date(date):
-    return date.strftime("%d %b, %Y")

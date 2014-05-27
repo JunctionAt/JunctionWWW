@@ -1,9 +1,11 @@
 __author__ = 'HansiHE'
 
 from flask import render_template
-from .. import blueprint
-from blueprints.auth.user_model import User, Role_Group
 from random import shuffle
+
+from .. import blueprint
+from models.user_model import User, Role_Group
+
 
 listings = [
     {"id": "moderator", "name": "Moderators", "description":
@@ -19,13 +21,17 @@ listings = [
         "These players were former Junction staff members and have left to play as a normal player."},
 ]
 
+
 @blueprint.route('/staff/')
 def view_staff():
     listings_data = dict()
     for listing in listings:
-        data = User.objects(role_groups__in=[Role_Group.objects(name=listing["id"]).first()]).only('name')
+        data = User.objects(
+            role_groups__in=[Role_Group.objects(name=listing["id"]).first()]
+        ).only('name')
         data = list(data)
         shuffle(data)
         listings_data[listing["id"]] = data
 
-    return render_template('staff_view_staff.html', data=listings_data, listings=listings, title="Staff")
+    return render_template('staff_view_staff.html', data=listings_data,
+                           listings=listings, title="Staff")

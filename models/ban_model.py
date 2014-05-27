@@ -2,7 +2,8 @@
 #from blueprints.base import Base, session, db
 from mongoengine import *
 import datetime
-from blueprints.auth.user_model import User
+
+from models.user_model import User
 
 
 class AppealEdit(EmbeddedDocument):
@@ -45,9 +46,17 @@ class Appeal(EmbeddedDocument):
 
 
 class Ban(Document):
+    """
+    Issuer should be stored as a user, target as player.
+    """
     uid = SequenceField(unique=True)
-    issuer = StringField(required=True)
+
+    target = ReferenceField('MinecraftPlayer', dbref=False, required=True)
+    issuer = ReferenceField('User', db_field="issuer", dbref=False, required=True)
+
+    issuer_old = StringField(required=True, db_field="issuer_old")
     username = StringField(required=True)
+
     reason = StringField(required=True)
     server = StringField(required=True)
     time = DateTimeField(default=datetime.datetime.utcnow)
@@ -56,7 +65,19 @@ class Ban(Document):
     removed_time = DateTimeField()
     removed_by = StringField()
 
-    appeal = EmbeddedDocumentField('Appeal', required=True, default=Appeal())
+    appeal = EmbeddedDocumentField('Appeal', required=True, default=Appeal)
+
+    def __init__(self, *args, **kwargs):
+        super(Ban, self).__init__(*args, **kwargs)
+        self._process_ban()
+
+    def _process_ban(self):
+        if not self.active:
+            return False
+        if self.removed_time is not None and self.removed_time < datetime.datetime.utcnow():
+            self.update(set__active=False)
+            return False
+        return True
 
     def get_time(self):
         return self.time.strftime("%s")
@@ -64,16 +85,24 @@ class Ban(Document):
     def __repr__(self):
         return self.id
 
+    def __str__(self):
+    	return 'Ban #{0}'.format(self.uid)
+
     meta = {
         'collection': 'bans',
-        'indexed': ['uid', 'issuer', 'username', 'appeal']
+        'indexed': ['uid', 'issuer_old', 'username', 'appeal']
     }
 
 
 class Note(Document):
     uid = SequenceField(unique=True)
-    issuer = StringField(required=True)
+
+    target = ReferenceField('MinecraftPlayer', dbref=False, required=True)
+    issuer = ReferenceField('User', db_field="issuer", dbref=False)
+
+    issuer_old = StringField(required=True, db_field="issuer_old")
     username = StringField(required=True)
+
     note = StringField(required=True)
     server = StringField(required=True)
     time = DateTimeField(default=datetime.datetime.utcnow)

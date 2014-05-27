@@ -1,99 +1,121 @@
-__author__ = 'HansiHE'
+from flask.ext.superadmin import ModelAdmin
 
-from flask import Blueprint, request, render_template, abort, send_file, flash, redirect, url_for, current_app
-from blueprints.auth import login_required
-from blueprints.admin.view import ModelView
 from blueprints.base import admin
-from blueprints.forum.database.forum import Forum, Category, Board, Topic, Post
-from flask.ext.admin.model import typefmt
-from blueprints.bans.ban_model import Ban, AppealReply, Note
-from blueprints.alts.alts_model import PlayerIpsModel, IpPlayersModel
-import mongoengine
-
-from blueprints.auth.user_model import Role_Group, User
-from blueprints.alts.alts_model import IpPlayersModel, PlayerIpsModel
-
-#The Role Groups collection view
-class Role_Group_View(ModelView):
-    column_searchable_list = ['name']
-
-admin.add_view(Role_Group_View(Role_Group, endpoint='mongo_role_groups', category='Mongo General'))
+from blueprints.auth import current_user
+from models.user_model import Role_Group, User
+from models.forum_model import Forum, Category, Board, Topic, Post
+from models.ban_model import Ban, AppealReply, Note
+from models.alts_model import IpPlayersModel, PlayerIpsModel
+from models.servers_model import Server
 
 
-#The Users collection view
-class User_View(ModelView):
-    column_filters = ['api_account']
-    column_searchable_list = ['name', 'mail']
-    form_excluded_columns = ['notifications']
-    column_exclude_list = ['notifications', 'hash']
-    column_descriptions = {'roles': "This shouldn't be used normally."}
-
-admin.add_view(User_View(User, endpoint='mongo_user', category='Mongo General'))
+def permission_model(permission):
+    class AuthModel(ModelAdmin):
+        def is_accessible(self):
+            return current_user.has_permission('admin.%s' % permission)
+    return AuthModel
 
 
-#The forums view
-class Forum_Forum_View(ModelView):
-    pass
-
-admin.add_view(Forum_Forum_View(Forum, endpoint='admin_forum_forum', category='Mongo Forum'))
-
-#Forum categories
-class Forum_Category_View(ModelView):
-    pass
-
-admin.add_view(Forum_Category_View(Category, endpoint='admin_forum_categories', category='Mongo Forum'))
+# Users
+class RoleGroupModel(permission_model('role_group')):
+    list_display = ['name']
+admin.register(Role_Group, RoleGroupModel, name='Role Groups',
+               category='Users', endpoint='admin_role_groups')
 
 
-#Forum boards
-class Forum_Board_View(ModelView):
-    pass
-
-admin.add_view(Forum_Board_View(Board, endpoint='admin_forum_boards', category='Mongo Forum'))
-
-
-class Forum_Topic_View(ModelView):
-    pass
-
-admin.add_view(Forum_Topic_View(Topic, endpoint='admin_forum_topics', category='Mongo Forum'))
-
-
-class Forum_Post_View(ModelView):
-    pass
-
-admin.add_view(Forum_Post_View(Post, endpoint='admin_forum_posts', category='Mongo Forum'))
-
-
-#Bans
-class Ban_View(ModelView):
-    action_disallowed_list = ['delete']
-    column_exclude_list = ['appeal']
-    form_excluded_columns = ['time', 'removed_time', 'removed_by', 'active']
-    column_searchable_list = ['username', 'reason', 'server', 'issuer']
-admin.add_view(Ban_View(Ban, endpoint='admin_bans', category='Anathema'))
-
-#Notes
-class Notes_View(ModelView):
-    pass
-admin.add_view(Notes_View(Note, endpoint='admin_notes', category='Anathema'))
-
-class AppealReply_View(ModelView):
-    pass
-
-admin.add_view(AppealReply_View(AppealReply, endpoint='admin_appealreplies', category='Anathema'))
-
-#Alt Lookup
-class IpPlayer_View(ModelView):
+class UserModel(permission_model('user')):
+    list_display = ['name', 'mail']
+    search_fields = ['name', 'mail']
+    fields = ['name', 'registered', 'hash', 'roles',
+              'role_groups', 'mail', 'mail_verified']
+    readonly_fields = ['registered']
+    can_create = False
     can_delete = False
+admin.register(User, UserModel, category='Users',
+               endpoint='admin_users')
+
+
+# Forum
+class ForumModel(permission_model('forum_forum')):
+    list_display = ['name', 'identifier']
+admin.register(Forum, ForumModel, category='Forum',
+               endpoint='admin_forum_forum')
+
+
+class CategoryModel(permission_model('forum_category')):
+    list_display = ['name', 'forum']
+admin.register(Category, CategoryModel, category='Forum',
+               endpoint='admin_forum_category')
+
+
+class BoardModel(permission_model('forum_board')):
+    list_display = ['name', 'forum']
+admin.register(Board, BoardModel, category='Forum',
+               endpoint='admin_forum_board')
+
+
+class TopicModel(permission_model('forum_topic')):
+    list_display = ['title', 'author', 'last_editor',
+                    'date', 'board', 'forum']
+admin.register(Topic, TopicModel, category='Forum',
+               endpoint='admin_forum_topic')
+
+
+class PostModel(permission_model('forum_post')):
+    list_display = ['author', 'topic', 'date', 'forum']
+admin.register(Post, PostModel, category='Forum',
+               endpoint='admin_forum_post')
+
+
+# Anathema
+class BanModel(permission_model('ban')):
+    list_display = ['uid', 'username', 'issuer', 'reason', 'server', 'time',
+                    'active']
+    fields = ['uid', 'issuer', 'username', 'reason', 'server', 'time',
+              'active']
+    readonly_fields = ['uid', 'issuer', 'username', 'reason', 'server', 'time',
+                       'active']
+    exclude = ['state']
+    can_delete = False
+    can_create = False
+admin.register(Ban, BanModel, category='Anathema', endpoint='admin_ban')
+
+
+class NoteModel(permission_model('note')):
+    list_display = ['uid', 'username', 'issuer', 'note', 'server', 'time',
+                    'active']
+admin.register(Note, NoteModel, category='Anathema', endpoint='admin_note')
+
+
+class AppealReplyModel(permission_model('appeal_reply')):
+    list_display = ['creator', 'ban', 'created', 'editor', 'edited']
+admin.register(AppealReply, AppealReplyModel, category='Anathema',
+               endpoint='admin_appeal_reply')
+
+
+# Alts
+class IpPlayersAdminModel(permission_model('alts')):
+    list_display = ['ip', 'players', 'last_login']
+    search_fields = ['ip']
     can_edit = False
     can_create = False
-    column_searchable_list = ['ip']
-    column_filters = ['last_login']
-admin.add_view(IpPlayer_View(IpPlayersModel, endpoint='admin_alt_ip', category='Mongo Alts'))
-
-class PlayerIp_View(ModelView):
     can_delete = False
+admin.register(IpPlayersModel, IpPlayersAdminModel, name='IP -> Players',
+               category='Alts', endpoint='admin_ip_players')
+
+
+class PlayerIpsAdminModel(permission_model('alts')):
+    list_display = ['player', 'ips', 'last_login']
+    search_fields = ['player']
     can_edit = False
     can_create = False
-    column_searchable_list = ['username']
-    column_filters = ['last_login']
-admin.add_view(PlayerIp_View(PlayerIpsModel, endpoint='admin_alt_username', category='Mongo Alts'))
+    can_delete = False
+admin.register(PlayerIpsModel, PlayerIpsAdminModel, name='Player -> IPs',
+               category='Alts', endpoint='admin_player_ips')
+
+
+# Servers
+class ServerModel(permission_model('servers')):
+    list_display = ['name', 'server_id']
+    readonly_fields = []
+admin.register(Server, ServerModel, name='Servers', endpoint='admin_servers')

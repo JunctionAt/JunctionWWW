@@ -1,10 +1,10 @@
 __author__ = 'HansiHE'
 
 from flask import render_template, redirect, url_for, abort, current_app
-from blueprints.auth import current_user
 
+from blueprints.auth import current_user
 from .. import blueprint
-from ..database.forum import Forum, Category, Topic
+from models.forum_model import Forum, Category, Topic
 from ..forum_util import forum_template_data
 
 

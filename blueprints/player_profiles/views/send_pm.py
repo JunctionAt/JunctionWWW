@@ -1,17 +1,18 @@
 __author__ = 'HansiHE'
 
 from flask import render_template, redirect, abort, request, flash
-from .. import blueprint
-from blueprints.auth import User, current_user, login_required
 from flask_wtf import Form
 from wtforms import TextAreaField, SubmitField
-from wtforms.validators import Length, Required
-from blueprints.notifications.notification_model import PMNotification
+from wtforms.validators import Length, InputRequired
+
+from .. import blueprint
+from blueprints.auth import User, current_user, login_required
+from models.notification_model import PMNotification
 
 
 class ComposePMForm(Form):
     text = TextAreaField("Profile text", validators=[
-        Required(message="Some text is required."),
+        InputRequired(message="Some text is required."),
         Length(min=3, max=5000, message="The message must be between 3 and 5000 characters.")])
     submit = SubmitField("Submit")
 
