@@ -50,7 +50,7 @@ def login(ext):
             session['tfa-logged-in'] = True
             session['tfa-user'] = user.name
             session['tfa-remember'] = form.remember.data
-            return redirect(url_for('auth.verify')), 303
+            return redirect(url_for('auth.verify', next=request.args.get('next', '/'))), 303
 
         if login_user(user, remember=form.remember.data):
             if ext == 'json':
