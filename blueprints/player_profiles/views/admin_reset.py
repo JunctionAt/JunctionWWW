@@ -1,6 +1,5 @@
 from flask_wtf import Form
-from wtforms import PasswordField
-from wtforms.validators import InputRequired, Length, EqualTo
+from wtforms import HiddenField
 from flask_login import fresh_login_required, current_user, abort, login_required
 from flask import request, flash, redirect, url_for, render_template
 import random
@@ -12,19 +11,18 @@ from blueprints.settings.views import add_settings_pane, settings_panels_structu
 
 
 class ResetForm(Form):
-    pass
+    who = HiddenField()
 
 
-@blueprint.route("/reset/<what>/<name>", methods=["GET", "POST"])
+@blueprint.route("/reset/<what>", methods=["POST"])
 @login_required
-def reset(name, what):
+def reset(what):
     if not current_user.has_permission('reset.{}'.format(what)):
         abort(403)
 
     form = ResetForm(request.form)
-
-    if request.method == "POST" and form.validate():
-        user = User.objects(name=name).first()
+    if form.validate():
+        user = User.objects(name=form.who.data).first()
         if user is None:
             abort(401)
         if what == 'password':

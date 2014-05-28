@@ -19,14 +19,16 @@
                 {%- elif current_user.is_authenticated() %}
                 <li><a class="button tiny" href="{{ profile.get_send_pm_url() }}">Send PM</a></li>
                 {%- if current_user.has_permission('reset.password') %}
-                <form method="post" action="{{ url_for('player_profiles.reset', name=user.name, what='password') }}">
-                    {{ reset_form.hidden_tag() }}
+                <form method="post" action="{{ url_for('player_profiles.reset', what='password') }}">
+                    {{ reset_form.csrf_token }}
+                    {{ reset_form.who(value=user.name) }}
                     <button type="submit" class="tiny">Reset password</button>
                 </form>
                 {%- endif %}
                 {%- if user.tfa and current_user.has_permission('reset.tfa') %}
-                <form method="post" action="{{ url_for('player_profiles.reset', name=user.name, what='tfa') }}">
-                    {{ reset_form.hidden_tag() }}
+                <form method="post" action="{{ url_for('player_profiles.reset', what='tfa') }}">
+                    {{ reset_form.csrf_token }}
+                    {{ reset_form.who(value=user.name) }}
                     <button type="submit" class="tiny">Disable TFA</button>
                 </form>
                 {%- endif %}
