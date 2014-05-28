@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 import math
 from flask import render_template, redirect, url_for, abort
 

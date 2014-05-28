@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from flask import Blueprint, render_template, redirect, flash, url_for
 from itsdangerous import URLSafeSerializer
 

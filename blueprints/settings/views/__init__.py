@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 settings_panels_structure = dict()
 
 

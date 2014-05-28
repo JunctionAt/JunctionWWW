@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from mongoengine import *
 from datetime import datetime
 

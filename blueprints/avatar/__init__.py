@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from flask import Blueprint, request, render_template, abort, send_file, redirect, url_for
 from flask_login import current_user
 from flask_wtf import Form

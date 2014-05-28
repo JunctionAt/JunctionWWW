@@ -1,5 +1,3 @@
-__author__ = 'hansihe'
-
 import alts_model
 import apikey_model
 import avatar_model

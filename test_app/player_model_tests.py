@@ -1,5 +1,3 @@
-__author__ = 'hansihe'
-
 import app
 
 

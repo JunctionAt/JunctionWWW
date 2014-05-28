@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from flask_login import logout_user
 from flask import flash, redirect, url_for
 

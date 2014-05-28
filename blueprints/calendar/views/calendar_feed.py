@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from flask import request, abort
 import datetime
 import json

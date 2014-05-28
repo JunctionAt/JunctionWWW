@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from flask_wtf import Form
 from wtforms import PasswordField
 from wtforms.validators import InputRequired, Length, EqualTo

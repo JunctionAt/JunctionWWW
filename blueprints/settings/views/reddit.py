@@ -1,5 +1,3 @@
-__author__ = 'williammck'
-
 from flask import render_template, request, url_for, flash, redirect, current_app
 from blueprints.auth import current_user, login_required
 import hashlib

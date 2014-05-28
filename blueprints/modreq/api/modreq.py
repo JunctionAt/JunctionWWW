@@ -1,5 +1,3 @@
-__author__ = 'williammck'
-
 from flask.ext.restful import Resource
 from flask.ext.restful.reqparse import RequestParser
 import re

@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from wtforms.validators import InputRequired
 
 

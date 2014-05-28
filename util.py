@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 import datetime
 import arrow
 

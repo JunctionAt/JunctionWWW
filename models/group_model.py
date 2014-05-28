@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from mongoengine import Document, EmbeddedDocument, StringField, ListField, ReferenceField
 
 from models.user_model import User

@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 import bcrypt
 import re
 import datetime

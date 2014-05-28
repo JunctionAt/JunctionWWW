@@ -1,5 +1,3 @@
-__author__ = 'hansihe'
-
 from flask import request
 from flask.ext.restful import Resource
 

@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from flask import Blueprint
 from flask.ext.restful import Resource
 import ipaddress

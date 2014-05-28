@@ -1,5 +1,3 @@
-__author__ = 'williammck'
-
 from flask import render_template, send_file, abort
 import StringIO
 

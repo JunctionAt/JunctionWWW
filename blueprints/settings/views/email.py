@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from flask import render_template, request, url_for, abort, flash, redirect
 from .. import blueprint
 from flask_wtf import Form

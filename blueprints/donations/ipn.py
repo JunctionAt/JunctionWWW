@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from flask import request, current_app
 import requests
 from itsdangerous import BadData, BadPayload, BadSignature

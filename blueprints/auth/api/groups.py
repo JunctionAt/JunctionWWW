@@ -1,5 +1,3 @@
-__author__ = 'hansihe'
-
 from flask.ext.restful import Resource
 from mongoengine import Q
 

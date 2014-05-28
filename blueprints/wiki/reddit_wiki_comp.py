@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 import markdown
 
 LINK_PATTERN = r'a'
