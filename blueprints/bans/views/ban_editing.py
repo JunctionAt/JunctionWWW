@@ -16,11 +16,13 @@ class AppealReplyTextEditForm(Form):
         Length(min=1, max=5000, message="Content must be between 1 and 5000 characters long.")])
     submit = SubmitField('Edit')
 
+
 class BanReasonEditForm(Form):
     text = TextAreaField('Ban Reason', validators=[
         InputRequired(message="Some content is required."),
         Length(min=1, max=5000, message="Content must be between 1 and 5000 characters long.")])
     submit = SubmitField('Edit')
+
 
 @bans.route('/a/ban/<int:ban_uid>/edit', methods=["POST"])
 @login_required
@@ -38,6 +40,7 @@ def ban_reason_edit(ban_uid):
         ban.reason = edit_form.text.data
         ban.save()
         return redirect(url_for('bans.view_ban', ban_uid=ban_uid))
+
 
 @bans.route('/a/appeals/reply/<string:appeal_reply_id>/edit', methods=["POST"])
 @login_required

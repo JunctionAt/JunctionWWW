@@ -2,7 +2,6 @@ __author__ = 'HansiHE'
 
 from flask.ext.restful import Resource
 from flask.ext.restful.reqparse import RequestParser
-from blueprints.auth import current_user
 
 
 class Messages(Resource):

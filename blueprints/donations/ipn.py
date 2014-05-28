@@ -11,6 +11,7 @@ from . import username_signer
 
 is_debug = current_app.config['PAYPAL_IPN_DEBUG_MODE']
 
+
 @blueprint.route('/donate/ipn_callback', methods=['POST'])
 # @csrf.exempt
 def ipn_listener():
@@ -24,7 +25,10 @@ def ipn_listener():
 
     values['cmd'] = "_notify-validate"
 
-    validate_url = "https://www.paypal.com/cgi-bin/webscr" if not is_debug else "https://www.sandbox.paypal.com/cgi-bin/webscr"
+    if not is_debug:
+        validate_url = "https://www.paypal.com/cgi-bin/webscr"
+    else:
+        validate_url = "https://www.sandbox.paypal.com/cgi-bin/webscr"
 
     #print values
 
@@ -43,8 +47,8 @@ def ipn_listener():
             print values
         else:
             process_transaction(values)
-        #payer_email = request.form.get('payer_email')
-        #print "Pulled {email} from transaction".format(email=payer_email)
+            #payer_email = request.form.get('payer_email')
+            #print "Pulled {email} from transaction".format(email=payer_email)
     else:
         pass
         raise InvalidResponseError()
@@ -56,7 +60,6 @@ def ipn_listener():
 
 
 def process_transaction(data):
-
     # Get the username
     if not data.get("custom", None) or data.get("custom", None) == "None":
         username = None

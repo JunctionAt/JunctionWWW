@@ -4,12 +4,11 @@ __author__ = 'HansiHE'
 
 from flask import request, Blueprint
 from functools import wraps
+from flask_wtf import csrf
 
-from . import docs
 from models.apikey_model import ApiKey
 from blueprints.auth import current_user
 from models.user_model import User
-from blueprints.auth.util import validate_username
 
 
 datetime_format = "%I:%M %d/%m/%Y %p"
@@ -21,9 +20,6 @@ access_tokens = dict()
 
 def register_api_access_token(token, description=None, link=None, permission=None):
     access_tokens[token] = dict(token=token, description=description, link=link, permission=permission)
-
-
-import flask_wtf.csrf as csrf
 
 
 def _check_user_permission(required_tokens, user):
@@ -113,18 +109,6 @@ def require_api_key(required_access_tokens=list(), allow_user_permission=False, 
     return init
 
 
-def endpoint():
-    """
-    This decorator adds documentation for the endpoint.
-    It does nothing for now, but it is good practice to add this to views.
-    """
-    def wrap(func):
-        # TODO: Add documentation stuff
-        return func
-    return wrap
-
 register_api_access_token("api.as_user", "allows you to use the AsUser header to perform actions as users other than the key creator", permission="api.as_user")
 
-
-from docs import *
 from views import apikey_settings_pane, apikey_api

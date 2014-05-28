@@ -63,7 +63,7 @@ class DonationTransaction(Transaction):
     fee = FloatField(required=True)  # = the amount paypal has robbed us for
     payment_type = StringField()  # Should be either echeck or instant
     transaction_id = StringField()  # = parent_txn_id or txn_id, unique id
-    valid = BooleanField()  #Could be used for easy querying, should be set when payment_status is Pending or Completed. Changed to false if shit happens.
+    valid = BooleanField()  # Could be used for easy querying, should be set when payment_status is Pending or Completed. Changed to false if shit happens.
 
     payment_status_events = ListField(EmbeddedDocumentField(DonationTransactionStatus))  # list of states received for this transaction
 

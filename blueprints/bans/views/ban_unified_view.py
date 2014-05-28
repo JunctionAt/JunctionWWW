@@ -77,7 +77,8 @@ def post_ban_reply(ban_uid):
 
         if last_reply and last_reply.creator.name == current_user.name:
             last_reply.text += "\n- - -\n" + reply_form.text.data
-            last_reply.edits.append(AppealEdit(text=last_reply.text, user=current_user.to_dbref()))
+            last_reply.edits.append(AppealEdit(text=last_reply.text,
+                                               user=current_user.to_dbref()))
             last_reply.save()
             return redirect(url_for('bans.view_ban', ban_uid=ban_uid))
         else:

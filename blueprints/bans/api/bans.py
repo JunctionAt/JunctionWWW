@@ -6,13 +6,11 @@ __author__ = 'HansiHE'
 from flask import request
 from flask.ext.restful import Resource
 from flask.ext.restful.reqparse import RequestParser
-import re
 import datetime
 
 from blueprints.api import require_api_key, register_api_access_token, datetime_format
 from blueprints.base import rest_api
 from models.ban_model import Ban
-from blueprints.auth.util import validate_username
 from models.servers_model import Server
 
 
@@ -51,7 +49,7 @@ def construct_local_ban_data(ban):
 
 
 def get_global_bans(uuid):
-    return [] #Not implemented
+    return []  # Not implemented
 
 
 def get_bans(uuid=None, uid=None, active=None, scope="local"):
@@ -123,7 +121,7 @@ class Bans(Resource):
         if args.get("reason") and len(args.get("reason")) > 1000:
             return {'error': [{"message": "the reason must be below 1000 characters long"}]}
 
-        if args.get("server") and Server.verify_fid(args.get("server")): #len(args.get("server")) > 100:
+        if args.get("server") and Server.verify_fid(args.get("server")):
             return {'error': [{"message": "the server field must be a valid fid"}]}
 
     @require_api_key(required_access_tokens=['anathema.bans.post'])
@@ -141,8 +139,7 @@ class Bans(Resource):
         player = MinecraftPlayer.find_or_create_player(uuid)
 
         if len(Ban.objects(target=player, active=True)) > 0:
-            return {
-                'error': [{'message': "the user is already banned", 'identifier': "anathema.bans.add:user_already_exists"}]}
+            return {'error': [{'message': "the user is already banned", 'identifier': "anathema.bans.add:user_already_exists"}]}
 
         ban = Ban(issuer=issuer, issuer_old=issuer.name, target=player, username=player.mcname, reason=reason, server=source).save()
 

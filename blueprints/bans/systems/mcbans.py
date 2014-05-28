@@ -1,10 +1,9 @@
 import requests
-import json
-import sys
 
 #If a feature is unsupported, return None
 
 apikey = '205b3fa7a5aae89e6913c5c5bcbe7c50b1b0cfd1'
+
 
 def getbans(user):
     """ 
@@ -21,9 +20,9 @@ def getbans(user):
               - O string : server	
           -   ...
     """
-    response = {"bancount" : 0, "bans" : []}
+    response = {"bancount": 0, "bans": []}
 
-    payload = {"player" : user, "admin" : "[backend]", "exec" : "playerLookup"}
+    payload = {"player": user, "admin": "[backend]", "exec": "playerLookup"}
     r = requests.post("http://api.mcbans.com/v2/%s" % (apikey,), data=payload)
     #print(r.text)
     j = r.json
@@ -38,6 +37,7 @@ def getbans(user):
         response['bans'].append(convban)
         response['bancount'] += 1
     return response
+
 
 def getipbans(ip):
     """
@@ -55,6 +55,7 @@ def getipbans(ip):
     """
     return None
 
+
 def getnotes(user):
     """
     Should return a dict containing notes for the user.
@@ -71,6 +72,7 @@ def getnotes(user):
           -   ...
     """
     return None
+
 
 def fulllookup(user):
     """

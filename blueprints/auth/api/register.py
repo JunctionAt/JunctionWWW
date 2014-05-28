@@ -6,7 +6,6 @@ from flask.ext.restful.reqparse import RequestParser
 
 from blueprints.api import require_api_key, register_api_access_token
 from blueprints.base import rest_api
-from blueprints import uuid_utils
 from blueprints.auth.util import check_authenticated_ip, add_authenticated_ip
 
 add_api_username_verification_token = 'api.auth.add_ip_username_verification'

@@ -23,5 +23,5 @@ class ModReq(Document):
 
     meta = {
         'collection': 'modreq',
-        'indexed': [ 'uid' ]
+        'indexed': ['uid']
     }

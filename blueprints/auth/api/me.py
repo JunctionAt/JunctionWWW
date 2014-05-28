@@ -2,19 +2,17 @@ __author__ = 'hansihe'
 
 from flask import request
 from flask.ext.restful import Resource
-from flask.ext.restful.reqparse import RequestParser
 
-from blueprints.api import require_api_key, register_api_access_token
+from blueprints.api import require_api_key
 from blueprints.base import rest_api
-from blueprints import uuid_utils
-from blueprints.auth.util import check_authenticated_ip, add_authenticated_ip
 
 add_api_username_verification_token = 'api.auth.add_ip_username_verification'
 
 
 class MeResource(Resource):
 
-    @require_api_key(asuser_must_be_registered=False, allow_user_permission=True)
+    @require_api_key(asuser_must_be_registered=False,
+                     allow_user_permission=True)
     def get(self):
         user = getattr(request, 'api_user', None)
         username = getattr(request, 'api_user_name', None)

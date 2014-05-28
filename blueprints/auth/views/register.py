@@ -1,5 +1,3 @@
-from blueprints import uuid_utils
-
 __author__ = 'HansiHE'
 
 from flask import render_template, request, abort, redirect, url_for, flash
@@ -11,7 +9,7 @@ import bcrypt
 from .. import blueprint
 from models.user_model import User
 from models.player_model import MinecraftPlayer
-from blueprints.auth import login_required, current_user
+from blueprints.auth import current_user
 from blueprints.auth.util import check_authenticated_ip
 
 
@@ -28,8 +26,7 @@ class RegistrationForm(Form):
     password = PasswordField("Password", validators=[
         InputRequired("Please enter a password."),
         Length(min=8, message="The password needs to be longer then 6 characters.")])
-    password_repeat = PasswordField("Repeat Password", validators=[
-        EqualTo('password', "The passwords must match.")])
+    password_repeat = PasswordField("Repeat Password", validators=[EqualTo('password', "The passwords must match.")])
     submit = SubmitField("Register")
 
 

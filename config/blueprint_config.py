@@ -2,10 +2,10 @@ __author__ = 'HansiHE'
 
 from blueprints import (auth, notifications, static_pages, api, avatar,
                         bans, forum, wiki, modreq, alts, player_profiles,
-                        groups, donations, staff, settings, calendar,
-                        servers, admin)
+                        groups, donations, staff, settings, calendar, servers, admin)
 
-# Blueprints to autoload. Each entry in the list gets passed as args to application.register_blueprint
+# Blueprints to autoload.
+# Each entry in the list gets passed as args to application.register_blueprint
 BLUEPRINTS = [
 
     # Authentication
@@ -26,14 +26,11 @@ BLUEPRINTS = [
     # Player stats
     # dict(blueprint=player_stats.player_stats([
     #     dict(name='pve', tablename='pve_stats',
-    #          hide=['comp.pk', 'kills.player', 'stats.lastlogout',
-    #                'stats.teleport', 'stats.chatletters', 'stats.chat']),
+    #          hide=['comp.pk', 'kills.player', 'stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat']),
     #     dict(name='event', tablename='event_stats',
-    #          hide=['stats.lastlogout', 'stats.teleport', 'stats.chatletters',
-    #                'stats.chat']),
+    #          hide=['stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat']),
     #     dict(name='chaos', tablename='chaos_stats',
-    #          hide=['stats.lastlogout', 'stats.teleport', 'stats.chatletters',
-    #                'stats.chat']),
+    #          hide=['stats.lastlogout', 'stats.teleport', 'stats.chatletters', 'stats.chat']),
     # ])),
 
     # Player profiles
@@ -42,8 +39,7 @@ BLUEPRINTS = [
     # Player groups (Clans & Cities)
     dict(blueprint=groups.get_blueprint()),
     # dict(blueprint=player_groups.player_groups([
-    #     dict(name='pve', group='city', groups='cities', member='citizen',
-    #          owner='mayor'),
+    #     dict(name='pve', group='city', groups='cities', member='citizen', owner='mayor'),
     #     dict(name='survival', group='clan', owner='leader'),
     # ])),
 
@@ -72,6 +68,4 @@ BLUEPRINTS = [
     # dict(blueprint=calendar.blueprint),
 
     # Account Settings
-    dict(blueprint=settings.blueprint)
-
-    ]
+    dict(blueprint=settings.blueprint)]

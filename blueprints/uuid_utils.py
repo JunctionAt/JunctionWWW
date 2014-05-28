@@ -1,7 +1,5 @@
 # Shamelessly stolen from https://github.com/Thezomg/mcapi/
-
 # Based on Java from https://github.com/Mojang/AccountsClient/
-# from flask.ext.restful.reqparse import Argument
 
 import requests
 import json
@@ -48,10 +46,8 @@ def get_uuid(*name, **kwargs):
         crit = name[:100]
         name = name[100:]
         data = json.dumps(crit)
-        headers = {'Content-type': 'application/json',
-                   'Accept': 'application/json'}
-        r = requests.post(PROFILE_URL, data=data,
-                          headers=headers, timeout=timeout)
+        headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
+        r = requests.post(PROFILE_URL, data=data, headers=headers, timeout=timeout)
         profiles = r.json()
         p.extend(profiles)
 
@@ -67,8 +63,7 @@ def lookup_uuid(username):
     for result in res:
         if result.get(u"name", None).lower() == username.lower():
             return result.get(u"id", None)
-    raise NoSuchUserException("no user exists with the username '%s'"
-                              % username)
+    raise NoSuchUserException("no user exists with the username '%s'" % username)
 
 
 def lookup_uuid_name(username):
@@ -78,8 +73,7 @@ def lookup_uuid_name(username):
     for result in res:
         if result.get(u"name", None).lower() == username.lower():
             return result.get(u"id", None), result.get(u"name")
-    raise NoSuchUserException("no user exists with the username '%s'"
-                              % username)
+    raise NoSuchUserException("no user exists with the username '%s'" % username)
 
 
 def lookup_name(uuid):

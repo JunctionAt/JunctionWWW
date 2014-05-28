@@ -5,15 +5,11 @@ from flask.ext.restful.reqparse import RequestParser
 import re
 import datetime
 
-from blueprints.api import require_api_key, register_api_access_token, datetime_format, endpoint
+from blueprints.api import require_api_key, register_api_access_token, datetime_format
 from blueprints.base import rest_api
 from models.modreq_model import ModReq as ModReqModel
 from models.servers_model import Server
 from blueprints.auth.util import validate_username
-
-
-
-#from wtforms.validators import
 
 
 def get_modreqs(uid=None, server=None, status=None, username=None):
@@ -65,14 +61,13 @@ class ModReq(Resource):
         if args.get("id") and not ModReqModel.objects(uid=args.get("id")):
             return {'error': [{"message": "invalid id"}]}
 
-        if args.get("server") and not Server.objects(name=args.get("server")).first():
-            return {'error': [{"message": "invalid server"}]}
+        if args.get("server") and Server.verify_fid(args.get("server")):
+            return {'error': [{"message": "the server field must be a valid fid"}]}
 
         if args.get("username") and not validate_username(args.get("username")):
             return {'error': [{"message": "invalid username"}]}
 
     @require_api_key(required_access_tokens=['modreq.get'])
-    @endpoint()
     def get(self):
         args = self.get_parser.parse_args()
         validate_args = self.validate_get(args)
@@ -101,18 +96,17 @@ class ModReq(Resource):
         if args.get("request") and len(args.get("request")) > 1000:
             return {'error': [{"message": "the request must be below 1000 characters long"}]}
 
-        if args.get("server") and not Server.objects(name=args.get("server")).first():
-            return {'error': [{"message": "invalid server"}]}
+        if args.get("server") and Server.verify_fid(args.get("server")):
+            return {'error': [{"message": "the server field must be a valid fid"}]}
 
-        if args.get("location") and len(args.get("location")) > 100:# need a better way to validate location
-                                                                    # world,x,y,z,pitch,yaw is what we want
-                                                                    # x, y, and z are doubles
-                                                                    # pitch and yaw are floats
-                                                                    # world should only be world, world_nether, or world_the_end
+        if args.get("location") and len(args.get("location")) > 100:  # need a better way to validate location
+                                                                      # world,x,y,z,pitch,yaw is what we want
+                                                                      # x, y, and z are doubles
+                                                                      # pitch and yaw are floats
+                                                                      # world should only be world, world_nether, or world_the_end
             return {'error': [{"message": "the location must be below 100 characters long"}]}
 
     @require_api_key(required_access_tokens=['modreq.add'])
-    @endpoint()
     def post(self):
         args = self.post_parser.parse_args()
         validate_args = self.validate_post(args)
@@ -135,7 +129,7 @@ class ModReqClaim(Resource):
     post_parser.add_argument("handled_by", type=str)
 
     def validate_post(self, args):
-        if args.get("claim") == True:
+        if args.get("claim"):
             if not args.get("handled_by"):
                 return {'error': [{"message": "handled_by must be provided when claim=true"}]}
 
@@ -143,7 +137,6 @@ class ModReqClaim(Resource):
                 return {'error': [{"message": "handled_by must be a valid minecraft username"}]}
 
     @require_api_key(required_access_tokens=['modreq.claim'])
-    @endpoint()
     def post(self, modreq_id):
         args = self.post_parser.parse_args()
         validate_args = self.validate_post(args)
@@ -180,7 +173,6 @@ class ModReqDone(Resource):
             return {'error': [{"message": "the close_message must be below 1000 characters long"}]}
 
     @require_api_key(required_access_tokens=['modreq.done'])
-    @endpoint()
     def post(self, modreq_id):
         args = self.post_parser.parse_args()
         validate_args = self.validate_post(args)
@@ -200,16 +192,16 @@ class ModReqDone(Resource):
 
         return {'modreq': construct_modreq_data(modreq)}
 
+
 class ModReqElevate(Resource):
     post_parser = RequestParser()
     post_parser.add_argument("group", type=str, required=True)
 
     def validate_post(self, args):
-        if not args.get("group"):# need group verification logic!
+        if not args.get("group"):  # need group verification logic!
             return {'error': [{"message": "invalid group"}]}
 
     @require_api_key(required_access_tokens=['modreq.elevate'])
-    @endpoint()
     def post(self, modreq_id):
         args = self.post_parser.parse_args()
         validate_args = self.validate_post(args)
@@ -220,7 +212,7 @@ class ModReqElevate(Resource):
 
         modreq = ModReqModel.objects(uid=modreq_id).first()
 
-        modreq.elevate_group = group
+        modreq.elevate_group = elevate_group
         modreq.save()
 
         return {'modreq': construct_modreq_data(modreq)}

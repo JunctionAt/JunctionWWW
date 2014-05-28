@@ -12,12 +12,14 @@ from ..forum_util import forum_template_data
 TOPICS_PER_PAGE = 10
 PAGINATION_VALUE_RANGE = 3
 
+
 @blueprint.route('/forum/b/<int:board_id>/')
 def view_board_redirect(board_id):
     board = Board.objects(board_id=board_id).first()
     if board is None:
         abort(404)
     return redirect(url_for('forum.view_board', board_id=board_id, board_name=board.name.replace(' ', '_'), page=1))
+
 
 @blueprint.route('/forum/b/<int:board_id>/<string:board_name>/', defaults={'page': 1})
 @blueprint.route('/forum/b/<int:board_id>/<string:board_name>/<int:page>/')

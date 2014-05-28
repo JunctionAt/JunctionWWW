@@ -8,13 +8,13 @@ from models.donation_model import Transaction, DonationTransaction
 from blueprints.base import cache
 
 
-blueprint = Blueprint('donations', __name__,
-                         template_folder='templates')
+blueprint = Blueprint('donations', __name__, template_folder='templates')
 
 # Used for signing usernames when we pass them to paypal.
 username_signer = URLSafeSerializer("yKkBdpiHAiAInsbX92bSMW0MKErI1jLRso39yTF7", salt="PaypalDonateUsername")
 
 import ipn
+
 
 @blueprint.route('/donate')
 def donate():
@@ -32,10 +32,12 @@ def donate():
         signed_user=username_signer.dumps(current_user.name) if current_user.is_authenticated() else None
         )
 
+
 @blueprint.route('/donate/thankyou')
 def donate_thankyou():
     flash('Thank you for your contribution to the future of Junction!', category='info')
     return redirect(url_for('donations.donate'))
+
 
 @cache.memoize(make_name=lambda: "donation_stats_data")
 def get_donations_stats_data():

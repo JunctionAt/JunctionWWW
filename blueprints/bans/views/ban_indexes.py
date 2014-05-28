@@ -50,19 +50,17 @@ class Index(object):
         appeal_num = len(appeals)
         num_pages = int(math.ceil(appeal_num / float(BANS_PER_PAGE)))
         if num_pages < page:
-            if page==1:
+            if page == 1:
                 return render_template(self.no_results_template, message=self.no_results_message, view=self.endpoint_name, title=self.title)
             abort(404)
 
         display_appeals = appeals.skip((page - 1) * BANS_PER_PAGE).limit(BANS_PER_PAGE)
 
-        next_page = url_for(self.endpoint_name, page=page+1, **route_data) if page < num_pages \
-            else None
-        prev_page = url_for(self.endpoint_name, page=page-1, **route_data) if page > 1 and not num_pages == 1 \
-            else None
+        next_page = url_for(self.endpoint_name, page=page + 1, **route_data) if page < num_pages else None
+        prev_page = url_for(self.endpoint_name, page=page - 1, **route_data) if page > 1 and not num_pages == 1 else None
 
         links = []
-        for page_mod in range(-min(PAGINATION_VALUE_RANGE, page - 1), min(PAGINATION_VALUE_RANGE, num_pages-page) + 1):
+        for page_mod in range(-min(PAGINATION_VALUE_RANGE, page - 1), min(PAGINATION_VALUE_RANGE, num_pages - page) + 1):
             num = page + page_mod
             links.append({'num': num, 'url': url_for(self.endpoint_name, page=num, **route_data), 'active': num != page})
 
