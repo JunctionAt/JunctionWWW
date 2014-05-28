@@ -25,8 +25,8 @@ admin.register(Role_Group, RoleGroupModel, name='Role Groups', category='Users',
 class UserModel(permission_model('user')):
     list_display = ['name', 'mail']
     search_fields = ['name', 'mail']
-    fields = ['name', 'registered', 'hash', 'roles', 'role_groups', 'mail', 'mail_verified']
-    readonly_fields = ['registered', 'roles']  # Temporary fix - roles is readonly until flask-superadmin updates to wtforms 2.0
+    fields = ['name', 'registered', 'hash', 'roles', 'role_groups', 'mail', 'mail_verified', 'tfa', 'tfa_method', 'tfa_secret', 'tfa_info']
+    readonly_fields = ['registered']
     can_create = False
     can_delete = False
 admin.register(User, UserModel, category='Users', endpoint='admin_users')

@@ -1,19 +1,19 @@
 from blueprints.auth import current_user, login_required
-from flask import abort, render_template, request, url_for, flash, redirect, current_app, session, send_file, Response
+from flask import abort, render_template, request, url_for, flash, redirect, session, Response
 from flask_wtf import Form
 from wtforms.fields import StringField
 from wtforms.validators import InputRequired, Length
-from .. import blueprint
-from . import add_settings_pane, settings_panels_structure
-
 import base64
 import binascii
-import oath
 import qrcode
 import random
 from oath import accept_totp
 from StringIO import StringIO
 from urllib import quote, urlencode
+
+from .. import blueprint
+from . import add_settings_pane, settings_panels_structure
+from models.user_model import User
 
 
 def _totp_url():
@@ -112,9 +112,34 @@ def tfa_disable():
     form = TOTPDisableForm(request.form)
     if form.validate():
         current_user.tfa = False
+        current_user.tfa_method = ''
         current_user.tfa_secret = ''
+        current_user.tfa_info = ''
         current_user.save()
     return redirect(url_for('settings.tfa_pane')), 303
 
 
 add_settings_pane(lambda: url_for('settings.tfa_pane'), "Account", "Two-Factor Auth")
+
+
+@blueprint.route("/p/<string:name>/resettfa", defaults={'confirmed': "no"})
+@blueprint.route("/p/<string:name>/resettfa/<string:confirmed>")
+@login_required
+def reset_tfa(name, confirmed):
+    if not current_user.has_permission('auth.reset_tfa'):
+        abort(403)
+
+    if confirmed != "yes":
+        return "<a href=" + url_for('settings.reset_tfa', name=name, confirmed="yes") + ">click here to confirm tfa reset</a>"
+
+    user = User.objects(name=name).first()
+    if user is None:
+        abort(404)
+
+    user.tfa = False
+    user.tfa_method = ''
+    user.tfa_secret = ''
+    user.tfa_info = None
+    user.save()
+
+    return "success"
