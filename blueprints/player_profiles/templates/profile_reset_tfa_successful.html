@@ -1,1 +1,22 @@
-disabled TFA for {{ user.name }}
+{% extends "base.html" %}
+
+{% set current_page = 'reset_success' %}
+
+{% set breadcrumb_items = [
+{'title': 'Profile'},
+{'title': user.name, 'url': user.get_profile_url()},
+{'title': 'Disable TFA'}]
+%}
+
+{% block content %}
+<div class="row">
+    <div class="panel small-10 small-offset-1 medium-8 medium-offset-2 large-6 large-offset-3 columns">
+        <h4>Success</h4>
+        <p>
+            Disabled TFA for <a href="{{ user.get_profile_url() }}">{{ user.name }}</a>.
+        </p>
+        <a class="button" href="{{ user.get_profile_url() }}">OK</a>
+    </div>
+</div>
+
+{% endblock %}
