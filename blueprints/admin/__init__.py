@@ -26,7 +26,7 @@ class UserModel(permission_model('user')):
     list_display = ['name', 'mail']
     search_fields = ['name', 'mail']
     fields = ['name', 'registered', 'hash', 'roles', 'role_groups', 'mail', 'mail_verified', 'tfa', 'tfa_method', 'tfa_secret', 'tfa_info']
-    readonly_fields = ['registered']
+    readonly_fields = ['registered', 'tfa_info']
     can_create = False
     can_delete = False
 admin.register(User, UserModel, category='Users', endpoint='admin_users')
