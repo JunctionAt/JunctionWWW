@@ -8,6 +8,7 @@ from models.user_model import User
 from models.forum_model import Post, Topic
 from models.profile_model import PlayerProfile
 from ..badges import render_badges
+from .admin_reset import ResetForm
 from blueprints.auth import current_user, login_required
 
 
@@ -21,7 +22,9 @@ def profile_view(name):
 
     profile = get_profile(user)
 
-    return render_template('profile_view.html', user=user, forum_info=forum_info, profile=profile, render_badges=render_badges, title=user.name + " - Profile")
+    reset_form = ResetForm()
+
+    return render_template('profile_view.html', user=user, forum_info=forum_info, profile=profile, render_badges=render_badges, title="{} - Profile".format(user.name), reset_form=reset_form)
 
 
 class ProfileTextEditForm(Form):

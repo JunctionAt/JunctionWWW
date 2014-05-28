@@ -140,26 +140,3 @@ def tfa_disable():
 
 
 add_settings_pane(lambda: url_for('settings.tfa_pane'), "Account", "Two-Factor Auth")
-
-
-@blueprint.route("/p/<string:name>/resettfa", defaults={'confirmed': "no"})
-@blueprint.route("/p/<string:name>/resettfa/<string:confirmed>")
-@login_required
-def reset_tfa(name, confirmed):
-    if not current_user.has_permission('auth.reset_tfa'):
-        abort(403)
-
-    if confirmed != "yes":
-        return "<a href=" + url_for('settings.reset_tfa', name=name, confirmed="yes") + ">click here to confirm tfa reset</a>"
-
-    user = User.objects(name=name).first()
-    if user is None:
-        abort(404)
-
-    user.tfa = False
-    user.tfa_method = ''
-    user.tfa_secret = ''
-    user.tfa_info = None
-    user.save()
-
-    return "success"
