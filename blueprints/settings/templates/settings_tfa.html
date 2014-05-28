@@ -8,10 +8,11 @@
     <h3>Two-Factor Auth Settings</h3>
     {% if current_user.tfa %}
     <p><strong>Two-Factor Auth is enabled</strong></p>
-    <form method="post" action="{{ url_for('settings.tfa_disable') }}">
-        {{ form.hidden_tag() }}
-        <button class="alert" type="submit">Disable</button>
-    </form>
+        <a class="button" href="{{ url_for('settings.tfa_viewkey') }}">View secret</a>
+        <form style="display:inline-block;" method="post" action="{{ url_for('settings.tfa_disable') }}">
+            {{ form.hidden_tag() }}
+            <button class="alert" type="submit">Disable</button>
+        </form>
     {% else %}
     <p><strong>Two-Factor Auth is not yet enabled</strong></p>
     <a href="{{ url_for('settings.tfa_enable') }}" class="button">Enable</a>
