@@ -18,6 +18,10 @@
                 <li><a class="button tiny" href="{{ url_for('auth.setpassword') }}">Change password</a></li>
                 {%- elif current_user.is_authenticated() %}
                 <li><a class="button tiny" href="{{ profile.get_send_pm_url() }}">Send PM</a></li>
+                {%- if current_user.has_permission('profile.admin') %}
+                <li><a class="button tiny" href="{{ profile.get_edit_text_url() }}">Edit profile text</a></li>
+                {%- endif %}
+                {%- endif %}
             </ul>
             <ul class="button-group right">
                 {%- if current_user.has_permission('reset.password') %}
@@ -33,7 +37,6 @@
                     {{ reset_form.who(value=user.name) }}
                     <button type="submit" class="alert tiny">Disable TFA</button>
                 </form>
-                {%- endif %}
                 {%- endif %}
             </ul>
         </div>

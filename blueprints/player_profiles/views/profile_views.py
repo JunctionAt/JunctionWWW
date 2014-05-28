@@ -36,9 +36,12 @@ class ProfileTextEditForm(Form):
 @blueprint.route('/p/<string:name>/edit/', methods=['GET', 'POST'])
 @login_required
 def profile_text_edit(name):
-    if current_user.name != name:
+    if current_user.name != name and not current_user.has_permission('profile.admin'):
         abort(404)
-    profile = get_profile(current_user)
+    user = User.objects(name=name).first()
+    if user is None:
+        abort(404)
+    profile = get_profile(user)
     form = ProfileTextEditForm(request.form)
 
     if request.method == 'POST':
@@ -47,10 +50,10 @@ def profile_text_edit(name):
 
         profile.profile_text = form.text.data
         profile.save()
-        return redirect(current_user.get_profile_url())
+        return redirect(user.get_profile_url())
 
     form.text.data = profile.profile_text
-    return render_template('profile_edit_text.html', profile=profile, form=form, user=current_user, title="Edit Profile - " + name + " - Profile")
+    return render_template('profile_edit_text.html', profile=profile, form=form, user=user, title="Edit Profile - " + name + " - Profile")
 
 
 class ForumInfo(object):
