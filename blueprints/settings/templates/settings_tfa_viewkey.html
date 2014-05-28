@@ -1,0 +1,19 @@
+{% extends "settings_base.html" %}
+
+{% set current_settings_path = [{'title': "Account"}, {'title': "Two-Factor Auth", 'url': url_for('settings.tfa_pane')}, {'title': "Secret", 'url': url_for('settings.tfa_viewkey')}] %}
+{% set current_settings_pane = "Two-Factor Auth" %}
+
+{% block settings_pane %}
+<div class="panel">
+    <h3>Your Two-Factor Auth Secret</h3>
+    <p>Scan the QR code from your authenticator app.</p>
+    <p>Alternatively, enter the key directly (I'm sorry about your evening), or
+    just click on it if you're viewing this page using the authentication
+    device:</p>
+    <p><a href="{{ totp_url }}"><code>{{ secret }}</code></a></p>
+    <p class="text-center">
+        <img class="tfa-pane tfa-large" src="{{ url_for('settings.tfa_qrcode', new=False, small=False) }}">
+        <img class="tfa-pane tfa-small" src="{{ url_for('settings.tfa_qrcode', new=False, small=True) }}">
+    </p>
+</div>
+{% endblock %}

@@ -16,13 +16,13 @@ from . import add_settings_pane, settings_panels_structure
 from models.user_model import User
 
 
-def _totp_url():
+def _totp_url(secret=None):
     return 'otpauth://totp/{issuer}:{account}?{params}'.format(
         issuer='Junction',
         account=quote(current_user.name),
         params=urlencode({
             'issuer': 'Junction',
-            'secret': session['tfa-new-secret']
+            'secret': secret or current_user.tfa_secret
         }))
 
 
@@ -86,16 +86,36 @@ def tfa_enable():
     return render_template('settings_tfa_enable.html', current_user=current_user,
                            settings_panels_structure=settings_panels_structure,
                            secret=readable, form=form, title="TFA - Account - Settings",
+                           totp_url=_totp_url(secret=session['tfa-new-secret']))
+
+
+@blueprint.route('/settings/tfa/viewkey')
+@login_required
+def tfa_viewkey():
+    if not current_user.tfa:
+        abort(401)
+    text = current_user.tfa_secret
+    readable = ' '.join(text[i:i + 4] for i in range(0, len(text), 4))
+    return render_template('settings_tfa_viewkey.html', current_user=current_user,
+                           settings_panels_structure=settings_panels_structure,
+                           secret=readable, title="TFA - Account - Settings",
                            totp_url=_totp_url())
 
 
-@blueprint.route('/settings/tfa/qrcode.png', defaults={'small': False})
-@blueprint.route('/settings/tfa/qrcode/small.png', defaults={'small': True})
+@blueprint.route('/settings/tfa/qrcode.png', defaults={'new': False, 'small': False})
+@blueprint.route('/settings/tfa/qrcode/small.png', defaults={'new': False, 'small': True})
+@blueprint.route('/settings/tfa/qrcode/new.png', defaults={'new': True, 'small': False})
+@blueprint.route('/settings/tfa/qrcode/new/small.png', defaults={'new': True, 'small': True})
 @login_required
-def tfa_qrcode(small):
-    if session.get('tfa-new-method', None) != 'TOTP':
-        abort(401)
-    url = _totp_url()
+def tfa_qrcode(new, small):
+    if new:
+        if session.get('tfa-new-method', None) != 'TOTP':
+            abort(401)
+        url = _totp_url(secret=session['tfa-new-secret'])
+    else:
+        if current_user.tfa_method != 'TOTP':
+            abort(401)
+        url = _totp_url(secret=current_user.tfa_secret)
     if small:
         qr = qrcode.make(url, box_size=4, border=4,
                          error_correction=qrcode.constants.ERROR_CORRECT_L)

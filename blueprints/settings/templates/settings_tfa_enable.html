@@ -13,8 +13,8 @@
     device:</p>
     <p><a href="{{ totp_url }}"><code>{{ secret }}</code></a></p>
     <p class="text-center">
-        <img class="tfa-pane tfa-large" src="{{ url_for('settings.tfa_qrcode', small=False) }}">
-        <img class="tfa-pane tfa-small" src="{{ url_for('settings.tfa_qrcode', small=True) }}">
+        <img class="tfa-pane tfa-large" src="{{ url_for('settings.tfa_qrcode', new=True, small=False) }}">
+        <img class="tfa-pane tfa-small" src="{{ url_for('settings.tfa_qrcode', new=True, small=True) }}">
     </p>
             {%- for error_field in form.errors.values() %}
             {%- for error in error_field %}
