@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from mongoengine import Document, ReferenceField, StringField, DateTimeField, BooleanField
 
 

@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from mongoengine import Document, UUIDField, StringField, ReferenceField, BooleanField, ListField
 from uuid import uuid4
 

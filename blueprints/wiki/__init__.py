@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from flask import Blueprint, render_template, abort
 from blueprints.base import cache
 import markdown

@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from .. import require_api_key
 from blueprints.base import rest_api
 from flask.ext.restful import Resource

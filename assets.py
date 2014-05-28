@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from flask.ext.assets import Environment, Bundle
 
 assets_folder = '../assets/'

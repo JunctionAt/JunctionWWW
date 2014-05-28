@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from flask import render_template_string
 from config.badges import BADGES
 

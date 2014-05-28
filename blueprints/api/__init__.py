@@ -1,7 +1,5 @@
 from models.player_model import MinecraftPlayer
 
-__author__ = 'HansiHE'
-
 from flask import request, Blueprint
 from functools import wraps
 from flask_wtf import csrf

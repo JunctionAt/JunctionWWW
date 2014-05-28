@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from blueprints.settings.views import add_settings_pane
 from flask import url_for
 

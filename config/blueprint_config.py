@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from blueprints import (auth, notifications, static_pages, api, avatar,
                         bans, forum, wiki, modreq, alts, player_profiles,
                         groups, donations, staff, settings, calendar, servers, admin)

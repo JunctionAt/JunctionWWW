@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from flask_wtf import Form
 from wtforms import TextAreaField, DateField, SubmitField, FloatField
 from flask import request, render_template, redirect, url_for, abort

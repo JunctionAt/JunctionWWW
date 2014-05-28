@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 import math
 from flask import abort
 from mongoengine import QuerySet

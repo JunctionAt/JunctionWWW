@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from .. import alts
 from flask import render_template, abort
 from blueprints.auth import current_user, login_required

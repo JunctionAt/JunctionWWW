@@ -1,5 +1,3 @@
-__author__ = 'williammck'
-
 from flask import Blueprint, current_app
 
 from models.servers_model import Server

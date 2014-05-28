@@ -1,5 +1,3 @@
-__author__ = 'HansiHE'
-
 from flask import request, flash, redirect, render_template
 from flask_login import confirm_login, current_user
 from flask_wtf import Form
