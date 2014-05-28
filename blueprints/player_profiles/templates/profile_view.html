@@ -24,6 +24,7 @@
                 {%- endif %}
             </ul>
             <ul class="button-group right">
+                {%- if current_user.is_authenticated() and user.name != current_user.name %}
                 {%- if current_user.has_permission('reset.password') %}
                 <form method="post" action="{{ url_for('player_profiles.reset', what='password') }}">
                     {{ reset_form.csrf_token }}
@@ -37,6 +38,7 @@
                     {{ reset_form.who(value=user.name) }}
                     <button type="submit" class="alert tiny">Disable TFA</button>
                 </form>
+                {%- endif %}
                 {%- endif %}
             </ul>
         </div>
