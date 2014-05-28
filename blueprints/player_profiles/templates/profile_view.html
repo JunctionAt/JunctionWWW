@@ -11,25 +11,27 @@
 <div class="profile-container">
     <div class="row">
         <div class="small-12 columns">
-            <ul class="button-group">
+            <ul class="button-group left">
                 {%- if current_user.is_authenticated() and user.name == current_user.name %}
                 <li><a class="button tiny" href="{{ profile.get_edit_text_url() }}">Edit profile text</a></li>
                 <li><a class="button tiny" href="{{ url_for('avatar.avatar_control') }}">Edit avatar</a></li>
                 <li><a class="button tiny" href="{{ url_for('auth.setpassword') }}">Change password</a></li>
                 {%- elif current_user.is_authenticated() %}
                 <li><a class="button tiny" href="{{ profile.get_send_pm_url() }}">Send PM</a></li>
+            </ul>
+            <ul class="button-group right">
                 {%- if current_user.has_permission('reset.password') %}
                 <form method="post" action="{{ url_for('player_profiles.reset', what='password') }}">
                     {{ reset_form.csrf_token }}
                     {{ reset_form.who(value=user.name) }}
-                    <button type="submit" class="tiny">Reset password</button>
+                    <button type="submit" class="alert tiny">Reset Password</button>
                 </form>
                 {%- endif %}
                 {%- if user.tfa and current_user.has_permission('reset.tfa') %}
                 <form method="post" action="{{ url_for('player_profiles.reset', what='tfa') }}">
                     {{ reset_form.csrf_token }}
                     {{ reset_form.who(value=user.name) }}
-                    <button type="submit" class="tiny">Disable TFA</button>
+                    <button type="submit" class="alert tiny">Disable TFA</button>
                 </form>
                 {%- endif %}
                 {%- endif %}
