@@ -1,7 +1,5 @@
 from werkzeug.exceptions import ClientDisconnected
 
-__author__ = 'hansihe'
-
 from flask import Flask, request
 from flask import current_app
 from flask.ext.cache import Cache

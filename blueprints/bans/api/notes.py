@@ -1,8 +1,6 @@
 from blueprints import uuid_utils
 from models.player_model import MinecraftPlayer
 
-__author__ = 'zifnab06'
-
 from flask import request
 from flask.ext.restful import Resource
 from flask.ext.restful.reqparse import RequestParser

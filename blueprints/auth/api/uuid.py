@@ -1,8 +1,6 @@
 from requests.exceptions import ConnectionError
 from blueprints.uuid_utils import NoSuchUserException
 
-__author__ = 'hansihe'
-
 from blueprints.api import require_api_key, register_api_access_token
 from models.player_model import MinecraftPlayer
 from blueprints.base import rest_api
