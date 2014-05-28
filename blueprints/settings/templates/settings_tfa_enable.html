@@ -9,13 +9,21 @@
     <p>Scan the QR code from your authenticator app, then enter a verification
     code to confirm everything's worked.</p>
     <p>Alternatively, enter the key directly (I'm sorry about your evening), or
-       just click on it if you're viewing this page using the authentication
-       device:</p>
+    just click on it if you're viewing this page using the authentication
+    device:</p>
     <p><a href="{{ totp_url }}"><code>{{ secret }}</code></a></p>
     <p class="text-center">
-    <img class="tfa-pane tfa-large" src="{{ url_for('settings.tfa_qrcode', small=False) }}">
-    <img class="tfa-pane tfa-small" src="{{ url_for('settings.tfa_qrcode', small=True) }}">
+        <img class="tfa-pane tfa-large" src="{{ url_for('settings.tfa_qrcode', small=False) }}">
+        <img class="tfa-pane tfa-small" src="{{ url_for('settings.tfa_qrcode', small=True) }}">
     </p>
+            {%- for error_field in form.errors.values() %}
+            {%- for error in error_field %}
+            <div class="alert-box alert radius" data-alert>
+                {{ error }}
+                <a href="#" class="close">&times;</a>
+            </div>
+            {%- endfor %}
+            {%- endfor %}
     <form method="post" action="">
         {{ form.hidden_tag() }}
         {{ form.code(placeholder=form.code.label.text) }}

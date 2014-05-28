@@ -1,8 +1,8 @@
 from blueprints.auth import current_user, login_required
 from flask import abort, render_template, request, url_for, flash, redirect, current_app, session, send_file, Response
 from flask_wtf import Form
-from wtforms.fields import TextField
-from wtforms.validators import Required, Length
+from wtforms.fields import StringField
+from wtforms.validators import InputRequired, Length
 from .. import blueprint
 from . import add_settings_pane, settings_panels_structure
 
@@ -27,8 +27,9 @@ def _totp_url():
 
 
 class TOTPSetupForm(Form):
-    code = TextField('Verification Code', [Required("The verification code is required."),
-                                           Length(min=6, max=6, message="Invalid code length.")])
+    code = StringField('Verification Code', [InputRequired("The verification code is required."),
+                                             Length(min=6, max=6, message="Invalid code length.")])
+
 
 class TOTPDisableForm(Form):
     pass
@@ -38,10 +39,9 @@ class TOTPDisableForm(Form):
 @login_required
 def tfa_pane():
     form = TOTPDisableForm(request.form)
-    enabled = current_user.tfa
     return render_template('settings_tfa.html', current_user=current_user,
-                            settings_panels_structure=settings_panels_structure,
-                            form=form, title="TFA - Account - Settings")
+                           settings_panels_structure=settings_panels_structure,
+                           form=form, title="TFA - Account - Settings")
 
 
 @blueprint.route('/settings/tfa/enable', methods=['GET', 'POST'])
@@ -81,7 +81,7 @@ def tfa_enable():
         abort(403)
 
     text = session['tfa-new-secret']
-    readable = ' '.join(text[i:i+4] for i in range(0, len(text), 4))
+    readable = ' '.join(text[i:i + 4] for i in range(0, len(text), 4))
 
     return render_template('settings_tfa_enable.html', current_user=current_user,
                            settings_panels_structure=settings_panels_structure,

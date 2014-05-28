@@ -19,12 +19,12 @@ class LoginForm(Form):
     remember = BooleanField('Remember Me', [Optional()], default=True)
 
 
-@blueprint.route("/login", methods=("GET", "POST"))
+@blueprint.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated():
         return redirect(request.args.get("next", '/'))
 
-    if session.get('tfa-logged-in', False) == True:
+    if session.get('tfa-logged-in', False):
         del session['tfa-logged-in']
         del session['tfa-user']
         del session['tfa-remember']
@@ -42,7 +42,7 @@ def login():
             session['tfa-logged-in'] = True
             session['tfa-user'] = user.name
             session['tfa-remember'] = form.remember.data
-            return redirect(url_for('auth.verify', next=request.args.get('next', '/'))), 303
+            return redirect(url_for('auth.verify', next=request.args.get('next')))
 
         #if not user.verified:
         #    flash(u"Please check your mail.")

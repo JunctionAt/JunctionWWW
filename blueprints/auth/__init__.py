@@ -35,5 +35,5 @@ login_manager.anonymous_user = Anon
 login_manager.init_app(current_app, add_context_processor=True)
 blueprint = Blueprint('auth', __name__, template_folder='templates')
 
-from views import login, logout, reauth, setpassword, register
+from views import login, logout, reauth, setpassword, register, verify
 from api import register, groups, uuid, me

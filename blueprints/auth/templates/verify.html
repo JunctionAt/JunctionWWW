@@ -9,10 +9,9 @@
 {% block content %}
 <div class="row">
     <div class="small-10 small-offset-1 medium-8 medium-offset-2 large-6 large-offset-3 columns">
-        <h4>Verify login</h4>
+        <h4>Verify Login</h4>
         <hr>
-	<p>You have activated two-factor authentication. Please enter the
-	verification code from your device.</p>
+	    <p>You have activated two-factor authentication. Please enter the verification code from your device.</p>
         <form action="" method="post">
             {{ form.hidden_tag() }}
             {%- for error_field in form.errors.values() %}
@@ -24,8 +23,11 @@
             {%- endfor %}
             {%- endfor %}
             {{ form.code(placeholder=form.code.label.text) }}
-            <button type="submit">Verify login</button>
+            <button type="submit">Verify Login</button>
         </form>
+        <div class="panel callout radius">
+            <p>Can't access your authentication device? Contact a tech.</p>
+        </div>
     </div>
 </div>
 {% endblock %}

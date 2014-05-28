@@ -30,3 +30,4 @@ shortuuid==0.4.2
 six==1.6.1
 wsgiref==0.1.2
 arrow==0.4.2
+qrcode==4.0.4
