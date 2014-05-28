@@ -30,26 +30,3 @@ def setpassword():
     return render_template("setpassword_settings_pane.html", form=form, user=current_user, settings_panels_structure=settings_panels_structure, title="Change Password - Account - Settings")
 
 add_settings_pane(lambda: url_for('auth.setpassword'), "Account", "Change Password", menu_id="setpassword")
-
-
-@blueprint.route("/p/<string:name>/resetpassword", defaults={'confirmed': "no"})
-@blueprint.route("/p/<string:name>/resetpassword/<string:confirmed>")
-@login_required
-def reset_password(name, confirmed):
-    if not current_user.has_permission('auth.reset_password'):
-        abort(403)
-
-    # zifnab is a lazy fool who randomly resets his password -_-
-    if confirmed != "yes":
-        return "<a href=" + url_for('auth.reset_password', name=name, confirmed="yes") + ">click here to confirm password reset</a>"
-
-    user = User.objects(name=name).first()
-    if user is None:
-        abort(404)
-
-    password = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') for i in range(16))
-
-    user.hash = bcrypt.hashpw(password, bcrypt.gensalt())
-    user.save()
-
-    return password
