@@ -52,7 +52,7 @@ def dev_verify_ip_username(ip, username, uuid):
 @manager.command
 def print_routes():
     for rule in application.url_map.iter_rules():
-        print rule
+        print rule, rule.endpoint
 
 
 @manager.option('-b', dest="ban_id", required=True)

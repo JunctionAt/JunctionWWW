@@ -21,11 +21,10 @@
 {% endblock %}
 
 {% block javascript %}
-<!-- TODO: move api url to url_for -->
 <script>
     function do_pooling() {
         $.ajax({
-            url: "/api/auth/ip_username_verification",
+            url: "{{ url_for('ipusernameverification') }}",
             dataType: "json",
             cache: false,
             data: {
