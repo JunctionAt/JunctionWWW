@@ -37,11 +37,14 @@
                     <section class="top-bar-section">
                         <ul class="right">
                             <li class="has-dropdown not-click{% if current_page == 'servers' %} active{% endif %}">
-                                <a href="{{ url_for('static_pages.view_servers') }}">Servers</a>
+                                <a href="{{ url_for('servers.view_servers') }}">Servers</a>
                                 <ul class="dropdown">
-                                    <li class="show-for-small-only"><a href="{{ url_for('static_pages.view_servers') }}">All Servers</a></li>
-                                    <li><a href="{{ url_for('static_pages.view_servers') }}#chaos">Chaos</a></li>
-                                    <li><a href="{{ url_for('static_pages.view_servers') }}#pve">PvE</a></li>
+                                    <li class="show-for-small-only"><a href="{{ url_for('servers.view_servers') }}">All Servers</a></li>
+                                    {%- for server in servers %}
+                                    {%- if server.public %}
+                                    <li><a href="{{ url_for('servers.view_servers') }}#{{ server.server_id }}">{{ server.name }}</a></li>
+                                    {%- endif %}
+                                    {%- endfor %}
                                 </ul>
                             </li>
                             <li{% if current_page == 'forum' %} class="active"{% endif %}>

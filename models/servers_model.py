@@ -1,7 +1,6 @@
 __author__ = 'HansiHE'
 
-from mongoengine import Document, ListField, EmbeddedDocumentField, \
-    EmbeddedDocument, StringField, DateTimeField, ValidationError
+from mongoengine import Document, ListField, EmbeddedDocumentField, EmbeddedDocument, StringField, DateTimeField, BooleanField, ImageField, ValidationError
 from datetime import datetime
 
 
@@ -27,8 +26,11 @@ class ServerRevision(EmbeddedDocument):
 class Server(Document):
     name = StringField(required=True)
     description = StringField()
+    public = BooleanField(required=True, default=False)
 
     server_id = StringField(required=True, unique=True, regex=r'^[^:]+$')  # Not containing colons
+    server_image = ImageField(size=(610, 610, True))
+
 
     revisions = ListField(EmbeddedDocumentField(ServerRevision), required=True)
 

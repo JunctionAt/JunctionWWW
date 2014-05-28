@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% set current_page = 'servers' %}
+
+{% set breadcrumb_items = [
+{'title': 'Servers', 'url': url_for('servers.view_servers')}]
+%}
+
+{% block content %}
+<div class="servers-container">
+    <div class="row">
+        <div class="small-12 columns text-center">
+            <h4>Fire up Minecraft and join our servers at</h4>
+            <h2><code>junction.at</code></h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="small-12 columns clearfix">
+            <h3 class="left">Servers</h3>
+            <hr>
+        </div>
+    </div>
+    {%- for server in servers %}
+    {%- if server.public %}
+    <div class="row" id="{{ server.server_id }}">
+        <div class="small-12 medium-3 columns">
+            <img src="{{ url_for('servers.view_server_image', server_id=server.server_id) }}">
+        </div>
+        <div class="small-12 medium-9 columns">
+            <div class="panel">
+                <h5>{{ server.name }}</h5>
+                {{ server.description|markdown|safe }}
+            </div>
+        </div>
+    </div>
+    <br>
+    {%- endif %}
+    {%- endfor %}
+</div>
+{% endblock %}

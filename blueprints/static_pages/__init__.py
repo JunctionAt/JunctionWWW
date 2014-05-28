@@ -25,11 +25,6 @@ def landing_page():
     return render_template('index.html', title="Home")
 
 
-@static_pages.route('/servers/')
-def view_servers():
-    return render_template('servers.html', title="Servers")
-
-
 @static_pages.route('/appeal')
 def appeal_redir():
     return redirect(url_for('wiki.display_wiki_article', wiki_url="appeal"))

@@ -55,8 +55,8 @@ BLUEPRINTS = [
     # Wiki
     dict(blueprint=wiki.blueprint),
 
-    # Administration stuffs
-    # dict(blueprint=admin.blueprint),
+    # Servers
+    dict(blueprint=servers.blueprint),
 
     # Donations
     dict(blueprint=donations.blueprint),

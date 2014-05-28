@@ -101,5 +101,4 @@ admin.register(PlayerIpsModel, PlayerIpsAdminModel, name='Player -> IPs', catego
 # Servers
 class ServerModel(permission_model('servers')):
     list_display = ['name', 'server_id']
-    readonly_fields = []
 admin.register(Server, ServerModel, name='Servers', endpoint='admin_servers')
