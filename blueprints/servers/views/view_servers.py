@@ -12,7 +12,7 @@ def view_servers():
     servers = Server.objects()
     return render_template('servers_view_servers.html', servers=servers, title="Servers")
 
-@blueprint.route('/servers/<string:server_id>/image.png')
+@blueprint.route('/servers/<string:server_id>.png')
 def view_server_image(server_id):
     server = Server.objects(server_id=server_id).first()
     if server is None:

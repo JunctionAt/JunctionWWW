@@ -1,7 +1,6 @@
 __author__ = 'HansiHE'
 
-from flask import Blueprint, render_template, abort, redirect, url_for, \
-    current_app
+from flask import Blueprint, render_template, abort, redirect, url_for, current_app
 from flask_login import current_user
 
 from blueprints.auth import login_required
