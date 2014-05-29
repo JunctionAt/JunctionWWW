@@ -1,0 +1,14 @@
+<div class="row">
+    <div class="small-6 columns">
+        <span class="label secondary">{% block label %}Notification{% endblock %}</span>
+        <span class="description">{% block description %}{% endblock %}</span>
+    </div>
+    <div class="small-4 columns">
+        <span>from </span>
+        <span class="player-name">{{ notification.sender.render_html() }}</span>
+        <span class="weak">{{ notification.date|full_date|safe }}</span>
+    </div>
+    <div class="small-2 columns">
+        <a onclick="window.mark_row_viewed(this)" class="read-button" data-tooltip title="Mark as read"><i class="fi-check"></i></a>
+    </div>
+</div>

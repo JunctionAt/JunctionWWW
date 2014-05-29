@@ -33,6 +33,7 @@ class User(Document, flask_login.UserMixin, object):
     tfa_secret = StringField()
     tfa_info = DictField()
 
+    # If this ever changes so that each user may have multiple minecraft accounts, update notifications_model as well.
     minecraft_player = ReferenceField("MinecraftPlayer", db_field="minecraft_player", dbref=False, required=True)
 
     mail = StringField()
@@ -41,9 +42,6 @@ class User(Document, flask_login.UserMixin, object):
     reddit_username = StringField()
 
     registered = DateTimeField(default=datetime.utcnow, required=True)
-
-    # Not currently used
-    # notifications = ListField(ReferenceField('Notification', dbref=False))
 
     # Note for whoever: Most permissions should be added through groups, not adding nodes directly to users.
     # The permissions list should ONLY be used in very specific cases. (Api accounts?)

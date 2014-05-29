@@ -1,0 +1,7 @@
+{% extends 'notification_list_entry_base.html' %}
+
+{% block description %}
+    <a href="">{{ notification.message|truncate(length=40) }}</a>
+{% endblock %}
+
+{% block label %}Mail{% endblock %}

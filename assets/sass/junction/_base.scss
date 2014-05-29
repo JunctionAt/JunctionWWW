@@ -52,6 +52,10 @@ html, body {
   left: 15px;
 }
 
+.weak {
+  color: #888888;
+}
+
 //Forum stuffs
 @import "forum";
 @import "anathema";
@@ -61,6 +65,7 @@ html, body {
 @import "editable";
 @import "api";
 @import "user-info-box";
+@import "notifications";
 
 // Landing page
 .landing-container {

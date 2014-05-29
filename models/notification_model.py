@@ -1,40 +1,81 @@
 from mongoengine import *
+from mongoengine.signals import post_save
 import datetime
+from flask import render_template
 
 from models.user_model import User
+from models.player_model import MinecraftPlayer
 
 
-# Notification inheritance tree:
-#
-# BaseNotification
-# - BasePlayerSenderNotification
-# - - PMNotification
-# - BaseCustomSenderNotification
-
-
-class NoNotificationRendererNotification(Exception):
+class NoNotificationRendererException(Exception):
     pass
 
 
-class BaseNotification(Document):
+# Notifications sent or received by a ingame player should use this.
+class PlayerTarget(EmbeddedDocument):
 
-    receiver = StringField(required=True)
+    # I don't like the way this is done, however as of right now this is the way that would be easiest to use from the
+    # outside. This can not be done automatically, as we need express intent from the caller.
+    def with_user(self):
+        resolve_user(self)
+        return self
+
+    player = ReferenceField(MinecraftPlayer, required=True)
+
+    # This is here to make queries faster and easier. We are listening on the post_save signal, and updating this.
+    # Please note that this will often be null, as a minecraft player is not guaranteed to have a www account.
+    user = ReferenceField(User, required=False)
+
+    target_type = "player"
+
+    def render_html(self):
+        return self.player.mcname
+
+
+# Notifications sent or received by a website user should use this.
+class UserTarget(EmbeddedDocument):
+    user = ReferenceField(User, required=True)
+
+    target_type = "user"
+
+    def render_html(self):
+        return self.user.name
+
+
+# Notifications sent by a internal entity (system) should use this.
+class StaticTarget(EmbeddedDocument):
+    name = StringField(required=True)
+
+    target_type = "static"
+
+    def render_html(self):
+        return self.name
+
+
+class BaseNotification(Document):
+    """
+    The base for all notifications on the website. This should not be used by itself, only subclassed.
+    """
+
+    receiver = GenericEmbeddedDocumentField(required=True, choices=[PlayerTarget, UserTarget])
+    sender = GenericEmbeddedDocumentField(required=True, choices=[PlayerTarget, UserTarget, StaticTarget])
 
     date = DateTimeField(required=True, default=datetime.datetime.utcnow)
-    deletable = BooleanField(default=False)
 
     read = BooleanField(default=False)
     deleted = BooleanField(default=False)
 
-    @property
-    def receiver_user(self):
-        return User.objects(name=self.receiver).first()
+    def render_notification_listing(self):
+        raise NoNotificationRendererException("No notification listing renderer for notification")
 
-    def render_notification(self):
-        raise NoNotificationRendererNotification("No notification renderer for notification")
-
-    def render_preview(self):
-        raise NoNotificationRendererNotification("No preview renderer for notification")
+    @classmethod
+    def by_receiver(cls, receiver, **kwargs):
+        if isinstance(receiver, User):
+            return cls.objects(__raw__={'receiver.user': receiver.id}, **kwargs)
+        elif isinstance(receiver, MinecraftPlayer):
+            return cls.objects(__raw__={'receiver.player': receiver.id}, **kwargs)
+        else:
+            raise TypeError("A receiver may only be a User or a MinecraftPlayer")
 
     meta = {
         'allow_inheritance': True,
@@ -43,59 +84,35 @@ class BaseNotification(Document):
     }
 
 
-class BasePlayerSenderNotification(BaseNotification):
+def resolve_user(doc):
+    user = User.objects(minecraft_player=doc.player).first()
 
-    sender = StringField(required=True)
-
-    @property
-    def sender_user(self):
-        return User.objects(name=self.sender).first()
+    if doc.user != user:
+        document.user = user
 
 
-class PMNotification(BasePlayerSenderNotification):
+def handle_user_update(sender, updated_document, created):
+    sent_notifications = BaseNotification.objects(sender___cls=PlayerTarget._class_name,
+                                                  sender__player=updated_document.minecraft_player,
+                                                  sender__user__ne=updated_document)
+    for notification in sent_notifications:
+        resolve_user(notification.sender)
+        notification.save()  # MongoEngine takes care of dirty flags, it will only update if changed.
+
+    received_notifications = BaseNotification.objects(receiver___cls=PlayerTarget._class_name,
+                                                      sender__player=updated_document.minecraft_player,
+                                                      sender__user__ne=updated_document)
+    for notification in received_notifications:
+        resolve_user(notification.sender)
+        notification.save()  # MongoEngine takes care of dirty flags, it will only update if changed.
+post_save.connect(handle_user_update, sender=User)
+
+
+class PMNotification(BaseNotification):
 
     deletable = BooleanField(default=True)
     source = StringField()
     message = StringField(required=True)
 
-    def render_preview(self):
-        return "Mail from %s" % self.sender
-
-    def render_notification(self):
-        return self.message
-
-
-class BaseCustomSenderNotification(BaseNotification):
-    pass
-
-
-# class Notification(Document):
-#
-#     receiver = ReferenceField(User, dbref=False, required=True)  # The receiver of the notification. This is required.
-#
-#     sender_type = IntField(required=True, default=0)  # 0 or None: No sender defined. 1: Sent by sender_user. 2: The text in the sender field is sender_text, sender_link as optional link.
-#     sender_user = ReferenceField(User, dbref=False)
-#     sender_text = StringField()
-#     sender_link = StringField()
-#     sender_data = StringField()
-#
-#     preview = StringField(required=True)  # The data we should use in previews.
-#
-#     render_type = IntField(required=True, default=0)  # 0 or None: Display 'text' in data as plaintext. 1: Display 'text' in data as markdown. 2: Display 'text' in data as HTML. 3: Call the render hook.
-#
-#     deletable = BooleanField(default=False)  #Specifies if the notification should be deletable through the standard delete button. You can hook onto this event.
-#
-#     module = StringField(required=True)  # Required, defines where it came from.
-#     # noinspection PyShadowingBuiltins
-#     type = StringField()  # May be used for future sorting/hiding of certain types.
-#     data = DictField()  # When creating the notification, the creator may supply custom data.
-#
-#     date = DateTimeField(required=True, default=datetime.utcnow)
-#
-#     meta = {
-#         'collection': 'notifications',
-#         'indexed' : [ 'receiver', 'module', 'type' ]
-#     }
-#
-#     def get_string_id(self):
-#         return str(self.id)
+    def render_notification_listing(self):
+        return render_template('notification_list_entry_pm.html', notification=self)

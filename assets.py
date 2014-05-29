@@ -16,6 +16,7 @@ def assets(app):
                      assets_folder + 'js/junction/molecular.js',
                      assets_folder + 'js/vendor/jquery.js',
                      assets_folder + 'js/vendor/jquery.multi-select.js',
+                     assets_folder + 'js/vendor/typeahead.js',
                      # assets_folder + 'js/vendor/snowstorm.js',
                      assets_folder + 'js/foundation/foundation.js',
                      assets_folder + 'js/foundation/foundation.topbar.js',
@@ -28,7 +29,8 @@ def assets(app):
                      assets_folder + 'js/foundation/foundation.alert.js',
                      assets_folder + 'js/foundation/foundation.tooltip.js',
                      assets_folder + 'js/foundation/foundation.accordion.js',
-                     assets_folder + 'js/junction/editable.js')
+                     assets_folder + 'js/junction/editable.js',
+                     assets_folder + 'js/junction/notifications.js')
     js_main = Bundle(js_base, filters=None if app.debug else 'rjsmin', output='js/gen/app.%(version)s.js')
     environment.register('js_main', js_main)
 

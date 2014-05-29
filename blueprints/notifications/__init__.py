@@ -19,15 +19,15 @@ class NotificationRenderer(object):
 
 
 def get_notifications(user):
-    return BaseNotification.objects(receiver=user.name).order_by('-date')
+    return BaseNotification.by_receiver(user, deleted=False).order_by('-date')
 
 
 def get_previews(user, num):
-    return BaseNotification.objects(receiver=user.name, read=False).order_by('-date').limit(num)
+    return BaseNotification.by_receiver(user, read=False, deleted=False).order_by('-date').limit(num)
 
 
 def get_num(user):
-    return len(BaseNotification.objects(receiver=user.name, read=False))
+    return len(BaseNotification.by_receiver(user, read=False, deleted=False))
 
 
 @current_app.context_processor
@@ -42,23 +42,8 @@ def inject_notifications():
 @blueprint.route('/notifications')
 @login_required
 def notifications_view():
-    return render_template('notifications_view.html', title="Notifications", notifications=get_notifications(current_user))
-
-
-@blueprint.route('/notifications/delete/<string:id>/')
-@login_required
-def notification_delete(id):
-    notification = BaseNotification.objects(id=id).first()
-    if notification is None:
-        abort(404)
-    if not notification.receiver_user.id == current_user.id:
-        abort(404)
-    if not notification.deletable:
-        abort(404)
-
-    notification.delete()
-
-    return redirect(url_for('notifications.notifications_view'))
+    return render_template('notifications_view.html', title="Notifications",
+                           notifications=get_notifications(current_user._get_current_object()))
 
 
 @blueprint.route('/notifications/mark/<string:id>/<string:mark>')
@@ -67,7 +52,7 @@ def notification_mark(id, mark):
     notification = BaseNotification.objects(id=id).first()
     if notification is None:
         abort(404)
-    if not notification.receiver_user.id == current_user.id:
+    if not notification.receiver.user == current_user._get_current_object():
         abort(404)
 
     if mark == 'read':

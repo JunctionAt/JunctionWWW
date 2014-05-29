@@ -1,0 +1,36 @@
+.notifications-container {
+  ul {
+    list-style: none;
+    border: solid 1px #dddddd;
+
+    li {
+      padding: 6px;
+
+      &.odd {
+        background-color: #ffffff;
+
+      }
+      &.even {
+        background-color: #f9f9f9;
+      }
+
+      &.border {
+        border-top: solid 1px #dddddd;
+      }
+
+      & { // Unread
+        .description {
+          font-weight: bold;
+        }
+      }
+      &.read { // Read
+        .description {
+         font-weight: normal;
+        }
+        .read-button {
+          display: none;
+        }
+      }
+    }
+  }
+}
