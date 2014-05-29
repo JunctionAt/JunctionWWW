@@ -7,23 +7,9 @@ from models.notification_model import BaseNotification
 
 blueprint = Blueprint('notifications', __name__, template_folder='templates')
 
-notification_renderers = {}
-
-
-class NotificationRenderer(object):
-    def __init__(self, module):
-        self.module = module
-
-    def __call__(self, func):
-        notification_renderers[self.module] = func
-
 
 def get_notifications(user):
     return BaseNotification.by_receiver(user, deleted=False).order_by('-date')
-
-
-def get_previews(user, num):
-    return BaseNotification.by_receiver(user, read=False, deleted=False).order_by('-date').limit(num)
 
 
 def get_num(user):
@@ -34,7 +20,6 @@ def get_num(user):
 def inject_notifications():
     return dict(
         get_notifications=get_notifications,
-        get_notifications_previews=get_previews,
         get_notifications_num=get_num
     )
 
