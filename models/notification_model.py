@@ -92,16 +92,20 @@ def resolve_user(doc):
 
 
 def handle_user_update(sender, updated_document, created):
-    sent_notifications = BaseNotification.objects(sender___cls=PlayerTarget._class_name,
-                                                  sender__player=updated_document.minecraft_player,
-                                                  sender__user__ne=updated_document)
+    sent_notifications = BaseNotification.objects(__raw__={
+        'sender._cls': PlayerTarget._class_name,
+        'sender.player': updated_document.minecraft_player.id,
+        'sender.user': {'$ne': updated_document.id}
+    })
     for notification in sent_notifications:
         resolve_user(notification.sender)
         notification.save()  # MongoEngine takes care of dirty flags, it will only update if changed.
 
-    received_notifications = BaseNotification.objects(receiver___cls=PlayerTarget._class_name,
-                                                      sender__player=updated_document.minecraft_player,
-                                                      sender__user__ne=updated_document)
+    received_notifications = BaseNotification.objects(__raw__={
+        'receiver._cls': PlayerTarget._class_name,
+        'receiver.player': updated_document.minecraft_player.id,
+        'receiver.user': {'$ne': updated_document.id}
+    })
     for notification in received_notifications:
         resolve_user(notification.sender)
         notification.save()  # MongoEngine takes care of dirty flags, it will only update if changed.
