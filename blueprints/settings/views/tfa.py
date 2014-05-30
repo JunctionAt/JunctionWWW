@@ -39,7 +39,7 @@ class TOTPDisableForm(Form):
 @login_required
 def tfa_pane():
     form = TOTPDisableForm(request.form)
-    return render_template('settings_tfa.html', current_user=current_user,
+    return render_template('settings_tfa.html',
                            settings_panels_structure=settings_panels_structure,
                            form=form, title="TFA - Account - Settings")
 
@@ -83,7 +83,7 @@ def tfa_enable():
     text = session['tfa-new-secret']
     readable = ' '.join(text[i:i + 4] for i in range(0, len(text), 4))
 
-    return render_template('settings_tfa_enable.html', current_user=current_user,
+    return render_template('settings_tfa_enable.html',
                            settings_panels_structure=settings_panels_structure,
                            secret=readable, form=form, title="TFA - Account - Settings",
                            totp_url=_totp_url(secret=session['tfa-new-secret']))
@@ -96,7 +96,7 @@ def tfa_viewkey():
         abort(401)
     text = current_user.tfa_secret
     readable = ' '.join(text[i:i + 4] for i in range(0, len(text), 4))
-    return render_template('settings_tfa_viewkey.html', current_user=current_user,
+    return render_template('settings_tfa_viewkey.html',
                            settings_panels_structure=settings_panels_structure,
                            secret=readable, title="TFA - Account - Settings",
                            totp_url=_totp_url())
