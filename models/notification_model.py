@@ -91,11 +91,11 @@ def resolve_user(doc):
         document.user = user
 
 
-def handle_user_update(sender, updated_document, created):
+def handle_user_update(sender, document, created):
     sent_notifications = BaseNotification.objects(__raw__={
         'sender._cls': PlayerTarget._class_name,
-        'sender.player': updated_document.minecraft_player.id,
-        'sender.user': {'$ne': updated_document.id}
+        'sender.player': document.minecraft_player.id,
+        'sender.user': {'$ne': document.id}
     })
     for notification in sent_notifications:
         resolve_user(notification.sender)
@@ -103,8 +103,8 @@ def handle_user_update(sender, updated_document, created):
 
     received_notifications = BaseNotification.objects(__raw__={
         'receiver._cls': PlayerTarget._class_name,
-        'receiver.player': updated_document.minecraft_player.id,
-        'receiver.user': {'$ne': updated_document.id}
+        'receiver.player': document.minecraft_player.id,
+        'receiver.user': {'$ne': document.id}
     })
     for notification in received_notifications:
         resolve_user(notification.sender)
