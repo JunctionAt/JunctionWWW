@@ -1,4 +1,4 @@
-from flask.ext.superadmin import ModelAdmin
+from flask_superadmin import ModelAdmin
 
 from blueprints.base import admin
 from blueprints.auth import current_user

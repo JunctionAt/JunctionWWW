@@ -6,8 +6,8 @@ from models.player_model import MinecraftPlayer
 from blueprints.base import rest_api
 from blueprints import uuid_utils
 
-from flask.ext.restful import Resource
-from flask.ext.restful.reqparse import RequestParser
+from flask_restful import Resource
+from flask_restful.reqparse import RequestParser
 
 
 class UUIDApi(Resource):

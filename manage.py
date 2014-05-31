@@ -1,4 +1,4 @@
-from flask.ext.script import Manager, Server
+from flask_script import Manager, Server
 from models import forum_model, ban_model
 from app import application
 
