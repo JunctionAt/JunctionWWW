@@ -26,10 +26,10 @@
             <ul class="button-group right">
                 {%- if current_user.is_authenticated() and user.name != current_user.name %}
                 {%- if current_user.has_permission('reset.password') %}
-                <a href="#" class="button alert tiny" data-reveal-id="resetPassword">Reset Password</a>
+                <li><a href="#" class="button alert tiny" data-reveal-id="resetPassword">Reset Password</a></li>
                 {%- endif %}
                 {%- if user.tfa and current_user.has_permission('reset.tfa') %}
-                <a href="#" class="button alert tiny" data-reveal-id="resetTFA">Disable TFA</a>
+                <li><a href="#" class="button alert tiny" data-reveal-id="resetTFA">Disable TFA</a></li>
                 {%- endif %}
                 {%- endif %}
             </ul>
