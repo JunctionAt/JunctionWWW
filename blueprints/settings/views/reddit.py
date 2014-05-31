@@ -44,7 +44,7 @@ def get_flair(reddit_username):
 def reddit_pane():
     reddit_username = current_user.reddit_username
     flair = get_flair(current_user.reddit_username)
-    return render_template('settings_reddit.html', current_user=current_user,
+    return render_template('settings_reddit.html',
                            reddit_username=reddit_username, flair=flair,
                            settings_panels_structure=settings_panels_structure,
                            title="Reddit - Account - Settings")
