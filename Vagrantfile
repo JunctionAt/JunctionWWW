@@ -3,7 +3,7 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.box = "arch64-min"
-    config.vm.box_url = "http://iweb.dl.sourceforge.net/project/flowboard-vagrant-boxes/arch64-2013-07-26-minimal.box"
+    config.vm.box_url = "http://downloads.sourceforge.net/project/flowboard-vagrant-boxes/arch64-2013-07-26-minimal.box"
     config.vm.hostname = "junction.vagrant.webdev"
 
     config.vm.synced_folder ".", "/www-src"
