@@ -2,8 +2,8 @@ from blueprints import uuid_utils
 from models.player_model import MinecraftPlayer
 
 from flask import request
-from flask.ext.restful import Resource
-from flask.ext.restful.reqparse import RequestParser
+from flask_restful import Resource
+from flask_restful.reqparse import RequestParser
 
 from blueprints.api import require_api_key, register_api_access_token, datetime_format
 from blueprints.base import rest_api

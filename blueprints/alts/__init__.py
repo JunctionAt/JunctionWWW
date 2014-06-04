@@ -1,8 +1,8 @@
 from flask import Blueprint
-from flask.ext.restful import Resource
+from flask_restful import Resource
+from flask_restful.reqparse import RequestParser
 import ipaddress
 import re
-from flask.ext.restful.reqparse import RequestParser
 
 from models.alts_model import PlayerIpsModel, IpPlayersModel
 from blueprints.api import require_api_key, register_api_access_token, datetime_format

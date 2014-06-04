@@ -1,17 +1,19 @@
 from flask_wtf import Form
-from wtforms import HiddenField
-from flask_login import fresh_login_required, current_user, abort, login_required
-from flask import request, flash, redirect, url_for, render_template
+from wtforms import HiddenField, StringField
+from wtforms.validators import InputRequired, EqualTo
+from flask_login import current_user, abort, login_required
+from flask import request, flash, redirect, render_template
 import random
 import bcrypt
 
 from models.user_model import User
 from .. import blueprint
-from blueprints.settings.views import add_settings_pane, settings_panels_structure
 
 
 class ResetForm(Form):
     who = HiddenField()
+    confirm_who = StringField('Confirm Username', validators=[InputRequired(),
+                                                              EqualTo('who')])
 
 
 @blueprint.route("/reset/<what>", methods=["POST"])
@@ -21,10 +23,11 @@ def reset(what):
         abort(403)
 
     form = ResetForm(request.form)
+    user = User.objects(name=form.who.data).first()
+    if user is None:
+        abort(401)
+
     if form.validate():
-        user = User.objects(name=form.who.data).first()
-        if user is None:
-            abort(401)
         if what == 'password':
             password = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') for i in range(16))
             user.hash = bcrypt.hashpw(password, bcrypt.gensalt())
@@ -38,4 +41,5 @@ def reset(what):
         else:
             abort(401)
 
+    flash('Error in reset form. Make sure you are typing the confirmation token correctly.', category='alert')
     return redirect(user.get_profile_url()), 303

@@ -5,7 +5,7 @@ from wtforms.fields import StringField, SubmitField
 from wtforms.validators import Email, InputRequired
 from blueprints.auth import current_user, User, login_required
 from blueprints.base import mail
-from flask.ext.mail import Message
+from flask_mail import Message
 from itsdangerous import URLSafeSerializer
 from datetime import datetime
 import time

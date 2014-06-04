@@ -26,18 +26,10 @@
             <ul class="button-group right">
                 {%- if current_user.is_authenticated() and user.name != current_user.name %}
                 {%- if current_user.has_permission('reset.password') %}
-                <form method="post" action="{{ url_for('player_profiles.reset', what='password') }}">
-                    {{ reset_form.csrf_token }}
-                    {{ reset_form.who(value=user.name) }}
-                    <button type="submit" class="alert tiny">Reset Password</button>
-                </form>
+                <li><a href="#" class="button alert tiny" data-reveal-id="resetPassword">Reset Password</a></li>
                 {%- endif %}
                 {%- if user.tfa and current_user.has_permission('reset.tfa') %}
-                <form method="post" action="{{ url_for('player_profiles.reset', what='tfa') }}">
-                    {{ reset_form.csrf_token }}
-                    {{ reset_form.who(value=user.name) }}
-                    <button type="submit" class="alert tiny">Disable TFA</button>
-                </form>
+                <li><a href="#" class="button alert tiny" data-reveal-id="resetTFA">Disable TFA</a></li>
                 {%- endif %}
                 {%- endif %}
             </ul>
@@ -98,4 +90,38 @@
         </div>
     </div>
 </div>
+{%- if current_user.is_authenticated() and user.name != current_user.name %}
+{%- if current_user.has_permission('reset.password') %}
+<div id="resetPassword" class="reveal-modal" data-reveal>
+    <h2>Are you absolutely sure you want to reset the password for <code>{{ user.name }}</code>?</h2>
+    <p>If so, type <code>{{ user.name }}</code> into the confirmation field, then click <code>Reset Password</code>.</p>
+    <form method="post" action="{{ url_for('player_profiles.reset', what='password') }}" data-abide>
+        {{ reset_form.csrf_token }}
+        {{ reset_form.who(value=user.name) }}
+        <div>
+            {{ reset_form.confirm_who(placeholder=reset_form.confirm_who.label.text, required='', **{'data-equalto':"who"}) }}
+            <small class="error">Confirmation token is required and must match the username.</small>
+        </div>
+        <button type="submit" class="alert tiny">Reset Password</button>
+    </form>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+{%- endif %}
+{%- if user.tfa and current_user.has_permission('reset.tfa') %}
+<div id="resetTFA" class="reveal-modal" data-reveal>
+    <h2>Are you absolutely sure you want to disable TFA for <code>{{ user.name }}</code>?</h2>
+    <p>If so, type <code>{{ user.name }}</code> into the confirmation field, then click <code>Disable TFA</code>.</p>
+    <form method="post" action="{{ url_for('player_profiles.reset', what='tfa') }}">
+        {{ reset_form.csrf_token }}
+        {{ reset_form.who(value=user.name) }}
+        <div>
+            {{ reset_form.confirm_who(placeholder=reset_form.confirm_who.label.text, required='', **{'data-equalto':"who"}) }}
+            <small class="error">Confirmation token is required and must match the username.</small>
+        </div>
+        <button type="submit" class="alert tiny">Disable TFA</button>
+    </form>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+{%- endif %}
+{%- endif %}
 {% endblock %}

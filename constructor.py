@@ -2,10 +2,10 @@ from werkzeug.exceptions import ClientDisconnected
 
 from flask import Flask, request
 from flask import current_app
-from flask.ext.cache import Cache
+from flask_cache import Cache
 from mongoengine import connect
-from flask.ext.superadmin import Admin
-from flask.ext.mail import Mail
+from flask_superadmin import Admin
+from flask_mail import Mail
 from flaskext.markdown import Markdown
 from flask_restful import Api
 

@@ -1,5 +1,5 @@
-from flask.ext.restful import Resource
-from flask.ext.restful.reqparse import RequestParser
+from flask_restful import Resource
+from flask_restful.reqparse import RequestParser
 
 
 class Messages(Resource):

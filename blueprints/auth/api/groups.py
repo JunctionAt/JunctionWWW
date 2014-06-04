@@ -1,4 +1,4 @@
-from flask.ext.restful import Resource
+from flask_restful import Resource
 from mongoengine import Q
 
 from blueprints.api import register_api_access_token

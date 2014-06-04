@@ -1,5 +1,5 @@
 from flask import request
-from flask.ext.restful import Resource
+from flask_restful import Resource
 
 from blueprints.api import require_api_key
 from blueprints.base import rest_api
