@@ -61,7 +61,7 @@
                             </li>
                             {%- set num_notifications = get_notifications_num(current_user) %}
                             <li class="messages{% if current_page == 'notifications' %} active{% endif %}">
-                                <a href="{{ url_for('notifications.notifications_view') }}"><i class="fi-mail"></i>{{ num_notifications }}</a>
+                                <a href="{{ url_for('notifications.notifications_view') }}"><i class="fi-mail"></i><span class="header-notifcation-num-display">{{ num_notifications }}</span></a>
                             </li>
                             {%- else %}
                             <li{% if current_page == 'profile' %} class="active"{% endif %}>
