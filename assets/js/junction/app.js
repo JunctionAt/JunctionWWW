@@ -1,5 +1,5 @@
 (function(){
-    var notifications = angular.module('notifications');
+    var notifications = angular.module('notificationsModule');
 
     notifications.service('notifications', ['$rootScope', '$http', function($rootScope, $http) {
         var _service = this;
@@ -60,5 +60,5 @@
 })();
 
 (function(){
-    var junctionApp = angular.module('junctionApp', ['notifications']);
+    var junctionApp = angular.module('junctionApp', ['notificationsModule']);
 })();

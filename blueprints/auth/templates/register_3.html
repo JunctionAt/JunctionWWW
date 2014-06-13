@@ -12,7 +12,7 @@
         <div class="small-12 medium-4 medium-offset-4 columns">
             <div class="panel">
                 <h3>Sign up</h3>
-                <form method="post" action=".">
+                <form method="post" action="?">
                     {{ form.hidden_tag() }}
                     <p>Thanks, <strong>{{ username }}</strong>! Please complete your sign-up below.</p>
                     {%- for error_field in form.errors.values() %}

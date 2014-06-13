@@ -24,7 +24,7 @@
             </div>
             {%- endfor %}
             {%- endfor %}
-    <form method="post" action=".">
+    <form method="post" action="?">
         {{ form.hidden_tag() }}
         {{ form.code(placeholder=form.code.label.text) }}
         <button type="submit">Enable Two-Factor Authentication</button>
