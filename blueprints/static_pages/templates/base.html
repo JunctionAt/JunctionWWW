@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
-<html class="js" lang="en">
+<html class="js" lang="en" ng-app="junctionApp">
     <head data-molecules="{{ javascript_molecules|join(' ') }}">
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,6 +19,15 @@
         <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/static/img/apple-touch-icon-72-precomposed.png">
         <link rel="apple-touch-icon-precomposed" href="/static/img/apple-touch-icon-57-precomposed.png">
         <a href="https://plus.google.com/110085231338813337690" rel="publisher" style="display: none;">Google+</a>
+
+        <script type="application/javascript">
+            {% set page_state_json = {
+                'notifications_num': get_notifications_num(current_user)
+            } %}
+            {% do page_state_json.update(js_page_state or {}) %}
+            server_page_state = {{ page_state_json|json_dump|safe }}
+            {# TODO: Everything about the way this is done right now is shit. Fix it. #}
+        </script>
     </head>
     <body>
         <div class="footer-wrapper">
@@ -60,8 +69,11 @@
                                 </ul>
                             </li>
                             {%- set num_notifications = get_notifications_num(current_user) %}
-                            <li class="messages{% if current_page == 'notifications' %} active{% endif %}">
-                                <a href="{{ url_for('notifications.notifications_view') }}"><i class="fi-mail"></i><span class="header-notifcation-num-display">{{ num_notifications }}</span></a>
+                            <li class="messages{% if current_page == 'notifications' %} active{% endif %}" ng-controller="notification-status">
+                                <a href="{{ url_for('notifications.notifications_view') }}">
+                                    <i class="fi-mail"></i>
+                                    <span class="header-notifcation-num-display" ng-bind="notificationCount">{{ num_notifications }}</span>
+                                </a>
                             </li>
                             {%- else %}
                             <li{% if current_page == 'profile' %} class="active"{% endif %}>

@@ -111,7 +111,7 @@
 {% include 'format_help_modal.html' %}
 <div class="content-editable-template" data-editable="topic-reply">
     <div class="edit">
-        <form method="post" action="">
+        <form method="post" action=".">
             {{ topic_reply_form.hidden_tag() }}
             {{ post_edit.content(class="post-edit-textfield") }}
             <button class="button tiny">Edit</button>

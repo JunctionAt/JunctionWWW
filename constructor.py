@@ -11,6 +11,7 @@ from flask_restful import Api
 
 from reverse_proxied import ReverseProxied
 from assets import assets
+import json
 
 
 class ExtensionAccessObject(object):
@@ -37,6 +38,7 @@ def construct_application(config_override=None):
     from util import pretty_date_since, full_date
     application.jinja_env.filters['pretty_date'] = pretty_date_since
     application.jinja_env.filters['full_date'] = full_date
+    application.jinja_env.filters['json_dump'] = json.dumps
 
     # Load local_config
     with application.app_context():

@@ -16,7 +16,7 @@
                 {% if notifications %}
                     <ul>
                         {% for notification in notifications %}
-                            <li data-id="{{ notification.id }}"
+                            <li data-id="{{ notification.id }}" ng-controller="notification-entry" ng-class="{'read': read}"
                                 class="{{ loop.cycle('odd', 'even') }} {% if not loop.first %}border{% endif %} {% if notification.read %}read{% endif %}">
                                 {{ notification.render_notification_listing()|safe }}
                             </li>

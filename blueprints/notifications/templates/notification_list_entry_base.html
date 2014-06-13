@@ -9,6 +9,6 @@
         <span class="weak">{{ notification.date|full_date|safe }}</span>
     </div>
     <div class="small-2 columns">
-        <a onclick="window.mark_row_viewed(this)" class="read-button" data-tooltip title="Mark as read"><i class="fi-check"></i></a>
+        <a ng-click="markRead()" class="read-button" data-tooltip title="Mark as read"><i class="fi-check"></i></a>
     </div>
 </div>

@@ -12,7 +12,7 @@
         <h4>Verify Login</h4>
         <hr>
 	    <p>You have activated two-factor authentication. Please enter the verification code from your device.</p>
-        <form action="" method="post">
+        <form action="." method="post">
             {{ form.hidden_tag() }}
             {%- for error_field in form.errors.values() %}
             {%- for error in error_field %}
