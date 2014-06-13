@@ -1,5 +1,5 @@
 (function(){
-    var notifications = angular.module('notificationsModule');
+    var notifications = angular.module('notificationsModule', []);
 
     notifications.service('notifications', ['$rootScope', '$http', function($rootScope, $http) {
         var _service = this;
