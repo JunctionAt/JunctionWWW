@@ -39,7 +39,7 @@ def view_ban(ban_uid):
     can_post = current_user.has_permission("bans.appeal.manage") or (current_user.is_authenticated() and current_user.name.lower() == ban.username.lower() and ban.appeal.state == 'open')
 
     alts = []
-    if current_user.has_permission("bans.appeal.alts"):
+    if current_user.can("view alts"):
         user_ips = PlayerIpsModel.objects(player=ban.target).first()
         if user_ips:
             alts = PlayerIpsModel.objects(ips__in=user_ips.ips, player__ne=ban.target)

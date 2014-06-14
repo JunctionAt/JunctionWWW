@@ -75,7 +75,7 @@ class RoleBindingManager(dict):
 role_bindings = RoleBindingManager()
 
 # Alts
-role_bindings.add("show alts", ['alt.view'])
+role_bindings.add("view alts", ['alt.view'])
 role_bindings.add("graph alts", ['alt.view'])
 
 # Bans and Appeals
