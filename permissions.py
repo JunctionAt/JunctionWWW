@@ -76,7 +76,7 @@ role_bindings = RoleBindingManager()
 
 # Alts
 role_bindings.add("show alts", ['alt.view'])
-role_bindings.add("graph alts", ['alt.graph'])
+role_bindings.add("graph alts", ['alt.view'])
 
 # Bans and Appeals
 role_bindings.add("manage ban appeals", ['ban.appeal.manage'])
