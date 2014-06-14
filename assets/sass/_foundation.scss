@@ -1,15 +1,14 @@
-@charset "UTF-8";
-// Make sure the charset is set appropriately
+// Foundation by ZURB
+// foundation.zurb.com
+// Licensed under MIT Open Source
 
-// This includes all of the foundation global elements that are needed to work with any of the other files.
-@import
-  "foundation/functions",
-  "foundation/settings";
+// Make sure the charset is set appropriately
+@charset "UTF-8";
 
 // Behold, here are all the Foundation components.
 @import
+  "foundation/components/grid",
   "foundation/components/accordion",
-  "foundation/components/top-bar",
   "foundation/components/alert-boxes",
   "foundation/components/block-grid",
   "foundation/components/breadcrumbs",
@@ -20,7 +19,6 @@
   "foundation/components/dropdown-buttons",
   "foundation/components/flex-video",
   "foundation/components/forms",
-  "foundation/components/grid",
   "foundation/components/inline-lists",
   "foundation/components/joyride",
   "foundation/components/keystrokes",
@@ -31,6 +29,7 @@
   "foundation/components/panels",
   "foundation/components/pricing-tables",
   "foundation/components/progress-bars",
+  "foundation/components/range-slider",
   "foundation/components/reveal",
   "foundation/components/side-nav",
   "foundation/components/split-buttons",
@@ -40,9 +39,7 @@
   "foundation/components/tabs",
   "foundation/components/thumbs",
   "foundation/components/tooltips",
+  "foundation/components/top-bar",
+  "foundation/components/type",
   "foundation/components/offcanvas",
   "foundation/components/visibility";
-
-@import "icon-font/_foundation-icons";
-
-@import "junction/_base";
