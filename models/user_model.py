@@ -3,6 +3,8 @@ from mongoengine import *
 from flask import url_for
 from datetime import datetime
 import re
+from permissions import PermissionHolderMixin
+from util import method_once
 
 
 class Role_Group(Document):
@@ -22,7 +24,7 @@ class Role_Group(Document):
         return self.name
 
 
-class User(Document, flask_login.UserMixin, object):
+class User(Document, flask_login.UserMixin, PermissionHolderMixin, object):
 
     name = StringField(required=True, unique=True)
     # noinspection PyShadowingBuiltins
@@ -69,37 +71,21 @@ class User(Document, flask_login.UserMixin, object):
     def __str__(self):
         return self.name
 
-    permissions = []
+    # User is fetched from db on each request. Caching it on a per-instance basis should be fine.
+    @method_once
+    def get_permissions(self):
+        permissions = list()
 
-    def load_perms(self):
-        self.permissions = []
+        # Add all permissions set on the user document.
         for role in self.roles:
-            self.permissions.append(role)
+            permissions.append(role)
+
+        # Add all permissions from all the role_groups the user has.
         for group in self.role_groups:
             for role in group.roles:
-                self.permissions.append(role)
+                permissions.append(role)
 
-    def has_permission(self, perm_node):
-        node = unicode(perm_node)
-        # print node
-        for permission in self.permissions:
-            if permission.startswith(u"-"):
-                if permission.endswith(u"*"):
-                    if node.startswith(permission[1:-1]):
-                        return False
-                else:
-                    if permission[1:] == node:
-                        return False
-
-        for permission in self.permissions:
-            if permission.endswith(u"*"):
-                if node.startswith(permission[:-1]):
-                    return True
-            else:
-                if permission == node:
-                    return True
-
-        return False
+        return permissions
 
     def get_profile_url(self):
         return url_for('player_profiles.profile_view', name=self.name)
@@ -117,12 +103,12 @@ class User(Document, flask_login.UserMixin, object):
         return User.objects(minecraft_player=uuid).first()
 
     @classmethod
-    def get_user_by_username(cls, username):
+    def get_user_by_name(cls, name):
         """
         This takes a junction username, and returns the User document with that name. Returns null if no
         user has this username.
         """
-        return User.objects(name=username).first()
+        return User.objects(name__iexact=name).first()
 
 
 class ConfirmedUsername(Document):

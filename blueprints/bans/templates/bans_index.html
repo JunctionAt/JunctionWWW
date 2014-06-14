@@ -29,9 +29,9 @@
                 <tr>
                     <td><a href="{{ url_for('bans.view_ban', ban_uid=ban.uid) }}">{{ ban.uid }}</a></td>
                     <td>{{ ban.reason }}</td>
-                    <td>{{ ban.username }}</td>
+                    <td>{{ ban.target.mcname }}</td>
                     <td>{{ ban.server }} </td>
-                    <td>{{ ban.issuer_old }}</td>
+                    <td>{{ ban.issuer.name }}</td>
                     <td>{{ ban.time|full_date|safe }}</td>
                 </tr>
                 {%- endfor %}

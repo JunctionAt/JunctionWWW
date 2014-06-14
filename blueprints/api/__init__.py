@@ -75,7 +75,7 @@ def require_api_key(required_access_tokens=list(), allow_user_permission=False, 
                     username = request.headers['AsUser']
 
                     # Obtain user from db
-                    user = User.get_user_by_username(username)
+                    user = User.get_user_by_name(username)
                     if user is None and asuser_must_be_registered:
                         return {'error': [{'message': "the user specified in the AsUser header wasn't found", 'identifier': "asuser_not_found"}]}
 

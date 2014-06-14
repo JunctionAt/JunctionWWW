@@ -1,6 +1,7 @@
 from flask_login import LoginManager, AnonymousUserMixin
 from flask import current_app, Blueprint
-import re
+
+from permissions import PermissionHolderMixin
 
 from models.user_model import User
 
@@ -19,16 +20,14 @@ from flask_login import current_user, login_required
 
 @login_manager.user_loader
 def user_loader(id):
-    user = User.objects(name=re.compile(id, re.IGNORECASE)).first()
-    if user is None:
-        return None
-    user.load_perms()
+    user = User.objects(name__iexact=id).first()
     return user
 
 
-class Anon(AnonymousUserMixin):
-    def has_permission(self, perm_node):
-        return False
+class Anon(AnonymousUserMixin, PermissionHolderMixin):
+    def get_permissions(self):
+        return []
+
 
 login_manager.anonymous_user = Anon
 

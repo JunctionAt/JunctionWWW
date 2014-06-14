@@ -1,7 +1,8 @@
 from mongoengine import *
 import datetime
 
-from models.user_model import User
+from .user_model import User
+from .servers_model import Server
 
 
 class AppealEdit(EmbeddedDocument):
@@ -60,6 +61,8 @@ class Ban(Document):
     time = DateTimeField(default=datetime.datetime.utcnow)
     active = BooleanField(default=True)
 
+    watching = ListField(ReferenceField('User'))
+
     removed_time = DateTimeField()
     removed_by = StringField()
 
@@ -79,6 +82,12 @@ class Ban(Document):
 
     def get_time(self):
         return self.time.strftime("%s")
+
+    def get_server(self):
+        return Server.get_server(self.server)
+
+    def get_revision(self):
+        return self.get_server().get_revision(self.server)
 
     def __repr__(self):
         return self.id

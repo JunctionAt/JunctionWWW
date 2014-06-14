@@ -66,3 +66,31 @@ def full_date(time, classes=""):  # <span data-tooltip title="{{ alt.last_login 
            classes + '">' + \
            pretty_time + \
            '</span>'
+
+
+def func_once(func):
+    """A decorator that runs a function only once."""
+
+    def decorated(*args, **kwargs):
+        try:
+            return decorated._once_result
+        except AttributeError:
+            decorated._once_result = func(*args, **kwargs)
+            return decorated._once_result
+
+    return decorated
+
+
+def method_once(method):
+    """A decorator that runs a method only once."""
+
+    cache_name = "_%s_once_result" % id(method)
+
+    def decorated(self, *args, **kwargs):
+        try:
+            return getattr(self, cache_name)
+        except AttributeError:
+            setattr(self, cache_name, method(self, *args, **kwargs))
+            return getattr(self, cache_name)
+
+    return decorated

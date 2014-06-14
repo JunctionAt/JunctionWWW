@@ -19,7 +19,7 @@
     <ul id="user-dropdown-{{ username }}" class="f-dropdown" data-dropdown-content>
         <li><a href="{{ url_for('player_profiles.profile_view', name=username) }}">Profile</a></li>
         <li><a href="{{ url_for('bans.user_bans', username=username) }}">Bans</a></li>
-        {% if current_user.has_permission('alts.graph') %}
+        {% if current_user.can("graph alts") %}
             <li><a href="{{ url_for('alts.graph_lookup_view', player=username) }}">Graph Alts</a></li>
         {% endif %}
     </ul>
@@ -30,13 +30,19 @@
     <div class="row">
         <div class="small-12 columns clearfix">
             <h4 class="left">Ban #{{ ban_id }} for <span class="player-name">{{ ban_object.target.mcname }}</span></h4>
-            {% if current_user.has_permission('alts.graph') %}
+            {% if current_user.can("graph alts") %}
                 <a class="left" style="line-height: 42px; margin-left: 8px;" data-tooltip title="Graph Alts" href="{{ url_for('alts.graph_lookup_view', player=ban_object.target.mcname) }}"><i class="fi-share"></i></a>
+            {% endif %}
+            {% if current_user.can("watch appeals") %}
+                <div class="right">
+                    <a class="button small"><i class="fi-eye"></i> Watch</a>
+                    <a class="button small success"><i class="fi-check"></i> Watching</a>
+                </div>
             {% endif %}
             <hr>
         </div>
     </div>
-    {%- if current_user.has_permission('bans.appeal.manage') %}
+    {%- if current_user.can("manage ban appeals") %}
     <div class="row">
         <div class="small-12 columns">
             <dl class="accordion" data-accordion>
@@ -138,7 +144,7 @@
                     No notes
                 {%- endif %}
             </div>
-            {%- if current_user.has_permission("bans.appeal.alts") %}
+            {%- if current_user.can("show alts") %}
             <br>
             <h6>Potential Alts:</h6>
             <div>
@@ -165,7 +171,7 @@
             <h6>Reason:</h6>
             <div class="panel content-editable ban-reason" data-editable="ban-reason" id="ban-reason">
                 <div class="view">
-                    {%- if current_user.has_permission("bans.appeal.edit") %}
+                    {%- if current_user.can("edit ban reasons") %}
                     <div class="button-panel">
                         <a onclick="Editable.set_editable(this)" data-tooltip title="Edit"><i class="fi-page-edit small"></i></a>
                     </div>
@@ -194,7 +200,7 @@
                     </div>
                     <div class="small-12 medium-9 large-10 columns text content-editable" data-editable="appeal-reply">
                         <div class="view" style="position: relative;">
-                            {%- if (current_user.has_permission("bans.appeal.edit") or (current_user.is_authenticated() and current_user == reply.creator)) %}
+                            {%- if (current_user.can("edit appeal replies") or (current_user.is_authenticated() and current_user == reply.creator)) %}
                             <div class="button-panel">
                                 <a onclick="Editable.set_editable(this)" data-tooltip title="Edit"><i class="fi-page-edit small"></i></a>
                             </div>
