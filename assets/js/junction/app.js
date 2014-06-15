@@ -6,7 +6,7 @@
 
         this.MARK_READ = "read";
 
-        this.notificationCount = server_page_state["notifications_num"];
+        this.notificationCount = $rootScope.pageState["notifications_num"];
 
         this.ongoingMarks = {};
 
@@ -71,7 +71,6 @@
             $http.put("/api/anathema/ban/" + $scope.ban.id + "/watch", {
                 watch: state ? "True" : "False"
             }).success(function(data, status, headers, config) {
-                console.log(data);
                 $scope.ban.watching = data.watching;
             })
         }
