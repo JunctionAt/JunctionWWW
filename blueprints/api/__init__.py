@@ -59,17 +59,17 @@ def require_api_key(required_access_tokens=list(), allow_user_permission=False, 
             try:
                 key = ApiKey.objects(key=request.headers['ApiKey']).first()
             except KeyError:
-                return {'error': [{'message': "no/invalid ApiKey header provided", 'identifier': "apikey_not_provided"}]}
+                return {'error': [{'message': "no/invalid ApiKey header provided", 'identifier': "apikey_not_provided"}]}, 403
             if key is None:
-                return {'error': [{'message': "no/invalid ApiKey header provided", 'identifier': "apikey_not_provided"}]}
+                return {'error': [{'message': "no/invalid ApiKey header provided", 'identifier': "apikey_not_provided"}]}, 403
             for access in required_access_tokens:
                 if access not in key.access:
-                    return {'error': [{'message': "api key doesn't have access to '%s'" % access, 'identifier': "permission#%s" % access}]}
+                    return {'error': [{'message': "api key doesn't have access to '%s'" % access, 'identifier': "permission#%s" % access}]}, 403
 
             # Check for the AsUser header, apply stuff to context
             if 'AsUser' in request.headers or 'AsPlayer' in request.headers:
                 if 'api.as_user' not in key.access:
-                    return {'error': [{'message': "api key doesn't have access to 'api.as_user', required for using the AsUser and AsPlayer headers", 'identifier': "permission#api.as_user"}]}
+                    return {'error': [{'message': "api key doesn't have access to 'api.as_user', required for using the AsUser and AsPlayer headers", 'identifier': "permission#api.as_user"}]}, 403
 
                 if 'AsUser' in request.headers:
                     username = request.headers['AsUser']
@@ -77,7 +77,7 @@ def require_api_key(required_access_tokens=list(), allow_user_permission=False, 
                     # Obtain user from db
                     user = User.get_user_by_name(username)
                     if user is None and asuser_must_be_registered:
-                        return {'error': [{'message': "the user specified in the AsUser header wasn't found", 'identifier': "asuser_not_found"}]}
+                        return {'error': [{'message': "the user specified in the AsUser header wasn't found", 'identifier': "asuser_not_found"}]}, 403
 
                     request.api_user_method = 'as_user'
                     request.api_user = user
@@ -87,11 +87,11 @@ def require_api_key(required_access_tokens=list(), allow_user_permission=False, 
 
                     player = MinecraftPlayer.find_player(uuid)
                     if player is None:
-                        return {'error': [{'message': "player uuid specified in AsPlayer header is not registered in database (has not logged in?)", 'identifier': "player_uuid_not_found"}]}
+                        return {'error': [{'message': "player uuid specified in AsPlayer header is not registered in database (has not logged in?)", 'identifier': "player_uuid_not_found"}]}, 403
 
                     user = User.get_user_by_uuid(player)
                     if user is None and asuser_must_be_registered:
-                        return {'error': [{'message': "the uuid specified in the AsPlayer field is not owned by a website user", 'identifier': "asuser_not_found"}]}
+                        return {'error': [{'message': "the uuid specified in the AsPlayer field is not owned by a website user", 'identifier': "asuser_not_found"}]}, 403
 
                     request.api_user_method = 'as_player'
                     request.api_user = user
