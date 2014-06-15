@@ -1,3 +1,4 @@
+from flask.ext.restful import abort
 from blueprints import uuid_utils
 from models.player_model import MinecraftPlayer
 
@@ -10,6 +11,7 @@ from blueprints.api import require_api_key, register_api_access_token, datetime_
 from blueprints.base import rest_api
 from models.ban_model import Ban
 from models.servers_model import Server
+import permissions
 
 
 class InvalidDataException(Exception):
@@ -183,8 +185,54 @@ class Bans(Resource):
         return {'ban': construct_local_ban_data(ban)}
 
 
+class WatchBan(Resource):
+
+    @require_api_key(allow_user_permission=True)
+    def get(self, uid):
+        ban = Ban.objects(uid=uid).first()
+        if ban is None:
+            abort(404)
+
+        user = request.api_user._get_current_object()
+
+        return {
+            'uid': uid,
+            'watching': user in ban.watching
+        }
+
+    put_parser = RequestParser()
+    put_parser.add_argument("watch", type=str, required=True)
+
+    @require_api_key(required_access_tokens=['anathema.bans.watch'], allow_user_permission=True)
+    def put(self, uid):
+        args = self.put_parser.parse_args()
+        watch = args.get("watch").lower() == "true"
+
+        ban = Ban.objects(uid=uid).first()
+        if ban is None:
+            abort(404)
+
+        user = request.api_user._get_current_object()
+
+        if user in ban.watching:
+            if not watch:
+                ban.watching.remove(user)
+        else:
+            if watch:
+                ban.watching.append(user)
+        ban.save()
+
+        return {
+            'uid': uid,
+            'watching': user in ban.watching
+        }
+
+
 rest_api.add_resource(Bans, '/anathema/bans')
+rest_api.add_resource(WatchBan, '/anathema/ban/<int:uid>/watch')
 
 register_api_access_token('anathema.bans.get')
 register_api_access_token('anathema.bans.post', permission="api.anathema.bans.post")
 register_api_access_token('anathema.bans.delete', permission="api.anathema.bans.delete")
+
+register_api_access_token('anathema.bans.watch', permission=permissions.ban_watch)

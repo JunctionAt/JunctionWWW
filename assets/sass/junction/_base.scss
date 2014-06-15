@@ -1,5 +1,11 @@
 // Begin base template styles
 
+// Css to make sure angular.js ng-cloak works successfully, even before js is loaded. Prevents nasty flashing.
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
+
+
 // General
 .full-width-table {
   width: 100%;
@@ -11,6 +17,10 @@
 
 html, body {
   height: 100%;
+}
+
+.gone {
+  display: none;
 }
 
 // Top-bar gradient

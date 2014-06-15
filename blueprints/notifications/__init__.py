@@ -4,6 +4,8 @@ from flask_login import current_user
 from blueprints.auth import login_required
 from models.notification_model import BaseNotification
 
+import js_state_manager
+
 
 blueprint = Blueprint('notifications', __name__, template_folder='templates')
 
@@ -25,6 +27,13 @@ def inject_notifications():
     return dict(
         get_notifications=get_notifications,
         get_notifications_num=get_num
+    )
+
+
+@js_state_manager.inject_js_state
+def inject_notification_num():
+    return dict(
+        notifications_num=get_num(current_user._get_current_object()) if current_user.is_authenticated() else 0
     )
 
 

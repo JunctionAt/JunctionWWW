@@ -26,17 +26,17 @@
 {% endmacro %}
 
 {% block content %}
-<div class="ban-container">
+<div class="ban-container" ng-controller="banInstancePage">
     <div class="row">
         <div class="small-12 columns clearfix">
             <h4 class="left">Ban #{{ ban_id }} for <span class="player-name">{{ ban_object.target.mcname }}</span></h4>
             {% if current_user.can("graph alts") %}
                 <a class="left" style="line-height: 42px; margin-left: 8px;" data-tooltip title="Graph Alts" href="{{ url_for('alts.graph_lookup_view', player=ban_object.target.mcname) }}"><i class="fi-share"></i></a>
             {% endif %}
-            {% if current_user.can("watch appeals") %}
-                <div class="right">
-                    <a class="button small"><i class="fi-eye"></i> Watch</a>
-                    <a class="button small success"><i class="fi-check"></i> Watching</a>
+            {% if current_user.can("watch bans") %}
+                <div class="right ng-cloak" ng-controller="banWatchControls">
+                    <a class="button tiny" ng-class="{gone: ban.watching}" ng-click="setWatching(true)"><i class="fi-eye"></i> Watch</a>
+                    <a class="button tiny success" ng-class="{gone: !ban.watching}" ng-click="setWatching(false)"><i class="fi-check"></i> Watching</a>
                 </div>
             {% endif %}
             <hr>

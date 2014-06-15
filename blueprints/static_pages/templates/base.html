@@ -21,12 +21,7 @@
         <a href="https://plus.google.com/110085231338813337690" rel="publisher" style="display: none;">Google+</a>
 
         <script type="application/javascript">
-            {% set page_state_json = {
-                'notifications_num': get_notifications_num(current_user)
-            } %}
-            {% do page_state_json.update(js_page_state or {}) %}
-            server_page_state = {{ page_state_json|json_dump|safe }}
-            {# TODO: Everything about the way this is done right now is shit. Fix it. #}
+            server_page_state = {{ js_state.render()|safe }}
         </script>
     </head>
     <body>
@@ -69,7 +64,7 @@
                                 </ul>
                             </li>
                             {%- set num_notifications = get_notifications_num(current_user) %}
-                            <li class="messages{% if current_page == 'notifications' %} active{% endif %}" ng-controller="notification-status">
+                            <li class="messages{% if current_page == 'notifications' %} active{% endif %}" ng-controller="notificationsStatus">
                                 <a href="{{ url_for('notifications.notifications_view') }}">
                                     <i class="fi-mail"></i>
                                     <span class="header-notifcation-num-display" ng-bind="notificationCount">{{ num_notifications }}</span>

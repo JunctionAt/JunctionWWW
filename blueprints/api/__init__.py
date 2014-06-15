@@ -1,3 +1,4 @@
+from flask.globals import current_app
 from models.player_model import MinecraftPlayer
 
 from flask import request, Blueprint
@@ -7,6 +8,7 @@ from flask_wtf import csrf
 from models.apikey_model import ApiKey
 from blueprints.auth import current_user
 from models.user_model import User
+import js_state_manager
 
 
 datetime_format = "%I:%M %d/%m/%Y %p"
@@ -27,8 +29,6 @@ def _check_user_permission(required_tokens, user):
         return False
 
     for token in required_tokens:
-        print(token)
-        print(access_tokens[token])
         if not user.has_permission(access_tokens[token]['permission']):
             return False
 
@@ -108,5 +108,11 @@ def require_api_key(required_access_tokens=list(), allow_user_permission=False, 
 
 
 register_api_access_token("api.as_user", "allows you to use the AsUser header to perform actions as users other than the key creator", permission="api.as_user")
+
+@js_state_manager.inject_js_state
+def inject_csrf_token():
+    return dict(
+        csrf_token=csrf.generate_csrf()
+    )
 
 from views import apikey_settings_pane, apikey_api

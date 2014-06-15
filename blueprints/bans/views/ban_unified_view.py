@@ -10,6 +10,7 @@ from models.alts_model import PlayerIpsModel
 from blueprints.auth import login_required, current_user
 from .ban_editing import BanReasonEditForm, AppealReplyTextEditForm
 from .ban_manage import BanUnbanTimeForm, AppealUnlockTimeForm
+import js_state_manager
 
 
 class AppealReplyForm(Form):
@@ -50,6 +51,14 @@ def view_ban(ban_uid):
     unban_time_form = BanUnbanTimeForm()
     if ban.removed_time:
         unban_time_form.date.data = ban.removed_time
+
+    print(ban.watching)
+    js_state_manager.get_manager().update({
+        'ban': {
+            'watching': current_user in ban.watching,
+            'id': ban.uid
+        }
+    })
 
     return render_template('bans_unified_view.html', ban_id=ban_uid, ban_object=ban, appeal_object=appeal, notes=notes,
                            reply_form=AppealReplyForm(), edit_form=BanReasonEditForm(), reply_edit_form=AppealReplyTextEditForm(),
