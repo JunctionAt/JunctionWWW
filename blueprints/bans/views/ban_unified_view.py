@@ -20,6 +20,11 @@ class AppealReplyForm(Form):
     submit = SubmitField('Post')
 
 
+def user_can_post(user, ban):
+    return user.can("reply to ban appeals") or \
+        (user.is_authenticated() and user.is_player(ban.target) and ban.appeal.state == 'open')
+
+
 @bans.route('/a/ban/<int:ban_uid>', methods=['GET'])
 def view_ban(ban_uid):
 
@@ -37,7 +42,7 @@ def view_ban(ban_uid):
     replies = AppealReply.objects(ban=ban).order_by('+created')
     notes = Note.objects(target=ban.target, active=True)
 
-    can_post = current_user.has_permission("bans.appeal.manage") or (current_user.is_authenticated() and current_user.name.lower() == ban.username.lower() and ban.appeal.state == 'open')
+    can_post = user_can_post(current_user, ban)
 
     alts = []
     if current_user.can("view alts"):
@@ -74,7 +79,7 @@ def post_ban_reply(ban_uid):
     if ban is None:
         abort(404)
 
-    if not (current_user.has_permission("bans.appeal.manage") or (current_user.is_authenticated() and current_user.name.lower() == ban.username.lower() and ban.appeal.state == 'open')):
+    if not user_can_post(current_user, ban):
         abort(403)
 
     appeal = ban.appeal

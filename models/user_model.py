@@ -93,6 +93,14 @@ class User(Document, flask_login.UserMixin, PermissionHolderMixin, object):
     def get_avatar_url(self):
         return url_for('avatar.get_avatar', name=self.name)
 
+    def is_player(self, player):
+        """
+        Checks if the supplied MinecraftPlayer is associated with this User.
+        :param player:
+        :return:
+        """
+        return player == self.minecraft_player
+
     @classmethod
     def get_user_by_uuid(cls, uuid):
         """

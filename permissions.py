@@ -83,6 +83,7 @@ role_bindings.add("graph alts", ['alt.view'])
 # Bans and Appeals
 role_bindings.add("create bans", ['ban.create'])
 role_bindings.add("manage ban appeals", ['ban.appeal.manage'])
+role_bindings.add("reply to ban appeals", ['ban.appeal.manage.reply'])
 role_bindings.add("edit appeal replies", ['ban.appeal.manage.edit_reply'])
 role_bindings.add("watch bans", [ban_watch])
 role_bindings.add("edit ban reasons", ['ban.edit'])
