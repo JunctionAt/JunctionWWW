@@ -141,7 +141,8 @@ class Bans(Resource):
         if len(Ban.objects(target=player, active=True)) > 0:
             return {'error': [{'message': "the user is already banned", 'identifier': "anathema.bans.add:user_already_exists"}]}
 
-        ban = Ban(issuer=issuer, issuer_old=issuer.name, target=player, username=player.mcname, reason=reason, server=source).save()
+        ban = Ban(issuer=issuer, issuer_old=issuer.name, target=player, username=player.mcname, reason=reason,
+                  server=source, watching=[issuer]).save()
 
         return {'ban': construct_local_ban_data(ban)}
 
