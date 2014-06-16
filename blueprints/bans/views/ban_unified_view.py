@@ -5,7 +5,7 @@ from wtforms.validators import InputRequired, Length
 import datetime
 
 from .. import bans
-from models.ban_model import Ban, Note, AppealReply, AppealEdit
+from models.ban_model import Ban, Note, AppealReply, AppealEdit, BanNotification
 from models.alts_model import PlayerIpsModel
 from blueprints.auth import login_required, current_user
 from .ban_editing import BanReasonEditForm, AppealReplyTextEditForm
@@ -57,7 +57,6 @@ def view_ban(ban_uid):
     if ban.removed_time:
         unban_time_form.date.data = ban.removed_time
 
-    print(ban.watching)
     js_state_manager.get_manager().update({
         'ban': {
             'watching': current_user in ban.watching,
@@ -87,12 +86,14 @@ def post_ban_reply(ban_uid):
     if request.method == "POST" and reply_form.validate():
         last_reply = AppealReply.objects(ban=ban).order_by('-created').first()
 
+        # If the user just posted a reply, treat this as an edit of his previous post.
         if last_reply and last_reply.creator.name == current_user.name:
             last_reply.text += "\n- - -\n" + reply_form.text.data
             last_reply.edits.append(AppealEdit(text=last_reply.text,
                                                user=current_user.to_dbref()))
             last_reply.save()
             return redirect(url_for('bans.view_ban', ban_uid=ban_uid))
+
         else:
             reply = AppealReply(creator=current_user.to_dbref(), text=reply_form.text.data, ban=ban)
             reply.edits.append(AppealEdit(text=reply_form.text.data, user=current_user.to_dbref()))
@@ -100,4 +101,7 @@ def post_ban_reply(ban_uid):
             appeal.replies.append(reply)
             appeal.last = datetime.datetime.utcnow()
             ban.save()
+            
+            BanNotification.send_notifications(ban, action="reply")
+            
             return redirect(url_for('bans.view_ban', ban_uid=ban_uid))

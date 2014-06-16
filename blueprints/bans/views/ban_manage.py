@@ -52,6 +52,7 @@ def unban(ban_uid):
     ban.removed_by = current_user.name
     ban.removed_time = datetime.datetime.utcnow()
     ban.save()
+    ban.ban_lifted()
     flash("Ban has been lifted.", category='success')
     return redirect(url_for('bans.view_ban', ban_uid=ban_uid))
 

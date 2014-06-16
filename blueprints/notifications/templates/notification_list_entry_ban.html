@@ -1,0 +1,7 @@
+{% extends 'notification_list_entry_base.html' %}
+
+{% block description %}
+    <a href="{{ url_for("bans.view_ban", ban_uid=notification.ban.uid) }}">{{ text }}</a>
+{% endblock %}
+
+{% block label %}Ban{% endblock %}

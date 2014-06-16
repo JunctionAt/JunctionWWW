@@ -181,6 +181,7 @@ class Bans(Resource):
         ban.removed_by = remover
         ban.removed_time = datetime.datetime.utcnow()
         ban.save()
+        ban.ban_lifted()
 
         return {'ban': construct_local_ban_data(ban)}
 

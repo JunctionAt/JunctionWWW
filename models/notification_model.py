@@ -44,12 +44,16 @@ class UserTarget(EmbeddedDocument):
 
 # Notifications sent by a internal entity (system) should use this.
 class StaticTarget(EmbeddedDocument):
-    name = StringField(required=True)
+    id_types = dict(
+        ban="Ban System"
+    )
+
+    identifier = StringField(required=True, choices=id_types.keys())
 
     target_type = "static"
 
     def render_html(self):
-        return self.name
+        return self.id_types.get(self.identifier)
 
 
 class BaseNotification(Document):
@@ -88,7 +92,7 @@ def resolve_user(doc):
     user = User.objects(minecraft_player=doc.player).first()
 
     if doc.user != user:
-        document.user = user
+        doc.user = user
 
 
 def handle_user_update(sender, document, created):
